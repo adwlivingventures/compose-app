@@ -9,10 +9,10 @@
     "userInterfaceStyle": "light",
     "ios": {
       "supportsTablet": true,
-      "bundleIdentifier": "com.adwliving.compose"
+      "bundleIdentifier": "com.composeprotocol.app"
     },
     "android": {
-      "package": "com.adwliving.compose",
+      "package": "com.composeprotocol.app",
       "adaptiveIcon": {
         "backgroundColor": "#E6F4FE",
         "foregroundImage": "./assets/android-icon-foreground.png",
