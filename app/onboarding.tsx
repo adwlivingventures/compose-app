@@ -32,6 +32,7 @@ import {
   Heart,
 } from 'lucide-react-native';
 import { useProtocol } from '../context/ProtocolContext';
+import { useRevenueCat } from '../hooks/useRevenueCat';
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -823,15 +824,25 @@ function CheckoutScreen({
   pathway: Pathway | null;
   onPurchaseComplete: () => Promise<void>;
 }) {
-  const [processing, setProcessing] = useState(false);
+  const { currentOffering, purchasePackage, restorePurchases, isProcessing } =
+    useRevenueCat();
 
-  const handlePurchase = () => {
-    if (processing) return;
-    setProcessing(true);
-    setTimeout(async () => {
+  const handlePurchase = async () => {
+    if (!currentOffering) return;
+    const success = await purchasePackage(currentOffering);
+    if (success) {
       await onPurchaseComplete();
-    }, 1400);
+    }
   };
+
+  const handleRestore = async () => {
+    const success = await restorePurchases();
+    if (success) {
+      await onPurchaseComplete();
+    }
+  };
+
+  const priceString = currentOffering?.product.priceString ?? '$49.99';
 
   return (
     <ScrollView
@@ -846,7 +857,7 @@ function CheckoutScreen({
           Your {pathway ?? 'Personalized'} Protocol Is Ready
         </Text>
         <Text className="text-slate-500 text-sm text-center mt-2 leading-5">
-          Start your 75-day transformation journey today.
+          Commit to the 75-day autonomic reset and reclaim your confidence.
         </Text>
       </View>
 
@@ -868,31 +879,48 @@ function CheckoutScreen({
         <Text className="text-slate-400 text-xs uppercase tracking-widest font-bold">
           One-time transformation offer
         </Text>
-        <Text className="text-white text-5xl font-bold mt-2">$49.99</Text>
-        <Text className="text-slate-500 text-xs mt-1">Full lifetime access · No subscription</Text>
+        <Text className="text-white text-5xl font-bold mt-2">{priceString}</Text>
+        <Text className="text-slate-500 text-xs mt-1">
+          Full lifetime access · No subscription
+        </Text>
       </View>
 
+      {/* Primary purchase CTA */}
       <TouchableOpacity
         onPress={handlePurchase}
-        disabled={processing}
+        disabled={isProcessing || !currentOffering}
         activeOpacity={0.85}
-        className="bg-emerald-500 rounded-xl py-4 items-center mb-3 shadow-lg shadow-emerald-500/20 flex-row justify-center gap-2"
+        className={`rounded-xl py-4 items-center mb-3 flex-row justify-center gap-2 shadow-lg ${
+          currentOffering
+            ? 'bg-emerald-500 shadow-emerald-500/20'
+            : 'bg-slate-800'
+        }`}
       >
-        {processing ? (
+        {isProcessing ? (
           <ActivityIndicator color="#020617" />
         ) : (
           <>
-            <Text className="text-slate-950 font-bold text-base">
-              Start My Transformation
+            <Text
+              className={`font-bold text-base ${
+                currentOffering ? 'text-slate-950' : 'text-slate-500'
+              }`}
+            >
+              {currentOffering ? 'Begin My Reset' : 'Loading Offer…'}
             </Text>
-            <ChevronRight color="#020617" size={18} />
+            {currentOffering && <ChevronRight color="#020617" size={18} />}
           </>
         )}
       </TouchableOpacity>
 
-      <Text className="text-slate-600 text-xs text-center leading-4">
-        Simulated checkout for development — no real payment will be charged.
-      </Text>
+      {/* Restore Purchases — required for App Store review compliance */}
+      <TouchableOpacity
+        onPress={handleRestore}
+        disabled={isProcessing}
+        activeOpacity={0.7}
+        className="py-3 items-center"
+      >
+        <Text className="text-slate-500 text-xs">Restore Purchases</Text>
+      </TouchableOpacity>
     </ScrollView>
   );
 }
