@@ -1,78 +1,165 @@
-import { useState, useEffect } from 'react';
-import Purchases, { PurchasesPackage } from 'react-native-purchases';
+import { useState, useEffect, useCallback } from 'react';
+import Purchases, {
+  PurchasesPackage,
+  CustomerInfo,
+  PurchasesOffering,
+} from 'react-native-purchases';
 import { Alert } from 'react-native';
 
-// RevenueCat identifier constants — must match your dashboard exactly
-export const RC_ENTITLEMENT_ID = 'pro_access';
+// ─── RevenueCat Identifier Constants ─────────────────────────────────────────
+// These must match your RevenueCat dashboard exactly.
+
+export const RC_ENTITLEMENT_ID = 'Compose Pro';
 export const RC_OFFERING_ID = 'default_onboarding_offer';
-export const RC_PRODUCT_ID = 'compose_75day_4999';
 
-export const useRevenueCat = () => {
-  const [currentOffering, setCurrentOffering] = useState<PurchasesPackage | null>(null);
-  const [isProcessing, setIsProcessing] = useState(false);
+// Product IDs — must match App Store Connect / Google Play Console
+export const RC_PRODUCTS = {
+  lifetime: 'compose_75day_4999', // $49.99 one-time 75-day program
+  yearly: 'yearly',               // Annual subscription
+  monthly: 'monthly',             // Monthly subscription
+} as const;
+
+// ─── Types ────────────────────────────────────────────────────────────────────
+
+export interface RevenueCatState {
+  currentOffering: PurchasesOffering | null;
+  customerInfo: CustomerInfo | null;
+  hasProAccess: boolean;
+  isProcessing: boolean;
+  purchasePackage: (pack: PurchasesPackage) => Promise<boolean>;
+  restorePurchases: () => Promise<boolean>;
+  refreshCustomerInfo: () => Promise<void>;
+  getPackageByProduct: (productId: string) => PurchasesPackage | undefined;
+}
+
+// ─── Hook ─────────────────────────────────────────────────────────────────────
+
+export const useRevenueCat = (): RevenueCatState => {
+  const [currentOffering, setCurrentOffering] = useState<PurchasesOffering | null>(null);
+  const [customerInfo, setCustomerInfo] = useState<CustomerInfo | null>(null);
   const [hasProAccess, setHasProAccess] = useState(false);
+  const [isProcessing, setIsProcessing] = useState(false);
 
-  // Fetch the active paywall offering on mount
+  // Derive pro access from customerInfo entitlements
+  const checkEntitlement = (info: CustomerInfo): boolean => {
+    return typeof info.entitlements.active[RC_ENTITLEMENT_ID] !== 'undefined';
+  };
+
+  // Fetch offerings and current customer info on mount
   useEffect(() => {
-    const fetchOfferings = async () => {
+    const initialize = async () => {
       try {
-        const offerings = await Purchases.getOfferings();
-        if (
-          offerings.current !== null &&
-          offerings.current.availablePackages.length !== 0
-        ) {
-          setCurrentOffering(offerings.current.availablePackages[0]);
+        const [offerings, info] = await Promise.all([
+          Purchases.getOfferings(),
+          Purchases.getCustomerInfo(),
+        ]);
+
+        if (offerings.current !== null) {
+          setCurrentOffering(offerings.current);
         }
+
+        setCustomerInfo(info);
+        setHasProAccess(checkEntitlement(info));
       } catch (e) {
-        console.error('RevenueCat: Error fetching offerings', e);
+        console.error('RevenueCat: initialization error', e);
       }
     };
-    fetchOfferings();
+
+    initialize();
+
+    // Listen for CustomerInfo updates (e.g. subscription renewals, restores)
+    const customerInfoListener = Purchases.addCustomerInfoUpdateListener((info) => {
+      setCustomerInfo(info);
+      setHasProAccess(checkEntitlement(info));
+    });
+
+    return () => {
+      const listener = customerInfoListener as any;
+      if (listener && typeof listener.remove === 'function') {
+        listener.remove();
+      }
+    };
   }, []);
 
-  // Handle the actual purchase transaction
-  const purchasePackage = async (pack: PurchasesPackage): Promise<boolean> => {
+  // Manually refresh CustomerInfo (call after returning from background etc.)
+  const refreshCustomerInfo = useCallback(async () => {
     try {
-      setIsProcessing(true);
-      const { customerInfo } = await Purchases.purchasePackage(pack);
-      if (typeof customerInfo.entitlements.active[RC_ENTITLEMENT_ID] !== 'undefined') {
-        setHasProAccess(true);
-        return true;
-      }
-      return false;
-    } catch (e: any) {
-      if (!e.userCancelled) {
-        Alert.alert('Transaction Failed', e.message);
-      }
-      return false;
-    } finally {
-      setIsProcessing(false);
+      const info = await Purchases.getCustomerInfo();
+      setCustomerInfo(info);
+      setHasProAccess(checkEntitlement(info));
+    } catch (e) {
+      console.error('RevenueCat: refresh error', e);
     }
-  };
+  }, []);
 
-  // Restore previous purchases — mandatory for App Store review compliance
-  const restorePurchases = async (): Promise<boolean> => {
+  // Find a specific package by product identifier within the current offering
+  const getPackageByProduct = useCallback(
+    (productId: string): PurchasesPackage | undefined => {
+      return currentOffering?.availablePackages.find(
+        (p) => p.product.identifier === productId,
+      );
+    },
+    [currentOffering],
+  );
+
+  // Execute a purchase — returns true if pro_access entitlement was granted
+  const purchasePackage = useCallback(
+    async (pack: PurchasesPackage): Promise<boolean> => {
+      try {
+        setIsProcessing(true);
+        const { customerInfo: info } = await Purchases.purchasePackage(pack);
+        setCustomerInfo(info);
+
+        const granted = checkEntitlement(info);
+        setHasProAccess(granted);
+        return granted;
+      } catch (e: any) {
+        if (!e.userCancelled) {
+          Alert.alert('Purchase Failed', e.message ?? 'Something went wrong. Please try again.');
+        }
+        return false;
+      } finally {
+        setIsProcessing(false);
+      }
+    },
+    [],
+  );
+
+  // Restore previous purchases — required for App Store review compliance
+  const restorePurchases = useCallback(async (): Promise<boolean> => {
     try {
       setIsProcessing(true);
-      const customerInfo = await Purchases.restorePurchases();
-      if (typeof customerInfo.entitlements.active[RC_ENTITLEMENT_ID] !== 'undefined') {
-        setHasProAccess(true);
-        Alert.alert('Restored', 'Your purchases have been restored.');
-        return true;
+      const info = await Purchases.restorePurchases();
+      setCustomerInfo(info);
+
+      const granted = checkEntitlement(info);
+      setHasProAccess(granted);
+
+      if (granted) {
+        Alert.alert('Restored', 'Your Compose Pro access has been restored.');
       } else {
         Alert.alert(
-          'No Purchases Found',
-          "We couldn't find an active subscription to restore.",
+          'No Active Subscription',
+          "We couldn't find an active Compose Pro subscription linked to your Apple ID.",
         );
-        return false;
       }
+      return granted;
     } catch (e: any) {
-      Alert.alert('Error', e.message);
+      Alert.alert('Restore Failed', e.message ?? 'Something went wrong.');
       return false;
     } finally {
       setIsProcessing(false);
     }
-  };
+  }, []);
 
-  return { currentOffering, purchasePackage, restorePurchases, isProcessing, hasProAccess };
+  return {
+    currentOffering,
+    customerInfo,
+    hasProAccess,
+    isProcessing,
+    purchasePackage,
+    restorePurchases,
+    refreshCustomerInfo,
+    getPackageByProduct,
+  };
 };

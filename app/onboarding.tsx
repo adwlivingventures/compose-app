@@ -31,8 +31,9 @@ import {
   Apple,
   Heart,
 } from 'lucide-react-native';
+import RevenueCatUI, { PAYWALL_RESULT } from 'react-native-purchases-ui';
 import { useProtocol } from '../context/ProtocolContext';
-import { useRevenueCat } from '../hooks/useRevenueCat';
+import { useRevenueCat, RC_PRODUCTS } from '../hooks/useRevenueCat';
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -814,7 +815,7 @@ const PAYWALL_FEATURES = [
   'Daily guided pacing sessions',
   'CBST cognitive restructuring log',
   'Pathway-specific habit coaching',
-  'Lifetime access — no subscription',
+  'Flexible plans — lifetime, yearly, or monthly',
 ];
 
 function CheckoutScreen({
@@ -824,26 +825,64 @@ function CheckoutScreen({
   pathway: Pathway | null;
   onPurchaseComplete: () => Promise<void>;
 }) {
-  const { currentOffering, purchasePackage, restorePurchases, isProcessing } =
-    useRevenueCat();
+  const {
+    currentOffering,
+    purchasePackage,
+    restorePurchases,
+    isProcessing,
+    getPackageByProduct,
+  } = useRevenueCat();
 
-  const handlePurchase = async () => {
-    if (!currentOffering) return;
-    const success = await purchasePackage(currentOffering);
-    if (success) {
-      await onPurchaseComplete();
+  const [useNativePaywall, setUseNativePaywall] = useState(true);
+  const [nativePaywallShown, setNativePaywallShown] = useState(false);
+
+  // Attempt to present RevenueCatUI native paywall on mount
+  useEffect(() => {
+    if (useNativePaywall && !nativePaywallShown) {
+      presentNativePaywall();
     }
+  }, []);
+
+  const presentNativePaywall = async () => {
+    try {
+      setNativePaywallShown(true);
+      const result = await RevenueCatUI.presentPaywall();
+      if (
+        result === PAYWALL_RESULT.PURCHASED ||
+        result === PAYWALL_RESULT.RESTORED
+      ) {
+        await onPurchaseComplete();
+      } else if (result === PAYWALL_RESULT.NOT_PRESENTED) {
+        // Offering not configured yet — fall back to custom paywall
+        setUseNativePaywall(false);
+      }
+      // PAYWALL_RESULT.CANCELLED — user closed, stay on screen
+    } catch (e) {
+      // RevenueCatUI not available — fall back to custom paywall
+      setUseNativePaywall(false);
+    }
+  };
+
+  const handleCustomPurchase = async (productId: string) => {
+    const pack = getPackageByProduct(productId);
+    if (!pack) {
+      // Fallback: purchase first available package
+      const fallback = currentOffering?.availablePackages[0];
+      if (!fallback) return;
+      const success = await purchasePackage(fallback);
+      if (success) await onPurchaseComplete();
+      return;
+    }
+    const success = await purchasePackage(pack);
+    if (success) await onPurchaseComplete();
   };
 
   const handleRestore = async () => {
     const success = await restorePurchases();
-    if (success) {
-      await onPurchaseComplete();
-    }
+    if (success) await onPurchaseComplete();
   };
 
-  const priceString = currentOffering?.product.priceString ?? '$49.99';
-
+  // If native paywall was dismissed without purchase, show our custom fallback
   return (
     <ScrollView
       contentContainerStyle={{ flexGrow: 1, paddingBottom: 48 }}
@@ -861,6 +900,7 @@ function CheckoutScreen({
         </Text>
       </View>
 
+      {/* Feature list */}
       <View className="bg-slate-900 border border-slate-800 rounded-2xl p-5 mb-5">
         {PAYWALL_FEATURES.map((feature, i) => (
           <View
@@ -875,41 +915,37 @@ function CheckoutScreen({
         ))}
       </View>
 
-      <View className="bg-emerald-500/10 border border-emerald-500/30 rounded-2xl p-5 mb-6 items-center">
-        <Text className="text-slate-400 text-xs uppercase tracking-widest font-bold">
-          One-time transformation offer
-        </Text>
-        <Text className="text-white text-5xl font-bold mt-2">{priceString}</Text>
-        <Text className="text-slate-500 text-xs mt-1">
-          Full lifetime access · No subscription
-        </Text>
+      {/* Pricing options */}
+      <View className="gap-3 mb-6">
+        <PricingOption
+          label="75-Day Program"
+          sublabel="One-time · Lifetime access"
+          badge="BEST VALUE"
+          onPress={() => handleCustomPurchase(RC_PRODUCTS.lifetime)}
+          isProcessing={isProcessing}
+          highlight
+        />
+        <PricingOption
+          label="Yearly"
+          sublabel="Annual subscription"
+          onPress={() => handleCustomPurchase(RC_PRODUCTS.yearly)}
+          isProcessing={isProcessing}
+        />
+        <PricingOption
+          label="Monthly"
+          sublabel="Monthly subscription"
+          onPress={() => handleCustomPurchase(RC_PRODUCTS.monthly)}
+          isProcessing={isProcessing}
+        />
       </View>
 
-      {/* Primary purchase CTA */}
+      {/* Show native paywall again */}
       <TouchableOpacity
-        onPress={handlePurchase}
-        disabled={isProcessing || !currentOffering}
-        activeOpacity={0.85}
-        className={`rounded-xl py-4 items-center mb-3 flex-row justify-center gap-2 shadow-lg ${
-          currentOffering
-            ? 'bg-emerald-500 shadow-emerald-500/20'
-            : 'bg-slate-800'
-        }`}
+        onPress={presentNativePaywall}
+        activeOpacity={0.8}
+        className="bg-slate-800 border border-slate-700 rounded-xl py-3 items-center mb-3"
       >
-        {isProcessing ? (
-          <ActivityIndicator color="#020617" />
-        ) : (
-          <>
-            <Text
-              className={`font-bold text-base ${
-                currentOffering ? 'text-slate-950' : 'text-slate-500'
-              }`}
-            >
-              {currentOffering ? 'Begin My Reset' : 'Loading Offer…'}
-            </Text>
-            {currentOffering && <ChevronRight color="#020617" size={18} />}
-          </>
-        )}
+        <Text className="text-slate-300 text-sm font-bold">View Full Offer Details</Text>
       </TouchableOpacity>
 
       {/* Restore Purchases — required for App Store review compliance */}
@@ -922,5 +958,53 @@ function CheckoutScreen({
         <Text className="text-slate-500 text-xs">Restore Purchases</Text>
       </TouchableOpacity>
     </ScrollView>
+  );
+}
+
+function PricingOption({
+  label,
+  sublabel,
+  badge,
+  onPress,
+  isProcessing,
+  highlight = false,
+}: {
+  label: string;
+  sublabel: string;
+  badge?: string;
+  onPress: () => void;
+  isProcessing: boolean;
+  highlight?: boolean;
+}) {
+  return (
+    <TouchableOpacity
+      onPress={onPress}
+      disabled={isProcessing}
+      activeOpacity={0.85}
+      className={`rounded-xl border p-4 flex-row items-center justify-between ${
+        highlight
+          ? 'bg-emerald-500/10 border-emerald-500'
+          : 'bg-slate-900 border-slate-800'
+      }`}
+    >
+      <View className="flex-1">
+        <View className="flex-row items-center gap-2">
+          <Text className={`font-bold text-base ${highlight ? 'text-emerald-400' : 'text-white'}`}>
+            {label}
+          </Text>
+          {badge && (
+            <View className="bg-emerald-500 rounded px-1.5 py-0.5">
+              <Text className="text-slate-950 text-[10px] font-bold">{badge}</Text>
+            </View>
+          )}
+        </View>
+        <Text className="text-slate-500 text-xs mt-0.5">{sublabel}</Text>
+      </View>
+      {isProcessing ? (
+        <ActivityIndicator color={highlight ? '#34d399' : '#64748b'} size="small" />
+      ) : (
+        <ChevronRight color={highlight ? '#34d399' : '#475569'} size={18} />
+      )}
+    </TouchableOpacity>
   );
 }
