@@ -8,7 +8,7 @@ import { ProtocolProvider } from '../context/ProtocolContext';
 
 // Replace with your actual Public API Keys from the RevenueCat Dashboard
 const RC_API_KEYS = {
-  apple: 'appl_your_apple_api_key_here',
+  apple: 'appl_inVtRurJrWlBgxMgfyVRWJvobdU',
   google: 'goog_your_google_api_key_here',
 };
 
