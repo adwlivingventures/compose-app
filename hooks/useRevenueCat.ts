@@ -14,9 +14,8 @@ export const RC_OFFERING_ID = 'default_onboarding_offer';
 
 // Product IDs — must match App Store Connect / Google Play Console
 export const RC_PRODUCTS = {
-  lifetime: 'compose_75day_4999', // $49.99 one-time 75-day program
-  yearly: 'yearly',               // Annual subscription
-  monthly: 'monthly',             // Monthly subscription
+  program: 'compose_75day_4999',      // $49.99 one-time 75-day program
+  continuation: 'compose_monthly_499', // $4.99/month post-Day-75 membership
 } as const;
 
 // ─── Types ────────────────────────────────────────────────────────────────────

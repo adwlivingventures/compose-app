@@ -7,6 +7,7 @@ import {
   ActivityIndicator,
   TextInput,
   Platform,
+  Alert,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import Svg, { Circle } from 'react-native-svg';
@@ -815,7 +816,7 @@ const PAYWALL_FEATURES = [
   'Daily guided pacing sessions',
   'CBST cognitive restructuring log',
   'Pathway-specific habit coaching',
-  'Flexible plans — lifetime, yearly, or monthly',
+  'Optional $4.99/mo membership after Day 75',
 ];
 
 function CheckoutScreen({
@@ -833,44 +834,14 @@ function CheckoutScreen({
     getPackageByProduct,
   } = useRevenueCat();
 
-  const [useNativePaywall, setUseNativePaywall] = useState(true);
-  const [nativePaywallShown, setNativePaywallShown] = useState(false);
+  const handlePurchase = async () => {
+    // Try to get the specific 75-day product first
+    const pack =
+      getPackageByProduct(RC_PRODUCTS.program) ??
+      currentOffering?.availablePackages[0];
 
-  // Attempt to present RevenueCatUI native paywall on mount
-  useEffect(() => {
-    if (useNativePaywall && !nativePaywallShown) {
-      presentNativePaywall();
-    }
-  }, []);
-
-  const presentNativePaywall = async () => {
-    try {
-      setNativePaywallShown(true);
-      const result = await RevenueCatUI.presentPaywall();
-      if (
-        result === PAYWALL_RESULT.PURCHASED ||
-        result === PAYWALL_RESULT.RESTORED
-      ) {
-        await onPurchaseComplete();
-      } else if (result === PAYWALL_RESULT.NOT_PRESENTED) {
-        // Offering not configured yet — fall back to custom paywall
-        setUseNativePaywall(false);
-      }
-      // PAYWALL_RESULT.CANCELLED — user closed, stay on screen
-    } catch (e) {
-      // RevenueCatUI not available — fall back to custom paywall
-      setUseNativePaywall(false);
-    }
-  };
-
-  const handleCustomPurchase = async (productId: string) => {
-    const pack = getPackageByProduct(productId);
     if (!pack) {
-      // Fallback: purchase first available package
-      const fallback = currentOffering?.availablePackages[0];
-      if (!fallback) return;
-      const success = await purchasePackage(fallback);
-      if (success) await onPurchaseComplete();
+      Alert.alert('Offer Unavailable', 'Please check your connection and try again.');
       return;
     }
     const success = await purchasePackage(pack);
@@ -882,7 +853,6 @@ function CheckoutScreen({
     if (success) await onPurchaseComplete();
   };
 
-  // If native paywall was dismissed without purchase, show our custom fallback
   return (
     <ScrollView
       contentContainerStyle={{ flexGrow: 1, paddingBottom: 48 }}
@@ -915,37 +885,35 @@ function CheckoutScreen({
         ))}
       </View>
 
-      {/* Pricing options */}
-      <View className="gap-3 mb-6">
-        <PricingOption
-          label="75-Day Program"
-          sublabel="One-time · Lifetime access"
-          badge="BEST VALUE"
-          onPress={() => handleCustomPurchase(RC_PRODUCTS.lifetime)}
-          isProcessing={isProcessing}
-          highlight
-        />
-        <PricingOption
-          label="Yearly"
-          sublabel="Annual subscription"
-          onPress={() => handleCustomPurchase(RC_PRODUCTS.yearly)}
-          isProcessing={isProcessing}
-        />
-        <PricingOption
-          label="Monthly"
-          sublabel="Monthly subscription"
-          onPress={() => handleCustomPurchase(RC_PRODUCTS.monthly)}
-          isProcessing={isProcessing}
-        />
+      {/* Price card */}
+      <View className="bg-emerald-500/10 border border-emerald-500/30 rounded-2xl p-5 mb-6 items-center">
+        <Text className="text-slate-400 text-xs uppercase tracking-widest font-bold">
+          One-time offer
+        </Text>
+        <Text className="text-white text-5xl font-bold mt-2">$49.99</Text>
+        <Text className="text-slate-500 text-xs mt-1">
+          Full 75-day protocol · No subscription required
+        </Text>
+        <Text className="text-slate-600 text-xs mt-1">
+          Optional $4.99/mo continuation available after Day 75
+        </Text>
       </View>
 
-      {/* Show native paywall again */}
+      {/* Primary CTA */}
       <TouchableOpacity
-        onPress={presentNativePaywall}
-        activeOpacity={0.8}
-        className="bg-slate-800 border border-slate-700 rounded-xl py-3 items-center mb-3"
+        onPress={handlePurchase}
+        disabled={isProcessing}
+        activeOpacity={0.85}
+        className="bg-emerald-500 rounded-xl py-4 items-center mb-3 shadow-lg shadow-emerald-500/20 flex-row justify-center gap-2"
       >
-        <Text className="text-slate-300 text-sm font-bold">View Full Offer Details</Text>
+        {isProcessing ? (
+          <ActivityIndicator color="#020617" />
+        ) : (
+          <>
+            <Text className="text-slate-950 font-bold text-base">Begin My Reset — $49.99</Text>
+            <ChevronRight color="#020617" size={18} />
+          </>
+        )}
       </TouchableOpacity>
 
       {/* Restore Purchases — required for App Store review compliance */}
@@ -958,53 +926,5 @@ function CheckoutScreen({
         <Text className="text-slate-500 text-xs">Restore Purchases</Text>
       </TouchableOpacity>
     </ScrollView>
-  );
-}
-
-function PricingOption({
-  label,
-  sublabel,
-  badge,
-  onPress,
-  isProcessing,
-  highlight = false,
-}: {
-  label: string;
-  sublabel: string;
-  badge?: string;
-  onPress: () => void;
-  isProcessing: boolean;
-  highlight?: boolean;
-}) {
-  return (
-    <TouchableOpacity
-      onPress={onPress}
-      disabled={isProcessing}
-      activeOpacity={0.85}
-      className={`rounded-xl border p-4 flex-row items-center justify-between ${
-        highlight
-          ? 'bg-emerald-500/10 border-emerald-500'
-          : 'bg-slate-900 border-slate-800'
-      }`}
-    >
-      <View className="flex-1">
-        <View className="flex-row items-center gap-2">
-          <Text className={`font-bold text-base ${highlight ? 'text-emerald-400' : 'text-white'}`}>
-            {label}
-          </Text>
-          {badge && (
-            <View className="bg-emerald-500 rounded px-1.5 py-0.5">
-              <Text className="text-slate-950 text-[10px] font-bold">{badge}</Text>
-            </View>
-          )}
-        </View>
-        <Text className="text-slate-500 text-xs mt-0.5">{sublabel}</Text>
-      </View>
-      {isProcessing ? (
-        <ActivityIndicator color={highlight ? '#34d399' : '#64748b'} size="small" />
-      ) : (
-        <ChevronRight color={highlight ? '#34d399' : '#475569'} size={18} />
-      )}
-    </TouchableOpacity>
   );
 }
