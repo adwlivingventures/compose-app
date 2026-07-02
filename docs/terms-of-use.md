@@ -62,7 +62,7 @@ We may update these Terms from time to time. Material changes will be reflected 
 
 ## 11. Governing law
 
-These Terms are governed by the laws of the state of the app publisher's principal place of business in the United States, without regard to conflict-of-law rules.
+These Terms are governed by the laws of the State of Tennessee, United States, without regard to conflict-of-law rules.
 
 ## Contact
 
