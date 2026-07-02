@@ -885,8 +885,8 @@ function CheckoutScreen({
         ))}
       </View>
 
-      {/* Price card */}
-      <View className="bg-emerald-500/10 border border-emerald-500/30 rounded-2xl p-5 mb-6 items-center">
+      {/* Primary price card — $49.99 one-time */}
+      <View className="bg-emerald-500/10 border border-emerald-500/30 rounded-2xl p-5 mb-3 items-center">
         <Text className="text-slate-400 text-xs uppercase tracking-widest font-bold">
           One-time offer
         </Text>
@@ -894,9 +894,21 @@ function CheckoutScreen({
         <Text className="text-slate-500 text-xs mt-1">
           Full 75-day protocol · No subscription required
         </Text>
-        <Text className="text-slate-600 text-xs mt-1">
-          Optional $4.99/mo continuation available after Day 75
-        </Text>
+      </View>
+
+      {/* Secondary info card — $4.99/mo continuation */}
+      <View className="bg-slate-900 border border-slate-800 rounded-2xl px-5 py-4 mb-6 flex-row items-center gap-3">
+        <View className="w-8 h-8 rounded-full bg-slate-800 border border-slate-700 items-center justify-center">
+          <Crown color="#94a3b8" size={14} />
+        </View>
+        <View className="flex-1">
+          <Text className="text-slate-300 text-sm font-bold">
+            Keep access after Day 75
+          </Text>
+          <Text className="text-slate-500 text-xs mt-0.5 leading-4">
+            Continue your protocol membership for $4.99/mo — cancel anytime.
+          </Text>
+        </View>
       </View>
 
       {/* Primary CTA */}
