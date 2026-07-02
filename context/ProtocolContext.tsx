@@ -13,11 +13,36 @@ export interface DayData {
   habits: HabitState;
 }
 
+export interface PhaseInfo {
+  number: 1 | 2 | 3;
+  title: string;
+}
+
+/**
+ * Phase is always derived from the day — never stored — so it can never
+ * drift out of sync with activeDay.
+ */
+export function getPhaseForDay(day: number): PhaseInfo {
+  if (day <= 25) return { number: 1, title: 'Autonomic Reset' };
+  if (day <= 50) return { number: 2, title: 'Exposure & Mastery' };
+  return { number: 3, title: 'Identity Consolidation' };
+}
+
+/** Local calendar date as YYYY-MM-DD — the unit of the one-session-per-day lock. */
+export function localDateString(d: Date = new Date()): string {
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${y}-${m}-${day}`;
+}
+
 interface ProtocolContextType {
   activeDay: number;
   streak: number;
   hasPurchased: boolean;
   completedDays: Record<number, DayData>;
+  /** Local date (YYYY-MM-DD) of the last completed session — drives the midnight pacing lock. */
+  lastCompletedDate: string | null;
   markDayComplete: (day: number, data: DayData) => Promise<void>;
   updateDailyHabits: (day: number, habits: HabitState) => Promise<void>;
   unlockProtocol: () => Promise<void>;
@@ -36,6 +61,7 @@ export const ProtocolProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   const [streak, setStreak] = useState<number>(0);
   const [hasPurchased, setHasPurchased] = useState<boolean>(false);
   const [completedDays, setCompletedDays] = useState<Record<number, DayData>>({});
+  const [lastCompletedDate, setLastCompletedDate] = useState<string | null>(null);
   const [loading, setLoading] = useState<boolean>(true);
 
   // Initialize and load saved state from secure storage
@@ -46,12 +72,17 @@ export const ProtocolProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       if (receipt) setHasPurchased(true);
 
       // Restore baseline program statistics from Async storage
-      const savedProgress = await LocalStore.getItem<{ activeDay: number; streak: number }>('@user_protocol_state');
+      const savedProgress = await LocalStore.getItem<{
+        activeDay: number;
+        streak: number;
+        lastCompletedDate?: string;
+      }>('@user_protocol_state');
       const savedDays = await LocalStore.getItem<Record<number, DayData>>('@completed_days_data');
 
       if (savedProgress) {
         setActiveDay(savedProgress.activeDay);
         setStreak(savedProgress.streak);
+        setLastCompletedDate(savedProgress.lastCompletedDate ?? null);
       }
       if (savedDays) {
         setCompletedDays(savedDays);
@@ -83,16 +114,23 @@ export const ProtocolProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   };
 
   /**
-   * Commits the absolute completion of a single day�s somatic workout tracks.
+   * Commits the absolute completion of a single day�s somatic workout tracks.
    * Increments the user's active progress day and recalculates completion streaks.
    */
   const markDayComplete = async (day: number, data: DayData) => {
+    // Pacing lock: one session per local calendar day. Rejecting a second
+    // completion here (not just hiding the button) means the constraint holds
+    // even if a future screen forgets to gate itself.
+    const today = localDateString();
+    if (lastCompletedDate === today) return;
+
     const newDays = {
       ...completedDays,
       [day]: { ...data, completed: true }
     };
     setCompletedDays(newDays);
-    
+    setLastCompletedDate(today);
+
     let newStreak = streak;
     if (day === activeDay) {
       newStreak += 1;
@@ -101,7 +139,11 @@ export const ProtocolProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     }
 
     await LocalStore.setItem('@completed_days_data', newDays);
-    await LocalStore.setItem('@user_protocol_state', { activeDay: Math.min(day + 1, 75), streak: newStreak });
+    await LocalStore.setItem('@user_protocol_state', {
+      activeDay: Math.min(day + 1, 75),
+      streak: newStreak,
+      lastCompletedDate: today,
+    });
   };
 
   return (
@@ -110,6 +152,7 @@ export const ProtocolProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       streak,
       hasPurchased,
       completedDays,
+      lastCompletedDate,
       markDayComplete,
       updateDailyHabits,
       unlockProtocol,
