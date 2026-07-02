@@ -7,6 +7,7 @@ import {
   ActivityIndicator,
   TextInput,
   Alert,
+  Linking,
   NativeSyntheticEvent,
   NativeScrollEvent,
 } from 'react-native';
@@ -900,6 +901,11 @@ function BlueprintReadyScreen({ name, onContinue }: { name: string; onContinue: 
 
 // ─── Screen 27: Checkout Paywall ─────────────────────────────────────────────
 
+const LEGAL_URLS = {
+  privacy: 'https://adwlivingventures.github.io/compose-legal/privacy-policy.html',
+  terms: 'https://adwlivingventures.github.io/compose-legal/terms-of-use.html',
+};
+
 const PAYWALL_FEATURES = [
   'Full 75-day somatic & pelvic protocol',
   'Interactive hypertonicity release tracks',
@@ -1045,6 +1051,25 @@ function CheckoutScreen({
       >
         <Text className="text-slate-500 text-xs">Restore Purchases</Text>
       </TouchableOpacity>
+
+      {/* Legal links — Apple requires both on any paywall offering an
+          auto-renewable subscription */}
+      <View className="flex-row justify-center gap-6 mt-1">
+        <TouchableOpacity
+          onPress={() => Linking.openURL(LEGAL_URLS.privacy)}
+          activeOpacity={0.7}
+          className="py-2"
+        >
+          <Text className="text-slate-600 text-xs">Privacy Policy</Text>
+        </TouchableOpacity>
+        <TouchableOpacity
+          onPress={() => Linking.openURL(LEGAL_URLS.terms)}
+          activeOpacity={0.7}
+          className="py-2"
+        >
+          <Text className="text-slate-600 text-xs">Terms of Use</Text>
+        </TouchableOpacity>
+      </View>
     </ScrollView>
   );
 }
