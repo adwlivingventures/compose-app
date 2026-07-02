@@ -1,10 +1,11 @@
 import React, { useRef, useState } from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
 import { useRouter } from 'expo-router';
-import { X } from 'lucide-react-native';
+import { X, LifeBuoy } from 'lucide-react-native';
 import { useProtocol, getPhaseForDay } from '../context/ProtocolContext';
 import { getAnchorForDay } from '../content/anchors';
 import AudioPlayer from '../components/AudioPlayer';
+import TriageCenter from '../components/TriageCenter';
 
 /**
  * Daily Session — the Auditory Anchor.
@@ -21,6 +22,7 @@ export default function SessionScreen() {
   // is still up, the UI shouldn't flicker to tomorrow's number.
   const dayRef = useRef(activeDay);
   const [finishing, setFinishing] = useState(false);
+  const [sosVisible, setSosVisible] = useState(false);
 
   const day = dayRef.current;
   const phase = getPhaseForDay(day);
@@ -62,11 +64,23 @@ export default function SessionScreen() {
         <AudioPlayer title={anchor.title} source={anchor.source} onComplete={handleComplete} />
       </View>
 
+      {/* SOS — reachable mid-session too (§6: one tap from anywhere) */}
+      <TouchableOpacity
+        onPress={() => setSosVisible(true)}
+        activeOpacity={0.85}
+        className="bg-slate-900 border border-slate-700 rounded-2xl py-3.5 items-center flex-row justify-center gap-2 mb-6"
+      >
+        <LifeBuoy color="#94a3b8" size={16} />
+        <Text className="text-slate-300 font-bold text-sm">Steady Me — Right Now</Text>
+      </TouchableOpacity>
+
       {__DEV__ && (
         <TouchableOpacity onPress={handleComplete} activeOpacity={0.7} className="items-center pb-10">
           <Text className="text-slate-700 text-xs">Skip &amp; complete (dev only)</Text>
         </TouchableOpacity>
       )}
+
+      <TriageCenter visible={sosVisible} onClose={() => setSosVisible(false)} />
     </View>
   );
 }
