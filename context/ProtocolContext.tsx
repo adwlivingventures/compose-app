@@ -36,6 +36,15 @@ export function localDateString(d: Date = new Date()): string {
   return `${y}-${m}-${day}`;
 }
 
+/** Whole calendar days between two YYYY-MM-DD strings (b - a). */
+function daysBetween(a: string, b: string): number {
+  const [ay, am, ad] = a.split('-').map(Number);
+  const [by, bm, bd] = b.split('-').map(Number);
+  const start = new Date(ay, am - 1, ad).getTime();
+  const end = new Date(by, bm - 1, bd).getTime();
+  return Math.round((end - start) / 86_400_000);
+}
+
 interface ProtocolContextType {
   activeDay: number;
   streak: number;
@@ -133,7 +142,13 @@ export const ProtocolProvider: React.FC<{ children: React.ReactNode }> = ({ chil
 
     let newStreak = streak;
     if (day === activeDay) {
-      newStreak += 1;
+      // Streak with repair semantics (mirrors Day 24: "a falter is not a
+      // relapse; it is data"). Completing the day after a single missed
+      // calendar day quietly continues the streak — only a multi-day
+      // walk-away restarts it. A hard reset on one miss turns the counter
+      // into a shame trigger, which is the exact loop this app treats.
+      const gap = lastCompletedDate ? daysBetween(lastCompletedDate, today) : 1;
+      newStreak = gap <= 2 ? streak + 1 : 1;
       setStreak(newStreak);
       setActiveDay(prev => Math.min(prev + 1, 75));
     }
