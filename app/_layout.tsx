@@ -35,7 +35,15 @@ export default function RootLayout() {
   return (
     <ProtocolProvider>
       <StatusBar style="light" />
-      <Stack screenOptions={{ headerShown: false }}>
+      {/* contentStyle keeps the scene background slate-950 during transition
+          animations — without it, iOS flashes the default white card behind
+          screens mid-push (§6: nothing in this app may flash bright). */}
+      <Stack
+        screenOptions={{
+          headerShown: false,
+          contentStyle: { backgroundColor: '#020617' },
+        }}
+      >
         <Stack.Screen name="index" />
         <Stack.Screen name="onboarding" />
         <Stack.Screen name="(tabs)" />
