@@ -523,7 +523,10 @@ function DefusionEntryCard({
         <View className="px-4 pb-4 gap-3 border-t border-slate-800">
           <EntryField label="Somatic Reality" value={entry.somaticReality} />
           <EntryField label="The Spectator's Claim" value={entry.spectatorClaim} />
-          <EntryField label={`Reframe — ${meta.label}`} value={meta.reframe} highlight />
+          <EntryField label={`Reframe — ${meta.label}`} value={meta.reframe} />
+          {entry.ventralAnchor ? (
+            <EntryField label="Your Anchor" value={entry.ventralAnchor} highlight />
+          ) : null}
         </View>
       )}
     </View>

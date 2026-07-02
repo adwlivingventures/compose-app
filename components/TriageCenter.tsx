@@ -43,12 +43,15 @@ interface TriageCenterProps {
 
 // ─── Branch: Sensory Grounding (deterministic text) ───────────────────────────
 
+// Mirrors the Day 16 anchor ("Sensory Grounding") exactly — the SOS tool and
+// the audio train the same 3-2-1 sequence, so under pressure there is one
+// protocol to remember, not two.
 const GROUNDING_STEPS = [
-  'You don’t need to leave or explain. Simply slow down.',
-  'Bring your full attention to one point of physical contact — warmth, pressure, texture.',
-  'Name the raw sensation silently: warm, soft, steady. Sensation, not judgment.',
-  'Let your breath drop low into your belly. One slow exhale.',
-  'Attention on sensation and attention on self-evaluation cannot run at the same time. Choose sensation, as many times as it takes.',
+  'You don’t need to leave or explain. Do not fight the thoughts — override them with sensory data.',
+  'Find three things you can physically see — the shadow on the wall, the texture of the blanket.',
+  'Find two things you can physically feel — the weight of your partner, the temperature of the air.',
+  'Find one thing you can hear — her breathing, or the hum of the air conditioner.',
+  'Anxiety requires you to be in the future. Sensory data forces your brain back into the present second. See it. Feel it. Hear it. Ground yourself.',
 ];
 
 // ─── Branch: 4-7-8 Breathing ──────────────────────────────────────────────────
@@ -144,18 +147,25 @@ function DefusionLogForm({ onDone }: { onDone: () => void }) {
   const [somaticReality, setSomaticReality] = useState('');
   const [spectatorClaim, setSpectatorClaim] = useState('');
   const [chosenFallacy, setChosenFallacy] = useState<Fallacy | null>(null);
+  const [ventralAnchor, setVentralAnchor] = useState('');
+  const [saving, setSaving] = useState(false);
 
-  const selectFallacy = async (f: Fallacy) => {
-    setChosenFallacy(f);
+  const saveEntry = async () => {
+    if (!chosenFallacy || saving) return;
+    setSaving(true);
     await addEntry({
       somaticReality: somaticReality.trim(),
       spectatorClaim: spectatorClaim.trim(),
-      fallacy: f,
+      fallacy: chosenFallacy,
+      ventralAnchor: ventralAnchor.trim(),
     });
+    onDone();
   };
 
-  // Reframe view — shown immediately after the fallacy is named
+  // Step 4 — read the authored reframe, then write the truth in his own
+  // words. The saved entry is his statement, not just ours.
   if (chosenFallacy) {
+    const canSave = ventralAnchor.trim().length > 0;
     return (
       <View className="py-2">
         <View className="flex-row items-center gap-2 mb-3">
@@ -167,12 +177,31 @@ function DefusionLogForm({ onDone }: { onDone: () => void }) {
         <Text className="text-slate-200 text-sm leading-6">
           {FALLACY_META[chosenFallacy].reframe}
         </Text>
+
+        <Text className="text-emerald-400 text-xs font-bold uppercase tracking-widest mt-6">
+          Step 4 of 4 — Your Ventral Vagal Anchor
+        </Text>
+        <Text className="text-slate-400 text-sm mt-2 leading-5">
+          Now say it in your own words. What is the clinical truth of what happened?
+        </Text>
+        <TextInput
+          className="bg-slate-800 border border-slate-700 rounded-xl p-4 text-white text-sm leading-5 min-h-[80px] mt-3"
+          multiline
+          textAlignVertical="top"
+          placeholder="e.g. “My body followed adrenaline. That's physiology, not a verdict on me.”"
+          placeholderTextColor="#475569"
+          value={ventralAnchor}
+          onChangeText={setVentralAnchor}
+        />
         <TouchableOpacity
-          onPress={onDone}
+          onPress={saveEntry}
+          disabled={!canSave || saving}
           activeOpacity={0.85}
-          className="bg-emerald-500 rounded-xl py-3.5 items-center mt-6"
+          className={`rounded-xl py-3.5 items-center mt-4 ${canSave ? 'bg-emerald-500' : 'bg-slate-800'}`}
         >
-          <Text className="text-slate-950 font-bold text-sm">Done</Text>
+          <Text className={`font-bold text-sm ${canSave ? 'text-slate-950' : 'text-slate-600'}`}>
+            Save My Anchor
+          </Text>
         </TouchableOpacity>
       </View>
     );
@@ -200,7 +229,7 @@ function DefusionLogForm({ onDone }: { onDone: () => void }) {
     return (
       <View className="py-2">
         <Text className="text-emerald-400 text-xs font-bold uppercase tracking-widest">
-          Step {step + 1} of 3 — {meta.label}
+          Step {step + 1} of 4 — {meta.label}
         </Text>
         <Text className="text-slate-400 text-sm mt-2 leading-5">{meta.question}</Text>
         <TextInput
@@ -230,7 +259,7 @@ function DefusionLogForm({ onDone }: { onDone: () => void }) {
   return (
     <View className="py-2">
       <Text className="text-emerald-400 text-xs font-bold uppercase tracking-widest">
-        Step 3 of 3 — Name the Fallacy
+        Step 3 of 4 — Name the Fallacy
       </Text>
       <Text className="text-slate-400 text-sm mt-2 leading-5">
         Read the Spectator’s claim again. Which pattern is it running?
@@ -239,7 +268,7 @@ function DefusionLogForm({ onDone }: { onDone: () => void }) {
         {(Object.keys(FALLACY_META) as Fallacy[]).map((f) => (
           <TouchableOpacity
             key={f}
-            onPress={() => selectFallacy(f)}
+            onPress={() => setChosenFallacy(f)}
             activeOpacity={0.8}
             className="bg-slate-800 border border-slate-700 rounded-xl px-4 py-3.5 flex-row items-center justify-between"
           >

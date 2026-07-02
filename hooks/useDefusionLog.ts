@@ -47,6 +47,10 @@ export interface DefusionEntry {
   spectatorClaim: string;
   /** Step 3 — the identified fallacy. */
   fallacy: Fallacy;
+  /** Step 4 — the Ventral Vagal Anchor: the clinical truth, in the user's own
+   *  words (generation effect — self-produced statements encode deeper than
+   *  read ones). Optional: entries saved before this step existed lack it. */
+  ventralAnchor?: string;
 }
 
 const STORAGE_KEY = '@defusion_log_entries';
