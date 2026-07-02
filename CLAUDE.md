@@ -68,6 +68,15 @@ One linear, all-or-nothing daily flow, under 10 minutes, three items:
   - **Zero decision fatigue (Hick's Law):** no library-of-choices UI. Linear flow. One dominant action: "Begin Today's Session."
   - **Persistent SOS access:** a one-tap triage control, reachable from anywhere in the app, that leads to a grounding sequence (e.g., paced breathing, sensory grounding) for acute anxiety spikes.
 
+### Notification & Lock-Screen Copy Rules
+
+Notifications are the highest-exposure surface for "lock screen shame" (§3). These rules are binding for any notification, Live Activity, widget, or other outside-the-app text surface, present or future:
+
+- **The stranger test:** every notification must be unremarkable to a stranger reading it over a shoulder or on a locked phone. Allowed pattern: "Compose — today's session is ready." App name renders as "Compose" only.
+- **Banned vocabulary on external surfaces:** anchor titles, phase names, and all domain vocabulary — anxiety, pelvic, intimacy, arousal, erection, performance, somatic, nervous system, protocol content of any kind.
+- **No urgency or loss framing** ("Don't lose your streak!", countdowns, warning emoji). Urgency framing is sympathetic activation — the opposite of the product's mechanism — and streak-loss threats weaponize shame against our own user.
+- **No emoji, no personalization** (never the user's name plus this app on a lock screen).
+
 ## 7. Technical Stack & Architecture
 
 - **Framework:** React Native / Expo (TypeScript)
