@@ -921,8 +921,20 @@ function CheckoutScreen({
     purchasePackage,
     restorePurchases,
     isProcessing,
+    hasProAccess,
     getPackageByProduct,
   } = useRevenueCat();
+
+  // If the entitlement arrives asynchronously — a delayed StoreKit
+  // confirmation or a restore landing via the customer-info listener — the
+  // user should never sit on a paywall for a product he already owns.
+  const advancedRef = useRef(false);
+  useEffect(() => {
+    if (hasProAccess && !advancedRef.current) {
+      advancedRef.current = true;
+      onPurchaseComplete();
+    }
+  }, [hasProAccess]);
 
   const handlePurchase = async () => {
     // Try to get the specific 75-day product first
@@ -935,12 +947,18 @@ function CheckoutScreen({
       return;
     }
     const success = await purchasePackage(pack);
-    if (success) await onPurchaseComplete();
+    if (success && !advancedRef.current) {
+      advancedRef.current = true;
+      await onPurchaseComplete();
+    }
   };
 
   const handleRestore = async () => {
     const success = await restorePurchases();
-    if (success) await onPurchaseComplete();
+    if (success && !advancedRef.current) {
+      advancedRef.current = true;
+      await onPurchaseComplete();
+    }
   };
 
   return (
