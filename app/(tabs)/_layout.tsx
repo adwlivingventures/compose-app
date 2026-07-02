@@ -1,5 +1,5 @@
 import { Tabs } from 'expo-router';
-import { LayoutDashboard, Brain, TrendingUp } from 'lucide-react-native';
+import { LayoutDashboard, Brain, TrendingUp, UserRound } from 'lucide-react-native';
 
 export default function TabsLayout() {
   return (
@@ -31,6 +31,13 @@ export default function TabsLayout() {
         options={{
           title: 'Progress',
           tabBarIcon: ({ color, size }) => <TrendingUp color={color} size={size} />,
+        }}
+      />
+      <Tabs.Screen
+        name="profile"
+        options={{
+          title: 'Profile',
+          tabBarIcon: ({ color, size }) => <UserRound color={color} size={size} />,
         }}
       />
     </Tabs>

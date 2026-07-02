@@ -55,6 +55,9 @@ interface ProtocolContextType {
   markDayComplete: (day: number, data: DayData) => Promise<void>;
   updateDailyHabits: (day: number, habits: HabitState) => Promise<void>;
   unlockProtocol: () => Promise<void>;
+  /** Wipes protocol progress (day, streak, completions) back to Day 1.
+   *  Deliberately does NOT touch the purchase entitlement flag. */
+  resetProtocol: () => Promise<void>;
   loading: boolean;
 }
 
@@ -107,6 +110,19 @@ export const ProtocolProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   const unlockProtocol = async () => {
     await LocalStore.secureSave('secure_purchase_receipt', 'activated_75day_token');
     setHasPurchased(true);
+  };
+
+  const resetProtocol = async () => {
+    setActiveDay(1);
+    setStreak(0);
+    setCompletedDays({});
+    setLastCompletedDate(null);
+    await LocalStore.setItem('@user_protocol_state', {
+      activeDay: 1,
+      streak: 0,
+      lastCompletedDate: null,
+    });
+    await LocalStore.setItem('@completed_days_data', {});
   };
 
   /**
@@ -171,6 +187,7 @@ export const ProtocolProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       markDayComplete,
       updateDailyHabits,
       unlockProtocol,
+      resetProtocol,
       loading
     }}>
       {children}
