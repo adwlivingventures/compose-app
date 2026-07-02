@@ -39,6 +39,7 @@ export default function RootLayout() {
         <Stack.Screen name="index" />
         <Stack.Screen name="onboarding" />
         <Stack.Screen name="(tabs)" />
+        <Stack.Screen name="session" options={{ presentation: 'fullScreenModal' }} />
       </Stack>
     </ProtocolProvider>
   );
