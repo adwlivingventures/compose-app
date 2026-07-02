@@ -1,11 +1,176 @@
 import React from 'react';
-import { View, Text } from 'react-native';
+import { View, Text, ScrollView } from 'react-native';
+import Svg, { Polyline, Circle, Line } from 'react-native-svg';
+import { useProtocol, HabitState } from '../../context/ProtocolContext';
+
+/**
+ * Progress — "Autonomic Acclimation."
+ *
+ * This screen is the product's proof-of-change artifact: the user's own
+ * daily 1–5 control scores plotted over the protocol. Self-reported data he
+ * generated himself is the one form of evidence the anxious brain can't
+ * dismiss as marketing — and at Day 75 it's what makes continuing feel like
+ * protecting an investment. Display only; no goals, no grades, no red.
+ */
+
+const CHART_W = 320;
+const CHART_H = 150;
+const PAD_X = 10;
+const PAD_Y = 14;
+
+function ControlChart({ points }: { points: { day: number; score: number }[] }) {
+  if (points.length < 2) return null;
+
+  const xFor = (i: number) =>
+    PAD_X + (i / (points.length - 1)) * (CHART_W - PAD_X * 2);
+  const yFor = (score: number) =>
+    CHART_H - PAD_Y - ((score - 1) / 4) * (CHART_H - PAD_Y * 2);
+
+  const poly = points.map((p, i) => `${xFor(i)},${yFor(p.score)}`).join(' ');
+
+  return (
+    <Svg width="100%" height={CHART_H} viewBox={`0 0 ${CHART_W} ${CHART_H}`}>
+      {/* Reference lines at scores 1–5 */}
+      {[1, 2, 3, 4, 5].map((s) => (
+        <Line
+          key={s}
+          x1={PAD_X}
+          y1={yFor(s)}
+          x2={CHART_W - PAD_X}
+          y2={yFor(s)}
+          stroke="#1e293b"
+          strokeWidth={1}
+        />
+      ))}
+      <Polyline
+        points={poly}
+        fill="none"
+        stroke="#34d399"
+        strokeWidth={2.5}
+        strokeLinejoin="round"
+        strokeLinecap="round"
+      />
+      {points.map((p, i) => (
+        <Circle key={p.day} cx={xFor(i)} cy={yFor(p.score)} r={3} fill="#34d399" />
+      ))}
+    </Svg>
+  );
+}
+
+function StatCard({ value, label }: { value: string; label: string }) {
+  return (
+    <View className="flex-1 bg-slate-900 border border-slate-800 rounded-2xl p-4">
+      <Text className="text-emerald-400 text-2xl font-bold">{value}</Text>
+      <Text className="text-slate-500 text-xs mt-1">{label}</Text>
+    </View>
+  );
+}
+
+const HABIT_LABELS: { key: keyof HabitState; label: string }[] = [
+  { key: 'presence', label: 'Presence Work' },
+  { key: 'focus', label: 'Clean Focus' },
+  { key: 'vitality', label: 'Vitality Habit' },
+];
 
 export default function ProgressScreen() {
+  const { completedDays, streak } = useProtocol();
+
+  const days = Object.entries(completedDays)
+    .map(([day, data]) => ({ day: Number(day), ...data }))
+    .filter((d) => d.completed)
+    .sort((a, b) => a.day - b.day);
+
+  const scores = days
+    .filter((d) => d.pelvicRating >= 1)
+    .map((d) => ({ day: d.day, score: d.pelvicRating }));
+
+  // Baseline shift: average of the most recent 7 scores vs the first 7.
+  // Needs enough data to mean anything — otherwise we're still calibrating.
+  const enoughData = scores.length >= 10;
+  const avg = (xs: number[]) => xs.reduce((a, b) => a + b, 0) / xs.length;
+  const baselineShift = enoughData
+    ? avg(scores.slice(-7).map((s) => s.score)) - avg(scores.slice(0, 7).map((s) => s.score))
+    : null;
+
+  const habitPct = (key: keyof HabitState) =>
+    days.length === 0
+      ? 0
+      : Math.round((days.filter((d) => d.habits?.[key]).length / days.length) * 100);
+
   return (
-    <View className="flex-1 bg-slate-950 items-center justify-center px-6">
-      <Text className="text-white text-xl font-bold text-center">Autonomic Acclimation</Text>
-      <Text className="text-slate-500 text-sm text-center mt-2">Coming soon — Progress module</Text>
-    </View>
+    <ScrollView
+      className="flex-1 bg-slate-950"
+      contentContainerStyle={{ padding: 24, paddingTop: 72, paddingBottom: 48 }}
+    >
+      <Text className="text-slate-500 text-xs font-bold uppercase tracking-widest">
+        Autonomic Acclimation
+      </Text>
+      <Text className="text-white text-3xl font-bold mt-1">Your Baseline</Text>
+
+      {/* Stats */}
+      <View className="flex-row mt-6 gap-3">
+        <StatCard value={`${days.length}`} label="Days Completed" />
+        <StatCard value={`${streak}`} label="Day Streak" />
+        <StatCard
+          value={
+            baselineShift === null
+              ? '—'
+              : `${baselineShift >= 0 ? '+' : ''}${baselineShift.toFixed(1)}`
+          }
+          label="Baseline Shift"
+        />
+      </View>
+
+      {/* Control trendline */}
+      <View className="mt-6 bg-slate-900 border border-slate-800 rounded-2xl p-5">
+        <Text className="text-slate-300 text-sm font-bold">Control Score</Text>
+        <Text className="text-slate-600 text-xs mt-0.5 mb-3">
+          Your daily 1–5 self-rating across the protocol
+        </Text>
+        {scores.length >= 2 ? (
+          <ControlChart points={scores} />
+        ) : (
+          <Text className="text-slate-500 text-sm leading-5 py-6 text-center">
+            Your first data points arrive with your first sessions.{'\n'}This is where
+            you'll watch your baseline change.
+          </Text>
+        )}
+        {baselineShift !== null && baselineShift > 0 && (
+          <Text className="text-emerald-400/80 text-xs mt-3 leading-4">
+            Your recent control scores average {baselineShift.toFixed(1)} higher than your
+            first week. That shift is your nervous system re-learning its baseline — not
+            willpower, conditioning.
+          </Text>
+        )}
+      </View>
+
+      {/* Habit consistency */}
+      <View className="mt-4 bg-slate-900 border border-slate-800 rounded-2xl p-5">
+        <Text className="text-slate-300 text-sm font-bold mb-4">Vitality Consistency</Text>
+        <View className="gap-4">
+          {HABIT_LABELS.map(({ key, label }) => {
+            const pct = habitPct(key);
+            return (
+              <View key={key}>
+                <View className="flex-row justify-between mb-1.5">
+                  <Text className="text-slate-400 text-xs">{label}</Text>
+                  <Text className="text-slate-500 text-xs">{pct}%</Text>
+                </View>
+                <View className="h-1.5 bg-slate-800 rounded-full overflow-hidden">
+                  <View
+                    className="h-full bg-emerald-500/70 rounded-full"
+                    style={{ width: `${pct}%` }}
+                  />
+                </View>
+              </View>
+            );
+          })}
+        </View>
+      </View>
+
+      <Text className="text-slate-600 text-xs text-center mt-6 leading-4 px-4">
+        All of this data lives only on this device.
+      </Text>
+    </ScrollView>
   );
 }
