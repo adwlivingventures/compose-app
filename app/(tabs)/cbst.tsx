@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useState } from 'react';
+import { useFocusEffect } from 'expo-router';
 import {
   View,
   Text,
@@ -20,6 +21,7 @@ import {
   CheckCircle2,
 } from 'lucide-react-native';
 import { LocalStore } from '../../services/storage';
+import { useDefusionLog, FALLACY_META, DefusionEntry } from '../../hooks/useDefusionLog';
 
 // ─── Types ────────────────────────────────────────────────────────────────────
 
@@ -196,6 +198,13 @@ const STEP_META = [
   },
 ];
 
+// One chronological history across both restructuring tools: the freeform
+// 3-step log written here, and Spectator Disassembly entries written in the
+// Triage Center. Two storage keys, one reviewable timeline.
+type HistoryItem =
+  | { kind: 'cbst'; id: string; entry: CBSTEntry }
+  | { kind: 'defusion'; id: string; entry: DefusionEntry };
+
 function CBSTLogTab() {
   const [logStep, setLogStep] = useState<LogStep>(0);
   const [trigger, setTrigger] = useState('');
@@ -203,6 +212,19 @@ function CBSTLogTab() {
   const [reframe, setReframe] = useState('');
   const [entries, setEntries] = useState<CBSTEntry[]>([]);
   const [loadingEntries, setLoadingEntries] = useState(true);
+  const {
+    entries: defusionEntries,
+    deleteEntry: deleteDefusionEntry,
+    reload: reloadDefusion,
+  } = useDefusionLog();
+
+  // Defusion entries are written from the Triage Center while this tab stays
+  // mounted — refresh whenever the tab regains focus.
+  useFocusEffect(
+    useCallback(() => {
+      reloadDefusion();
+    }, [reloadDefusion]),
+  );
 
   const currentValues = [trigger, automaticThought, reframe];
   const currentSetters = [setTrigger, setAutomaticThought, setReframe];
@@ -255,12 +277,23 @@ function CBSTLogTab() {
     [entries],
   );
 
-  const confirmDelete = (id: string) => {
+  const confirmDelete = (id: string, kind: 'cbst' | 'defusion') => {
     Alert.alert('Delete Entry', 'Remove this log entry permanently?', [
       { text: 'Cancel', style: 'cancel' },
-      { text: 'Delete', style: 'destructive', onPress: () => deleteEntry(id) },
+      {
+        text: 'Delete',
+        style: 'destructive',
+        onPress: () => (kind === 'cbst' ? deleteEntry(id) : deleteDefusionEntry(id)),
+      },
     ]);
   };
+
+  // Both tools stamp id = Date.now().toString(), so numeric id sorts the
+  // merged timeline newest-first.
+  const history: HistoryItem[] = [
+    ...entries.map((e): HistoryItem => ({ kind: 'cbst', id: e.id, entry: e })),
+    ...defusionEntries.map((e): HistoryItem => ({ kind: 'defusion', id: e.id, entry: e })),
+  ].sort((a, b) => Number(b.id) - Number(a.id));
 
   return (
     <KeyboardAvoidingView
@@ -364,7 +397,7 @@ function CBSTLogTab() {
 
         {loadingEntries ? (
           <Text className="text-slate-600 text-sm">Loading...</Text>
-        ) : entries.length === 0 ? (
+        ) : history.length === 0 ? (
           <View className="bg-slate-900 border border-slate-800 rounded-2xl p-5 items-center">
             <Text className="text-slate-500 text-sm text-center leading-5">
               No entries yet. Complete your first restructuring log above.
@@ -372,13 +405,21 @@ function CBSTLogTab() {
           </View>
         ) : (
           <View className="gap-3">
-            {entries.map((entry) => (
-              <CBSTEntryCard
-                key={entry.id}
-                entry={entry}
-                onDelete={() => confirmDelete(entry.id)}
-              />
-            ))}
+            {history.map((item) =>
+              item.kind === 'cbst' ? (
+                <CBSTEntryCard
+                  key={item.id}
+                  entry={item.entry}
+                  onDelete={() => confirmDelete(item.id, 'cbst')}
+                />
+              ) : (
+                <DefusionEntryCard
+                  key={item.id}
+                  entry={item.entry}
+                  onDelete={() => confirmDelete(item.id, 'defusion')}
+                />
+              ),
+            )}
           </View>
         )}
       </ScrollView>
@@ -425,6 +466,64 @@ function CBSTEntryCard({
           <EntryField label="Trigger" value={entry.trigger} />
           <EntryField label="Automatic Thought" value={entry.automaticThought} />
           <EntryField label="Rational Reframe" value={entry.reframe} highlight />
+        </View>
+      )}
+    </View>
+  );
+}
+
+function DefusionEntryCard({
+  entry,
+  onDelete,
+}: {
+  entry: DefusionEntry;
+  onDelete: () => void;
+}) {
+  const [expanded, setExpanded] = useState(false);
+  const meta = FALLACY_META[entry.fallacy];
+  const dateLabel = new Date(entry.date).toLocaleDateString('en-US', {
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric',
+  });
+
+  return (
+    <View className="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden">
+      <TouchableOpacity
+        onPress={() => setExpanded((v) => !v)}
+        activeOpacity={0.8}
+        className="flex-row items-center justify-between p-4"
+      >
+        <View className="flex-1">
+          <View className="flex-row items-center gap-2">
+            <Text className="text-slate-500 text-xs font-mono">{dateLabel}</Text>
+            <View className="bg-slate-800 rounded-full px-2 py-0.5">
+              <Text className="text-emerald-400/80 text-[10px] font-bold uppercase tracking-wider">
+                {meta.label}
+              </Text>
+            </View>
+          </View>
+          <Text className="text-white text-sm font-medium mt-0.5" numberOfLines={1}>
+            {entry.somaticReality}
+          </Text>
+        </View>
+        <View className="flex-row items-center gap-3">
+          <TouchableOpacity onPress={onDelete} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
+            <Trash2 size={16} color="#475569" />
+          </TouchableOpacity>
+          <ChevronRight
+            size={18}
+            color="#475569"
+            style={{ transform: [{ rotate: expanded ? '90deg' : '0deg' }] }}
+          />
+        </View>
+      </TouchableOpacity>
+
+      {expanded && (
+        <View className="px-4 pb-4 gap-3 border-t border-slate-800">
+          <EntryField label="Somatic Reality" value={entry.somaticReality} />
+          <EntryField label="The Spectator's Claim" value={entry.spectatorClaim} />
+          <EntryField label={`Reframe — ${meta.label}`} value={meta.reframe} highlight />
         </View>
       )}
     </View>

@@ -55,12 +55,18 @@ export function useDefusionLog() {
   const [entries, setEntries] = useState<DefusionEntry[]>([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    LocalStore.getItem<DefusionEntry[]>(STORAGE_KEY).then((data) => {
-      setEntries(data ?? []);
-      setLoading(false);
-    });
+  // Reloadable: hook instances don't share memory state, and entries are
+  // written from the Triage Center while the CBST tab stays mounted —
+  // consumers re-call this on focus to pick up new entries.
+  const reload = useCallback(async () => {
+    const data = await LocalStore.getItem<DefusionEntry[]>(STORAGE_KEY);
+    setEntries(data ?? []);
+    setLoading(false);
   }, []);
+
+  useEffect(() => {
+    reload();
+  }, [reload]);
 
   const addEntry = useCallback(
     async (entry: Omit<DefusionEntry, 'id' | 'date'>): Promise<DefusionEntry> => {
@@ -79,5 +85,13 @@ export function useDefusionLog() {
     [],
   );
 
-  return { entries, loading, addEntry };
+  const deleteEntry = useCallback(async (id: string) => {
+    setEntries((prev) => {
+      const updated = prev.filter((e) => e.id !== id);
+      LocalStore.setItem(STORAGE_KEY, updated);
+      return updated;
+    });
+  }, []);
+
+  return { entries, loading, addEntry, deleteEntry, reload };
 }
