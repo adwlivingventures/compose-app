@@ -6,35 +6,38 @@ import {
   ScrollView,
   ActivityIndicator,
   TextInput,
-  Platform,
   Alert,
+  NativeSyntheticEvent,
+  NativeScrollEvent,
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import Svg, { Circle } from 'react-native-svg';
 import {
-  ShieldCheck,
-  Lock,
-  Eye,
   Brain,
-  Sunrise,
-  Moon,
-  Activity,
-  Wind,
+  Zap,
+  Repeat,
+  Pill,
   Target,
-  Compass,
-  Sparkles,
+  Activity,
+  ChevronRight,
   CheckCircle2,
   Circle as CircleIcon,
-  ChevronRight,
   Crown,
   Check,
-  Zap,
-  Apple,
-  Heart,
 } from 'lucide-react-native';
-import RevenueCatUI, { PAYWALL_RESULT } from 'react-native-purchases-ui';
 import { useProtocol } from '../context/ProtocolContext';
 import { useRevenueCat, RC_PRODUCTS } from '../hooks/useRevenueCat';
+import { LocalStore } from '../services/storage';
+
+/**
+ * Onboarding-to-Paywall Pipeline — the 27-step clinical funnel.
+ *
+ * One component, one step index, zero navigation-stack churn. Every screen
+ * asks exactly one thing (Hick's Law); educational interstitials pay the user
+ * back for disclosure with mechanism, so each question deepens investment
+ * instead of depleting it. Answers live in local state only — nothing leaves
+ * the device (§7).
+ */
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
@@ -42,24 +45,41 @@ type Pathway = 'Presence' | 'Control' | 'Confidence';
 type ClenchPhase = 'ready' | 'clench' | 'relax' | 'result';
 
 interface OnboardingAnswers {
+  name: string;
+  age: number | null;
+  relationship: string | null;
+  painPoint: string | null;
+  timeline: string | null;
+  spectator: string | null;
+  autonomic: string | null;
+  partnerImpact: string | null;
+  pelvic: string | null;
+  hardware: string | null;
+  dopamine: string | null;
+  bandaid: string | null;
+  breath: string | null;
+  avoidance: string | null;
+  mentalLoop: string | null;
+  spillover: string | null;
   goal: string | null;
-  hypertonicity: string | null;
-  spectatoring: string | null;
-  stress: string | null;
-  bodyAwareness: string | null;
-  morningErections: string | null;
-  sleepQuality: string | null;
-  movement: string | null;
-  diet: string | null;
-  commitment: string | null;
-  pathway: Pathway | null;
 }
 
-// Screens 0-12 are diagnostic — progress header visible.
-const DIAGNOSTIC_SCREENS = 13;
-const MAX_STEP = 14;
+// The user's stated pain point weights their protocol label on the paywall.
+function pathwayForPainPoint(painPoint: string | null): Pathway {
+  if (painPoint === 'I finish too quickly') return 'Control';
+  if (painPoint === 'I struggle to maintain my erection') return 'Confidence';
+  return 'Presence';
+}
 
-// ─── Root Screen ─────────────────────────────────────────────────────────────
+// Steps 1–23 show the progress bar (the diagnostic arc). Welcome, analyzer,
+// blueprint, and checkout stand outside it.
+const DIAGNOSTIC_FIRST = 1;
+const DIAGNOSTIC_LAST = 23;
+const STEP_ANALYZER = 24;
+const STEP_BLUEPRINT = 25;
+const STEP_CHECKOUT = 26;
+
+// ─── Root ────────────────────────────────────────────────────────────────────
 
 export default function OnboardingScreen() {
   const router = useRouter();
@@ -67,209 +87,311 @@ export default function OnboardingScreen() {
 
   const [step, setStep] = useState(0);
   const [answers, setAnswers] = useState<OnboardingAnswers>({
+    name: '',
+    age: null,
+    relationship: null,
+    painPoint: null,
+    timeline: null,
+    spectator: null,
+    autonomic: null,
+    partnerImpact: null,
+    pelvic: null,
+    hardware: null,
+    dopamine: null,
+    bandaid: null,
+    breath: null,
+    avoidance: null,
+    mentalLoop: null,
+    spillover: null,
     goal: null,
-    hypertonicity: null,
-    spectatoring: null,
-    stress: null,
-    bodyAwareness: null,
-    morningErections: null,
-    sleepQuality: null,
-    movement: null,
-    diet: null,
-    commitment: null,
-    pathway: null,
   });
 
-  const goNext = () => setStep((s) => Math.min(s + 1, MAX_STEP));
+  const goNext = () => setStep((s) => Math.min(s + 1, STEP_CHECKOUT));
+
+  const pick =
+    (key: keyof OnboardingAnswers) =>
+    (value: string) => {
+      setAnswers((a) => ({ ...a, [key]: value }));
+      goNext();
+    };
+
+  const inDiagnostic = step >= DIAGNOSTIC_FIRST && step <= DIAGNOSTIC_LAST;
 
   return (
     <View className="flex-1 bg-slate-950">
-      {step < DIAGNOSTIC_SCREENS && (
-        <ProgressHeader step={step} total={DIAGNOSTIC_SCREENS} />
-      )}
+      {inDiagnostic && <ProgressHeader step={step} total={DIAGNOSTIC_LAST} />}
 
+      {/* 1 — Welcome */}
       {step === 0 && <WelcomeScreen onContinue={goNext} />}
 
-      {step === 1 && <PrivacyGuardScreen onContinue={goNext} />}
+      {/* 2 — Identity */}
+      {step === 1 && (
+        <NameScreen
+          value={answers.name}
+          onSubmit={(name) => {
+            setAnswers((a) => ({ ...a, name }));
+            // Local-only (§7): kept on-device for in-app personalization.
+            LocalStore.setItem('@user_first_name', name);
+            goNext();
+          }}
+        />
+      )}
 
+      {/* 3 — Demographics */}
       {step === 2 && (
-        <SingleChoiceScreen
-          icon={<Brain color="#34d399" size={28} />}
-          title="What brings you to COMPOSE?"
-          subtitle="There's no wrong answer — this just calibrates your starting protocol."
+        <AgeScreen
+          onSubmit={(age) => {
+            setAnswers((a) => ({ ...a, age }));
+            goNext();
+          }}
+        />
+      )}
+
+      {/* 4 — Context */}
+      {step === 3 && (
+        <ChoiceScreen
+          title="What is your current relationship status?"
+          options={['Single', 'Casual Dating', 'Committed Relationship', 'Married']}
+          value={answers.relationship}
+          onSelect={pick('relationship')}
+        />
+      )}
+
+      {/* 5 — Core Pain Point */}
+      {step === 4 && (
+        <ChoiceScreen
+          title="What is the primary reason you are here today?"
           options={[
-            'Performance anxiety',
-            'Low confidence',
-            'Disconnected during intimacy',
-            'General self-improvement',
+            'I finish too quickly',
+            'I struggle to maintain my erection',
+            'I get trapped in my own head (Performance Anxiety)',
+          ]}
+          value={answers.painPoint}
+          onSelect={pick('painPoint')}
+        />
+      )}
+
+      {/* 6 — Timeline */}
+      {step === 5 && (
+        <ChoiceScreen
+          title="How long has this been affecting your intimate life?"
+          options={[
+            'Less than 6 months',
+            '1 to 3 years',
+            'More than 3 years',
+            'As long as I can remember',
+          ]}
+          value={answers.timeline}
+          onSelect={pick('timeline')}
+        />
+      )}
+
+      {/* 7 — Spectator */}
+      {step === 6 && (
+        <ChoiceScreen
+          title="During intimacy, do you ever feel like you are 'watching yourself perform' from the outside, evaluating your own body?"
+          options={['Yes, constantly', 'Sometimes', 'Rarely']}
+          value={answers.spectator}
+          onSelect={pick('spectator')}
+        />
+      )}
+
+      {/* 8 — Autonomic */}
+      {step === 7 && (
+        <ChoiceScreen
+          title="When you initiate intimacy, do you feel a sudden spike in your heart rate, or a rush of nervous adrenaline in your chest?"
+          options={['Yes, it feels like panic', 'Sometimes', 'No, I stay calm']}
+          value={answers.autonomic}
+          onSelect={pick('autonomic')}
+        />
+      )}
+
+      {/* 9 — EDU: The Adrenaline Trap */}
+      {step === 8 && (
+        <EducationScreen
+          icon={<Zap color="#34d399" size={30} />}
+          title="The Adrenaline Trap"
+          body="What you are experiencing is not a physical defect. It is a Sympathetic Nervous System override. Your brain is mistakenly treating intimacy as a high-stress 'exam,' flooding your body with adrenaline. Adrenaline constricts blood vessels and accelerates reflexes."
+          cta="I understand"
+          onContinue={goNext}
+        />
+      )}
+
+      {/* 10 — Partner Impact */}
+      {step === 9 && (
+        <ChoiceScreen
+          title="When things don't go as planned in the bedroom, how does it affect your connection with your partner?"
+          options={[
+            "She thinks it's her fault",
+            'It causes tension and frustration',
+            'We avoid talking about it',
+            'I am single / N/A',
+          ]}
+          value={answers.partnerImpact}
+          onSelect={pick('partnerImpact')}
+        />
+      )}
+
+      {/* 11 — Pelvic (interactive clench test: the funnel's one felt-proof
+          moment — the user experiences the release deficit instead of
+          estimating it) */}
+      {step === 10 && <HypertonicityScreen onSelect={pick('pelvic')} />}
+
+      {/* 12 — Hardware Check */}
+      {step === 11 && (
+        <ChoiceScreen
+          title="Are your solo sessions (masturbation) generally easier to control and maintain than partner intimacy?"
+          options={['Yes, significantly easier', 'About the same', 'No']}
+          value={answers.hardware}
+          onSelect={pick('hardware')}
+        />
+      )}
+
+      {/* 13 — Dopamine */}
+      {step === 12 && (
+        <ChoiceScreen
+          title="In an average week, how frequently do you rely on highly visual stimulation (adult content) during solo sessions?"
+          options={['Rarely / Never', '1 to 2 times', '3 to 5 times', 'Daily']}
+          value={answers.dopamine}
+          onSelect={pick('dopamine')}
+        />
+      )}
+
+      {/* 14 — EDU: The Novelty Loop */}
+      {step === 13 && (
+        <EducationScreen
+          icon={<Repeat color="#34d399" size={30} />}
+          title="The Novelty Loop"
+          body="High-speed visual stimulation floods the brain with dopamine, conditioning your nervous system to sprint to the finish line. COMPOSE is designed to break this dopamine dependency and retrain your brain for grounded, oxytocin-based connection."
+          cta="Makes sense"
+          onContinue={goNext}
+        />
+      )}
+
+      {/* 15 — Band-Aid */}
+      {step === 14 && (
+        <ChoiceScreen
+          title="Have you ever tried pills (Viagra/Cialis), sprays, or numbing creams to fix this?"
+          options={['Yes, pills', 'Yes, sprays/creams', 'Both', 'Neither']}
+          value={answers.bandaid}
+          onSelect={pick('bandaid')}
+        />
+      )}
+
+      {/* 16 — EDU: Why Band-Aids Fail */}
+      {step === 15 && (
+        <EducationScreen
+          icon={<Pill color="#34d399" size={30} />}
+          title="Why Band-Aids Fail"
+          body="Pills treat blood flow. Numbing creams treat skin. Neither treats the amygdala — the fear center of your brain. COMPOSE works by physically down-training the pelvic floor and retraining the autonomic nervous system."
+          cta="Show me how"
+          onContinue={goNext}
+        />
+      )}
+
+      {/* 17 — Breath Mechanics */}
+      {step === 16 && (
+        <ChoiceScreen
+          title="Right before the point of no return, or right before you lose an erection, does your breathing become shallow, rapid — or do you hold your breath?"
+          options={['Yes, I gasp / hold it', "I haven't noticed", 'No, I breathe deeply']}
+          value={answers.breath}
+          onSelect={pick('breath')}
+        />
+      )}
+
+      {/* 18 — Avoidance */}
+      {step === 17 && (
+        <ChoiceScreen
+          title="How often does this anxiety prevent you from initiating intimacy with a partner altogether?"
+          options={['Frequently', 'Sometimes', 'Rarely']}
+          value={answers.avoidance}
+          onSelect={pick('avoidance')}
+        />
+      )}
+
+      {/* 19 — Mental Loop */}
+      {step === 18 && (
+        <ChoiceScreen
+          title="When a session ends prematurely or falters, where does your mind go?"
+          options={[
+            '"I am broken"',
+            '"She is disappointed in me"',
+            '"I will never fix this"',
+            'All of the above',
+          ]}
+          value={answers.mentalLoop}
+          onSelect={pick('mentalLoop')}
+        />
+      )}
+
+      {/* 20 — EDU: The Default Mode Network */}
+      {step === 19 && (
+        <EducationScreen
+          icon={<Brain color="#34d399" size={30} />}
+          title="The Default Mode Network"
+          body="That shame loop is generated by your Default Mode Network (DMN) — the brain's self-referential replay circuit. It tags bedroom falters as threats, making the anxiety worse next time. We are going to teach you how to interrupt it."
+          cta="Continue"
+          onContinue={goNext}
+        />
+      )}
+
+      {/* 21 — Spillover */}
+      {step === 20 && (
+        <ChoiceScreen
+          title="Does the anxiety you feel in the bedroom ever spill over into your daily confidence — work, social life, self-esteem?"
+          options={['Yes, heavily', 'Sometimes', 'No, strictly in the bedroom']}
+          value={answers.spillover}
+          onSelect={pick('spillover')}
+        />
+      )}
+
+      {/* 22 — Transformation Goal */}
+      {step === 21 && (
+        <ChoiceScreen
+          title="If you could retrain your nervous system to stay completely calm and grounded during intimacy, how would it change your life?"
+          options={[
+            'Deepen my relationship',
+            'Give me my confidence back',
+            'Allow me to start dating again',
           ]}
           value={answers.goal}
-          onSelect={(v) => {
-            setAnswers((a) => ({ ...a, goal: v }));
-            goNext();
-          }}
+          onSelect={pick('goal')}
         />
       )}
 
-      {step === 3 && (
-        <HypertonitictyScreen
-          onSelect={(v) => {
-            setAnswers((a) => ({ ...a, hypertonicity: v }));
-            goNext();
-          }}
+      {/* 23 — EDU: The Protocol */}
+      {step === 22 && (
+        <EducationScreen
+          icon={<Target color="#34d399" size={30} />}
+          title="The 75-Day Blueprint"
+          body="Habit-formation research shows a new behavior takes 66 days on average to become automatic. COMPOSE is a rigorous 75-day daily audio protocol built to habituate a calm nervous system baseline — with margin past the threshold, not up to it."
+          cta="I am ready"
+          onContinue={goNext}
         />
       )}
 
-      {step === 4 && (
-        <SingleChoiceScreen
-          icon={<Eye color="#34d399" size={28} />}
-          title="During intimacy, do you mentally watch or judge yourself rather than feeling present?"
-          subtitle="This is called spectatoring — it's extremely common and fully trainable."
-          options={['Never', 'Occasionally', 'Frequently', 'Almost every time']}
-          value={answers.spectatoring}
-          onSelect={(v) => {
-            setAnswers((a) => ({ ...a, spectatoring: v }));
-            goNext();
-          }}
+      {/* 24 — Commitment */}
+      {step === 23 && (
+        <ChoiceScreen
+          title="Are you willing to commit less than ten focused minutes a day to your Auditory Anchor and dropping your pelvic tension?"
+          options={['Yes, I am fully committed']}
+          value={null}
+          onSelect={() => goNext()}
         />
       )}
 
-      {step === 5 && (
-        <SingleChoiceScreen
-          icon={<Wind color="#34d399" size={28} />}
-          title="How would you rate your day-to-day stress and nervous system tension?"
-          options={[
-            'Calm and regulated',
-            'Manageable',
-            'Often tense',
-            'Frequently overwhelmed',
-          ]}
-          value={answers.stress}
-          onSelect={(v) => {
-            setAnswers((a) => ({ ...a, stress: v }));
-            goNext();
-          }}
-        />
+      {/* 25 — Analyzer */}
+      {step === STEP_ANALYZER && <AnalyzerScreen onComplete={goNext} />}
+
+      {/* 26 — Blueprint Ready */}
+      {step === STEP_BLUEPRINT && (
+        <BlueprintReadyScreen name={answers.name} onContinue={goNext} />
       )}
 
-      {step === 6 && (
-        <SingleChoiceScreen
-          icon={<Activity color="#34d399" size={28} />}
-          title="How aware are you of sensation in your pelvic floor and lower body?"
-          subtitle="Most men have never been taught to notice this region at all."
-          options={[
-            "I can't feel it",
-            'Vague awareness',
-            'Some control',
-            'Strong mind-body connection',
-          ]}
-          value={answers.bodyAwareness}
-          onSelect={(v) => {
-            setAnswers((a) => ({ ...a, bodyAwareness: v }));
-            goNext();
-          }}
-        />
-      )}
-
-      {step === 7 && (
-        <SingleChoiceScreen
-          icon={<Sunrise color="#34d399" size={28} />}
-          title="How often do you experience morning erections?"
-          subtitle="A key vascular and nervous system baseline marker."
-          options={['Daily', 'Several times a week', 'Rarely', 'Never']}
-          value={answers.morningErections}
-          onSelect={(v) => {
-            setAnswers((a) => ({ ...a, morningErections: v }));
-            goNext();
-          }}
-        />
-      )}
-
-      {step === 8 && (
-        <SingleChoiceScreen
-          icon={<Moon color="#34d399" size={28} />}
-          title="How would you describe your sleep quality?"
-          options={[
-            'Deep and consistent',
-            'Decent, some disruption',
-            'Restless',
-            'Poor most nights',
-          ]}
-          value={answers.sleepQuality}
-          onSelect={(v) => {
-            setAnswers((a) => ({ ...a, sleepQuality: v }));
-            goNext();
-          }}
-        />
-      )}
-
-      {step === 9 && (
-        <SingleChoiceScreen
-          icon={<Activity color="#34d399" size={28} />}
-          title="How often do you move your body or train deliberately each week?"
-          options={['5+ times', '2-4 times', 'Once in a while', 'Rarely or never']}
-          value={answers.movement}
-          onSelect={(v) => {
-            setAnswers((a) => ({ ...a, movement: v }));
-            goNext();
-          }}
-        />
-      )}
-
-      {step === 10 && (
-        <SingleChoiceScreen
-          icon={<Apple color="#34d399" size={28} />}
-          title="How would you describe your current diet and lifestyle habits?"
-          subtitle="Nutrition and inflammation directly influence vascular and hormonal health."
-          options={[
-            'Whole foods, low processed',
-            'Mixed — room to improve',
-            'Mostly processed / convenience',
-            'Not paying much attention',
-          ]}
-          value={answers.diet}
-          onSelect={(v) => {
-            setAnswers((a) => ({ ...a, diet: v }));
-            goNext();
-          }}
-        />
-      )}
-
-      {step === 11 && (
-        <SingleChoiceScreen
-          icon={<Compass color="#34d399" size={28} />}
-          title="How committed are you to working through a structured 75-day protocol?"
-          options={[
-            'Fully committed',
-            'Motivated, just need structure',
-            'Curious but unsure',
-            'Only mildly interested',
-          ]}
-          value={answers.commitment}
-          onSelect={(v) => {
-            setAnswers((a) => ({ ...a, commitment: v }));
-            goNext();
-          }}
-        />
-      )}
-
-      {step === 12 && (
-        <PathwayScreen
-          value={answers.pathway}
-          onSelect={(pathway) => {
-            setAnswers((a) => ({ ...a, pathway }));
-            goNext();
-          }}
-        />
-      )}
-
-      {step === 13 && (
-        <CalculatingScreen pathway={answers.pathway} onComplete={goNext} />
-      )}
-
-      {step === 14 && (
+      {/* 27 — Paywall */}
+      {step === STEP_CHECKOUT && (
         <CheckoutScreen
-          pathway={answers.pathway}
+          pathway={pathwayForPainPoint(answers.painPoint)}
           onPurchaseComplete={async () => {
             await unlockProtocol();
             router.replace('/(tabs)');
@@ -283,47 +405,31 @@ export default function OnboardingScreen() {
 // ─── Progress Header ──────────────────────────────────────────────────────────
 
 function ProgressHeader({ step, total }: { step: number; total: number }) {
-  const pct = Math.round(((step + 1) / total) * 100);
+  const pct = Math.round((step / total) * 100);
   return (
     <View className="px-6 pt-14 pb-3">
       <View className="h-1.5 w-full bg-slate-800 rounded-full overflow-hidden">
-        <View
-          className="h-full bg-emerald-500 rounded-full"
-          style={{ width: `${pct}%` }}
-        />
+        <View className="h-full bg-emerald-500 rounded-full" style={{ width: `${pct}%` }} />
       </View>
-      <Text className="text-slate-500 text-xs font-mono mt-2 tracking-widest">
-        STEP {step + 1} OF {total}
-      </Text>
     </View>
   );
 }
 
-// ─── Screen 0: Welcome Hero ───────────────────────────────────────────────────
+// ─── Screen 1: Welcome ────────────────────────────────────────────────────────
 
 function WelcomeScreen({ onContinue }: { onContinue: () => void }) {
   return (
     <View className="flex-1 px-6 justify-between pb-10">
       <View className="flex-1 items-center justify-center">
-        <View className="w-24 h-24 rounded-3xl bg-emerald-500/10 border border-emerald-500/20 items-center justify-center mb-8">
-          <Zap color="#34d399" size={44} />
-        </View>
-        <Text className="text-slate-400 text-sm font-bold uppercase tracking-[0.3em] mb-3">
+        <Text className="text-slate-400 text-sm font-bold uppercase tracking-[0.3em] mb-8">
           COMPOSE
         </Text>
-        <Text className="text-white text-3xl font-bold text-center leading-9">
-          Men's Somatic Presence{'\n'}& Pelvic Coach
+        <Text className="text-white text-3xl font-bold text-center leading-10">
+          Your body isn't failing you.{'\n'}It's following orders.
         </Text>
-        <Text className="text-slate-500 text-base text-center mt-4 leading-6">
-          A 75-day science-backed protocol for presence, control, and confidence — built
-          from the inside out.
+        <Text className="text-slate-500 text-base text-center mt-5 leading-6 px-2">
+          COMPOSE retrains the system giving them.{'\n'}Let's find your baseline.
         </Text>
-
-        <View className="flex-row gap-6 mt-10">
-          <StatPill value="75" label="Day Protocol" />
-          <StatPill value="3" label="Pathways" />
-          <StatPill value="100%" label="On-Device" />
-        </View>
       </View>
 
       <TouchableOpacity
@@ -331,84 +437,119 @@ function WelcomeScreen({ onContinue }: { onContinue: () => void }) {
         activeOpacity={0.85}
         className="bg-emerald-500 rounded-xl py-4 items-center shadow-lg shadow-emerald-500/20 flex-row justify-center gap-2"
       >
-        <Text className="text-slate-950 font-bold text-base">Begin Free Assessment</Text>
+        <Text className="text-slate-950 font-bold text-base">Begin</Text>
         <ChevronRight color="#020617" size={18} />
       </TouchableOpacity>
     </View>
   );
 }
 
-function StatPill({ value, label }: { value: string; label: string }) {
+// ─── Screen 2: Name ───────────────────────────────────────────────────────────
+
+function NameScreen({ value, onSubmit }: { value: string; onSubmit: (name: string) => void }) {
+  const [name, setName] = useState(value);
+  const canContinue = name.trim().length > 0;
+
   return (
-    <View className="items-center">
-      <Text className="text-emerald-400 text-xl font-bold">{value}</Text>
-      <Text className="text-slate-500 text-xs mt-0.5">{label}</Text>
+    <View className="flex-1 px-6 pt-6">
+      <Text className="text-white text-2xl font-bold leading-8">What is your name?</Text>
+      <Text className="text-slate-500 text-sm mt-2 leading-5">
+        First name only. Like every answer here, it never leaves this device.
+      </Text>
+      <TextInput
+        className="bg-slate-900 border border-slate-800 rounded-xl p-4 text-white text-base mt-6"
+        placeholder="Your first name"
+        placeholderTextColor="#475569"
+        value={name}
+        onChangeText={setName}
+        autoCapitalize="words"
+        autoCorrect={false}
+        returnKeyType="done"
+        onSubmitEditing={() => canContinue && onSubmit(name.trim())}
+      />
+      <TouchableOpacity
+        onPress={() => onSubmit(name.trim())}
+        disabled={!canContinue}
+        activeOpacity={0.85}
+        className={`rounded-xl py-4 items-center mt-4 ${canContinue ? 'bg-emerald-500' : 'bg-slate-800'}`}
+      >
+        <Text className={`font-bold text-base ${canContinue ? 'text-slate-950' : 'text-slate-600'}`}>
+          Continue
+        </Text>
+      </TouchableOpacity>
     </View>
   );
 }
 
-// ─── Screen 1: Privacy Guard ──────────────────────────────────────────────────
+// ─── Screen 3: Age (rolling ticker) ───────────────────────────────────────────
 
-function PrivacyGuardScreen({ onContinue }: { onContinue: () => void }) {
+const AGE_MIN = 18;
+const AGE_MAX = 70;
+const AGES = Array.from({ length: AGE_MAX - AGE_MIN + 1 }, (_, i) => AGE_MIN + i);
+const ITEM_HEIGHT = 56;
+// Rows visible above/below the selection line
+const WHEEL_PADDING = ITEM_HEIGHT * 2;
+
+function AgeScreen({ onSubmit }: { onSubmit: (age: number) => void }) {
+  const [selected, setSelected] = useState(30);
+
+  const onMomentumEnd = (e: NativeSyntheticEvent<NativeScrollEvent>) => {
+    const index = Math.round(e.nativeEvent.contentOffset.y / ITEM_HEIGHT);
+    const age = AGES[Math.max(0, Math.min(index, AGES.length - 1))];
+    setSelected(age);
+  };
+
   return (
-    <ScrollView
-      contentContainerStyle={{ flexGrow: 1, paddingBottom: 40 }}
-      className="px-6"
-    >
-      <View className="flex-1 items-center justify-center py-8">
-        <View className="w-20 h-20 rounded-full bg-emerald-500/10 border border-emerald-500/20 items-center justify-center mb-6">
-          <ShieldCheck color="#34d399" size={40} />
-        </View>
+    <View className="flex-1 px-6 pt-6">
+      <Text className="text-white text-2xl font-bold leading-8">How old are you?</Text>
 
-        <Text className="text-white text-2xl font-bold text-center">
-          Your Privacy is Locked Down
-        </Text>
-        <Text className="text-slate-400 text-base text-center mt-3 leading-6">
-          Every answer stays on this device. Sensitive data is encrypted directly to
-          your phone's secure keychain — never uploaded, never shared.
-        </Text>
-
-        <View className="w-full mt-8 gap-3">
-          <PrivacyRow
-            icon={<Lock color="#34d399" size={18} />}
-            label="On-device encryption (Keychain / Keystore)"
+      <View className="flex-1 justify-center">
+        <View style={{ height: ITEM_HEIGHT * 5 }} className="overflow-hidden">
+          {/* Selection band */}
+          <View
+            pointerEvents="none"
+            style={{ top: WHEEL_PADDING, height: ITEM_HEIGHT }}
+            className="absolute left-0 right-0 border-y border-emerald-500/40 bg-emerald-500/5 rounded-lg z-10"
           />
-          <PrivacyRow
-            icon={<CheckCircle2 color="#34d399" size={18} />}
-            label="No data sold or shared with third parties"
-          />
-          <PrivacyRow
-            icon={<ShieldCheck color="#34d399" size={18} />}
-            label="Answers used only to calibrate your protocol"
-          />
+          <ScrollView
+            showsVerticalScrollIndicator={false}
+            snapToInterval={ITEM_HEIGHT}
+            decelerationRate="fast"
+            contentOffset={{ x: 0, y: (30 - AGE_MIN) * ITEM_HEIGHT }}
+            onMomentumScrollEnd={onMomentumEnd}
+            contentContainerStyle={{ paddingVertical: WHEEL_PADDING }}
+          >
+            {AGES.map((age) => (
+              <View key={age} style={{ height: ITEM_HEIGHT }} className="items-center justify-center">
+                <Text
+                  className={
+                    age === selected
+                      ? 'text-white text-3xl font-bold'
+                      : 'text-slate-600 text-xl'
+                  }
+                >
+                  {age}
+                </Text>
+              </View>
+            ))}
+          </ScrollView>
         </View>
       </View>
 
       <TouchableOpacity
-        onPress={onContinue}
+        onPress={() => onSubmit(selected)}
         activeOpacity={0.85}
-        className="bg-emerald-500 rounded-xl py-4 items-center shadow-lg shadow-emerald-500/20"
+        className="bg-emerald-500 rounded-xl py-4 items-center mb-10"
       >
-        <Text className="text-slate-950 font-bold text-base">
-          I Understand, Continue Securely
-        </Text>
+        <Text className="text-slate-950 font-bold text-base">Continue</Text>
       </TouchableOpacity>
-    </ScrollView>
-  );
-}
-
-function PrivacyRow({ icon, label }: { icon: React.ReactNode; label: string }) {
-  return (
-    <View className="flex-row items-center bg-slate-900 border border-slate-800 rounded-xl p-4 gap-3">
-      {icon}
-      <Text className="text-slate-300 text-sm flex-1">{label}</Text>
     </View>
   );
 }
 
-// ─── Screen 3: Hypertonicity Clench Diagnostic ────────────────────────────────
+// ─── Screen 11: Hypertonicity Clench Test ─────────────────────────────────────
 
-function HypertonitictyScreen({ onSelect }: { onSelect: (v: string) => void }) {
+function HypertonicityScreen({ onSelect }: { onSelect: (v: string) => void }) {
   const [phase, setPhase] = useState<ClenchPhase>('ready');
   const [count, setCount] = useState(5);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
@@ -455,20 +596,17 @@ function HypertonitictyScreen({ onSelect }: { onSelect: (v: string) => void }) {
   ];
 
   return (
-    <ScrollView
-      contentContainerStyle={{ flexGrow: 1, paddingBottom: 40 }}
-      className="px-6"
-    >
+    <ScrollView contentContainerStyle={{ flexGrow: 1, paddingBottom: 40 }} className="px-6">
       <View className="mt-4 mb-6">
         <View className="w-14 h-14 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 items-center justify-center mb-5">
           <Activity color="#34d399" size={28} />
         </View>
         <Text className="text-white text-xl font-bold leading-7">
-          Pelvic Floor Hypertonicity Check
+          Let's test that adrenaline response — right now.
         </Text>
         <Text className="text-slate-500 text-sm mt-2 leading-5">
-          Chronic tightness (hypertonicity) is a hidden driver of performance issues. This
-          20-second test gives us your baseline.
+          Chronic pelvic tightness (hypertonicity) is the hidden physical arm of the
+          adrenaline trap. This 20-second check gives us your baseline.
         </Text>
       </View>
 
@@ -497,12 +635,12 @@ function HypertonitictyScreen({ onSelect }: { onSelect: (v: string) => void }) {
 
       {(phase === 'clench' || phase === 'relax') && (
         <View className="items-center py-4 gap-6">
-          <View className="w-36 h-36 rounded-full border-2 items-center justify-center"
-            style={{ borderColor: phase === 'clench' ? '#34d399' : '#64748b' }}>
+          <View
+            className="w-36 h-36 rounded-full border-2 items-center justify-center"
+            style={{ borderColor: phase === 'clench' ? '#34d399' : '#64748b' }}
+          >
             <Text className="text-white text-4xl font-bold">{count}</Text>
-            <Text className="text-slate-400 text-xs uppercase tracking-widest mt-1">
-              {phase === 'clench' ? 'seconds' : 'seconds'}
-            </Text>
+            <Text className="text-slate-400 text-xs uppercase tracking-widest mt-1">seconds</Text>
           </View>
 
           <View className="bg-slate-900 border border-slate-800 rounded-2xl p-5 w-full items-center gap-2">
@@ -558,60 +696,44 @@ function StepInstruction({ number, text }: { number: string; text: string }) {
   );
 }
 
-// ─── Generic Single-Choice Screen ────────────────────────────────────────────
+// ─── Generic single-choice screen ─────────────────────────────────────────────
 
-function SingleChoiceScreen({
-  icon,
+function ChoiceScreen({
   title,
-  subtitle,
   options,
   value,
   onSelect,
 }: {
-  icon: React.ReactNode;
   title: string;
-  subtitle?: string;
   options: string[];
   value: string | null;
   onSelect: (value: string) => void;
 }) {
   return (
-    <ScrollView
-      contentContainerStyle={{ flexGrow: 1, paddingBottom: 40 }}
-      className="px-6"
-    >
+    <ScrollView contentContainerStyle={{ flexGrow: 1, paddingBottom: 40 }} className="px-6">
       <View className="mt-4 mb-8">
-        <View className="w-14 h-14 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 items-center justify-center mb-5">
-          {icon}
-        </View>
         <Text className="text-white text-xl font-bold leading-7">{title}</Text>
-        {subtitle ? (
-          <Text className="text-slate-500 text-sm mt-2 leading-5">{subtitle}</Text>
-        ) : null}
       </View>
-
       <View className="gap-3">
         {options.map((option) => {
-          const selected = value === option;
+          const isSelected = value === option;
           return (
             <TouchableOpacity
               key={option}
               activeOpacity={0.8}
               onPress={() => onSelect(option)}
               className={`flex-row items-center justify-between rounded-xl border p-4 ${
-                selected
-                  ? 'bg-emerald-500/10 border-emerald-500'
-                  : 'bg-slate-900 border-slate-800'
+                isSelected ? 'bg-emerald-500/10 border-emerald-500' : 'bg-slate-900 border-slate-800'
               }`}
             >
               <Text
                 className={`text-sm font-medium flex-1 ${
-                  selected ? 'text-emerald-400' : 'text-slate-300'
+                  isSelected ? 'text-emerald-400' : 'text-slate-300'
                 }`}
               >
                 {option}
               </Text>
-              {selected ? (
+              {isSelected ? (
                 <CheckCircle2 color="#34d399" size={20} />
               ) : (
                 <CircleIcon color="#475569" size={20} />
@@ -624,118 +746,59 @@ function SingleChoiceScreen({
   );
 }
 
-// ─── Screen 12: Pathway Selection ────────────────────────────────────────────
+// ─── Educational interstitial ─────────────────────────────────────────────────
 
-const PATHWAYS: {
-  key: Pathway;
-  description: string;
-  detail: string;
-  icon: React.ReactNode;
-}[] = [
-  {
-    key: 'Presence',
-    description: 'Quiet the spectator mind and stay grounded in the moment.',
-    detail: 'Somatic anchoring, breath regulation, sensory attunement',
-    icon: <Sparkles color="#34d399" size={22} />,
-  },
-  {
-    key: 'Control',
-    description: 'Build pelvic floor command and physical staying power.',
-    detail: 'Pelvic sequencing, hypertonicity release, threshold training',
-    icon: <Target color="#34d399" size={22} />,
-  },
-  {
-    key: 'Confidence',
-    description: 'Rebuild self-trust through consistent daily practice.',
-    detail: 'Cognitive reframe, arousal mapping, CBST restructuring',
-    icon: <Compass color="#34d399" size={22} />,
-  },
-];
-
-function PathwayScreen({
-  value,
-  onSelect,
+function EducationScreen({
+  icon,
+  title,
+  body,
+  cta,
+  onContinue,
 }: {
-  value: Pathway | null;
-  onSelect: (p: Pathway) => void;
+  icon: React.ReactNode;
+  title: string;
+  body: string;
+  cta: string;
+  onContinue: () => void;
 }) {
   return (
-    <ScrollView
-      contentContainerStyle={{ flexGrow: 1, paddingBottom: 40 }}
-      className="px-6"
-    >
-      <View className="mt-4 mb-8">
-        <View className="w-14 h-14 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 items-center justify-center mb-5">
-          <Heart color="#34d399" size={26} />
+    <View className="flex-1 px-6 justify-between pb-10">
+      <View className="flex-1 justify-center">
+        <View className="w-16 h-16 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 items-center justify-center mb-6">
+          {icon}
         </View>
-        <Text className="text-white text-xl font-bold">Choose your primary pathway</Text>
-        <Text className="text-slate-500 text-sm mt-2 leading-5">
-          Your 75-day protocol will be weighted toward this focus. You can blend pathways
-          after your first week.
+        <Text className="text-emerald-400 text-xs font-bold uppercase tracking-widest mb-2">
+          Clinical Context
         </Text>
+        <Text className="text-white text-2xl font-bold leading-9">{title}</Text>
+        <Text className="text-slate-400 text-base mt-4 leading-7">{body}</Text>
       </View>
 
-      <View className="gap-4">
-        {PATHWAYS.map((p) => {
-          const selected = value === p.key;
-          return (
-            <TouchableOpacity
-              key={p.key}
-              activeOpacity={0.85}
-              onPress={() => onSelect(p.key)}
-              className={`rounded-2xl border p-5 ${
-                selected
-                  ? 'bg-emerald-500/10 border-emerald-500'
-                  : 'bg-slate-900 border-slate-800'
-              }`}
-            >
-              <View className="flex-row items-center gap-3 mb-2">
-                {p.icon}
-                <Text
-                  className={`text-base font-bold ${
-                    selected ? 'text-emerald-400' : 'text-white'
-                  }`}
-                >
-                  {p.key}
-                </Text>
-                {selected && (
-                  <View className="ml-auto">
-                    <CheckCircle2 color="#34d399" size={18} />
-                  </View>
-                )}
-              </View>
-              <Text className="text-slate-400 text-sm leading-5">{p.description}</Text>
-              <Text className="text-slate-600 text-xs mt-2 leading-4">{p.detail}</Text>
-            </TouchableOpacity>
-          );
-        })}
-      </View>
-    </ScrollView>
+      <TouchableOpacity
+        onPress={onContinue}
+        activeOpacity={0.85}
+        className="bg-emerald-500 rounded-xl py-4 items-center shadow-lg shadow-emerald-500/20"
+      >
+        <Text className="text-slate-950 font-bold text-base">{cta}</Text>
+      </TouchableOpacity>
+    </View>
   );
 }
 
-// ─── Screen 13: SVG Calculating Intermission ─────────────────────────────────
+// ─── Screen 25: Analyzer ──────────────────────────────────────────────────────
 
-const CALC_LABELS = [
-  'Mapping pelvic floor baseline...',
-  'Scoring spectatoring index...',
-  'Calibrating stress load...',
-  'Matching pathway weighting...',
-  'Finalizing your protocol...',
+const ANALYZER_LABELS = [
+  'Analyzing autonomic profile...',
+  'Structuring neuroplasticity timeline...',
+  'Building 75-day clinical protocol...',
 ];
 
-function CalculatingScreen({
-  pathway,
-  onComplete,
-}: {
-  pathway: Pathway | null;
-  onComplete: () => void;
-}) {
+function AnalyzerScreen({ onComplete }: { onComplete: () => void }) {
   const [progress, setProgress] = useState(0);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const labelIndex = Math.min(
-    Math.floor((progress / 100) * CALC_LABELS.length),
-    CALC_LABELS.length - 1,
+    Math.floor((progress / 100) * ANALYZER_LABELS.length),
+    ANALYZER_LABELS.length - 1,
   );
 
   const size = 180;
@@ -745,17 +808,19 @@ function CalculatingScreen({
   const strokeDashoffset = circumference * (1 - progress / 100);
 
   useEffect(() => {
+    // ~3.5s total — long enough to register as computation, short enough
+    // not to invite an app switch.
     intervalRef.current = setInterval(() => {
       setProgress((prev) => {
         const next = prev + 1;
         if (next >= 100) {
           if (intervalRef.current) clearInterval(intervalRef.current);
-          setTimeout(onComplete, 500);
+          setTimeout(onComplete, 400);
           return 100;
         }
         return next;
       });
-    }, 28);
+    }, 35);
     return () => {
       if (intervalRef.current) clearInterval(intervalRef.current);
     };
@@ -763,10 +828,7 @@ function CalculatingScreen({
 
   return (
     <View className="flex-1 items-center justify-center px-6">
-      <View
-        style={{ width: size, height: size }}
-        className="items-center justify-center mb-8"
-      >
+      <View style={{ width: size, height: size }} className="items-center justify-center mb-8">
         <Svg
           width={size}
           height={size}
@@ -795,20 +857,48 @@ function CalculatingScreen({
         <Text className="text-white text-3xl font-bold">{progress}%</Text>
       </View>
 
-      <Text className="text-white text-lg font-bold text-center">
-        Calibrating your {pathway ?? 'personalized'} protocol
-      </Text>
       <Text
-        className="text-emerald-400 text-sm text-center mt-3 font-mono"
+        className="text-emerald-400 text-sm text-center font-mono"
         style={{ minHeight: 20 }}
       >
-        {CALC_LABELS[labelIndex]}
+        {ANALYZER_LABELS[labelIndex]}
       </Text>
     </View>
   );
 }
 
-// ─── Screen 14: Checkout Paywall ─────────────────────────────────────────────
+// ─── Screen 26: Blueprint Ready ───────────────────────────────────────────────
+
+function BlueprintReadyScreen({ name, onContinue }: { name: string; onContinue: () => void }) {
+  const firstName = name.trim();
+  return (
+    <View className="flex-1 px-6 justify-between pb-10">
+      <View className="flex-1 justify-center items-center">
+        <View className="w-16 h-16 rounded-full bg-emerald-500/10 border border-emerald-500/30 items-center justify-center mb-6">
+          <CheckCircle2 color="#34d399" size={32} />
+        </View>
+        <Text className="text-white text-2xl font-bold text-center leading-9">
+          {firstName ? `${firstName}, your 75-Day Blueprint is ready.` : 'Your 75-Day Blueprint is ready.'}
+        </Text>
+        <Text className="text-slate-400 text-base text-center mt-4 leading-6">
+          Your baseline can be reset. We have compiled your daily autonomic exposure and
+          somatic training protocol.
+        </Text>
+      </View>
+
+      <TouchableOpacity
+        onPress={onContinue}
+        activeOpacity={0.85}
+        className="bg-emerald-500 rounded-xl py-4 items-center shadow-lg shadow-emerald-500/20 flex-row justify-center gap-2"
+      >
+        <Text className="text-slate-950 font-bold text-base">Unlock My Protocol</Text>
+        <ChevronRight color="#020617" size={18} />
+      </TouchableOpacity>
+    </View>
+  );
+}
+
+// ─── Screen 27: Checkout Paywall ─────────────────────────────────────────────
 
 const PAYWALL_FEATURES = [
   'Full 75-day somatic & pelvic protocol',
