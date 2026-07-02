@@ -2,11 +2,8 @@ import React, { useState } from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
 import Svg, { Circle } from 'react-native-svg';
 import { CheckCircle2, LifeBuoy, Play } from 'lucide-react-native';
-import {
-  useProtocol,
-  getPhaseForDay,
-  localDateString,
-} from '../context/ProtocolContext';
+import { useProtocol, localDateString } from '../context/ProtocolContext';
+import { getProtocolDay } from '../content/ProtocolData';
 import TriageCenter from './TriageCenter';
 
 // ─── Progress Ring ────────────────────────────────────────────────────────────
@@ -17,7 +14,7 @@ const RING_RADIUS = (RING_SIZE - RING_STROKE) / 2;
 const RING_CIRCUMFERENCE = 2 * Math.PI * RING_RADIUS;
 
 function ProgressRing({ day, completedToday }: { day: number; completedToday: boolean }) {
-  const phase = getPhaseForDay(day);
+  const meta = getProtocolDay(day);
   // Count today's session in the ring the moment it's done — the visible jump
   // in the arc is the completion reward.
   const daysDone = Math.min(day - 1 + (completedToday ? 1 : 0), 75);
@@ -53,7 +50,7 @@ function ProgressRing({ day, completedToday }: { day: number; completedToday: bo
         <Text className="text-white text-6xl font-bold">{day}</Text>
         <Text className="text-slate-500 text-sm">of 75</Text>
         <Text className="text-emerald-400/80 text-xs font-bold uppercase tracking-widest mt-2">
-          Phase {phase.number} · {phase.title}
+          Phase {meta.phase} · {meta.phaseTitle}
         </Text>
       </View>
     </View>
@@ -70,6 +67,7 @@ export default function MainDashboard({ onStartSession }: { onStartSession: () =
   // After today's completion the ring should show the day just finished,
   // not tomorrow's number — activeDay has already advanced.
   const displayDay = completedToday ? Math.max(activeDay - 1, 1) : activeDay;
+  const todayMeta = getProtocolDay(displayDay);
 
   return (
     <View className="flex-1 bg-slate-950">
@@ -81,6 +79,17 @@ export default function MainDashboard({ onStartSession }: { onStartSession: () =
             {streak} consecutive days
           </Text>
         )}
+
+        {/* Today's anchor — the manifest title tells him what today is about
+            before he commits, without adding a single decision */}
+        <View className="items-center mt-6">
+          <Text className="text-slate-600 text-[10px] font-bold uppercase tracking-[0.25em]">
+            Today's Anchor
+          </Text>
+          <Text className="text-white text-lg font-bold mt-1 text-center">
+            {todayMeta.title}
+          </Text>
+        </View>
 
         {/* The single primary action — no library, no choices */}
         <View className="w-full mt-10">

@@ -24,6 +24,9 @@ import { Play, Pause } from 'lucide-react-native';
 
 interface AudioPlayerProps {
   title: string;
+  /** The day's clinical objective — shown before playback so the prefrontal
+   *  cortex knows the target before the entrainment begins. */
+  focus?: string;
   source: AudioSource;
   onComplete: () => void;
 }
@@ -35,7 +38,7 @@ function formatTime(seconds: number): string {
   return `${m}:${s}`;
 }
 
-export default function AudioPlayer({ title, source, onComplete }: AudioPlayerProps) {
+export default function AudioPlayer({ title, focus, source, onComplete }: AudioPlayerProps) {
   const player = useAudioPlayer(source);
   const status = useAudioPlayerStatus(player);
   const completedRef = useRef(false);
@@ -69,6 +72,9 @@ export default function AudioPlayer({ title, source, onComplete }: AudioPlayerPr
   return (
     <View className="items-center w-full px-2">
       <Text className="text-white text-xl font-bold text-center">{title}</Text>
+      {focus ? (
+        <Text className="text-slate-500 text-sm text-center mt-2 leading-5 px-4">{focus}</Text>
+      ) : null}
 
       {/* Play / Pause — the single control on screen */}
       <TouchableOpacity

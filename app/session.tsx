@@ -122,7 +122,12 @@ export default function SessionScreen() {
               Find a quiet place. Sit or lie down. You can lock your screen — the audio will
               continue.
             </Text>
-            <AudioPlayer title={anchor.title} source={anchor.source} onComplete={advance} />
+            <AudioPlayer
+              title={anchor.title}
+              focus={anchor.focus}
+              source={anchor.source}
+              onComplete={advance}
+            />
           </View>
         )}
 
