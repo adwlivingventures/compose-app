@@ -19,9 +19,10 @@ export interface AnchorTrack {
 
 const PLACEHOLDER_SOURCE = require('../assets/audio/anchor_placeholder.wav');
 
-// Register recorded tracks here as they're produced, e.g.:
-//   1: require('../assets/audio/day_1.mp3'),
-const DAY_AUDIO: Partial<Record<number, AudioSource>> = {};
+// Register recorded tracks here as they're produced.
+const DAY_AUDIO: Partial<Record<number, AudioSource>> = {
+  1: require('../assets/audio/day_1.mp3'),
+};
 
 export function getAnchorForDay(day: number): AnchorTrack {
   const meta = getProtocolDay(day);
