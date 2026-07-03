@@ -38,20 +38,20 @@ function ControlChart({ points }: { points: { day: number; score: number }[] }) 
           y1={yFor(s)}
           x2={CHART_W - PAD_X}
           y2={yFor(s)}
-          stroke="#1e293b"
+          stroke="#201D19"
           strokeWidth={1}
         />
       ))}
       <Polyline
         points={poly}
         fill="none"
-        stroke="#34d399"
+        stroke="#C89B6D"
         strokeWidth={2.5}
         strokeLinejoin="round"
         strokeLinecap="round"
       />
       {points.map((p, i) => (
-        <Circle key={p.day} cx={xFor(i)} cy={yFor(p.score)} r={3} fill="#34d399" />
+        <Circle key={p.day} cx={xFor(i)} cy={yFor(p.score)} r={3} fill="#C89B6D" />
       ))}
     </Svg>
   );
@@ -59,9 +59,9 @@ function ControlChart({ points }: { points: { day: number; score: number }[] }) 
 
 function StatCard({ value, label }: { value: string; label: string }) {
   return (
-    <View className="flex-1 bg-slate-900 border border-slate-800 rounded-2xl p-4">
-      <Text className="text-emerald-400 text-2xl font-bold">{value}</Text>
-      <Text className="text-slate-500 text-xs mt-1">{label}</Text>
+    <View className="flex-1 bg-surface border border-line rounded-2xl p-4">
+      <Text className="text-accent text-2xl font-serif-light">{value}</Text>
+      <Text className="text-muted text-xs mt-1">{label}</Text>
     </View>
   );
 }
@@ -99,13 +99,13 @@ export default function ProgressScreen() {
 
   return (
     <ScrollView
-      className="flex-1 bg-slate-950"
+      className="flex-1 bg-ground"
       contentContainerStyle={{ padding: 24, paddingTop: 72, paddingBottom: 48 }}
     >
-      <Text className="text-slate-500 text-xs font-bold uppercase tracking-widest">
+      <Text className="text-muted text-xs font-bold uppercase tracking-widest">
         Autonomic Acclimation
       </Text>
-      <Text className="text-white text-3xl font-bold mt-1">Your Baseline</Text>
+      <Text className="text-ink text-3xl font-serif-light mt-1">Your Baseline</Text>
 
       {/* Stats */}
       <View className="flex-row mt-6 gap-3">
@@ -122,21 +122,21 @@ export default function ProgressScreen() {
       </View>
 
       {/* Control trendline */}
-      <View className="mt-6 bg-slate-900 border border-slate-800 rounded-2xl p-5">
-        <Text className="text-slate-300 text-sm font-bold">Control Score</Text>
-        <Text className="text-slate-600 text-xs mt-0.5 mb-3">
+      <View className="mt-6 bg-surface border border-line rounded-2xl p-5">
+        <Text className="text-body text-sm font-bold">Control Score</Text>
+        <Text className="text-faint text-xs mt-0.5 mb-3">
           Your daily 1–5 self-rating across the protocol
         </Text>
         {scores.length >= 2 ? (
           <ControlChart points={scores} />
         ) : (
-          <Text className="text-slate-500 text-sm leading-5 py-6 text-center">
+          <Text className="text-muted text-sm leading-5 py-6 text-center">
             Your first data points arrive with your first sessions.{'\n'}This is where
             you'll watch your baseline change.
           </Text>
         )}
         {baselineShift !== null && baselineShift > 0 && (
-          <Text className="text-emerald-400/80 text-xs mt-3 leading-4">
+          <Text className="text-accent/80 text-xs mt-3 leading-4">
             Your recent control scores average {baselineShift.toFixed(1)} higher than your
             first week. That shift is your nervous system re-learning its baseline — not
             willpower, conditioning.
@@ -145,20 +145,20 @@ export default function ProgressScreen() {
       </View>
 
       {/* Habit consistency */}
-      <View className="mt-4 bg-slate-900 border border-slate-800 rounded-2xl p-5">
-        <Text className="text-slate-300 text-sm font-bold mb-4">Vitality Consistency</Text>
+      <View className="mt-4 bg-surface border border-line rounded-2xl p-5">
+        <Text className="text-body text-sm font-bold mb-4">Vitality Consistency</Text>
         <View className="gap-4">
           {HABIT_LABELS.map(({ key, label }) => {
             const pct = habitPct(key);
             return (
               <View key={key}>
                 <View className="flex-row justify-between mb-1.5">
-                  <Text className="text-slate-400 text-xs">{label}</Text>
-                  <Text className="text-slate-500 text-xs">{pct}%</Text>
+                  <Text className="text-body text-xs">{label}</Text>
+                  <Text className="text-muted text-xs">{pct}%</Text>
                 </View>
-                <View className="h-1.5 bg-slate-800 rounded-full overflow-hidden">
+                <View className="h-1.5 bg-surface-deep rounded-full overflow-hidden">
                   <View
-                    className="h-full bg-emerald-500/70 rounded-full"
+                    className="h-full bg-accent/70 rounded-full"
                     style={{ width: `${pct}%` }}
                   />
                 </View>
@@ -168,7 +168,7 @@ export default function ProgressScreen() {
         </View>
       </View>
 
-      <Text className="text-slate-600 text-xs text-center mt-6 leading-4 px-4">
+      <Text className="text-faint text-xs text-center mt-6 leading-4 px-4">
         All of this data lives only on this device.
       </Text>
     </ScrollView>

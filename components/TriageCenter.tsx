@@ -107,18 +107,18 @@ function BreathingGuide() {
       <View className="h-52 items-center justify-center">
         <Animated.View
           style={{ transform: [{ scale }] }}
-          className="w-36 h-36 rounded-full bg-emerald-500/10 border-2 border-emerald-500/50 items-center justify-center"
+          className="w-36 h-36 rounded-full bg-accent/10 border-2 border-accent/50 items-center justify-center"
         >
-          <Text className="text-emerald-400 text-sm font-bold">
+          <Text className="text-accent text-sm font-bold">
             {active ? BREATH_PHASES[phaseIndex].seconds : '4 · 7 · 8'}
           </Text>
         </Animated.View>
       </View>
 
-      <Text className="text-white text-base font-bold mt-2 h-6">
+      <Text className="text-ink text-base font-bold mt-2 h-6">
         {active ? BREATH_PHASES[phaseIndex].label : 'Ready when you are'}
       </Text>
-      <Text className="text-slate-500 text-xs mt-1 h-5">
+      <Text className="text-muted text-xs mt-1 h-5">
         {active
           ? cycles > 0
             ? `${cycles} ${cycles === 1 ? 'cycle' : 'cycles'} complete`
@@ -129,9 +129,9 @@ function BreathingGuide() {
       <TouchableOpacity
         onPress={active ? stop : start}
         activeOpacity={0.85}
-        className={`rounded-xl py-3.5 px-10 mt-5 ${active ? 'bg-slate-800 border border-slate-700' : 'bg-emerald-500'}`}
+        className={`rounded-xl py-3.5 px-10 mt-5 ${active ? 'bg-surface-deep border border-line' : 'bg-accent'}`}
       >
-        <Text className={`font-bold text-sm ${active ? 'text-slate-300' : 'text-slate-950'}`}>
+        <Text className={`font-bold text-sm ${active ? 'text-body' : 'text-on-accent'}`}>
           {active ? 'Stop' : 'Begin'}
         </Text>
       </TouchableOpacity>
@@ -169,27 +169,27 @@ function DefusionLogForm({ onDone }: { onDone: () => void }) {
     return (
       <View className="py-2">
         <View className="flex-row items-center gap-2 mb-3">
-          <CheckCircle2 color="#34d399" size={18} />
-          <Text className="text-emerald-400 text-xs font-bold uppercase tracking-widest">
+          <CheckCircle2 color="#C89B6D" size={18} />
+          <Text className="text-accent text-xs font-bold uppercase tracking-widest">
             {FALLACY_META[chosenFallacy].label} — Named
           </Text>
         </View>
-        <Text className="text-slate-200 text-sm leading-6">
+        <Text className="text-ink text-sm leading-6">
           {FALLACY_META[chosenFallacy].reframe}
         </Text>
 
-        <Text className="text-emerald-400 text-xs font-bold uppercase tracking-widest mt-6">
+        <Text className="text-accent text-xs font-bold uppercase tracking-widest mt-6">
           Step 4 of 4 — Your Ventral Vagal Anchor
         </Text>
-        <Text className="text-slate-400 text-sm mt-2 leading-5">
+        <Text className="text-body text-sm mt-2 leading-5">
           Now say it in your own words. What is the clinical truth of what happened?
         </Text>
         <TextInput
-          className="bg-slate-800 border border-slate-700 rounded-xl p-4 text-white text-sm leading-5 min-h-[80px] mt-3"
+          className="bg-surface-deep border border-line rounded-xl p-4 text-ink text-sm leading-5 min-h-[80px] mt-3"
           multiline
           textAlignVertical="top"
           placeholder="e.g. “My body followed adrenaline. That's physiology, not a verdict on me.”"
-          placeholderTextColor="#475569"
+          placeholderTextColor="#6E675D"
           value={ventralAnchor}
           onChangeText={setVentralAnchor}
         />
@@ -197,9 +197,9 @@ function DefusionLogForm({ onDone }: { onDone: () => void }) {
           onPress={saveEntry}
           disabled={!canSave || saving}
           activeOpacity={0.85}
-          className={`rounded-xl py-3.5 items-center mt-4 ${canSave ? 'bg-emerald-500' : 'bg-slate-800'}`}
+          className={`rounded-xl py-3.5 items-center mt-4 ${canSave ? 'bg-accent' : 'bg-surface-deep'}`}
         >
-          <Text className={`font-bold text-sm ${canSave ? 'text-slate-950' : 'text-slate-600'}`}>
+          <Text className={`font-bold text-sm ${canSave ? 'text-on-accent' : 'text-faint'}`}>
             Save My Anchor
           </Text>
         </TouchableOpacity>
@@ -228,16 +228,16 @@ function DefusionLogForm({ onDone }: { onDone: () => void }) {
 
     return (
       <View className="py-2">
-        <Text className="text-emerald-400 text-xs font-bold uppercase tracking-widest">
+        <Text className="text-accent text-xs font-bold uppercase tracking-widest">
           Step {step + 1} of 4 — {meta.label}
         </Text>
-        <Text className="text-slate-400 text-sm mt-2 leading-5">{meta.question}</Text>
+        <Text className="text-body text-sm mt-2 leading-5">{meta.question}</Text>
         <TextInput
-          className="bg-slate-800 border border-slate-700 rounded-xl p-4 text-white text-sm leading-5 min-h-[90px] mt-3"
+          className="bg-surface-deep border border-line rounded-xl p-4 text-ink text-sm leading-5 min-h-[90px] mt-3"
           multiline
           textAlignVertical="top"
           placeholder={meta.placeholder}
-          placeholderTextColor="#475569"
+          placeholderTextColor="#6E675D"
           value={meta.value}
           onChangeText={meta.set}
         />
@@ -245,9 +245,9 @@ function DefusionLogForm({ onDone }: { onDone: () => void }) {
           onPress={() => setStep((s) => (s + 1) as 1 | 2)}
           disabled={!canAdvance}
           activeOpacity={0.85}
-          className={`rounded-xl py-3.5 items-center mt-4 ${canAdvance ? 'bg-emerald-500' : 'bg-slate-800'}`}
+          className={`rounded-xl py-3.5 items-center mt-4 ${canAdvance ? 'bg-accent' : 'bg-surface-deep'}`}
         >
-          <Text className={`font-bold text-sm ${canAdvance ? 'text-slate-950' : 'text-slate-600'}`}>
+          <Text className={`font-bold text-sm ${canAdvance ? 'text-on-accent' : 'text-faint'}`}>
             Continue
           </Text>
         </TouchableOpacity>
@@ -258,10 +258,10 @@ function DefusionLogForm({ onDone }: { onDone: () => void }) {
   // Step 3 — name the fallacy
   return (
     <View className="py-2">
-      <Text className="text-emerald-400 text-xs font-bold uppercase tracking-widest">
+      <Text className="text-accent text-xs font-bold uppercase tracking-widest">
         Step 3 of 4 — Name the Fallacy
       </Text>
-      <Text className="text-slate-400 text-sm mt-2 leading-5">
+      <Text className="text-body text-sm mt-2 leading-5">
         Read the Spectator’s claim again. Which pattern is it running?
       </Text>
       <View className="gap-3 mt-4">
@@ -270,10 +270,10 @@ function DefusionLogForm({ onDone }: { onDone: () => void }) {
             key={f}
             onPress={() => setChosenFallacy(f)}
             activeOpacity={0.8}
-            className="bg-slate-800 border border-slate-700 rounded-xl px-4 py-3.5 flex-row items-center justify-between"
+            className="bg-surface-deep border border-line rounded-xl px-4 py-3.5 flex-row items-center justify-between"
           >
-            <Text className="text-slate-200 text-sm font-bold">{FALLACY_META[f].label}</Text>
-            <ChevronRight size={16} color="#64748b" />
+            <Text className="text-ink text-sm font-bold">{FALLACY_META[f].label}</Text>
+            <ChevronRight size={16} color="#8A8378" />
           </TouchableOpacity>
         ))}
       </View>
@@ -286,19 +286,19 @@ function DefusionLogForm({ onDone }: { onDone: () => void }) {
 const MENU_ITEMS: { view: TriageView; icon: React.ReactNode; title: string; subtitle: string }[] = [
   {
     view: 'breath',
-    icon: <Wind color="#34d399" size={20} />,
+    icon: <Wind color="#C89B6D" size={20} />,
     title: 'Before Intimacy — Rising Pressure',
     subtitle: 'A paced breathing sequence to settle the surge.',
   },
   {
     view: 'ground',
-    icon: <Anchor color="#34d399" size={20} />,
+    icon: <Anchor color="#C89B6D" size={20} />,
     title: 'During — Watching Yourself',
     subtitle: 'Return attention from evaluation to sensation.',
   },
   {
     view: 'defuse',
-    icon: <PenLine color="#34d399" size={20} />,
+    icon: <PenLine color="#C89B6D" size={20} />,
     title: 'Afterward — The Replay Has Started',
     subtitle: 'Take the Spectator’s story apart, piece by piece.',
   },
@@ -315,15 +315,15 @@ export default function TriageCenter({ visible, onClose }: TriageCenterProps) {
 
   return (
     <Modal visible={visible} transparent animationType="slide" onRequestClose={close}>
-      <Pressable className="flex-1 bg-black/60" onPress={close} />
+      <Pressable className="flex-1 bg-scrim/70" onPress={close} />
       <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
-        <View className="bg-slate-900 border-t border-slate-800 rounded-t-3xl px-6 pt-5 pb-10 max-h-[85%]">
-          <View className="w-10 h-1 bg-slate-700 rounded-full self-center mb-4" />
+        <View className="bg-tab border-t border-line-soft rounded-t-3xl px-6 pt-5 pb-10 max-h-[85%]">
+          <View className="w-10 h-1 bg-line rounded-full self-center mb-4" />
 
           {view === 'menu' ? (
             <>
-              <Text className="text-white text-lg font-bold">Steady. You’re in the right place.</Text>
-              <Text className="text-slate-500 text-sm mt-1 mb-4 leading-5">
+              <Text className="text-ink text-xl font-serif-regular">Steady. You’re in the right place.</Text>
+              <Text className="text-muted text-sm mt-1 mb-4 leading-5">
                 Pick the moment you’re in.
               </Text>
               <View className="gap-3 pb-2">
@@ -332,16 +332,16 @@ export default function TriageCenter({ visible, onClose }: TriageCenterProps) {
                     key={item.view}
                     onPress={() => setView(item.view)}
                     activeOpacity={0.8}
-                    className="bg-slate-950 border border-slate-800 rounded-2xl p-4 flex-row items-center gap-3"
+                    className="bg-ground border border-line rounded-2xl p-4 flex-row items-center gap-3"
                   >
-                    <View className="w-10 h-10 rounded-full bg-slate-800 items-center justify-center">
+                    <View className="w-10 h-10 rounded-full bg-surface-deep items-center justify-center">
                       {item.icon}
                     </View>
                     <View className="flex-1">
-                      <Text className="text-white text-sm font-bold">{item.title}</Text>
-                      <Text className="text-slate-500 text-xs mt-0.5 leading-4">{item.subtitle}</Text>
+                      <Text className="text-ink text-sm font-bold">{item.title}</Text>
+                      <Text className="text-muted text-xs mt-0.5 leading-4">{item.subtitle}</Text>
                     </View>
-                    <ChevronRight size={18} color="#64748b" />
+                    <ChevronRight size={18} color="#8A8378" />
                   </TouchableOpacity>
                 ))}
               </View>
@@ -353,8 +353,8 @@ export default function TriageCenter({ visible, onClose }: TriageCenterProps) {
                 activeOpacity={0.7}
                 className="flex-row items-center gap-1 mb-2 self-start"
               >
-                <ChevronLeft size={16} color="#64748b" />
-                <Text className="text-slate-500 text-xs font-bold">Back</Text>
+                <ChevronLeft size={16} color="#8A8378" />
+                <Text className="text-muted text-xs font-bold">Back</Text>
               </TouchableOpacity>
 
               <ScrollView showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
@@ -363,8 +363,8 @@ export default function TriageCenter({ visible, onClose }: TriageCenterProps) {
                   <View className="py-2">
                     {GROUNDING_STEPS.map((step, i) => (
                       <View key={i} className="flex-row gap-3 mt-3">
-                        <Text className="text-emerald-400 text-xs font-bold mt-0.5">{i + 1}</Text>
-                        <Text className="text-slate-300 text-sm leading-5 flex-1">{step}</Text>
+                        <Text className="text-accent text-xs font-bold mt-0.5">{i + 1}</Text>
+                        <Text className="text-body text-sm leading-5 flex-1">{step}</Text>
                       </View>
                     ))}
                   </View>

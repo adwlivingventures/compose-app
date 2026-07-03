@@ -87,7 +87,7 @@ export default function SessionScreen() {
   };
 
   return (
-    <View className="flex-1 bg-slate-950 px-6 pt-16">
+    <View className="flex-1 bg-ground px-6 pt-16">
       <View className="flex-row items-center justify-between">
         {/* Stage dots — orientation without navigation; they are not tappable */}
         <View className="flex-row items-center gap-1.5">
@@ -95,7 +95,7 @@ export default function SessionScreen() {
             <View
               key={s}
               className={`h-1.5 rounded-full ${
-                i < stageIndex ? 'bg-emerald-500 w-4' : i === stageIndex ? 'bg-emerald-500 w-8' : 'bg-slate-800 w-4'
+                i < stageIndex ? 'bg-accent w-4' : i === stageIndex ? 'bg-accent w-8' : 'bg-surface-deep w-4'
               }`}
             />
           ))}
@@ -103,14 +103,14 @@ export default function SessionScreen() {
         <TouchableOpacity
           onPress={() => router.back()}
           activeOpacity={0.7}
-          className="bg-slate-900 border border-slate-800 rounded-full p-2.5"
+          className="bg-surface border border-line rounded-full p-2.5"
         >
-          <X color="#64748b" size={18} />
+          <X color="#8A8378" size={18} />
         </TouchableOpacity>
       </View>
 
       <View className="items-center mt-4">
-        <Text className="text-slate-500 text-xs font-bold uppercase tracking-widest">
+        <Text className="text-muted text-xs font-bold uppercase tracking-widest">
           Day {day} · Phase {phase.number} · {STAGE_LABELS[stage]}
         </Text>
       </View>
@@ -118,7 +118,7 @@ export default function SessionScreen() {
       <View className="flex-1 justify-center">
         {stage === 'anchor' && (
           <View>
-            <Text className="text-slate-500 text-sm text-center leading-5 px-4 mb-8">
+            <Text className="text-muted text-sm text-center leading-5 px-4 mb-8">
               Find a quiet place. Sit or lie down. You can lock your screen — the audio will
               continue.
             </Text>
@@ -135,10 +135,10 @@ export default function SessionScreen() {
 
         {stage === 'score' && (
           <View className="items-center">
-            <Text className="text-white text-xl font-bold text-center px-4">
+            <Text className="text-ink text-2xl font-serif-regular text-center px-4">
               How much control did you feel through the sequence?
             </Text>
-            <Text className="text-slate-500 text-xs text-center mt-2 leading-4 px-8">
+            <Text className="text-muted text-xs text-center mt-2 leading-4 px-8">
               There is no good or bad answer — this is a signal you're learning to read, not a grade.
             </Text>
             <View className="flex-row gap-3 mt-8">
@@ -150,22 +150,22 @@ export default function SessionScreen() {
                     advance();
                   }}
                   activeOpacity={0.8}
-                  className="w-14 h-14 rounded-2xl bg-slate-900 border border-slate-700 items-center justify-center"
+                  className="w-14 h-14 rounded-2xl bg-surface border border-line items-center justify-center"
                 >
-                  <Text className="text-white text-lg font-bold">{n}</Text>
+                  <Text className="text-ink text-2xl font-serif-light">{n}</Text>
                 </TouchableOpacity>
               ))}
             </View>
             <View className="flex-row justify-between w-full px-2 mt-3">
-              <Text className="text-slate-600 text-xs">{SCORE_LABELS[0]}</Text>
-              <Text className="text-slate-600 text-xs">{SCORE_LABELS[4]}</Text>
+              <Text className="text-faint text-xs">{SCORE_LABELS[0]}</Text>
+              <Text className="text-faint text-xs">{SCORE_LABELS[4]}</Text>
             </View>
           </View>
         )}
 
         {stage === 'checklist' && (
           <View>
-            <Text className="text-white text-xl font-bold text-center px-4 mb-6">
+            <Text className="text-ink text-2xl font-serif-regular text-center px-4 mb-6">
               Today's Check-In
             </Text>
             <View className="gap-3">
@@ -177,19 +177,19 @@ export default function SessionScreen() {
                     onPress={() => setHabits((h) => ({ ...h, [item.key]: !h[item.key] }))}
                     activeOpacity={0.8}
                     className={`rounded-2xl p-4 flex-row items-center gap-3 border ${
-                      on ? 'bg-emerald-500/10 border-emerald-500/40' : 'bg-slate-900 border-slate-800'
+                      on ? 'bg-accent/10 border-accent/40' : 'bg-surface border-line'
                     }`}
                   >
                     <View
                       className={`w-6 h-6 rounded-lg items-center justify-center border ${
-                        on ? 'bg-emerald-500 border-emerald-500' : 'border-slate-600'
+                        on ? 'bg-accent border-accent' : 'border-faint'
                       }`}
                     >
-                      {on && <Check color="#020617" size={14} strokeWidth={3} />}
+                      {on && <Check color="#171310" size={14} strokeWidth={3} />}
                     </View>
                     <View className="flex-1">
-                      <Text className="text-white text-sm font-bold">{item.title}</Text>
-                      <Text className="text-slate-500 text-xs mt-0.5 leading-4">{item.subtitle}</Text>
+                      <Text className="text-ink text-sm font-bold">{item.title}</Text>
+                      <Text className="text-muted text-xs mt-0.5 leading-4">{item.subtitle}</Text>
                     </View>
                   </TouchableOpacity>
                 );
@@ -199,15 +199,15 @@ export default function SessionScreen() {
               onPress={() => handleComplete(habits)}
               disabled={finishing}
               activeOpacity={0.85}
-              className="bg-emerald-500 rounded-2xl py-4 items-center mt-6"
+              className="bg-accent rounded-2xl py-4 items-center mt-6"
             >
               {finishing ? (
-                <ActivityIndicator color="#020617" />
+                <ActivityIndicator color="#171310" />
               ) : (
-                <Text className="text-slate-950 font-bold text-base">Complete Day {day}</Text>
+                <Text className="text-on-accent font-bold text-base">Complete Day {day}</Text>
               )}
             </TouchableOpacity>
-            <Text className="text-slate-600 text-xs text-center mt-3 leading-4">
+            <Text className="text-faint text-xs text-center mt-3 leading-4">
               Answer honestly — an unchecked box is information, not failure.
             </Text>
           </View>
@@ -218,15 +218,15 @@ export default function SessionScreen() {
       <TouchableOpacity
         onPress={() => setSosVisible(true)}
         activeOpacity={0.85}
-        className="bg-slate-900 border border-slate-700 rounded-2xl py-3.5 items-center flex-row justify-center gap-2 mb-6"
+        className="bg-surface border border-line rounded-2xl py-3.5 items-center flex-row justify-center gap-2 mb-6"
       >
-        <LifeBuoy color="#94a3b8" size={16} />
-        <Text className="text-slate-300 font-bold text-sm">Steady Me — Right Now</Text>
+        <LifeBuoy color="#B9B2A6" size={16} />
+        <Text className="text-body font-bold text-sm">Steady Me — Right Now</Text>
       </TouchableOpacity>
 
       {__DEV__ && stage !== 'checklist' && (
         <TouchableOpacity onPress={advance} activeOpacity={0.7} className="items-center pb-10">
-          <Text className="text-slate-700 text-xs">Skip stage (dev only)</Text>
+          <Text className="text-dim text-xs">Skip stage (dev only)</Text>
         </TouchableOpacity>
       )}
 

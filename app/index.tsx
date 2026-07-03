@@ -18,7 +18,7 @@ export default function Index() {
     return (
       <View style={styles.container}>
         <StatusBar style="light" />
-        <ActivityIndicator size="large" color="#10b981" />
+        <ActivityIndicator size="large" color="#C89B6D" />
       </View>
     );
   }
@@ -35,7 +35,7 @@ export default function Index() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#020617', // premium deep slate-950
+    backgroundColor: '#0C0B09', // Ember ground
     justifyContent: 'center',
     alignItems: 'center',
   },

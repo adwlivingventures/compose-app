@@ -28,7 +28,7 @@ function ProgressRing({ day, completedToday }: { day: number; completedToday: bo
           cx={RING_SIZE / 2}
           cy={RING_SIZE / 2}
           r={RING_RADIUS}
-          stroke="#1e293b"
+          stroke="#201D19"
           strokeWidth={RING_STROKE}
           fill="none"
         />
@@ -36,7 +36,7 @@ function ProgressRing({ day, completedToday }: { day: number; completedToday: bo
           cx={RING_SIZE / 2}
           cy={RING_SIZE / 2}
           r={RING_RADIUS}
-          stroke="#34d399"
+          stroke="#C89B6D"
           strokeWidth={RING_STROKE}
           strokeLinecap="round"
           fill="none"
@@ -46,10 +46,10 @@ function ProgressRing({ day, completedToday }: { day: number; completedToday: bo
         />
       </Svg>
       <View className="absolute items-center">
-        <Text className="text-slate-500 text-xs font-bold uppercase tracking-widest">Day</Text>
-        <Text className="text-white text-6xl font-bold">{day}</Text>
-        <Text className="text-slate-500 text-sm">of 75</Text>
-        <Text className="text-emerald-400/80 text-xs font-bold uppercase tracking-widest mt-2">
+        <Text className="text-muted text-xs font-bold uppercase tracking-widest">Day</Text>
+        <Text className="text-ink text-6xl font-serif-light">{day}</Text>
+        <Text className="text-muted text-sm">of 75</Text>
+        <Text className="text-accent/80 text-xs font-bold uppercase tracking-widest mt-2">
           Phase {meta.phase} · {meta.phaseTitle}
         </Text>
       </View>
@@ -70,12 +70,12 @@ export default function MainDashboard({ onStartSession }: { onStartSession: () =
   const todayMeta = getProtocolDay(displayDay);
 
   return (
-    <View className="flex-1 bg-slate-950">
+    <View className="flex-1 bg-ground">
       <View className="flex-1 items-center px-6 pt-20">
         <ProgressRing day={displayDay} completedToday={completedToday} />
 
         {streak > 1 && (
-          <Text className="text-slate-500 text-xs mt-4">
+          <Text className="text-muted text-xs mt-4">
             {streak} consecutive days
           </Text>
         )}
@@ -83,10 +83,10 @@ export default function MainDashboard({ onStartSession }: { onStartSession: () =
         {/* Today's anchor — the manifest title tells him what today is about
             before he commits, without adding a single decision */}
         <View className="items-center mt-6">
-          <Text className="text-slate-600 text-[10px] font-bold uppercase tracking-[0.25em]">
+          <Text className="text-faint text-[10px] font-bold uppercase tracking-[0.25em]">
             Today's Anchor
           </Text>
-          <Text className="text-white text-lg font-bold mt-1 text-center">
+          <Text className="text-ink text-xl font-serif-regular mt-1 text-center">
             {todayMeta.title}
           </Text>
         </View>
@@ -94,10 +94,10 @@ export default function MainDashboard({ onStartSession }: { onStartSession: () =
         {/* The single primary action — no library, no choices */}
         <View className="w-full mt-10">
           {completedToday ? (
-            <View className="bg-slate-900 border border-slate-800 rounded-2xl py-5 items-center">
-              <CheckCircle2 color="#34d399" size={26} />
-              <Text className="text-white font-bold text-base mt-2">Today Is Complete</Text>
-              <Text className="text-slate-500 text-xs mt-1">
+            <View className="bg-surface border border-line rounded-2xl py-5 items-center">
+              <CheckCircle2 color="#C89B6D" size={26} />
+              <Text className="text-ink font-serif-regular text-lg mt-2">Today Is Complete</Text>
+              <Text className="text-muted text-xs mt-1">
                 Day {Math.min(displayDay + 1, 75)} unlocks at midnight. Rest is part of the work.
               </Text>
             </View>
@@ -105,10 +105,10 @@ export default function MainDashboard({ onStartSession }: { onStartSession: () =
             <TouchableOpacity
               onPress={onStartSession}
               activeOpacity={0.85}
-              className="bg-emerald-500 rounded-2xl py-5 items-center flex-row justify-center gap-2.5 shadow-lg shadow-emerald-500/20"
+              className="bg-accent rounded-2xl py-5 items-center flex-row justify-center gap-2.5"
             >
-              <Play color="#020617" size={20} fill="#020617" />
-              <Text className="text-slate-950 font-bold text-lg">
+              <Play color="#171310" size={20} fill="#171310" />
+              <Text className="text-on-accent font-bold text-lg">
                 Listen to Today’s Anchor
               </Text>
             </TouchableOpacity>
@@ -121,10 +121,10 @@ export default function MainDashboard({ onStartSession }: { onStartSession: () =
         <TouchableOpacity
           onPress={() => setSosVisible(true)}
           activeOpacity={0.85}
-          className="bg-slate-900 border border-slate-700 rounded-2xl py-4 items-center flex-row justify-center gap-2"
+          className="bg-surface border border-line rounded-2xl py-4 items-center flex-row justify-center gap-2"
         >
-          <LifeBuoy color="#94a3b8" size={18} />
-          <Text className="text-slate-300 font-bold text-sm">Steady Me — Right Now</Text>
+          <LifeBuoy color="#B9B2A6" size={18} />
+          <Text className="text-body font-bold text-sm">Steady Me — Right Now</Text>
         </TouchableOpacity>
       </View>
 

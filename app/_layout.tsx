@@ -1,9 +1,16 @@
 import '../global.css';
 import { useEffect } from 'react';
-import { Platform } from 'react-native';
+import { Platform, View } from 'react-native';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
 import Purchases, { LOG_LEVEL } from 'react-native-purchases';
+import {
+  useFonts,
+  SourceSerif4_300Light,
+  SourceSerif4_400Regular,
+  SourceSerif4_400Regular_Italic,
+  SourceSerif4_600SemiBold,
+} from '@expo-google-fonts/source-serif-4';
 import { ProtocolProvider } from '../context/ProtocolContext';
 
 const IS_DEV = __DEV__;
@@ -19,6 +26,13 @@ const RC_API_KEYS = {
 };
 
 export default function RootLayout() {
+  const [fontsLoaded] = useFonts({
+    SourceSerif4_300Light,
+    SourceSerif4_400Regular,
+    SourceSerif4_400Regular_Italic,
+    SourceSerif4_600SemiBold,
+  });
+
   useEffect(() => {
     // Verbose logging in dev, silent in production
     Purchases.setLogLevel(IS_DEV ? LOG_LEVEL.DEBUG : LOG_LEVEL.ERROR);
@@ -34,16 +48,22 @@ export default function RootLayout() {
     }
   }, []);
 
+  // Hold on a plain ground-colored view until the serif faces are ready —
+  // a flash of fallback type undermines the composed first impression.
+  if (!fontsLoaded) {
+    return <View style={{ flex: 1, backgroundColor: '#0C0B09' }} />;
+  }
+
   return (
     <ProtocolProvider>
       <StatusBar style="light" />
-      {/* contentStyle keeps the scene background slate-950 during transition
+      {/* contentStyle keeps the scene background on Ember ground during transition
           animations — without it, iOS flashes the default white card behind
           screens mid-push (§6: nothing in this app may flash bright). */}
       <Stack
         screenOptions={{
           headerShown: false,
-          contentStyle: { backgroundColor: '#020617' },
+          contentStyle: { backgroundColor: '#0C0B09' },
         }}
       >
         <Stack.Screen name="index" />

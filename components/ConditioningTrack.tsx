@@ -85,32 +85,32 @@ export default function ConditioningTrack({ onComplete }: ConditioningTrackProps
       <View className="h-56 items-center justify-center">
         <Animated.View
           style={{ transform: [{ scale }] }}
-          className="w-40 h-40 rounded-full bg-emerald-500/10 border-2 border-emerald-500/50 items-center justify-center"
+          className="w-40 h-40 rounded-full bg-accent/10 border-2 border-accent/50 items-center justify-center"
         >
           {active && (
-            <Text className="text-emerald-400 text-xs font-bold uppercase tracking-widest">
+            <Text className="text-accent text-xs font-bold uppercase tracking-widest">
               {phase === 'inhale' ? 'Soften' : 'Engage'}
             </Text>
           )}
         </Animated.View>
       </View>
 
-      <Text className="text-white text-base font-bold h-6">
+      <Text className="text-ink text-base font-bold h-6">
         {phase === 'idle'
           ? 'Conditioning Track'
           : phase === 'inhale'
           ? 'Inhale — release, let go'
           : 'Exhale — gentle engagement'}
       </Text>
-      <Text className="text-slate-500 text-xs mt-1 h-5">
+      <Text className="text-muted text-xs mt-1 h-5">
         {active ? `${rep} of ${TOTAL_REPS}` : 'Five minutes. Follow the circle — nothing forced.'}
       </Text>
 
       {active ? (
         <View className="w-full mt-6">
-          <View className="h-1 bg-slate-800 rounded-full overflow-hidden">
+          <View className="h-1 bg-surface-deep rounded-full overflow-hidden">
             <View
-              className="h-full bg-emerald-500 rounded-full"
+              className="h-full bg-accent rounded-full"
               style={{ width: `${Math.min(progress * 100, 100)}%` }}
             />
           </View>
@@ -119,9 +119,9 @@ export default function ConditioningTrack({ onComplete }: ConditioningTrackProps
         <TouchableOpacity
           onPress={start}
           activeOpacity={0.85}
-          className="bg-emerald-500 rounded-xl py-3.5 px-10 mt-6"
+          className="bg-accent rounded-xl py-3.5 px-10 mt-6"
         >
-          <Text className="text-slate-950 font-bold text-sm">Begin</Text>
+          <Text className="text-on-accent font-bold text-sm">Begin</Text>
         </TouchableOpacity>
       )}
     </View>

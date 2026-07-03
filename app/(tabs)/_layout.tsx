@@ -6,10 +6,10 @@ export default function TabsLayout() {
     <Tabs
       screenOptions={{
         headerShown: false,
-        sceneStyle: { backgroundColor: '#020617' },
-        tabBarStyle: { backgroundColor: '#0f172a', borderTopColor: '#1e293b' },
-        tabBarActiveTintColor: '#34d399',
-        tabBarInactiveTintColor: '#64748b',
+        sceneStyle: { backgroundColor: '#0C0B09' },
+        tabBarStyle: { backgroundColor: '#12100E', borderTopColor: '#201D19' },
+        tabBarActiveTintColor: '#C89B6D',
+        tabBarInactiveTintColor: '#6E675D',
       }}
     >
       <Tabs.Screen
@@ -29,14 +29,14 @@ export default function TabsLayout() {
       <Tabs.Screen
         name="progress"
         options={{
-          title: 'Progress',
+          title: 'Baseline',
           tabBarIcon: ({ color, size }) => <TrendingUp color={color} size={size} />,
         }}
       />
       <Tabs.Screen
         name="profile"
         options={{
-          title: 'Profile',
+          title: 'You',
           tabBarIcon: ({ color, size }) => <UserRound color={color} size={size} />,
         }}
       />

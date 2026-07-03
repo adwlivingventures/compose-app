@@ -71,9 +71,9 @@ export default function AudioPlayer({ title, focus, source, onComplete }: AudioP
 
   return (
     <View className="items-center w-full px-2">
-      <Text className="text-white text-xl font-bold text-center">{title}</Text>
+      <Text className="text-ink text-2xl font-serif-regular text-center">{title}</Text>
       {focus ? (
-        <Text className="text-slate-500 text-sm text-center mt-2 leading-5 px-4">{focus}</Text>
+        <Text className="text-muted text-sm text-center mt-2 leading-5 px-4">{focus}</Text>
       ) : null}
 
       {/* Play / Pause — the single control on screen */}
@@ -81,28 +81,28 @@ export default function AudioPlayer({ title, focus, source, onComplete }: AudioP
         onPress={togglePlayback}
         disabled={!status.isLoaded}
         activeOpacity={0.85}
-        className="w-20 h-20 rounded-full bg-emerald-500 items-center justify-center mt-8 shadow-lg shadow-emerald-500/20"
+        className="w-20 h-20 rounded-full bg-accent items-center justify-center mt-8"
       >
         {!status.isLoaded ? (
-          <ActivityIndicator color="#020617" />
+          <ActivityIndicator color="#171310" />
         ) : status.playing ? (
-          <Pause color="#020617" size={30} fill="#020617" />
+          <Pause color="#171310" size={30} fill="#171310" />
         ) : (
-          <Play color="#020617" size={30} fill="#020617" style={{ marginLeft: 3 }} />
+          <Play color="#171310" size={30} fill="#171310" style={{ marginLeft: 3 }} />
         )}
       </TouchableOpacity>
 
       {/* Progress — display only, not a scrubber */}
       <View className="w-full mt-10">
-        <View className="h-1.5 bg-slate-800 rounded-full overflow-hidden">
+        <View className="h-1.5 bg-surface-deep rounded-full overflow-hidden">
           <View
-            className="h-full bg-emerald-500 rounded-full"
+            className="h-full bg-accent rounded-full"
             style={{ width: `${Math.min(progress * 100, 100)}%` }}
           />
         </View>
         <View className="flex-row justify-between mt-2">
-          <Text className="text-slate-600 text-xs">{formatTime(status.currentTime)}</Text>
-          <Text className="text-slate-600 text-xs">
+          <Text className="text-faint text-xs">{formatTime(status.currentTime)}</Text>
+          <Text className="text-faint text-xs">
             {status.duration > 0 ? `−${formatTime(remaining)}` : '–:––'}
           </Text>
         </View>

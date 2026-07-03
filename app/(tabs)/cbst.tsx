@@ -107,13 +107,13 @@ export default function CBSTScreen() {
   const [activeTab, setActiveTab] = useState<CBSTTab>('log');
 
   return (
-    <View className="flex-1 bg-slate-950">
+    <View className="flex-1 bg-ground">
       {/* Header */}
-      <View className="px-6 pt-14 pb-4 border-b border-slate-800/60">
-        <Text className="text-slate-500 text-xs font-bold uppercase tracking-widest">
+      <View className="px-6 pt-14 pb-4 border-b border-line/60">
+        <Text className="text-muted text-xs font-bold uppercase tracking-widest">
           COMPOSE
         </Text>
-        <Text className="text-white text-2xl font-bold mt-0.5">
+        <Text className="text-ink text-2xl font-serif-regular mt-0.5">
           Cognitive Restructuring
         </Text>
       </View>
@@ -122,7 +122,7 @@ export default function CBSTScreen() {
       <View className="flex-row px-6 pt-4 pb-0 gap-3">
         <TabChip
           label="CBST Log"
-          icon={<Brain size={14} color={activeTab === 'log' ? '#020617' : '#64748b'} />}
+          icon={<Brain size={14} color={activeTab === 'log' ? '#171310' : '#8A8378'} />}
           active={activeTab === 'log'}
           onPress={() => setActiveTab('log')}
         />
@@ -131,7 +131,7 @@ export default function CBSTScreen() {
           icon={
             <MessageSquare
               size={14}
-              color={activeTab === 'scripts' ? '#020617' : '#64748b'}
+              color={activeTab === 'scripts' ? '#171310' : '#8A8378'}
             />
           }
           active={activeTab === 'scripts'}
@@ -162,13 +162,13 @@ function TabChip({
       activeOpacity={0.8}
       className={`flex-row items-center gap-1.5 px-4 py-2 rounded-full border ${
         active
-          ? 'bg-emerald-500 border-emerald-500'
-          : 'bg-slate-900 border-slate-800'
+          ? 'bg-accent border-accent'
+          : 'bg-surface border-line'
       }`}
     >
       {icon}
       <Text
-        className={`text-xs font-bold ${active ? 'text-slate-950' : 'text-slate-400'}`}
+        className={`text-xs font-bold ${active ? 'text-on-accent' : 'text-body'}`}
       >
         {label}
       </Text>
@@ -306,9 +306,9 @@ function CBSTLogTab() {
       >
         {/* Form Card */}
         {logStep < 3 ? (
-          <View className="bg-slate-900 border border-slate-800 rounded-2xl p-5 mb-6">
+          <View className="bg-surface border border-line rounded-2xl p-5 mb-6">
             <View className="flex-row items-center justify-between mb-4">
-              <Text className="text-emerald-400 text-xs font-bold uppercase tracking-widest">
+              <Text className="text-accent text-xs font-bold uppercase tracking-widest">
                 {STEP_META[logStep].label}
               </Text>
               {/* Step dots */}
@@ -317,7 +317,7 @@ function CBSTLogTab() {
                   <View
                     key={i}
                     className={`w-2 h-2 rounded-full ${
-                      i <= logStep ? 'bg-emerald-500' : 'bg-slate-700'
+                      i <= logStep ? 'bg-accent' : 'bg-line'
                     }`}
                   />
                 ))}
@@ -325,16 +325,16 @@ function CBSTLogTab() {
             </View>
 
             <TextInput
-              className="bg-slate-800 border border-slate-700 rounded-xl p-4 text-white text-sm leading-5 min-h-[100px]"
+              className="bg-surface-deep border border-line rounded-xl p-4 text-ink text-sm leading-5 min-h-[100px]"
               multiline
               textAlignVertical="top"
               placeholder={STEP_META[logStep].placeholder}
-              placeholderTextColor="#475569"
+              placeholderTextColor="#6E675D"
               value={currentValues[logStep]}
               onChangeText={currentSetters[logStep]}
             />
 
-            <Text className="text-slate-600 text-xs mt-2 leading-4">
+            <Text className="text-faint text-xs mt-2 leading-4">
               {STEP_META[logStep].hint}
             </Text>
 
@@ -343,9 +343,9 @@ function CBSTLogTab() {
                 <TouchableOpacity
                   onPress={() => setLogStep(((logStep - 1) as LogStep))}
                   activeOpacity={0.8}
-                  className="flex-1 bg-slate-800 border border-slate-700 rounded-xl py-3 items-center"
+                  className="flex-1 bg-surface-deep border border-line rounded-xl py-3 items-center"
                 >
-                  <Text className="text-slate-400 font-bold text-sm">Back</Text>
+                  <Text className="text-body font-bold text-sm">Back</Text>
                 </TouchableOpacity>
               )}
               <TouchableOpacity
@@ -353,53 +353,53 @@ function CBSTLogTab() {
                 disabled={!canAdvance}
                 activeOpacity={0.85}
                 className={`flex-1 rounded-xl py-3 items-center flex-row justify-center gap-2 ${
-                  canAdvance ? 'bg-emerald-500' : 'bg-slate-800'
+                  canAdvance ? 'bg-accent' : 'bg-surface-deep'
                 }`}
               >
                 <Text
                   className={`font-bold text-sm ${
-                    canAdvance ? 'text-slate-950' : 'text-slate-600'
+                    canAdvance ? 'text-on-accent' : 'text-faint'
                   }`}
                 >
                   {logStep < 2 ? 'Continue' : 'Save Entry'}
                 </Text>
                 <ChevronRight
                   size={16}
-                  color={canAdvance ? '#020617' : '#475569'}
+                  color={canAdvance ? '#171310' : '#6E675D'}
                 />
               </TouchableOpacity>
             </View>
           </View>
         ) : (
           /* Saved confirmation */
-          <View className="bg-emerald-500/10 border border-emerald-500/30 rounded-2xl p-5 mb-6 items-center">
-            <CheckCircle2 color="#34d399" size={32} />
-            <Text className="text-emerald-400 font-bold text-base mt-3">Entry Saved</Text>
-            <Text className="text-slate-500 text-sm text-center mt-1 leading-5">
+          <View className="bg-accent/10 border border-accent/30 rounded-2xl p-5 mb-6 items-center">
+            <CheckCircle2 color="#C89B6D" size={32} />
+            <Text className="text-accent font-bold text-base mt-3">Entry Saved</Text>
+            <Text className="text-muted text-sm text-center mt-1 leading-5">
               Your reframe has been logged. Consistent restructuring rewires the
               automatic thought pathway over time.
             </Text>
             <TouchableOpacity
               onPress={resetForm}
               activeOpacity={0.85}
-              className="mt-4 flex-row items-center gap-2 bg-slate-800 border border-slate-700 rounded-xl px-5 py-3"
+              className="mt-4 flex-row items-center gap-2 bg-surface-deep border border-line rounded-xl px-5 py-3"
             >
-              <Plus size={16} color="#34d399" />
-              <Text className="text-emerald-400 font-bold text-sm">New Entry</Text>
+              <Plus size={16} color="#C89B6D" />
+              <Text className="text-accent font-bold text-sm">New Entry</Text>
             </TouchableOpacity>
           </View>
         )}
 
         {/* Past Entries */}
-        <Text className="text-slate-500 text-xs font-bold uppercase tracking-widest mb-3">
+        <Text className="text-muted text-xs font-bold uppercase tracking-widest mb-3">
           Past Entries
         </Text>
 
         {loadingEntries ? (
-          <Text className="text-slate-600 text-sm">Loading...</Text>
+          <Text className="text-faint text-sm">Loading...</Text>
         ) : history.length === 0 ? (
-          <View className="bg-slate-900 border border-slate-800 rounded-2xl p-5 items-center">
-            <Text className="text-slate-500 text-sm text-center leading-5">
+          <View className="bg-surface border border-line rounded-2xl p-5 items-center">
+            <Text className="text-muted text-sm text-center leading-5">
               No entries yet. Complete your first restructuring log above.
             </Text>
           </View>
@@ -437,32 +437,32 @@ function CBSTEntryCard({
   const [expanded, setExpanded] = useState(false);
 
   return (
-    <View className="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden">
+    <View className="bg-surface border border-line rounded-2xl overflow-hidden">
       <TouchableOpacity
         onPress={() => setExpanded((v) => !v)}
         activeOpacity={0.8}
         className="flex-row items-center justify-between p-4"
       >
         <View className="flex-1">
-          <Text className="text-slate-500 text-xs font-mono">{entry.date}</Text>
-          <Text className="text-white text-sm font-medium mt-0.5" numberOfLines={1}>
+          <Text className="text-muted text-xs font-mono">{entry.date}</Text>
+          <Text className="text-ink text-sm font-medium mt-0.5" numberOfLines={1}>
             {entry.trigger}
           </Text>
         </View>
         <View className="flex-row items-center gap-3">
           <TouchableOpacity onPress={onDelete} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
-            <Trash2 size={16} color="#475569" />
+            <Trash2 size={16} color="#6E675D" />
           </TouchableOpacity>
           <ChevronRight
             size={18}
-            color="#475569"
+            color="#6E675D"
             style={{ transform: [{ rotate: expanded ? '90deg' : '0deg' }] }}
           />
         </View>
       </TouchableOpacity>
 
       {expanded && (
-        <View className="px-4 pb-4 gap-3 border-t border-slate-800">
+        <View className="px-4 pb-4 gap-3 border-t border-line">
           <EntryField label="Trigger" value={entry.trigger} />
           <EntryField label="Automatic Thought" value={entry.automaticThought} />
           <EntryField label="Rational Reframe" value={entry.reframe} highlight />
@@ -488,7 +488,7 @@ function DefusionEntryCard({
   });
 
   return (
-    <View className="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden">
+    <View className="bg-surface border border-line rounded-2xl overflow-hidden">
       <TouchableOpacity
         onPress={() => setExpanded((v) => !v)}
         activeOpacity={0.8}
@@ -496,31 +496,31 @@ function DefusionEntryCard({
       >
         <View className="flex-1">
           <View className="flex-row items-center gap-2">
-            <Text className="text-slate-500 text-xs font-mono">{dateLabel}</Text>
-            <View className="bg-slate-800 rounded-full px-2 py-0.5">
-              <Text className="text-emerald-400/80 text-[10px] font-bold uppercase tracking-wider">
+            <Text className="text-muted text-xs font-mono">{dateLabel}</Text>
+            <View className="bg-surface-deep rounded-full px-2 py-0.5">
+              <Text className="text-accent/80 text-[10px] font-bold uppercase tracking-wider">
                 {meta.label}
               </Text>
             </View>
           </View>
-          <Text className="text-white text-sm font-medium mt-0.5" numberOfLines={1}>
+          <Text className="text-ink text-sm font-medium mt-0.5" numberOfLines={1}>
             {entry.somaticReality}
           </Text>
         </View>
         <View className="flex-row items-center gap-3">
           <TouchableOpacity onPress={onDelete} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
-            <Trash2 size={16} color="#475569" />
+            <Trash2 size={16} color="#6E675D" />
           </TouchableOpacity>
           <ChevronRight
             size={18}
-            color="#475569"
+            color="#6E675D"
             style={{ transform: [{ rotate: expanded ? '90deg' : '0deg' }] }}
           />
         </View>
       </TouchableOpacity>
 
       {expanded && (
-        <View className="px-4 pb-4 gap-3 border-t border-slate-800">
+        <View className="px-4 pb-4 gap-3 border-t border-line">
           <EntryField label="Somatic Reality" value={entry.somaticReality} />
           <EntryField label="The Spectator's Claim" value={entry.spectatorClaim} />
           <EntryField label={`Reframe — ${meta.label}`} value={meta.reframe} />
@@ -544,11 +544,11 @@ function EntryField({
 }) {
   return (
     <View className="mt-3">
-      <Text className="text-slate-500 text-xs font-bold uppercase tracking-widest mb-1">
+      <Text className="text-muted text-xs font-bold uppercase tracking-widest mb-1">
         {label}
       </Text>
       <Text
-        className={`text-sm leading-5 ${highlight ? 'text-emerald-300' : 'text-slate-300'}`}
+        className={`text-sm leading-5 ${highlight ? 'text-accent-soft' : 'text-body'}`}
       >
         {value}
       </Text>
@@ -580,14 +580,14 @@ function PartnerScriptsTab() {
     <ScrollView
       contentContainerStyle={{ paddingHorizontal: 24, paddingTop: 20, paddingBottom: 48 }}
     >
-      <Text className="text-slate-500 text-sm leading-5 mb-5">
+      <Text className="text-muted text-sm leading-5 mb-5">
         Research-backed scripts for opening conversations with your partner — adapted
         from Sensate Focus and CBST communication frameworks.
       </Text>
 
       {Object.entries(grouped).map(([category, scripts]) => (
         <View key={category} className="mb-6">
-          <Text className="text-slate-500 text-xs font-bold uppercase tracking-widest mb-3">
+          <Text className="text-muted text-xs font-bold uppercase tracking-widest mb-3">
             {category}
           </Text>
           <View className="gap-3">
@@ -618,7 +618,7 @@ function PartnerScriptCard({
   const [expanded, setExpanded] = useState(false);
 
   return (
-    <View className="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden">
+    <View className="bg-surface border border-line rounded-2xl overflow-hidden">
       {/* Header row */}
       <TouchableOpacity
         onPress={() => setExpanded((v) => !v)}
@@ -626,36 +626,36 @@ function PartnerScriptCard({
         className="flex-row items-center justify-between p-4"
       >
         <View className="flex-1 pr-3">
-          <Text className="text-white text-sm font-bold">{script.title}</Text>
+          <Text className="text-ink text-sm font-bold">{script.title}</Text>
         </View>
         <ChevronRight
           size={18}
-          color="#64748b"
+          color="#8A8378"
           style={{ transform: [{ rotate: expanded ? '90deg' : '0deg' }] }}
         />
       </TouchableOpacity>
 
       {expanded && (
-        <View className="px-4 pb-4 border-t border-slate-800">
-          <Text className="text-slate-400 text-sm leading-6 mt-3">{script.body}</Text>
+        <View className="px-4 pb-4 border-t border-line">
+          <Text className="text-body text-sm leading-6 mt-3">{script.body}</Text>
 
           <TouchableOpacity
             onPress={onCopy}
             activeOpacity={0.8}
             className={`mt-4 flex-row items-center justify-center gap-2 rounded-xl py-3 border ${
               isCopied
-                ? 'bg-emerald-500/10 border-emerald-500/40'
-                : 'bg-slate-800 border-slate-700'
+                ? 'bg-accent/10 border-accent/40'
+                : 'bg-surface-deep border-line'
             }`}
           >
             {isCopied ? (
-              <CheckCircle2 size={16} color="#34d399" />
+              <CheckCircle2 size={16} color="#C89B6D" />
             ) : (
-              <Copy size={16} color="#94a3b8" />
+              <Copy size={16} color="#B9B2A6" />
             )}
             <Text
               className={`text-xs font-bold ${
-                isCopied ? 'text-emerald-400' : 'text-slate-400'
+                isCopied ? 'text-accent' : 'text-body'
               }`}
             >
               {isCopied
