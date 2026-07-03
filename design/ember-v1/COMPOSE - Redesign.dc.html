@@ -1,0 +1,480 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="design_doc_mode" content="canvas">
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,300;8..60,400;8..60,600&family=Spectral:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+  html,body{margin:0;padding:0;background:#0a0d14;}
+  *{box-sizing:border-box;}
+  ::-webkit-scrollbar{display:none;}
+  @keyframes breathe{0%,100%{transform:scale(1);opacity:0.75;}50%{transform:scale(1.18);opacity:1;}}
+</style>
+</helmet>
+
+<section style="padding:56px 64px 96px;font-family:-apple-system,'SF Pro Text','Helvetica Neue',system-ui,sans-serif;">
+
+  <div style="max-width:1280px;margin-bottom:24px;">
+    <div style="color:#64748b;font-size:12px;font-weight:700;letter-spacing:0.2em;text-transform:uppercase;">Compose · Redesign explorations</div>
+    <div style="color:#f8fafc;font-size:34px;font-weight:700;margin-top:12px;">Four directions, and the psychology behind each</div>
+    <div style="color:#94a3b8;font-size:15px;line-height:1.65;margin-top:10px;max-width:860px;">Your own spec ("Twilight Anchor") calls for down-regulation — yet the current build uses a bright clinical emerald that reads like a fitness app: it stimulates the sympathetic system it exists to quiet. Every direction below lowers chroma, warms or cools the ground deliberately, and treats the UI as a nervous-system intervention. Dashboard directions are <a href="#2a" style="color:#7dd3fc;">2a</a>–<a href="#2d" style="color:#7dd3fc;">2d</a>; paywall strategies <a href="#3a" style="color:#7dd3fc;">3a</a>–<a href="#3c" style="color:#7dd3fc;">3c</a>; funnel + new features <a href="#4a" style="color:#7dd3fc;">4a</a>–<a href="#4d" style="color:#7dd3fc;">4d</a>.</div>
+  </div>
+
+  <!-- ═══════ DASHBOARD DIRECTIONS ═══════ -->
+  <div style="color:#64748b;font-size:13px;font-weight:700;letter-spacing:0.18em;text-transform:uppercase;margin:48px 0 20px;">The daily dashboard — four directions</div>
+  <div style="display:flex;flex-wrap:wrap;gap:56px;align-items:flex-start;">
+
+    <!-- 2a EMBER -->
+    <div id="2a" style="display:flex;flex-direction:column;gap:14px;align-items:center;max-width:402px;">
+      <x-import component-from-global-scope="IOSDevice" from="./ios-frame.jsx" dark="{{ true }}" hint-size="402px,874px">
+        <div data-screen-label="2a Ember Dashboard" style="width:100%;height:100%;background:#0C0B09;display:flex;flex-direction:column;font-family:-apple-system,system-ui,sans-serif;">
+          <div style="flex:1;display:flex;flex-direction:column;padding:76px 28px 0;">
+            <div style="display:flex;align-items:center;justify-content:space-between;">
+              <div style="color:#8A8378;font-size:11px;font-weight:600;letter-spacing:0.28em;text-transform:uppercase;">Compose</div>
+              <div style="display:flex;align-items:center;gap:6px;background:#161412;border:1px solid #262220;border-radius:999px;padding:7px 14px;">
+                <div style="width:6px;height:6px;border-radius:999px;background:#C89B6D;"></div>
+                <span style="color:#B9B2A6;font-size:12px;font-weight:600;">Steady me</span>
+              </div>
+            </div>
+            <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;">
+              <div style="width:250px;height:250px;position:relative;display:flex;align-items:center;justify-content:center;">
+                <svg width="250" height="250">
+                  <circle cx="125" cy="125" r="118" stroke="#221F1B" stroke-width="6" fill="none"></circle>
+                  <circle cx="125" cy="125" r="118" stroke="#C89B6D" stroke-width="6" fill="none" stroke-linecap="round" stroke-dasharray="741.4" stroke-dashoffset="632.7" transform="rotate(-90 125 125)"></circle>
+                </svg>
+                <div style="position:absolute;display:flex;flex-direction:column;align-items:center;">
+                  <div style="color:#8A8378;font-size:11px;font-weight:600;letter-spacing:0.24em;text-transform:uppercase;">Day</div>
+                  <div style="color:#EDE8E2;font-size:64px;font-weight:300;line-height:1.05;font-family:'Source Serif 4',serif;">12</div>
+                  <div style="color:#6E675D;font-size:13px;">of seventy-five</div>
+                </div>
+              </div>
+              <div style="color:#C89B6D;font-size:11px;font-weight:700;letter-spacing:0.22em;text-transform:uppercase;margin-top:28px;">Phase I · The Autonomic Reset</div>
+              <div style="color:#EDE8E2;font-size:22px;font-weight:400;font-family:'Source Serif 4',serif;margin-top:6px;text-align:center;">Somatic Capillary Flow</div>
+              <div style="color:#8A8378;font-size:13px;margin-top:6px;text-align:center;line-height:19px;">Low-excitation vascular retraining · 9 min</div>
+            </div>
+            <div style="padding-bottom:20px;">
+              <div style="background:#C89B6D;border-radius:16px;padding:19px;display:flex;align-items:center;justify-content:center;gap:10px;">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="#171310"><polygon points="6 3 20 12 6 21 6 3"></polygon></svg>
+                <span style="color:#171310;font-weight:700;font-size:16px;">Begin today's session</span>
+              </div>
+              <div style="color:#6E675D;font-size:12px;text-align:center;margin-top:12px;">11 consecutive days · rest is part of the work</div>
+            </div>
+          </div>
+          <div style="background:#12100E;border-top:1px solid #201D19;display:flex;padding:10px 0 28px;">
+            <div style="flex:1;text-align:center;"><div style="color:#C89B6D;font-size:11px;font-weight:600;">Today</div></div>
+            <div style="flex:1;text-align:center;"><div style="color:#6E675D;font-size:11px;">Restructure</div></div>
+            <div style="flex:1;text-align:center;"><div style="color:#6E675D;font-size:11px;">Baseline</div></div>
+            <div style="flex:1;text-align:center;"><div style="color:#6E675D;font-size:11px;">You</div></div>
+          </div>
+        </div>
+      </x-import>
+      <div style="width:100%;">
+        <div style="display:flex;align-items:center;gap:10px;"><a href="#2a" style="text-decoration:none;background:#1e293b;color:#94a3b8;font-size:12px;font-weight:700;padding:3px 9px;border-radius:999px;">2a</a><span style="color:#e2e8f0;font-size:14px;font-weight:700;">Ember — warm candlelight ground</span></div>
+        <div style="color:#94a3b8;font-size:12.5px;line-height:1.6;margin-top:6px;">Warm low-chroma copper on near-black brown. Warm light is the evolutionary safety cue (firelight = ventral vagal state); serif numerals shift the register from "medical app" to "private practice." Structure unchanged from current build — lowest-risk migration.</div>
+      </div>
+    </div>
+
+    <!-- 2b TWILIGHT DESCENT -->
+    <div id="2b" style="display:flex;flex-direction:column;gap:14px;align-items:center;max-width:402px;">
+      <x-import component-from-global-scope="IOSDevice" from="./ios-frame.jsx" dark="{{ true }}" hint-size="402px,874px">
+        <div data-screen-label="2b Twilight Dashboard" style="width:100%;height:100%;background:#07070F;display:flex;flex-direction:column;font-family:-apple-system,system-ui,sans-serif;position:relative;overflow:hidden;">
+          <div style="position:absolute;top:-140px;left:50%;margin-left:-220px;width:440px;height:440px;border-radius:999px;background:radial-gradient(circle,rgba(102,112,180,0.22) 0%,rgba(7,7,15,0) 65%);"></div>
+          <div style="flex:1;display:flex;flex-direction:column;padding:76px 28px 0;position:relative;">
+            <div style="display:flex;align-items:center;justify-content:space-between;">
+              <div style="color:#7B81A8;font-size:11px;font-weight:600;letter-spacing:0.28em;text-transform:uppercase;">Compose</div>
+              <div style="display:flex;align-items:center;gap:6px;background:rgba(139,147,199,0.1);border:1px solid rgba(139,147,199,0.25);border-radius:999px;padding:7px 14px;">
+                <span style="color:#A9AFD1;font-size:12px;font-weight:600;">Steady me</span>
+              </div>
+            </div>
+            <div style="margin-top:36px;">
+              <div style="color:#E8E9F2;font-size:30px;font-weight:600;line-height:1.25;">Twelve nights in.<br>Your system is learning.</div>
+              <div style="color:#7B81A8;font-size:13px;margin-top:8px;">Phase I · The Autonomic Reset · 13 nights remain</div>
+            </div>
+            <!-- 75-day descent path -->
+            <div style="flex:1;display:flex;margin-top:28px;gap:22px;">
+              <div style="display:flex;flex-direction:column;align-items:center;padding-top:4px;">
+                <div style="width:9px;height:9px;border-radius:999px;background:#565E8F;"></div>
+                <div style="width:1.5px;flex:0.32;background:linear-gradient(#565E8F,#8B93C7);"></div>
+                <div style="width:30px;height:30px;border-radius:999px;background:rgba(139,147,199,0.15);border:1.5px solid #8B93C7;display:flex;align-items:center;justify-content:center;box-shadow:0 0 24px rgba(139,147,199,0.35);"><span style="color:#C9CDE8;font-size:11px;font-weight:700;">12</span></div>
+                <div style="width:1.5px;flex:1;background:linear-gradient(rgba(139,147,199,0.5),rgba(139,147,199,0.05));"></div>
+              </div>
+              <div style="flex:1;display:flex;flex-direction:column;">
+                <div style="color:#565E8F;font-size:12px;padding:0 0 18px;margin-top:-2px;">Day 11 — The Mind-Reading Trap · complete</div>
+                <div style="background:rgba(139,147,199,0.08);border:1px solid rgba(139,147,199,0.25);border-radius:18px;padding:18px;margin-top:6px;">
+                  <div style="color:#8B93C7;font-size:10px;font-weight:700;letter-spacing:0.2em;text-transform:uppercase;">Tonight</div>
+                  <div style="color:#E8E9F2;font-size:17px;font-weight:600;margin-top:4px;">Somatic Capillary Flow</div>
+                  <div style="color:#7B81A8;font-size:12.5px;margin-top:4px;line-height:18px;">Anchor · conditioning · check-in — 9 minutes, one path.</div>
+                  <div style="background:#8B93C7;border-radius:12px;padding:14px;text-align:center;color:#0B0C18;font-weight:700;font-size:14px;margin-top:14px;">Begin</div>
+                </div>
+                <div style="color:#3E4468;font-size:12px;margin-top:20px;">Day 13 — Anchoring the Breath · unlocks at midnight</div>
+                <div style="color:#2C3153;font-size:12px;margin-top:12px;">Day 14 — Phase 1 Consolidation</div>
+              </div>
+            </div>
+          </div>
+          <div style="background:#0B0C16;border-top:1px solid #181A2B;display:flex;padding:10px 0 28px;position:relative;">
+            <div style="flex:1;text-align:center;"><div style="color:#A9AFD1;font-size:11px;font-weight:600;">Tonight</div></div>
+            <div style="flex:1;text-align:center;"><div style="color:#3E4468;font-size:11px;">Restructure</div></div>
+            <div style="flex:1;text-align:center;"><div style="color:#3E4468;font-size:11px;">Baseline</div></div>
+            <div style="flex:1;text-align:center;"><div style="color:#3E4468;font-size:11px;">You</div></div>
+          </div>
+        </div>
+      </x-import>
+      <div style="width:100%;">
+        <div style="display:flex;align-items:center;gap:10px;"><a href="#2b" style="text-decoration:none;background:#1e293b;color:#94a3b8;font-size:12px;font-weight:700;padding:3px 9px;border-radius:999px;">2b</a><span style="color:#e2e8f0;font-size:14px;font-weight:700;">Twilight Descent — the path metaphor</span></div>
+        <div style="color:#94a3b8;font-size:12.5px;line-height:1.6;margin-top:6px;">Structural change: replaces the ring with a vertical night-path. Yesterday visible above (endowed progress), tomorrow dimly below (Zeigarnik pull — the open loop the brain wants closed). Muted periwinkle at dusk; the copy speaks in "nights," pre-framing the evening use context.</div>
+      </div>
+    </div>
+
+    <!-- 2c EDITORIAL -->
+    <div id="2c" style="display:flex;flex-direction:column;gap:14px;align-items:center;max-width:402px;">
+      <x-import component-from-global-scope="IOSDevice" from="./ios-frame.jsx" dark="{{ true }}" hint-size="402px,874px">
+        <div data-screen-label="2c Editorial Dashboard" style="width:100%;height:100%;background:#0A0A0A;display:flex;flex-direction:column;font-family:'Spectral',serif;">
+          <div style="flex:1;display:flex;flex-direction:column;padding:80px 30px 0;">
+            <div style="display:flex;justify-content:space-between;align-items:baseline;border-bottom:1px solid #242424;padding-bottom:14px;">
+              <span style="color:#8F8B84;font-size:12px;letter-spacing:0.3em;text-transform:uppercase;font-family:-apple-system,system-ui,sans-serif;font-weight:600;">Compose</span>
+              <span style="color:#8F8B84;font-size:12px;font-family:-apple-system,system-ui,sans-serif;">Steady me →</span>
+            </div>
+            <div style="flex:1;display:flex;flex-direction:column;justify-content:center;">
+              <div style="color:#8F8B84;font-size:13px;font-style:italic;">Phase One — The Autonomic Reset</div>
+              <div style="color:#E5E1D8;font-size:58px;font-weight:300;line-height:1.08;margin-top:14px;">Day<br>Twelve</div>
+              <div style="width:44px;height:1px;background:#E5E1D8;margin:26px 0;"></div>
+              <div style="color:#E5E1D8;font-size:21px;font-weight:400;">Somatic Capillary Flow</div>
+              <div style="color:#8F8B84;font-size:14px;line-height:1.65;margin-top:10px;font-style:italic;">Attention drops from the mind's commentary into the slow warmth of circulation. Nothing to achieve tonight — only to notice.</div>
+              <div style="display:flex;align-items:center;gap:14px;margin-top:34px;">
+                <div style="width:58px;height:58px;border-radius:999px;border:1px solid #E5E1D8;display:flex;align-items:center;justify-content:center;">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="#E5E1D8"><polygon points="6 3 20 12 6 21 6 3"></polygon></svg>
+                </div>
+                <div>
+                  <div style="color:#E5E1D8;font-size:14px;font-family:-apple-system,system-ui,sans-serif;font-weight:600;">Begin the session</div>
+                  <div style="color:#8F8B84;font-size:12px;font-family:-apple-system,system-ui,sans-serif;margin-top:2px;">Nine minutes · one path</div>
+                </div>
+              </div>
+            </div>
+            <div style="border-top:1px solid #242424;padding:16px 0 20px;display:flex;justify-content:space-between;font-family:-apple-system,system-ui,sans-serif;">
+              <span style="color:#8F8B84;font-size:12px;">Eleven consecutive days</span>
+              <span style="color:#8F8B84;font-size:12px;">12 / 75</span>
+            </div>
+          </div>
+          <div style="background:#0E0E0E;border-top:1px solid #1D1D1D;display:flex;padding:10px 0 28px;font-family:-apple-system,system-ui,sans-serif;">
+            <div style="flex:1;text-align:center;"><div style="color:#E5E1D8;font-size:11px;font-weight:600;">Today</div></div>
+            <div style="flex:1;text-align:center;"><div style="color:#57544E;font-size:11px;">Restructure</div></div>
+            <div style="flex:1;text-align:center;"><div style="color:#57544E;font-size:11px;">Baseline</div></div>
+            <div style="flex:1;text-align:center;"><div style="color:#57544E;font-size:11px;">You</div></div>
+          </div>
+        </div>
+      </x-import>
+      <div style="width:100%;">
+        <div style="display:flex;align-items:center;gap:10px;"><a href="#2c" style="text-decoration:none;background:#1e293b;color:#94a3b8;font-size:12px;font-weight:700;padding:3px 9px;border-radius:999px;">2c</a><span style="color:#e2e8f0;font-size:14px;font-weight:700;">The Quiet Page — editorial monochrome</span></div>
+        <div style="color:#94a3b8;font-size:12.5px;line-height:1.6;margin-top:6px;">No accent color at all — bone on ink, literary serif, hairline rules. Reads as a private letterpress journal, not software: maximum discretion (nothing on this screen looks like a "men's health app") and zero visual stimulation. The focus line becomes a sentence worth reading — content as the interface.</div>
+      </div>
+    </div>
+
+    <!-- 2d SAGE ORB -->
+    <div id="2d" style="display:flex;flex-direction:column;gap:14px;align-items:center;max-width:402px;">
+      <x-import component-from-global-scope="IOSDevice" from="./ios-frame.jsx" dark="{{ true }}" hint-size="402px,874px">
+        <div data-screen-label="2d Sage Orb Dashboard" style="width:100%;height:100%;background:#080B0A;display:flex;flex-direction:column;font-family:-apple-system,system-ui,sans-serif;">
+          <div style="flex:1;display:flex;flex-direction:column;padding:76px 28px 0;">
+            <div style="display:flex;align-items:center;justify-content:space-between;">
+              <div>
+                <div style="color:#5F7268;font-size:11px;font-weight:600;letter-spacing:0.28em;text-transform:uppercase;">Day 12 · Phase I</div>
+                <div style="color:#E6EBE8;font-size:20px;font-weight:600;margin-top:4px;">Somatic Capillary Flow</div>
+              </div>
+              <div style="width:40px;height:40px;border-radius:999px;background:#101514;border:1px solid #1D2422;display:flex;align-items:center;justify-content:center;">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#7FA893" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><circle cx="12" cy="12" r="4"></circle></svg>
+              </div>
+            </div>
+            <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;">
+              <div style="position:relative;width:270px;height:270px;display:flex;align-items:center;justify-content:center;">
+                <div style="position:absolute;width:250px;height:250px;border-radius:999px;background:radial-gradient(circle,rgba(127,168,147,0.28) 0%,rgba(127,168,147,0.05) 55%,transparent 70%);animation:breathe 9s ease-in-out infinite;"></div>
+                <div style="width:170px;height:170px;border-radius:999px;background:rgba(127,168,147,0.10);border:1px solid rgba(127,168,147,0.45);display:flex;flex-direction:column;align-items:center;justify-content:center;">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="#AFC9BC" style="margin-bottom:8px;"><polygon points="6 3 20 12 6 21 6 3"></polygon></svg>
+                  <span style="color:#E6EBE8;font-size:14px;font-weight:600;">Touch to begin</span>
+                  <span style="color:#5F7268;font-size:11px;margin-top:2px;">9 minutes</span>
+                </div>
+              </div>
+              <div style="color:#5F7268;font-size:12.5px;margin-top:20px;text-align:center;line-height:19px;">The circle is already breathing at tonight's pace.<br>Match it before you press anything.</div>
+            </div>
+            <div style="display:flex;gap:10px;padding-bottom:20px;">
+              <div style="flex:1;background:#101514;border:1px solid #1D2422;border-radius:14px;padding:13px;text-align:center;"><div style="color:#AFC9BC;font-size:16px;font-weight:700;">11</div><div style="color:#5F7268;font-size:10.5px;margin-top:2px;">day streak</div></div>
+              <div style="flex:1;background:#101514;border:1px solid #1D2422;border-radius:14px;padding:13px;text-align:center;"><div style="color:#AFC9BC;font-size:16px;font-weight:700;">+1.1</div><div style="color:#5F7268;font-size:10.5px;margin-top:2px;">baseline shift</div></div>
+              <div style="flex:1;background:#101514;border:1px solid #1D2422;border-radius:14px;padding:13px;text-align:center;"><div style="color:#AFC9BC;font-size:16px;font-weight:700;">16%</div><div style="color:#5F7268;font-size:10.5px;margin-top:2px;">of protocol</div></div>
+            </div>
+          </div>
+          <div style="background:#0C100F;border-top:1px solid #182019;display:flex;padding:10px 0 28px;">
+            <div style="flex:1;text-align:center;"><div style="color:#AFC9BC;font-size:11px;font-weight:600;">Today</div></div>
+            <div style="flex:1;text-align:center;"><div style="color:#40514A;font-size:11px;">Restructure</div></div>
+            <div style="flex:1;text-align:center;"><div style="color:#40514A;font-size:11px;">Baseline</div></div>
+            <div style="flex:1;text-align:center;"><div style="color:#40514A;font-size:11px;">You</div></div>
+          </div>
+        </div>
+      </x-import>
+      <div style="width:100%;">
+        <div style="display:flex;align-items:center;gap:10px;"><a href="#2d" style="text-decoration:none;background:#1e293b;color:#94a3b8;font-size:12px;font-weight:700;padding:3px 9px;border-radius:999px;">2d</a><span style="color:#e2e8f0;font-size:14px;font-weight:700;">Sage Orb — regulation before interaction</span></div>
+        <div style="color:#94a3b8;font-size:12.5px;line-height:1.6;margin-top:6px;">Novel mechanic: the CTA <em>is</em> a live breathing orb, already moving at the session's pace. The user entrains for 2–3 breaths before he even taps — down-regulation starts pre-commitment, which raises session completion. Desaturated sage keeps brand continuity with today's emerald at ~⅓ the chroma.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════ PAYWALL STRATEGIES ═══════ -->
+  <div style="color:#64748b;font-size:13px;font-weight:700;letter-spacing:0.18em;text-transform:uppercase;margin:72px 0 20px;">Paywall — three conversion strategies (shown in Ember)</div>
+  <div style="display:flex;flex-wrap:wrap;gap:56px;align-items:flex-start;">
+
+    <!-- 3a TRUST RECEIPT -->
+    <div id="3a" style="display:flex;flex-direction:column;gap:14px;align-items:center;max-width:402px;">
+      <x-import component-from-global-scope="IOSDevice" from="./ios-frame.jsx" dark="{{ true }}" hint-size="402px,874px">
+        <div data-screen-label="3a Paywall Trust" style="width:100%;height:100%;background:#0C0B09;display:flex;flex-direction:column;padding:76px 28px 0;font-family:-apple-system,system-ui,sans-serif;">
+          <div style="color:#8A8378;font-size:11px;font-weight:600;letter-spacing:0.28em;text-transform:uppercase;">Your protocol</div>
+          <div style="color:#EDE8E2;font-size:27px;font-weight:400;font-family:'Source Serif 4',serif;line-height:1.3;margin-top:10px;">Seventy-five days.<br>One decision. No subscription.</div>
+          <div style="background:#161412;border:1px solid #262220;border-radius:18px;padding:22px;margin-top:26px;">
+            <div style="display:flex;justify-content:space-between;align-items:baseline;border-bottom:1px solid #262220;padding-bottom:14px;">
+              <span style="color:#B9B2A6;font-size:14px;">The 75-Day Protocol</span>
+              <span style="color:#EDE8E2;font-size:22px;font-weight:600;">$49.99</span>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:11px;padding-top:14px;">
+              <div style="display:flex;gap:10px;align-items:baseline;"><span style="color:#C89B6D;font-size:12px;">—</span><span style="color:#B9B2A6;font-size:13.5px;line-height:19px;flex:1;">Daily anchor, conditioning track, and check-in — under ten minutes</span></div>
+              <div style="display:flex;gap:10px;align-items:baseline;"><span style="color:#C89B6D;font-size:12px;">—</span><span style="color:#B9B2A6;font-size:13.5px;line-height:19px;flex:1;">The Steady-Me triage tools, always one tap away</span></div>
+              <div style="display:flex;gap:10px;align-items:baseline;"><span style="color:#C89B6D;font-size:12px;">—</span><span style="color:#B9B2A6;font-size:13.5px;line-height:19px;flex:1;">Everything stays on this device. Nothing syncs, nothing is shared.</span></div>
+              <div style="display:flex;gap:10px;align-items:baseline;"><span style="color:#C89B6D;font-size:12px;">—</span><span style="color:#B9B2A6;font-size:13.5px;line-height:19px;flex:1;">Pay once. It's yours. An optional $4.99/mo toolkit exists after Day 75 — your choice then, not now.</span></div>
+            </div>
+          </div>
+          <div style="background:#0F0E0C;border:1px solid #201D19;border-radius:14px;padding:16px;margin-top:14px;">
+            <div style="color:#8A8378;font-size:12.5px;line-height:19px;">Appears on your statement as <span style="color:#B9B2A6;">"CMPS Media"</span>. Notifications never mention what this app is for.</div>
+          </div>
+          <div style="flex:1;"></div>
+          <div style="background:#C89B6D;border-radius:16px;padding:19px;text-align:center;color:#171310;font-weight:700;font-size:16px;">Start Day 1 — $49.99</div>
+          <div style="display:flex;justify-content:center;gap:24px;padding:14px 0 24px;"><span style="color:#57534B;font-size:12px;">Restore</span><span style="color:#57534B;font-size:12px;">Privacy</span><span style="color:#57534B;font-size:12px;">Terms</span></div>
+        </div>
+      </x-import>
+      <div style="width:100%;">
+        <div style="display:flex;align-items:center;gap:10px;"><a href="#3a" style="text-decoration:none;background:#1e293b;color:#94a3b8;font-size:12px;font-weight:700;padding:3px 9px;border-radius:999px;">3a</a><span style="color:#e2e8f0;font-size:14px;font-weight:700;">The Receipt — trust-first</span></div>
+        <div style="color:#94a3b8;font-size:12.5px;line-height:1.6;margin-top:6px;">For this user, the biggest conversion blockers are shame and subscription-trap fear — not price. So the paywall sells the two things competitors can't: <em>no subscription</em> and <em>discretion</em> (statement descriptor, notification promise, on-device data). Disclosing the future $4.99/mo up front is a credibility play that also pre-seeds the Day-75 offer.</div>
+      </div>
+    </div>
+
+    <!-- 3b DIAGNOSIS STACK -->
+    <div id="3b" style="display:flex;flex-direction:column;gap:14px;align-items:center;max-width:402px;">
+      <x-import component-from-global-scope="IOSDevice" from="./ios-frame.jsx" dark="{{ true }}" hint-size="402px,874px">
+        <div data-screen-label="3b Paywall Diagnosis" style="width:100%;height:100%;background:#0C0B09;overflow:hidden;display:flex;flex-direction:column;padding:70px 26px 0;font-family:-apple-system,system-ui,sans-serif;">
+          <div style="background:#161412;border:1px solid #262220;border-radius:18px;padding:18px;">
+            <div style="color:#8A8378;font-size:10px;font-weight:700;letter-spacing:0.2em;text-transform:uppercase;">Your autonomic profile · from your answers</div>
+            <div style="display:flex;flex-direction:column;gap:12px;margin-top:14px;">
+              <div><div style="display:flex;justify-content:space-between;margin-bottom:5px;"><span style="color:#B9B2A6;font-size:12.5px;">Sympathetic override</span><span style="color:#D4A574;font-size:12px;font-weight:700;">High</span></div><div style="height:5px;background:#262220;border-radius:999px;"><div style="height:100%;width:82%;background:#C89B6D;border-radius:999px;"></div></div></div>
+              <div><div style="display:flex;justify-content:space-between;margin-bottom:5px;"><span style="color:#B9B2A6;font-size:12.5px;">Spectatoring loop</span><span style="color:#D4A574;font-size:12px;font-weight:700;">High</span></div><div style="height:5px;background:#262220;border-radius:999px;"><div style="height:100%;width:74%;background:#C89B6D;border-radius:999px;"></div></div></div>
+              <div><div style="display:flex;justify-content:space-between;margin-bottom:5px;"><span style="color:#B9B2A6;font-size:12.5px;">Pelvic release capacity</span><span style="color:#8A8378;font-size:12px;font-weight:700;">Partial</span></div><div style="height:5px;background:#262220;border-radius:999px;"><div style="height:100%;width:38%;background:#8A8378;border-radius:999px;"></div></div></div>
+            </div>
+            <div style="color:#8A8378;font-size:12px;line-height:17px;margin-top:12px;">Pattern: conditioned adrenaline response, 1–3 years established. Reversible with daily somatic retraining.</div>
+          </div>
+          <div style="color:#EDE8E2;font-size:20px;font-weight:600;margin-top:20px;line-height:1.35;">The 75-Day Reset, built for this profile</div>
+          <div style="display:flex;gap:10px;margin-top:14px;">
+            <div style="flex:1;background:#161412;border:1px solid #262220;border-radius:14px;padding:14px;">
+              <div style="color:#8A8378;font-size:11px;text-decoration:line-through;">Sex therapy, 12 weeks</div>
+              <div style="color:#B9B2A6;font-size:17px;font-weight:700;margin-top:3px;">$1,800+</div>
+            </div>
+            <div style="flex:1;background:rgba(200,155,109,0.1);border:1px solid rgba(200,155,109,0.4);border-radius:14px;padding:14px;">
+              <div style="color:#C89B6D;font-size:11px;font-weight:600;">COMPOSE, 75 days</div>
+              <div style="color:#EDE8E2;font-size:17px;font-weight:700;margin-top:3px;">$49.99 <span style="color:#8A8378;font-size:11px;font-weight:400;">once</span></div>
+            </div>
+          </div>
+          <div style="background:#161412;border:1px solid #262220;border-radius:14px;padding:14px 16px;margin-top:12px;display:flex;align-items:center;gap:12px;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#C89B6D" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"></path><path d="m9 12 2 2 4-4"></path></svg>
+            <div style="flex:1;"><div style="color:#EDE8E2;font-size:13px;font-weight:700;">14-day baseline guarantee</div><div style="color:#8A8378;font-size:11.5px;margin-top:2px;line-height:16px;">Complete the first 14 days. If your control score hasn't moved, full refund.</div></div>
+          </div>
+          <div style="flex:1;"></div>
+          <div style="background:#C89B6D;border-radius:16px;padding:18px;text-align:center;">
+            <div style="color:#171310;font-weight:700;font-size:16px;">Begin my reset — $49.99</div>
+            <div style="color:rgba(23,19,16,0.65);font-size:11.5px;margin-top:2px;">$0.67 a day · pay once, keep it</div>
+          </div>
+          <div style="text-align:center;padding:12px 0 22px;color:#57534B;font-size:12px;">Restore · Privacy · Terms</div>
+        </div>
+      </x-import>
+      <div style="width:100%;">
+        <div style="display:flex;align-items:center;gap:10px;"><a href="#3b" style="text-decoration:none;background:#1e293b;color:#94a3b8;font-size:12px;font-weight:700;padding:3px 9px;border-radius:999px;">3b</a><span style="color:#e2e8f0;font-size:14px;font-weight:700;">The Diagnosis Stack — full conversion architecture</span></div>
+        <div style="color:#94a3b8;font-size:12.5px;line-height:1.6;margin-top:6px;">The 23-question diagnostic currently evaporates at checkout — this design spends it. Profile card = personalization receipt (sunk-cost + Barnum precision). Therapy anchor reframes $49.99 from "expensive app" to "97% cheaper than the alternative." Risk reversal tied to the <em>user's own control score</em> converts skeptics without discount pressure. Highest expected paywall CVR of the three.</div>
+      </div>
+    </div>
+
+    <!-- 3c COMMITMENT -->
+    <div id="3c" style="display:flex;flex-direction:column;gap:14px;align-items:center;max-width:402px;">
+      <x-import component-from-global-scope="IOSDevice" from="./ios-frame.jsx" dark="{{ true }}" hint-size="402px,874px">
+        <div data-screen-label="3c Paywall Commitment" style="width:100%;height:100%;background:#0C0B09;display:flex;flex-direction:column;padding:76px 28px 0;font-family:-apple-system,system-ui,sans-serif;">
+          <div style="color:#8A8378;font-size:11px;font-weight:600;letter-spacing:0.28em;text-transform:uppercase;">Day zero</div>
+          <div style="color:#EDE8E2;font-size:27px;font-weight:400;font-family:'Source Serif 4',serif;line-height:1.32;margin-top:10px;">This only works if you show up. So we start with your word.</div>
+          <div style="background:#161412;border:1px solid #262220;border-radius:18px;padding:24px;margin-top:26px;">
+            <div style="color:#B9B2A6;font-size:15px;line-height:26px;font-family:'Source Serif 4',serif;font-style:italic;">"For the next 75 days I will give this ten minutes a day. Not to perform better — to stop performing at all."</div>
+            <div style="border-bottom:1px solid #3A362F;margin-top:30px;padding-bottom:6px;">
+              <span style="color:#EDE8E2;font-size:24px;font-family:'Source Serif 4',serif;font-style:italic;">Marcus</span>
+            </div>
+            <div style="color:#57534B;font-size:11px;margin-top:6px;">Signed on this device · July 2 · seen by no one</div>
+          </div>
+          <div style="display:flex;gap:10px;margin-top:14px;">
+            <div style="flex:1;background:#0F0E0C;border:1px solid #201D19;border-radius:14px;padding:13px;text-align:center;"><div style="color:#EDE8E2;font-size:16px;font-weight:700;">75</div><div style="color:#57534B;font-size:10.5px;margin-top:2px;">days</div></div>
+            <div style="flex:1;background:#0F0E0C;border:1px solid #201D19;border-radius:14px;padding:13px;text-align:center;"><div style="color:#EDE8E2;font-size:16px;font-weight:700;">10 min</div><div style="color:#57534B;font-size:10.5px;margin-top:2px;">a day</div></div>
+            <div style="flex:1;background:#0F0E0C;border:1px solid #201D19;border-radius:14px;padding:13px;text-align:center;"><div style="color:#EDE8E2;font-size:16px;font-weight:700;">$0.67</div><div style="color:#57534B;font-size:10.5px;margin-top:2px;">a day, once</div></div>
+          </div>
+          <div style="flex:1;"></div>
+          <div style="background:#C89B6D;border-radius:16px;padding:19px;text-align:center;color:#171310;font-weight:700;font-size:16px;">Sign &amp; begin — $49.99</div>
+          <div style="color:#57534B;font-size:12px;text-align:center;padding:12px 0 24px;">One payment. No subscription. Restore · Privacy · Terms</div>
+        </div>
+      </x-import>
+      <div style="width:100%;">
+        <div style="display:flex;align-items:center;gap:10px;"><a href="#3c" style="text-decoration:none;background:#1e293b;color:#94a3b8;font-size:12px;font-weight:700;padding:3px 9px;border-radius:999px;">3c</a><span style="color:#e2e8f0;font-size:14px;font-weight:700;">The Signature — commitment device</span></div>
+        <div style="color:#94a3b8;font-size:12.5px;line-height:1.6;margin-top:6px;">Reframes purchase as an oath, not a transaction. Signing in one's own hand is the strongest consistency trigger in behavioral economics (written + active + personal), and the signature becomes a retention asset: resurface it on Day 25/50 and in churn-risk moments. Payment rides in on the identity decision. Best D1–D7 retention of the three; test against 3b.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ═══════ FUNNEL + NEW FEATURES ═══════ -->
+  <div style="color:#64748b;font-size:13px;font-weight:700;letter-spacing:0.18em;text-transform:uppercase;margin:72px 0 20px;">Funnel moments &amp; new features</div>
+  <div style="display:flex;flex-wrap:wrap;gap:56px;align-items:flex-start;">
+
+    <!-- 4a WELCOME -->
+    <div id="4a" style="display:flex;flex-direction:column;gap:14px;align-items:center;max-width:402px;">
+      <x-import component-from-global-scope="IOSDevice" from="./ios-frame.jsx" dark="{{ true }}" hint-size="402px,874px">
+        <div data-screen-label="4a Welcome Redesign" style="width:100%;height:100%;background:#0C0B09;display:flex;flex-direction:column;padding:0 28px 36px;font-family:-apple-system,system-ui,sans-serif;position:relative;overflow:hidden;">
+          <div style="position:absolute;bottom:-180px;left:50%;margin-left:-260px;width:520px;height:520px;border-radius:999px;background:radial-gradient(circle,rgba(200,155,109,0.13) 0%,transparent 65%);"></div>
+          <div style="flex:1;display:flex;flex-direction:column;justify-content:center;position:relative;">
+            <div style="color:#8A8378;font-size:12px;font-weight:600;letter-spacing:0.32em;text-transform:uppercase;">Compose</div>
+            <div style="color:#EDE8E2;font-size:34px;font-weight:300;font-family:'Source Serif 4',serif;line-height:1.28;margin-top:22px;">Your body isn't failing you.<br>It's following orders.</div>
+            <div style="color:#8A8378;font-size:15.5px;line-height:1.6;margin-top:18px;">Over the next few minutes we'll map where those orders come from. Every answer stays on this phone.</div>
+            <div style="display:flex;align-items:center;gap:9px;margin-top:26px;">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#C89B6D" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="11" x="3" y="11" rx="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+              <span style="color:#8A8378;font-size:12.5px;">Private by design — no account, no sync, no lock-screen tells</span>
+            </div>
+          </div>
+          <div style="background:#C89B6D;border-radius:16px;padding:19px;text-align:center;color:#171310;font-weight:700;font-size:16px;position:relative;">Find my baseline</div>
+        </div>
+      </x-import>
+      <div style="width:100%;">
+        <div style="display:flex;align-items:center;gap:10px;"><a href="#4a" style="text-decoration:none;background:#1e293b;color:#94a3b8;font-size:12px;font-weight:700;padding:3px 9px;border-radius:999px;">4a</a><span style="color:#e2e8f0;font-size:14px;font-weight:700;">Welcome — privacy promise moved to second one</span></div>
+        <div style="color:#94a3b8;font-size:12.5px;line-height:1.6;margin-top:6px;">Keeps the strongest line in the product verbatim. Adds the discretion promise <em>before</em> the first question — for this user, "who can see this?" is the #1 silent objection at install, and answering it pre-emptively lifts funnel starts.</div>
+      </div>
+    </div>
+
+    <!-- 4b DIAGNOSTIC QUESTION -->
+    <div id="4b" style="display:flex;flex-direction:column;gap:14px;align-items:center;max-width:402px;">
+      <x-import component-from-global-scope="IOSDevice" from="./ios-frame.jsx" dark="{{ true }}" hint-size="402px,874px">
+        <div data-screen-label="4b Diagnostic Redesign" style="width:100%;height:100%;background:#0C0B09;display:flex;flex-direction:column;font-family:-apple-system,system-ui,sans-serif;">
+          <div style="padding:60px 28px 0;">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+              <span style="color:#57534B;font-size:11px;font-weight:600;letter-spacing:0.14em;">MAPPING · 7 OF 23</span>
+              <span style="color:#57534B;font-size:11px;">~4 min left</span>
+            </div>
+            <div style="height:3px;width:100%;background:#201D19;border-radius:999px;"><div style="height:100%;width:30%;background:#C89B6D;border-radius:999px;"></div></div>
+          </div>
+          <div style="flex:1;display:flex;flex-direction:column;padding:36px 28px 0;">
+            <div style="color:#EDE8E2;font-size:23px;font-weight:400;font-family:'Source Serif 4',serif;line-height:1.4;">During intimacy, do you ever feel like you're watching yourself from the outside — evaluating instead of experiencing?</div>
+            <div style="color:#8A8378;font-size:13px;margin-top:12px;line-height:19px;">Clinicians call this "spectatoring." It has a name because it's common.</div>
+            <div style="display:flex;flex-direction:column;gap:11px;margin-top:30px;">
+              <div style="background:#161412;border:1px solid #262220;border-radius:14px;padding:17px 18px;color:#B9B2A6;font-size:15px;">Yes — almost every time</div>
+              <div style="background:rgba(200,155,109,0.1);border:1px solid rgba(200,155,109,0.5);border-radius:14px;padding:17px 18px;color:#E8D8C3;font-size:15px;">Sometimes</div>
+              <div style="background:#161412;border:1px solid #262220;border-radius:14px;padding:17px 18px;color:#B9B2A6;font-size:15px;">Rarely</div>
+            </div>
+          </div>
+          <div style="padding:0 28px 36px;">
+            <div style="color:#57534B;font-size:12px;text-align:center;">Answers stay on this phone. Always.</div>
+          </div>
+        </div>
+      </x-import>
+      <div style="width:100%;">
+        <div style="display:flex;align-items:center;gap:10px;"><a href="#4b" style="text-decoration:none;background:#1e293b;color:#94a3b8;font-size:12px;font-weight:700;padding:3px 9px;border-radius:999px;">4b</a><span style="color:#e2e8f0;font-size:14px;font-weight:700;">Diagnostic — normalization microcopy</span></div>
+        <div style="color:#94a3b8;font-size:12.5px;line-height:1.6;margin-top:6px;">Each sensitive question gains one normalizing line ("it has a name because it's common") — this is the single highest-leverage funnel change available: shame is the drop-off driver in steps 6–20, and normalization keeps the sympathetic system quiet enough to keep answering. Time-remaining estimate replaces raw step count (goal-gradient effect).</div>
+      </div>
+    </div>
+
+    <!-- 4c DISCREET MODE -->
+    <div id="4c" style="display:flex;flex-direction:column;gap:14px;align-items:center;max-width:402px;">
+      <x-import component-from-global-scope="IOSDevice" from="./ios-frame.jsx" dark="{{ true }}" hint-size="402px,874px">
+        <div data-screen-label="4c Discreet Mode" style="width:100%;height:100%;background:#0C0B09;display:flex;flex-direction:column;padding:72px 28px 0;font-family:-apple-system,system-ui,sans-serif;">
+          <div style="color:#8A8378;font-size:11px;font-weight:600;letter-spacing:0.28em;text-transform:uppercase;">Discretion</div>
+          <div style="color:#EDE8E2;font-size:26px;font-weight:600;margin-top:6px;">Unreadable at a glance</div>
+          <div style="color:#8A8378;font-size:13.5px;line-height:20px;margin-top:8px;">How Compose appears on your home screen, lock screen, and anywhere outside the app.</div>
+          <div style="color:#57534B;font-size:11px;font-weight:700;letter-spacing:0.16em;text-transform:uppercase;margin:26px 0 12px;">App icon &amp; name</div>
+          <div style="display:flex;gap:12px;">
+            <div style="flex:1;background:#161412;border:1px solid rgba(200,155,109,0.55);border-radius:16px;padding:14px 10px;display:flex;flex-direction:column;align-items:center;gap:8px;">
+              <div style="width:44px;height:44px;border-radius:11px;background:#1C1916;border:1px solid #2E2A24;display:flex;align-items:center;justify-content:center;"><div style="width:10px;height:10px;border-radius:999px;border:1.5px solid #C89B6D;"></div></div>
+              <span style="color:#B9B2A6;font-size:11px;">Compose</span>
+            </div>
+            <div style="flex:1;background:#161412;border:1px solid #262220;border-radius:16px;padding:14px 10px;display:flex;flex-direction:column;align-items:center;gap:8px;">
+              <div style="width:44px;height:44px;border-radius:11px;background:#1A1D24;display:flex;align-items:center;justify-content:center;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#8B93C7" stroke-width="2" stroke-linecap="round"><path d="M12 2v20"></path><path d="M2 12h20"></path></svg></div>
+              <span style="color:#B9B2A6;font-size:11px;">Habits</span>
+            </div>
+            <div style="flex:1;background:#161412;border:1px solid #262220;border-radius:16px;padding:14px 10px;display:flex;flex-direction:column;align-items:center;gap:8px;">
+              <div style="width:44px;height:44px;border-radius:11px;background:#151A17;display:flex;align-items:center;justify-content:center;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#7FA893" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v18"></path><path d="M5.5 8.5 12 3l6.5 5.5"></path></svg></div>
+              <span style="color:#B9B2A6;font-size:11px;">Breathe</span>
+            </div>
+          </div>
+          <div style="color:#57534B;font-size:11px;font-weight:700;letter-spacing:0.16em;text-transform:uppercase;margin:26px 0 12px;">Surfaces</div>
+          <div style="background:#161412;border:1px solid #262220;border-radius:16px;overflow:hidden;">
+            <div style="padding:15px 16px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #201D19;">
+              <div style="flex:1;padding-right:12px;"><div style="color:#EDE8E2;font-size:14px;">Neutral notifications</div><div style="color:#8A8378;font-size:11.5px;margin-top:2px;">"Today's session is ready." Never more.</div></div>
+              <div style="width:44px;height:26px;border-radius:999px;background:#C89B6D;position:relative;"><div style="position:absolute;top:3px;right:3px;width:20px;height:20px;border-radius:999px;background:#171310;"></div></div>
+            </div>
+            <div style="padding:15px 16px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #201D19;">
+              <div style="flex:1;padding-right:12px;"><div style="color:#EDE8E2;font-size:14px;">Face ID to open</div><div style="color:#8A8378;font-size:11.5px;margin-top:2px;">A handed-over phone shows nothing.</div></div>
+              <div style="width:44px;height:26px;border-radius:999px;background:#C89B6D;position:relative;"><div style="position:absolute;top:3px;right:3px;width:20px;height:20px;border-radius:999px;background:#171310;"></div></div>
+            </div>
+            <div style="padding:15px 16px;display:flex;align-items:center;justify-content:space-between;">
+              <div style="flex:1;padding-right:12px;"><div style="color:#EDE8E2;font-size:14px;">Hide from app switcher</div><div style="color:#8A8378;font-size:11.5px;margin-top:2px;">Blurs the preview card when you switch apps.</div></div>
+              <div style="width:44px;height:26px;border-radius:999px;background:#33302A;position:relative;"><div style="position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:999px;background:#6E675D;"></div></div>
+            </div>
+          </div>
+          <div style="color:#57534B;font-size:12px;line-height:17px;margin-top:14px;">Purchases appear on card statements as "CMPS Media."</div>
+        </div>
+      </x-import>
+      <div style="width:100%;">
+        <div style="display:flex;align-items:center;gap:10px;"><a href="#4c" style="text-decoration:none;background:#1e293b;color:#94a3b8;font-size:12px;font-weight:700;padding:3px 9px;border-radius:999px;">4c</a><span style="color:#e2e8f0;font-size:14px;font-weight:700;">Discreet Mode — new feature</span></div>
+        <div style="color:#94a3b8;font-size:12.5px;line-height:1.6;margin-top:6px;">Your spec names "lock-screen shame" a hard requirement but the build has no surface for it. Alternate icons (iOS <code style="font-size:11px;">setAlternateIconName</code>), Face ID gate, switcher blur, neutral notifications. Churn mechanism: one over-the-shoulder exposure event can end usage permanently — this is churn insurance, and worth showing <em>during onboarding</em> as a trust signal.</div>
+      </div>
+    </div>
+
+    <!-- 4d GRADUATION / POST-75 -->
+    <div id="4d" style="display:flex;flex-direction:column;gap:14px;align-items:center;max-width:402px;">
+      <x-import component-from-global-scope="IOSDevice" from="./ios-frame.jsx" dark="{{ true }}" hint-size="402px,874px">
+        <div data-screen-label="4d Graduation" style="width:100%;height:100%;background:#0C0B09;display:flex;flex-direction:column;padding:72px 28px 0;font-family:-apple-system,system-ui,sans-serif;">
+          <div style="color:#C89B6D;font-size:11px;font-weight:700;letter-spacing:0.28em;text-transform:uppercase;">Day seventy-five</div>
+          <div style="color:#EDE8E2;font-size:30px;font-weight:300;font-family:'Source Serif 4',serif;line-height:1.3;margin-top:10px;">The protocol is over.<br>The baseline is yours.</div>
+          <div style="background:#161412;border:1px solid #262220;border-radius:18px;padding:20px;margin-top:24px;">
+            <div style="color:#8A8378;font-size:10px;font-weight:700;letter-spacing:0.2em;text-transform:uppercase;">What you built · from your own logs</div>
+            <div style="display:flex;gap:10px;margin-top:14px;">
+              <div style="flex:1;text-align:center;"><div style="color:#EDE8E2;font-size:22px;font-weight:700;">75</div><div style="color:#57534B;font-size:10.5px;margin-top:2px;">days completed</div></div>
+              <div style="flex:1;text-align:center;"><div style="color:#EDE8E2;font-size:22px;font-weight:700;">2.1→4.3</div><div style="color:#57534B;font-size:10.5px;margin-top:2px;">control score</div></div>
+              <div style="flex:1;text-align:center;"><div style="color:#EDE8E2;font-size:22px;font-weight:700;">19</div><div style="color:#57534B;font-size:10.5px;margin-top:2px;">anchors written</div></div>
+            </div>
+            <div style="border-top:1px solid #201D19;margin-top:16px;padding-top:14px;">
+              <div style="color:#B9B2A6;font-size:14px;line-height:23px;font-family:'Source Serif 4',serif;font-style:italic;">"My body followed adrenaline. That's physiology, not a verdict on me." <span style="color:#57534B;font-size:11px;font-style:normal;font-family:-apple-system,system-ui,sans-serif;">— you, Day 21</span></div>
+            </div>
+          </div>
+          <div style="background:#0F0E0C;border:1px solid #201D19;border-radius:16px;padding:18px;margin-top:14px;">
+            <div style="color:#EDE8E2;font-size:14px;font-weight:700;">Keep the toolkit within reach</div>
+            <div style="color:#8A8378;font-size:12.5px;line-height:18px;margin-top:4px;">Steady-Me tools, your vault, maintenance tracks, and the log that proves the shift — $4.99/mo. Or leave with everything you've learned. Both are wins.</div>
+            <div style="display:flex;gap:10px;margin-top:14px;">
+              <div style="flex:1;background:#C89B6D;border-radius:12px;padding:13px;text-align:center;color:#171310;font-weight:700;font-size:13.5px;">Keep the toolkit</div>
+              <div style="flex:1;background:transparent;border:1px solid #33302A;border-radius:12px;padding:13px;text-align:center;color:#8A8378;font-weight:600;font-size:13.5px;">I'm done — export my record</div>
+            </div>
+          </div>
+          <div style="flex:1;"></div>
+          <div style="color:#57534B;font-size:12px;text-align:center;padding-bottom:26px;">Your data stays on this device either way.</div>
+        </div>
+      </x-import>
+      <div style="width:100%;">
+        <div style="display:flex;align-items:center;gap:10px;"><a href="#4d" style="text-decoration:none;background:#1e293b;color:#94a3b8;font-size:12px;font-weight:700;padding:3px 9px;border-radius:999px;">4d</a><span style="color:#e2e8f0;font-size:14px;font-weight:700;">Graduation — the continuation as endowment</span></div>
+        <div style="color:#94a3b8;font-size:12.5px;line-height:1.6;margin-top:6px;">The $4.99/mo decision is won <em>before</em> the offer: his own before/after score, his own written anchor quoted back to him. That's loss aversion on an asset he authored — not a nag. The honest walk-away path ("both are wins", data export) paradoxically raises take-rate: removing pressure removes reactance. Quoting his Day-21 anchor is the identity-consolidation close.</div>
+      </div>
+    </div>
+  </div>
+
+  <div style="max-width:900px;margin-top:72px;background:#111623;border:1px solid #1e293b;border-radius:16px;padding:28px 32px;">
+    <div style="color:#e2e8f0;font-size:15px;font-weight:700;">Recommendation</div>
+    <div style="color:#94a3b8;font-size:13.5px;line-height:1.7;margin-top:8px;">Ship <a href="#2a" style="color:#7dd3fc;">2a Ember</a> as the system (lowest migration risk, strongest "private practice" register), adopt the breathing-orb CTA from <a href="#2d" style="color:#7dd3fc;">2d</a> inside the session flow, run <a href="#3b" style="color:#7dd3fc;">3b</a> vs <a href="#3c" style="color:#7dd3fc;">3c</a> as the first paywall A/B, and build <a href="#4c" style="color:#7dd3fc;">4c Discreet Mode</a> before any of it — it's the churn floor everything else sits on. The recreation of the current build is in <em>COMPOSE — Current UI.dc.html</em> for side-by-side comparison.</div>
+  </div>
+</section>
+
+</x-dc>
+</body>
+</html>

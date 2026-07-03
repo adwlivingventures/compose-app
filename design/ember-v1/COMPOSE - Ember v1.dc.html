@@ -1,0 +1,742 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="design_doc_mode" content="canvas">
+<link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:opsz,wght@8..60,300;8..60,400;8..60,600&display=swap" rel="stylesheet">
+<style>
+  html,body{margin:0;padding:0;background:#0a0d14;}
+  *{box-sizing:border-box;}
+  ::-webkit-scrollbar{display:none;}
+  @keyframes breathe{0%,100%{transform:scale(1);opacity:0.75;}50%{transform:scale(1.18);opacity:1;}}
+</style>
+</helmet>
+
+<section style="padding:56px 64px 96px;font-family:-apple-system,'SF Pro Text','Helvetica Neue',system-ui,sans-serif;">
+
+  <div style="max-width:1280px;margin-bottom:8px;">
+    <div style="color:#64748b;font-size:12px;font-weight:700;letter-spacing:0.2em;text-transform:uppercase;">Compose · Ember v1 — production spec</div>
+    <div style="color:#f8fafc;font-size:34px;font-weight:700;margin-top:12px;">The full app in the Ember system</div>
+    <div style="color:#94a3b8;font-size:15px;line-height:1.65;margin-top:10px;max-width:860px;">Every screen, execution-ready: Ember tokens throughout, the breathing-orb mechanic inside the session flow, both paywall arms marked for A/B, and Discreet Mode wired into onboarding and Profile. This file is the source of truth for implementation.</div>
+  </div>
+
+  <!-- ═══ TOKENS ═══ -->
+  <div style="color:#64748b;font-size:13px;font-weight:700;letter-spacing:0.18em;text-transform:uppercase;margin:40px 0 16px;">Design tokens</div>
+  <div style="display:flex;flex-wrap:wrap;gap:16px;max-width:1100px;">
+    <div style="background:#111623;border:1px solid #1e293b;border-radius:14px;padding:18px 20px;display:flex;gap:14px;align-items:center;">
+      <div style="display:flex;gap:8px;">
+        <div style="width:34px;height:34px;border-radius:8px;background:#0C0B09;border:1px solid #262220;"></div>
+        <div style="width:34px;height:34px;border-radius:8px;background:#161412;border:1px solid #262220;"></div>
+        <div style="width:34px;height:34px;border-radius:8px;background:#262220;"></div>
+        <div style="width:34px;height:34px;border-radius:8px;background:#C89B6D;"></div>
+        <div style="width:34px;height:34px;border-radius:8px;background:#EDE8E2;"></div>
+        <div style="width:34px;height:34px;border-radius:8px;background:#8A8378;"></div>
+      </div>
+      <div style="color:#94a3b8;font-size:12px;line-height:1.6;">ground <code>#0C0B09</code> · surface <code>#161412</code> · border <code>#262220</code><br>accent <code>#C89B6D</code> · text <code>#EDE8E2</code> · muted <code>#8A8378</code></div>
+    </div>
+    <div style="background:#111623;border:1px solid #1e293b;border-radius:14px;padding:18px 20px;">
+      <div style="color:#EDE8E2;font-size:20px;font-family:'Source Serif 4',serif;font-weight:300;">Source Serif 4 — display &amp; numerals</div>
+      <div style="color:#94a3b8;font-size:13px;margin-top:4px;">SF Pro (system) — UI, labels, body · copper reserved for the one primary action + progress</div>
+    </div>
+  </div>
+
+  <!-- ═══ ONBOARDING ═══ -->
+  <div style="color:#64748b;font-size:13px;font-weight:700;letter-spacing:0.18em;text-transform:uppercase;margin:56px 0 20px;">Flow 1 · Onboarding → paywall</div>
+  <div style="display:flex;flex-wrap:wrap;gap:48px;align-items:flex-start;">
+
+    <!-- 01 WELCOME -->
+    <div style="display:flex;flex-direction:column;gap:12px;align-items:center;">
+      <x-import component-from-global-scope="IOSDevice" from="./ios-frame.jsx" dark="{{ true }}" hint-size="402px,874px">
+        <div data-screen-label="E01 Welcome" style="width:100%;height:100%;background:#0C0B09;display:flex;flex-direction:column;padding:0 28px 36px;font-family:-apple-system,system-ui,sans-serif;position:relative;overflow:hidden;">
+          <div style="position:absolute;bottom:-180px;left:50%;margin-left:-260px;width:520px;height:520px;border-radius:999px;background:radial-gradient(circle,rgba(200,155,109,0.13) 0%,transparent 65%);"></div>
+          <div style="flex:1;display:flex;flex-direction:column;justify-content:center;position:relative;">
+            <div style="color:#8A8378;font-size:12px;font-weight:600;letter-spacing:0.32em;text-transform:uppercase;">Compose</div>
+            <div style="color:#EDE8E2;font-size:34px;font-weight:300;font-family:'Source Serif 4',serif;line-height:1.28;margin-top:22px;">Your body isn't failing you.<br>It's following orders.</div>
+            <div style="color:#8A8378;font-size:15.5px;line-height:1.6;margin-top:18px;">Over the next few minutes we'll map where those orders come from. Every answer stays on this phone.</div>
+            <div style="display:flex;align-items:center;gap:9px;margin-top:26px;">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#C89B6D" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="11" x="3" y="11" rx="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+              <span style="color:#8A8378;font-size:12.5px;">Private by design — no account, no sync, no lock-screen tells</span>
+            </div>
+          </div>
+          <div style="background:#C89B6D;border-radius:16px;padding:19px;text-align:center;color:#171310;font-weight:700;font-size:16px;position:relative;">Find my baseline</div>
+        </div>
+      </x-import>
+      <div style="color:#94a3b8;font-size:13px;font-weight:600;">E01 · Welcome — privacy promise up front</div>
+    </div>
+
+    <!-- 02 DIAGNOSTIC -->
+    <div style="display:flex;flex-direction:column;gap:12px;align-items:center;">
+      <x-import component-from-global-scope="IOSDevice" from="./ios-frame.jsx" dark="{{ true }}" hint-size="402px,874px">
+        <div data-screen-label="E02 Diagnostic" style="width:100%;height:100%;background:#0C0B09;display:flex;flex-direction:column;font-family:-apple-system,system-ui,sans-serif;">
+          <div style="padding:60px 28px 0;">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+              <span style="color:#57534B;font-size:11px;font-weight:600;letter-spacing:0.14em;">MAPPING · 7 OF 23</span>
+              <span style="color:#57534B;font-size:11px;">~4 min left</span>
+            </div>
+            <div style="height:3px;width:100%;background:#201D19;border-radius:999px;"><div style="height:100%;width:30%;background:#C89B6D;border-radius:999px;"></div></div>
+          </div>
+          <div style="flex:1;display:flex;flex-direction:column;padding:36px 28px 0;">
+            <div style="color:#EDE8E2;font-size:23px;font-weight:400;font-family:'Source Serif 4',serif;line-height:1.4;">During intimacy, do you ever feel like you're watching yourself from the outside — evaluating instead of experiencing?</div>
+            <div style="color:#8A8378;font-size:13px;margin-top:12px;line-height:19px;">Clinicians call this "spectatoring." It has a name because it's common.</div>
+            <div style="display:flex;flex-direction:column;gap:11px;margin-top:30px;">
+              <div style="background:#161412;border:1px solid #262220;border-radius:14px;padding:17px 18px;color:#B9B2A6;font-size:15px;">Yes — almost every time</div>
+              <div style="background:rgba(200,155,109,0.1);border:1px solid rgba(200,155,109,0.5);border-radius:14px;padding:17px 18px;color:#E8D8C3;font-size:15px;">Sometimes</div>
+              <div style="background:#161412;border:1px solid #262220;border-radius:14px;padding:17px 18px;color:#B9B2A6;font-size:15px;">Rarely</div>
+            </div>
+          </div>
+          <div style="padding:0 28px 36px;">
+            <div style="color:#57534B;font-size:12px;text-align:center;">Answers stay on this phone. Always.</div>
+          </div>
+        </div>
+      </x-import>
+      <div style="color:#94a3b8;font-size:13px;font-weight:600;">E02 · Diagnostic template — normalization line on sensitive steps</div>
+    </div>
+
+    <!-- 03 CLENCH -->
+    <div style="display:flex;flex-direction:column;gap:12px;align-items:center;">
+      <x-import component-from-global-scope="IOSDevice" from="./ios-frame.jsx" dark="{{ true }}" hint-size="402px,874px">
+        <div data-screen-label="E03 Clench Test" style="width:100%;height:100%;background:#0C0B09;display:flex;flex-direction:column;font-family:-apple-system,system-ui,sans-serif;">
+          <div style="padding:60px 28px 0;">
+            <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;">
+              <span style="color:#57534B;font-size:11px;font-weight:600;letter-spacing:0.14em;">MAPPING · 11 OF 23</span>
+              <span style="color:#57534B;font-size:11px;">~3 min left</span>
+            </div>
+            <div style="height:3px;width:100%;background:#201D19;border-radius:999px;"><div style="height:100%;width:48%;background:#C89B6D;border-radius:999px;"></div></div>
+          </div>
+          <div style="flex:1;padding:32px 28px 0;">
+            <div style="color:#EDE8E2;font-size:23px;font-weight:400;font-family:'Source Serif 4',serif;line-height:1.4;">Let's feel it, not describe it.</div>
+            <div style="color:#8A8378;font-size:13.5px;margin-top:10px;line-height:20px;">Chronic pelvic tension is the physical arm of the adrenaline trap. Twenty seconds gives us your baseline.</div>
+            <div style="background:#161412;border:1px solid #262220;border-radius:18px;padding:20px;display:flex;flex-direction:column;gap:13px;margin-top:24px;">
+              <div style="display:flex;gap:12px;align-items:flex-start;"><span style="color:#C89B6D;font-size:13px;font-weight:700;font-family:'Source Serif 4',serif;">1</span><span style="color:#B9B2A6;font-size:14px;line-height:20px;flex:1;">Sit comfortably, feet flat on the floor.</span></div>
+              <div style="display:flex;gap:12px;align-items:flex-start;"><span style="color:#C89B6D;font-size:13px;font-weight:700;font-family:'Source Serif 4',serif;">2</span><span style="color:#B9B2A6;font-size:14px;line-height:20px;flex:1;">On Begin, clench your pelvic floor — as if stopping urine flow.</span></div>
+              <div style="display:flex;gap:12px;align-items:flex-start;"><span style="color:#C89B6D;font-size:13px;font-weight:700;font-family:'Source Serif 4',serif;">3</span><span style="color:#B9B2A6;font-size:14px;line-height:20px;flex:1;">Hold five seconds, release fully on cue. Notice what release feels like.</span></div>
+            </div>
+            <div style="display:flex;justify-content:center;margin-top:32px;">
+              <div style="width:150px;height:150px;border-radius:999px;border:1.5px solid rgba(200,155,109,0.5);background:rgba(200,155,109,0.07);display:flex;flex-direction:column;align-items:center;justify-content:center;">
+                <span style="color:#EDE8E2;font-size:34px;font-weight:300;font-family:'Source Serif 4',serif;">5</span>
+                <span style="color:#8A8378;font-size:10.5px;letter-spacing:0.2em;text-transform:uppercase;margin-top:2px;">Clench &amp; hold</span>
+              </div>
+            </div>
+          </div>
+          <div style="padding:0 28px 36px;">
+            <div style="background:#C89B6D;border-radius:16px;padding:18px;text-align:center;color:#171310;font-weight:700;font-size:15px;">Begin the 20-second check</div>
+          </div>
+        </div>
+      </x-import>
+      <div style="color:#94a3b8;font-size:13px;font-weight:600;">E03 · Clench test — the funnel's felt-proof moment</div>
+    </div>
+
+    <!-- 04 ANALYZER -->
+    <div style="display:flex;flex-direction:column;gap:12px;align-items:center;">
+      <x-import component-from-global-scope="IOSDevice" from="./ios-frame.jsx" dark="{{ true }}" hint-size="402px,874px">
+        <div data-screen-label="E04 Analyzer" style="width:100%;height:100%;background:#0C0B09;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:0 28px;font-family:-apple-system,system-ui,sans-serif;">
+          <div style="width:190px;height:190px;position:relative;display:flex;align-items:center;justify-content:center;margin-bottom:34px;">
+            <svg width="190" height="190" style="position:absolute;transform:rotate(-90deg);">
+              <circle cx="95" cy="95" r="88" stroke="#201D19" stroke-width="6" fill="none"></circle>
+              <circle cx="95" cy="95" r="88" stroke="#C89B6D" stroke-width="6" fill="none" stroke-dasharray="553" stroke-dashoffset="182" stroke-linecap="round"></circle>
+            </svg>
+            <span style="color:#EDE8E2;font-size:38px;font-weight:300;font-family:'Source Serif 4',serif;">67%</span>
+          </div>
+          <div style="color:#B9B2A6;font-size:14px;text-align:center;">Structuring your neuroplasticity timeline</div>
+          <div style="color:#57534B;font-size:12px;text-align:center;margin-top:8px;">autonomic profile ✓ · pelvic baseline ✓ · 75-day sequence…</div>
+        </div>
+      </x-import>
+      <div style="color:#94a3b8;font-size:13px;font-weight:600;">E04 · Analyzer — labor illusion, ~3.5s</div>
+    </div>
+
+    <!-- 05 PROFILE READOUT -->
+    <div style="display:flex;flex-direction:column;gap:12px;align-items:center;">
+      <x-import component-from-global-scope="IOSDevice" from="./ios-frame.jsx" dark="{{ true }}" hint-size="402px,874px">
+        <div data-screen-label="E05 Autonomic Profile" style="width:100%;height:100%;background:#0C0B09;display:flex;flex-direction:column;padding:72px 28px 0;font-family:-apple-system,system-ui,sans-serif;">
+          <div style="color:#8A8378;font-size:11px;font-weight:600;letter-spacing:0.28em;text-transform:uppercase;">Your map</div>
+          <div style="color:#EDE8E2;font-size:27px;font-weight:300;font-family:'Source Serif 4',serif;line-height:1.32;margin-top:8px;">Marcus, here is what your answers show.</div>
+          <div style="background:#161412;border:1px solid #262220;border-radius:18px;padding:20px;margin-top:22px;">
+            <div style="display:flex;flex-direction:column;gap:13px;">
+              <div><div style="display:flex;justify-content:space-between;margin-bottom:5px;"><span style="color:#B9B2A6;font-size:13px;">Sympathetic override</span><span style="color:#D4A574;font-size:12px;font-weight:700;">High</span></div><div style="height:5px;background:#262220;border-radius:999px;"><div style="height:100%;width:82%;background:#C89B6D;border-radius:999px;"></div></div></div>
+              <div><div style="display:flex;justify-content:space-between;margin-bottom:5px;"><span style="color:#B9B2A6;font-size:13px;">Spectatoring loop</span><span style="color:#D4A574;font-size:12px;font-weight:700;">High</span></div><div style="height:5px;background:#262220;border-radius:999px;"><div style="height:100%;width:74%;background:#C89B6D;border-radius:999px;"></div></div></div>
+              <div><div style="display:flex;justify-content:space-between;margin-bottom:5px;"><span style="color:#B9B2A6;font-size:13px;">Pelvic release capacity</span><span style="color:#8A8378;font-size:12px;font-weight:700;">Partial</span></div><div style="height:5px;background:#262220;border-radius:999px;"><div style="height:100%;width:38%;background:#8A8378;border-radius:999px;"></div></div></div>
+            </div>
+          </div>
+          <div style="color:#B9B2A6;font-size:14px;line-height:22px;margin-top:18px;">This is a conditioned adrenaline response, established over 1–3 years. Conditioned means learned — and learned means reversible. Your 75-day sequence is built.</div>
+          <div style="flex:1;"></div>
+          <div style="background:#C89B6D;border-radius:16px;padding:19px;text-align:center;color:#171310;font-weight:700;font-size:16px;">See my protocol</div>
+          <div style="color:#57534B;font-size:12px;text-align:center;padding:12px 0 26px;">Stored on this device only</div>
+        </div>
+      </x-import>
+      <div style="color:#94a3b8;font-size:13px;font-weight:600;">E05 · Profile readout — personalization receipt before the ask</div>
+    </div>
+
+    <!-- 06 PAYWALL A -->
+    <div style="display:flex;flex-direction:column;gap:12px;align-items:center;">
+      <x-import component-from-global-scope="IOSDevice" from="./ios-frame.jsx" dark="{{ true }}" hint-size="402px,874px">
+        <div data-screen-label="E06 Paywall A" style="width:100%;height:100%;background:#0C0B09;overflow:hidden;display:flex;flex-direction:column;padding:70px 26px 0;font-family:-apple-system,system-ui,sans-serif;">
+          <div style="background:#161412;border:1px solid #262220;border-radius:18px;padding:18px;">
+            <div style="color:#8A8378;font-size:10px;font-weight:700;letter-spacing:0.2em;text-transform:uppercase;">Your autonomic profile · from your answers</div>
+            <div style="display:flex;flex-direction:column;gap:12px;margin-top:14px;">
+              <div><div style="display:flex;justify-content:space-between;margin-bottom:5px;"><span style="color:#B9B2A6;font-size:12.5px;">Sympathetic override</span><span style="color:#D4A574;font-size:12px;font-weight:700;">High</span></div><div style="height:5px;background:#262220;border-radius:999px;"><div style="height:100%;width:82%;background:#C89B6D;border-radius:999px;"></div></div></div>
+              <div><div style="display:flex;justify-content:space-between;margin-bottom:5px;"><span style="color:#B9B2A6;font-size:12.5px;">Spectatoring loop</span><span style="color:#D4A574;font-size:12px;font-weight:700;">High</span></div><div style="height:5px;background:#262220;border-radius:999px;"><div style="height:100%;width:74%;background:#C89B6D;border-radius:999px;"></div></div></div>
+            </div>
+            <div style="color:#8A8378;font-size:12px;line-height:17px;margin-top:12px;">Reversible with daily somatic retraining.</div>
+          </div>
+          <div style="color:#EDE8E2;font-size:20px;font-weight:600;margin-top:20px;line-height:1.35;">The 75-Day Reset, built for this profile</div>
+          <div style="display:flex;gap:10px;margin-top:14px;">
+            <div style="flex:1;background:#161412;border:1px solid #262220;border-radius:14px;padding:14px;">
+              <div style="color:#8A8378;font-size:11px;text-decoration:line-through;">Sex therapy, 12 weeks</div>
+              <div style="color:#B9B2A6;font-size:17px;font-weight:700;margin-top:3px;">$1,800+</div>
+            </div>
+            <div style="flex:1;background:rgba(200,155,109,0.1);border:1px solid rgba(200,155,109,0.4);border-radius:14px;padding:14px;">
+              <div style="color:#C89B6D;font-size:11px;font-weight:600;">COMPOSE, 75 days</div>
+              <div style="color:#EDE8E2;font-size:17px;font-weight:700;margin-top:3px;">$49.99 <span style="color:#8A8378;font-size:11px;font-weight:400;">once</span></div>
+            </div>
+          </div>
+          <div style="background:#161412;border:1px solid #262220;border-radius:14px;padding:14px 16px;margin-top:12px;display:flex;align-items:center;gap:12px;">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#C89B6D" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 13c0 5-3.5 7.5-7.66 8.95a1 1 0 0 1-.67-.01C7.5 20.5 4 18 4 13V6a1 1 0 0 1 1-1c2 0 4.5-1.2 6.24-2.72a1.17 1.17 0 0 1 1.52 0C14.51 3.81 17 5 19 5a1 1 0 0 1 1 1z"></path><path d="m9 12 2 2 4-4"></path></svg>
+            <div style="flex:1;"><div style="color:#EDE8E2;font-size:13px;font-weight:700;">14-day baseline guarantee</div><div style="color:#8A8378;font-size:11.5px;margin-top:2px;line-height:16px;">If your control score hasn't moved after 14 days, full refund.</div></div>
+          </div>
+          <div style="background:#0F0E0C;border:1px solid #201D19;border-radius:14px;padding:13px 16px;margin-top:12px;">
+            <div style="color:#8A8378;font-size:12px;line-height:17px;">No subscription. Statement reads "CMPS Media." Notifications stay neutral.</div>
+          </div>
+          <div style="flex:1;"></div>
+          <div style="background:#C89B6D;border-radius:16px;padding:18px;text-align:center;">
+            <div style="color:#171310;font-weight:700;font-size:16px;">Begin my reset — $49.99</div>
+            <div style="color:rgba(23,19,16,0.65);font-size:11.5px;margin-top:2px;">$0.67 a day · pay once, keep it</div>
+          </div>
+          <div style="text-align:center;padding:12px 0 22px;color:#57534B;font-size:12px;">Restore · Privacy · Terms</div>
+        </div>
+      </x-import>
+      <div style="color:#94a3b8;font-size:13px;font-weight:600;">E06 · Paywall — arm A "Diagnosis Stack"</div>
+    </div>
+
+    <!-- 07 PAYWALL B -->
+    <div style="display:flex;flex-direction:column;gap:12px;align-items:center;">
+      <x-import component-from-global-scope="IOSDevice" from="./ios-frame.jsx" dark="{{ true }}" hint-size="402px,874px">
+        <div data-screen-label="E07 Paywall B" style="width:100%;height:100%;background:#0C0B09;display:flex;flex-direction:column;padding:76px 28px 0;font-family:-apple-system,system-ui,sans-serif;">
+          <div style="color:#8A8378;font-size:11px;font-weight:600;letter-spacing:0.28em;text-transform:uppercase;">Day zero</div>
+          <div style="color:#EDE8E2;font-size:27px;font-weight:400;font-family:'Source Serif 4',serif;line-height:1.32;margin-top:10px;">This only works if you show up. So we start with your word.</div>
+          <div style="background:#161412;border:1px solid #262220;border-radius:18px;padding:24px;margin-top:26px;">
+            <div style="color:#B9B2A6;font-size:15px;line-height:26px;font-family:'Source Serif 4',serif;font-style:italic;">"For the next 75 days I will give this ten minutes a day. Not to perform better — to stop performing at all."</div>
+            <div style="border-bottom:1px solid #3A362F;margin-top:30px;padding-bottom:6px;">
+              <span style="color:#EDE8E2;font-size:24px;font-family:'Source Serif 4',serif;font-style:italic;">Marcus</span>
+            </div>
+            <div style="color:#57534B;font-size:11px;margin-top:6px;">Signed on this device · seen by no one</div>
+          </div>
+          <div style="display:flex;gap:10px;margin-top:14px;">
+            <div style="flex:1;background:#0F0E0C;border:1px solid #201D19;border-radius:14px;padding:13px;text-align:center;"><div style="color:#EDE8E2;font-size:16px;font-weight:700;">75</div><div style="color:#57534B;font-size:10.5px;margin-top:2px;">days</div></div>
+            <div style="flex:1;background:#0F0E0C;border:1px solid #201D19;border-radius:14px;padding:13px;text-align:center;"><div style="color:#EDE8E2;font-size:16px;font-weight:700;">10 min</div><div style="color:#57534B;font-size:10.5px;margin-top:2px;">a day</div></div>
+            <div style="flex:1;background:#0F0E0C;border:1px solid #201D19;border-radius:14px;padding:13px;text-align:center;"><div style="color:#EDE8E2;font-size:16px;font-weight:700;">$0.67</div><div style="color:#57534B;font-size:10.5px;margin-top:2px;">a day, once</div></div>
+          </div>
+          <div style="flex:1;"></div>
+          <div style="background:#C89B6D;border-radius:16px;padding:19px;text-align:center;color:#171310;font-weight:700;font-size:16px;">Sign &amp; begin — $49.99</div>
+          <div style="color:#57534B;font-size:12px;text-align:center;padding:12px 0 24px;">One payment. No subscription. Restore · Privacy · Terms</div>
+        </div>
+      </x-import>
+      <div style="color:#94a3b8;font-size:13px;font-weight:600;">E07 · Paywall — arm B "Signature" (A/B vs E06)</div>
+    </div>
+  </div>
+
+  <!-- ═══ DAILY LOOP ═══ -->
+  <div style="color:#64748b;font-size:13px;font-weight:700;letter-spacing:0.18em;text-transform:uppercase;margin:64px 0 20px;">Flow 2 · The daily loop</div>
+  <div style="display:flex;flex-wrap:wrap;gap:48px;align-items:flex-start;">
+
+    <!-- 08 DASHBOARD -->
+    <div style="display:flex;flex-direction:column;gap:12px;align-items:center;">
+      <x-import component-from-global-scope="IOSDevice" from="./ios-frame.jsx" dark="{{ true }}" hint-size="402px,874px">
+        <div data-screen-label="E08 Dashboard" style="width:100%;height:100%;background:#0C0B09;display:flex;flex-direction:column;font-family:-apple-system,system-ui,sans-serif;">
+          <div style="flex:1;display:flex;flex-direction:column;padding:76px 28px 0;">
+            <div style="display:flex;align-items:center;justify-content:space-between;">
+              <div style="color:#8A8378;font-size:11px;font-weight:600;letter-spacing:0.28em;text-transform:uppercase;">Compose</div>
+              <div style="display:flex;align-items:center;gap:6px;background:#161412;border:1px solid #262220;border-radius:999px;padding:7px 14px;">
+                <div style="width:6px;height:6px;border-radius:999px;background:#C89B6D;"></div>
+                <span style="color:#B9B2A6;font-size:12px;font-weight:600;">Steady me</span>
+              </div>
+            </div>
+            <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;">
+              <div style="width:250px;height:250px;position:relative;display:flex;align-items:center;justify-content:center;">
+                <svg width="250" height="250">
+                  <circle cx="125" cy="125" r="118" stroke="#221F1B" stroke-width="6" fill="none"></circle>
+                  <circle cx="125" cy="125" r="118" stroke="#C89B6D" stroke-width="6" fill="none" stroke-linecap="round" stroke-dasharray="741.4" stroke-dashoffset="632.7" transform="rotate(-90 125 125)"></circle>
+                </svg>
+                <div style="position:absolute;display:flex;flex-direction:column;align-items:center;">
+                  <div style="color:#8A8378;font-size:11px;font-weight:600;letter-spacing:0.24em;text-transform:uppercase;">Day</div>
+                  <div style="color:#EDE8E2;font-size:64px;font-weight:300;line-height:1.05;font-family:'Source Serif 4',serif;">12</div>
+                  <div style="color:#6E675D;font-size:13px;">of seventy-five</div>
+                </div>
+              </div>
+              <div style="color:#C89B6D;font-size:11px;font-weight:700;letter-spacing:0.22em;text-transform:uppercase;margin-top:28px;">Phase I · The Autonomic Reset</div>
+              <div style="color:#EDE8E2;font-size:22px;font-weight:400;font-family:'Source Serif 4',serif;margin-top:6px;text-align:center;">Somatic Capillary Flow</div>
+              <div style="color:#8A8378;font-size:13px;margin-top:6px;text-align:center;line-height:19px;">Low-excitation vascular retraining · 9 min</div>
+            </div>
+            <div style="padding-bottom:20px;">
+              <div style="background:#C89B6D;border-radius:16px;padding:19px;display:flex;align-items:center;justify-content:center;gap:10px;">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="#171310"><polygon points="6 3 20 12 6 21 6 3"></polygon></svg>
+                <span style="color:#171310;font-weight:700;font-size:16px;">Begin today's session</span>
+              </div>
+              <div style="color:#6E675D;font-size:12px;text-align:center;margin-top:12px;">11 consecutive days · rest is part of the work</div>
+            </div>
+          </div>
+          <div style="background:#12100E;border-top:1px solid #201D19;display:flex;padding:10px 0 28px;">
+            <div style="flex:1;text-align:center;"><div style="color:#C89B6D;font-size:11px;font-weight:600;">Today</div></div>
+            <div style="flex:1;text-align:center;"><div style="color:#6E675D;font-size:11px;">Restructure</div></div>
+            <div style="flex:1;text-align:center;"><div style="color:#6E675D;font-size:11px;">Baseline</div></div>
+            <div style="flex:1;text-align:center;"><div style="color:#6E675D;font-size:11px;">You</div></div>
+          </div>
+        </div>
+      </x-import>
+      <div style="color:#94a3b8;font-size:13px;font-weight:600;">E08 · Today — one primary action</div>
+    </div>
+
+    <!-- 09 SESSION ANCHOR -->
+    <div style="display:flex;flex-direction:column;gap:12px;align-items:center;">
+      <x-import component-from-global-scope="IOSDevice" from="./ios-frame.jsx" dark="{{ true }}" hint-size="402px,874px">
+        <div data-screen-label="E09 Session Anchor" style="width:100%;height:100%;background:#0C0B09;display:flex;flex-direction:column;padding:64px 28px 0;font-family:-apple-system,system-ui,sans-serif;">
+          <div style="display:flex;align-items:center;justify-content:space-between;">
+            <div style="display:flex;align-items:center;gap:6px;">
+              <div style="height:4px;width:30px;border-radius:999px;background:#C89B6D;"></div>
+              <div style="height:4px;width:14px;border-radius:999px;background:#262220;"></div>
+              <div style="height:4px;width:14px;border-radius:999px;background:#262220;"></div>
+              <div style="height:4px;width:14px;border-radius:999px;background:#262220;"></div>
+            </div>
+            <div style="background:#161412;border:1px solid #262220;border-radius:999px;padding:10px;display:flex;">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8A8378" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg>
+            </div>
+          </div>
+          <div style="text-align:center;margin-top:16px;color:#57534B;font-size:11px;font-weight:600;letter-spacing:0.2em;text-transform:uppercase;">Day 12 · The Anchor</div>
+          <div style="flex:1;display:flex;flex-direction:column;justify-content:center;align-items:center;">
+            <div style="color:#8A8378;font-size:13.5px;text-align:center;line-height:20px;margin-bottom:34px;padding:0 12px;">Find a quiet place. Sit or lie down.<br>Lock the screen if you like — the audio continues.</div>
+            <div style="color:#EDE8E2;font-size:24px;font-weight:400;font-family:'Source Serif 4',serif;text-align:center;">Somatic Capillary Flow</div>
+            <div style="color:#8A8378;font-size:13.5px;text-align:center;margin-top:8px;">Low-excitation vascular retraining</div>
+            <div style="width:84px;height:84px;border-radius:999px;background:#C89B6D;display:flex;align-items:center;justify-content:center;margin-top:36px;">
+              <svg width="24" height="28" viewBox="0 0 24 24" fill="#171310"><rect x="5" y="4" width="5" height="16" rx="1"></rect><rect x="14" y="4" width="5" height="16" rx="1"></rect></svg>
+            </div>
+            <div style="width:100%;margin-top:44px;">
+              <div style="height:4px;background:#201D19;border-radius:999px;overflow:hidden;"><div style="height:100%;width:34%;background:#C89B6D;border-radius:999px;"></div></div>
+              <div style="display:flex;justify-content:space-between;margin-top:8px;"><span style="color:#57534B;font-size:12px;">1:12</span><span style="color:#57534B;font-size:12px;">−2:21</span></div>
+            </div>
+          </div>
+          <div style="display:flex;align-items:center;justify-content:center;gap:8px;padding-bottom:48px;">
+            <div style="width:6px;height:6px;border-radius:999px;background:#C89B6D;"></div>
+            <span style="color:#8A8378;font-size:13px;font-weight:600;">Steady me — right now</span>
+          </div>
+        </div>
+      </x-import>
+      <div style="color:#94a3b8;font-size:13px;font-weight:600;">E09 · Session 1/4 — anchor player (no scrubber)</div>
+    </div>
+
+    <!-- 10 CONDITIONING ORB -->
+    <div style="display:flex;flex-direction:column;gap:12px;align-items:center;">
+      <x-import component-from-global-scope="IOSDevice" from="./ios-frame.jsx" dark="{{ true }}" hint-size="402px,874px">
+        <div data-screen-label="E10 Conditioning Orb" style="width:100%;height:100%;background:#0C0B09;display:flex;flex-direction:column;padding:64px 28px 0;font-family:-apple-system,system-ui,sans-serif;">
+          <div style="display:flex;align-items:center;justify-content:space-between;">
+            <div style="display:flex;align-items:center;gap:6px;">
+              <div style="height:4px;width:14px;border-radius:999px;background:#C89B6D;"></div>
+              <div style="height:4px;width:30px;border-radius:999px;background:#C89B6D;"></div>
+              <div style="height:4px;width:14px;border-radius:999px;background:#262220;"></div>
+              <div style="height:4px;width:14px;border-radius:999px;background:#262220;"></div>
+            </div>
+            <div style="background:#161412;border:1px solid #262220;border-radius:999px;padding:10px;display:flex;">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8A8378" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg>
+            </div>
+          </div>
+          <div style="text-align:center;margin-top:16px;color:#57534B;font-size:11px;font-weight:600;letter-spacing:0.2em;text-transform:uppercase;">Day 12 · Conditioning</div>
+          <div style="flex:1;display:flex;flex-direction:column;justify-content:center;align-items:center;">
+            <div style="position:relative;width:280px;height:280px;display:flex;align-items:center;justify-content:center;">
+              <div style="position:absolute;width:260px;height:260px;border-radius:999px;background:radial-gradient(circle,rgba(200,155,109,0.26) 0%,rgba(200,155,109,0.05) 55%,transparent 70%);animation:breathe 10s ease-in-out infinite;"></div>
+              <div style="width:180px;height:180px;border-radius:999px;background:rgba(200,155,109,0.09);border:1.5px solid rgba(200,155,109,0.5);display:flex;flex-direction:column;align-items:center;justify-content:center;">
+                <span style="color:#E8D8C3;font-size:13px;font-weight:700;letter-spacing:0.22em;text-transform:uppercase;">Soften</span>
+              </div>
+            </div>
+            <div style="color:#EDE8E2;font-size:17px;font-weight:600;margin-top:16px;">Inhale — release, let go</div>
+            <div style="color:#8A8378;font-size:12.5px;margin-top:4px;">breath 7 of 30</div>
+            <div style="width:100%;margin-top:26px;">
+              <div style="height:3px;background:#201D19;border-radius:999px;overflow:hidden;"><div style="height:100%;width:23%;background:#C89B6D;border-radius:999px;"></div></div>
+            </div>
+          </div>
+          <div style="display:flex;align-items:center;justify-content:center;gap:8px;padding-bottom:48px;">
+            <div style="width:6px;height:6px;border-radius:999px;background:#C89B6D;"></div>
+            <span style="color:#8A8378;font-size:13px;font-weight:600;">Steady me — right now</span>
+          </div>
+        </div>
+      </x-import>
+      <div style="color:#94a3b8;font-size:13px;font-weight:600;">E10 · Session 2/4 — breathing orb (live, entrains pre-tap)</div>
+    </div>
+
+    <!-- 11 SCORE -->
+    <div style="display:flex;flex-direction:column;gap:12px;align-items:center;">
+      <x-import component-from-global-scope="IOSDevice" from="./ios-frame.jsx" dark="{{ true }}" hint-size="402px,874px">
+        <div data-screen-label="E11 Control Score" style="width:100%;height:100%;background:#0C0B09;display:flex;flex-direction:column;padding:64px 28px 0;font-family:-apple-system,system-ui,sans-serif;">
+          <div style="display:flex;align-items:center;justify-content:space-between;">
+            <div style="display:flex;align-items:center;gap:6px;">
+              <div style="height:4px;width:14px;border-radius:999px;background:#C89B6D;"></div>
+              <div style="height:4px;width:14px;border-radius:999px;background:#C89B6D;"></div>
+              <div style="height:4px;width:30px;border-radius:999px;background:#C89B6D;"></div>
+              <div style="height:4px;width:14px;border-radius:999px;background:#262220;"></div>
+            </div>
+            <div style="background:#161412;border:1px solid #262220;border-radius:999px;padding:10px;display:flex;">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8A8378" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg>
+            </div>
+          </div>
+          <div style="text-align:center;margin-top:16px;color:#57534B;font-size:11px;font-weight:600;letter-spacing:0.2em;text-transform:uppercase;">Day 12 · Control</div>
+          <div style="flex:1;display:flex;flex-direction:column;justify-content:center;align-items:center;">
+            <div style="color:#EDE8E2;font-size:23px;font-weight:400;font-family:'Source Serif 4',serif;text-align:center;line-height:1.4;padding:0 8px;">How much ease did you feel through the sequence?</div>
+            <div style="color:#8A8378;font-size:12.5px;text-align:center;margin-top:10px;line-height:18px;padding:0 24px;">There's no good or bad answer — this is a signal you're learning to read, not a grade.</div>
+            <div style="display:flex;gap:11px;margin-top:34px;">
+              <div style="width:56px;height:56px;border-radius:16px;background:#161412;border:1px solid #262220;display:flex;align-items:center;justify-content:center;"><span style="color:#B9B2A6;font-size:18px;font-family:'Source Serif 4',serif;">1</span></div>
+              <div style="width:56px;height:56px;border-radius:16px;background:#161412;border:1px solid #262220;display:flex;align-items:center;justify-content:center;"><span style="color:#B9B2A6;font-size:18px;font-family:'Source Serif 4',serif;">2</span></div>
+              <div style="width:56px;height:56px;border-radius:16px;background:rgba(200,155,109,0.12);border:1px solid rgba(200,155,109,0.55);display:flex;align-items:center;justify-content:center;"><span style="color:#E8D8C3;font-size:18px;font-family:'Source Serif 4',serif;">3</span></div>
+              <div style="width:56px;height:56px;border-radius:16px;background:#161412;border:1px solid #262220;display:flex;align-items:center;justify-content:center;"><span style="color:#B9B2A6;font-size:18px;font-family:'Source Serif 4',serif;">4</span></div>
+              <div style="width:56px;height:56px;border-radius:16px;background:#161412;border:1px solid #262220;display:flex;align-items:center;justify-content:center;"><span style="color:#B9B2A6;font-size:18px;font-family:'Source Serif 4',serif;">5</span></div>
+            </div>
+            <div style="display:flex;justify-content:space-between;width:100%;padding:0 6px;margin-top:14px;"><span style="color:#57534B;font-size:12px;">Very little</span><span style="color:#57534B;font-size:12px;">Complete ease</span></div>
+          </div>
+          <div style="display:flex;align-items:center;justify-content:center;gap:8px;padding-bottom:48px;">
+            <div style="width:6px;height:6px;border-radius:999px;background:#C89B6D;"></div>
+            <span style="color:#8A8378;font-size:13px;font-weight:600;">Steady me — right now</span>
+          </div>
+        </div>
+      </x-import>
+      <div style="color:#94a3b8;font-size:13px;font-weight:600;">E11 · Session 3/4 — control score</div>
+    </div>
+
+    <!-- 12 CHECKLIST -->
+    <div style="display:flex;flex-direction:column;gap:12px;align-items:center;">
+      <x-import component-from-global-scope="IOSDevice" from="./ios-frame.jsx" dark="{{ true }}" hint-size="402px,874px">
+        <div data-screen-label="E12 Check-In" style="width:100%;height:100%;background:#0C0B09;display:flex;flex-direction:column;padding:64px 28px 0;font-family:-apple-system,system-ui,sans-serif;">
+          <div style="display:flex;align-items:center;justify-content:space-between;">
+            <div style="display:flex;align-items:center;gap:6px;">
+              <div style="height:4px;width:14px;border-radius:999px;background:#C89B6D;"></div>
+              <div style="height:4px;width:14px;border-radius:999px;background:#C89B6D;"></div>
+              <div style="height:4px;width:14px;border-radius:999px;background:#C89B6D;"></div>
+              <div style="height:4px;width:30px;border-radius:999px;background:#C89B6D;"></div>
+            </div>
+            <div style="background:#161412;border:1px solid #262220;border-radius:999px;padding:10px;display:flex;">
+              <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#8A8378" stroke-width="2" stroke-linecap="round"><path d="M18 6 6 18"></path><path d="m6 6 12 12"></path></svg>
+            </div>
+          </div>
+          <div style="text-align:center;margin-top:16px;color:#57534B;font-size:11px;font-weight:600;letter-spacing:0.2em;text-transform:uppercase;">Day 12 · Check-in</div>
+          <div style="flex:1;display:flex;flex-direction:column;justify-content:center;">
+            <div style="color:#EDE8E2;font-size:23px;font-weight:400;font-family:'Source Serif 4',serif;text-align:center;margin-bottom:26px;">Before the day closes</div>
+            <div style="display:flex;flex-direction:column;gap:11px;">
+              <div style="border-radius:16px;padding:16px;display:flex;align-items:center;gap:13px;background:rgba(200,155,109,0.08);border:1px solid rgba(200,155,109,0.4);">
+                <div style="width:24px;height:24px;border-radius:8px;background:#C89B6D;display:flex;align-items:center;justify-content:center;flex-shrink:0;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#171310" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"></path></svg></div>
+                <div style="flex:1;"><div style="color:#EDE8E2;font-size:14px;font-weight:600;">Presence work</div><div style="color:#8A8378;font-size:12px;margin-top:2px;line-height:16px;">Conscious time in your body today?</div></div>
+              </div>
+              <div style="border-radius:16px;padding:16px;display:flex;align-items:center;gap:13px;background:rgba(200,155,109,0.08);border:1px solid rgba(200,155,109,0.4);">
+                <div style="width:24px;height:24px;border-radius:8px;background:#C89B6D;display:flex;align-items:center;justify-content:center;flex-shrink:0;"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="#171310" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"></path></svg></div>
+                <div style="flex:1;"><div style="color:#EDE8E2;font-size:14px;font-weight:600;">Clean focus</div><div style="color:#8A8378;font-size:12px;margin-top:2px;line-height:16px;">Protected your focus from pornographic input?</div></div>
+              </div>
+              <div style="border-radius:16px;padding:16px;display:flex;align-items:center;gap:13px;background:#161412;border:1px solid #262220;">
+                <div style="width:24px;height:24px;border-radius:8px;border:1px solid #57534B;flex-shrink:0;"></div>
+                <div style="flex:1;"><div style="color:#EDE8E2;font-size:14px;font-weight:600;">Vitality habit</div><div style="color:#8A8378;font-size:12px;margin-top:2px;line-height:16px;">Sleep, light, movement — protected your energy?</div></div>
+              </div>
+            </div>
+            <div style="background:#C89B6D;border-radius:16px;padding:17px;text-align:center;color:#171310;font-weight:700;font-size:15px;margin-top:24px;">Complete Day 12</div>
+            <div style="color:#57534B;font-size:12px;text-align:center;margin-top:12px;line-height:17px;">Answer honestly — an unchecked box is information, not failure.</div>
+          </div>
+          <div style="display:flex;align-items:center;justify-content:center;gap:8px;padding-bottom:48px;">
+            <div style="width:6px;height:6px;border-radius:999px;background:#C89B6D;"></div>
+            <span style="color:#8A8378;font-size:13px;font-weight:600;">Steady me — right now</span>
+          </div>
+        </div>
+      </x-import>
+      <div style="color:#94a3b8;font-size:13px;font-weight:600;">E12 · Session 4/4 — check-in, then the ring advances</div>
+    </div>
+
+    <!-- 13 DAY COMPLETE -->
+    <div style="display:flex;flex-direction:column;gap:12px;align-items:center;">
+      <x-import component-from-global-scope="IOSDevice" from="./ios-frame.jsx" dark="{{ true }}" hint-size="402px,874px">
+        <div data-screen-label="E13 Day Complete" style="width:100%;height:100%;background:#0C0B09;display:flex;flex-direction:column;font-family:-apple-system,system-ui,sans-serif;">
+          <div style="flex:1;display:flex;flex-direction:column;padding:76px 28px 0;">
+            <div style="display:flex;align-items:center;justify-content:space-between;">
+              <div style="color:#8A8378;font-size:11px;font-weight:600;letter-spacing:0.28em;text-transform:uppercase;">Compose</div>
+              <div style="display:flex;align-items:center;gap:6px;background:#161412;border:1px solid #262220;border-radius:999px;padding:7px 14px;">
+                <div style="width:6px;height:6px;border-radius:999px;background:#C89B6D;"></div>
+                <span style="color:#B9B2A6;font-size:12px;font-weight:600;">Steady me</span>
+              </div>
+            </div>
+            <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;">
+              <div style="width:250px;height:250px;position:relative;display:flex;align-items:center;justify-content:center;">
+                <svg width="250" height="250">
+                  <circle cx="125" cy="125" r="118" stroke="#221F1B" stroke-width="6" fill="none"></circle>
+                  <circle cx="125" cy="125" r="118" stroke="#C89B6D" stroke-width="6" fill="none" stroke-linecap="round" stroke-dasharray="741.4" stroke-dashoffset="622.8" transform="rotate(-90 125 125)"></circle>
+                </svg>
+                <div style="position:absolute;display:flex;flex-direction:column;align-items:center;">
+                  <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#C89B6D" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="margin-bottom:6px;"><path d="M20 6 9 17l-5-5"></path></svg>
+                  <div style="color:#EDE8E2;font-size:44px;font-weight:300;line-height:1.05;font-family:'Source Serif 4',serif;">Twelve</div>
+                  <div style="color:#6E675D;font-size:13px;margin-top:2px;">days composed</div>
+                </div>
+              </div>
+              <div style="color:#EDE8E2;font-size:20px;font-weight:400;font-family:'Source Serif 4',serif;margin-top:30px;">Today is complete.</div>
+              <div style="color:#8A8378;font-size:13.5px;margin-top:8px;text-align:center;line-height:20px;">Day 13 unlocks at midnight.<br>Rest is part of the work.</div>
+            </div>
+            <div style="padding-bottom:20px;">
+              <div style="background:#161412;border:1px solid #262220;border-radius:16px;padding:16px 18px;">
+                <div style="color:#57534B;font-size:10px;font-weight:700;letter-spacing:0.2em;text-transform:uppercase;">Tonight's line</div>
+                <div style="color:#B9B2A6;font-size:14px;line-height:22px;margin-top:6px;font-family:'Source Serif 4',serif;font-style:italic;">"Attention drops from the mind's commentary into the slow warmth of circulation."</div>
+              </div>
+            </div>
+          </div>
+          <div style="background:#12100E;border-top:1px solid #201D19;display:flex;padding:10px 0 28px;">
+            <div style="flex:1;text-align:center;"><div style="color:#C89B6D;font-size:11px;font-weight:600;">Today</div></div>
+            <div style="flex:1;text-align:center;"><div style="color:#6E675D;font-size:11px;">Restructure</div></div>
+            <div style="flex:1;text-align:center;"><div style="color:#6E675D;font-size:11px;">Baseline</div></div>
+            <div style="flex:1;text-align:center;"><div style="color:#6E675D;font-size:11px;">You</div></div>
+          </div>
+        </div>
+      </x-import>
+      <div style="color:#94a3b8;font-size:13px;font-weight:600;">E13 · Completed state — closure, no next-action pressure</div>
+    </div>
+  </div>
+
+  <!-- ═══ SOS ═══ -->
+  <div style="color:#64748b;font-size:13px;font-weight:700;letter-spacing:0.18em;text-transform:uppercase;margin:64px 0 20px;">Flow 3 · Steady Me (SOS)</div>
+  <div style="display:flex;flex-wrap:wrap;gap:48px;align-items:flex-start;">
+
+    <!-- 14 TRIAGE -->
+    <div style="display:flex;flex-direction:column;gap:12px;align-items:center;">
+      <x-import component-from-global-scope="IOSDevice" from="./ios-frame.jsx" dark="{{ true }}" hint-size="402px,874px">
+        <div data-screen-label="E14 Triage" style="width:100%;height:100%;background:#0C0B09;position:relative;display:flex;flex-direction:column;font-family:-apple-system,system-ui,sans-serif;">
+          <div style="position:absolute;inset:0;background:rgba(5,4,3,0.72);z-index:1;"></div>
+          <div style="flex:1;"></div>
+          <div style="position:relative;z-index:2;background:#12100E;border-top:1px solid #262220;border-radius:26px 26px 0 0;padding:22px 28px 44px;">
+            <div style="width:38px;height:4px;background:#33302A;border-radius:999px;margin:0 auto 18px;"></div>
+            <div style="color:#EDE8E2;font-size:21px;font-weight:400;font-family:'Source Serif 4',serif;">Steady. You're in the right place.</div>
+            <div style="color:#8A8378;font-size:13.5px;margin-top:6px;margin-bottom:18px;">Pick the moment you're in.</div>
+            <div style="display:flex;flex-direction:column;gap:11px;">
+              <div style="background:#0C0B09;border:1px solid #262220;border-radius:16px;padding:17px;display:flex;align-items:center;gap:13px;">
+                <div style="width:38px;height:38px;border-radius:999px;background:#1C1916;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#C89B6D" stroke-width="2" stroke-linecap="round"><path d="M17.7 7.7a2.5 2.5 0 1 1 1.8 4.3H2"></path><path d="M9.6 4.6A2 2 0 1 1 11 8H2"></path><path d="M12.6 19.4A2 2 0 1 0 14 16H2"></path></svg>
+                </div>
+                <div style="flex:1;"><div style="color:#EDE8E2;font-size:14px;font-weight:600;">Before — rising pressure</div><div style="color:#8A8378;font-size:12px;margin-top:2px;line-height:16px;">Paced breathing to settle the surge.</div></div>
+              </div>
+              <div style="background:#0C0B09;border:1px solid #262220;border-radius:16px;padding:17px;display:flex;align-items:center;gap:13px;">
+                <div style="width:38px;height:38px;border-radius:999px;background:#1C1916;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#C89B6D" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="5" r="3"></circle><path d="M12 22V8"></path><path d="M5 12H2a10 10 0 0 0 20 0h-3"></path></svg>
+                </div>
+                <div style="flex:1;"><div style="color:#EDE8E2;font-size:14px;font-weight:600;">During — watching yourself</div><div style="color:#8A8378;font-size:12px;margin-top:2px;line-height:16px;">Return attention from evaluation to sensation.</div></div>
+              </div>
+              <div style="background:#0C0B09;border:1px solid #262220;border-radius:16px;padding:17px;display:flex;align-items:center;gap:13px;">
+                <div style="width:38px;height:38px;border-radius:999px;background:#1C1916;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                  <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#C89B6D" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"></path><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4Z"></path></svg>
+                </div>
+                <div style="flex:1;"><div style="color:#EDE8E2;font-size:14px;font-weight:600;">Afterward — the replay has started</div><div style="color:#8A8378;font-size:12px;margin-top:2px;line-height:16px;">Take the Spectator's story apart, piece by piece.</div></div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </x-import>
+      <div style="color:#94a3b8;font-size:13px;font-weight:600;">E14 · Triage sheet — three autonomic states</div>
+    </div>
+
+    <!-- 15 BREATHING -->
+    <div style="display:flex;flex-direction:column;gap:12px;align-items:center;">
+      <x-import component-from-global-scope="IOSDevice" from="./ios-frame.jsx" dark="{{ true }}" hint-size="402px,874px">
+        <div data-screen-label="E15 Breathing" style="width:100%;height:100%;background:#0C0B09;position:relative;display:flex;flex-direction:column;font-family:-apple-system,system-ui,sans-serif;">
+          <div style="position:absolute;inset:0;background:rgba(5,4,3,0.72);z-index:1;"></div>
+          <div style="flex:1;"></div>
+          <div style="position:relative;z-index:2;background:#12100E;border-top:1px solid #262220;border-radius:26px 26px 0 0;padding:22px 28px 44px;">
+            <div style="width:38px;height:4px;background:#33302A;border-radius:999px;margin:0 auto 14px;"></div>
+            <div style="color:#8A8378;font-size:12px;font-weight:600;">← Back</div>
+            <div style="display:flex;flex-direction:column;align-items:center;padding:14px 0 4px;">
+              <div style="position:relative;width:230px;height:230px;display:flex;align-items:center;justify-content:center;">
+                <div style="position:absolute;width:210px;height:210px;border-radius:999px;background:radial-gradient(circle,rgba(200,155,109,0.24) 0%,transparent 68%);animation:breathe 19s ease-in-out infinite;"></div>
+                <div style="width:150px;height:150px;border-radius:999px;background:rgba(200,155,109,0.09);border:1.5px solid rgba(200,155,109,0.5);display:flex;align-items:center;justify-content:center;">
+                  <span style="color:#E8D8C3;font-size:30px;font-weight:300;font-family:'Source Serif 4',serif;">7</span>
+                </div>
+              </div>
+              <div style="color:#EDE8E2;font-size:17px;font-weight:600;margin-top:14px;">Hold</div>
+              <div style="color:#8A8378;font-size:12.5px;margin-top:4px;">2 cycles complete · four is usually enough</div>
+              <div style="background:#1C1916;border:1px solid #33302A;border-radius:12px;padding:13px 44px;margin-top:20px;"><span style="color:#B9B2A6;font-weight:600;font-size:14px;">Stop</span></div>
+            </div>
+          </div>
+        </div>
+      </x-import>
+      <div style="color:#94a3b8;font-size:13px;font-weight:600;">E15 · 4-7-8 breathing — same orb language as the session</div>
+    </div>
+  </div>
+
+  <!-- ═══ TABS & RETENTION ═══ -->
+  <div style="color:#64748b;font-size:13px;font-weight:700;letter-spacing:0.18em;text-transform:uppercase;margin:64px 0 20px;">Flow 4 · Baseline, You, Discretion, Graduation</div>
+  <div style="display:flex;flex-wrap:wrap;gap:48px;align-items:flex-start;">
+
+    <!-- 16 BASELINE -->
+    <div style="display:flex;flex-direction:column;gap:12px;align-items:center;">
+      <x-import component-from-global-scope="IOSDevice" from="./ios-frame.jsx" dark="{{ true }}" hint-size="402px,874px">
+        <div data-screen-label="E16 Baseline" style="width:100%;height:100%;background:#0C0B09;display:flex;flex-direction:column;font-family:-apple-system,system-ui,sans-serif;">
+          <div style="flex:1;padding:72px 28px 0;overflow:hidden;">
+            <div style="color:#8A8378;font-size:11px;font-weight:600;letter-spacing:0.28em;text-transform:uppercase;">Autonomic acclimation</div>
+            <div style="color:#EDE8E2;font-size:30px;font-weight:300;font-family:'Source Serif 4',serif;margin-top:6px;">Your baseline</div>
+            <div style="display:flex;gap:11px;margin-top:22px;">
+              <div style="flex:1;background:#161412;border:1px solid #262220;border-radius:16px;padding:15px;"><div style="color:#EDE8E2;font-size:22px;font-weight:300;font-family:'Source Serif 4',serif;">12</div><div style="color:#8A8378;font-size:11.5px;margin-top:3px;">days done</div></div>
+              <div style="flex:1;background:#161412;border:1px solid #262220;border-radius:16px;padding:15px;"><div style="color:#EDE8E2;font-size:22px;font-weight:300;font-family:'Source Serif 4',serif;">11</div><div style="color:#8A8378;font-size:11.5px;margin-top:3px;">day streak</div></div>
+              <div style="flex:1;background:#161412;border:1px solid #262220;border-radius:16px;padding:15px;"><div style="color:#C89B6D;font-size:22px;font-weight:300;font-family:'Source Serif 4',serif;">+1.1</div><div style="color:#8A8378;font-size:11.5px;margin-top:3px;">baseline shift</div></div>
+            </div>
+            <div style="background:#161412;border:1px solid #262220;border-radius:18px;padding:20px;margin-top:20px;">
+              <div style="color:#EDE8E2;font-size:14px;font-weight:600;">Control score</div>
+              <div style="color:#57534B;font-size:12px;margin-top:2px;margin-bottom:12px;">Your nightly 1–5 self-rating</div>
+              <svg width="100%" height="150" viewBox="0 0 320 150">
+                <line x1="10" y1="136" x2="310" y2="136" stroke="#201D19" stroke-width="1"></line>
+                <line x1="10" y1="105.5" x2="310" y2="105.5" stroke="#201D19" stroke-width="1"></line>
+                <line x1="10" y1="75" x2="310" y2="75" stroke="#201D19" stroke-width="1"></line>
+                <line x1="10" y1="44.5" x2="310" y2="44.5" stroke="#201D19" stroke-width="1"></line>
+                <line x1="10" y1="14" x2="310" y2="14" stroke="#201D19" stroke-width="1"></line>
+                <polyline points="10,105.5 37.3,105.5 64.5,75 91.8,105.5 119.1,75 146.4,75 173.6,75 200.9,44.5 228.2,75 255.5,44.5 282.7,44.5 310,14" fill="none" stroke="#C89B6D" stroke-width="2.5" stroke-linejoin="round" stroke-linecap="round"></polyline>
+                <circle cx="310" cy="14" r="4" fill="#C89B6D"></circle>
+              </svg>
+              <div style="color:#B9B2A6;font-size:12.5px;margin-top:12px;line-height:18px;">Your recent scores average <span style="color:#C89B6D;">1.1 higher</span> than your first week. That's not willpower — it's conditioning taking hold.</div>
+            </div>
+            <div style="background:#161412;border:1px solid #262220;border-radius:18px;padding:20px;margin-top:14px;">
+              <div style="color:#EDE8E2;font-size:14px;font-weight:600;margin-bottom:15px;">Vitality consistency</div>
+              <div style="display:flex;flex-direction:column;gap:14px;">
+                <div><div style="display:flex;justify-content:space-between;margin-bottom:6px;"><span style="color:#B9B2A6;font-size:12px;">Presence work</span><span style="color:#57534B;font-size:12px;">92%</span></div><div style="height:5px;background:#201D19;border-radius:999px;"><div style="height:100%;width:92%;background:rgba(200,155,109,0.75);border-radius:999px;"></div></div></div>
+                <div><div style="display:flex;justify-content:space-between;margin-bottom:6px;"><span style="color:#B9B2A6;font-size:12px;">Clean focus</span><span style="color:#57534B;font-size:12px;">75%</span></div><div style="height:5px;background:#201D19;border-radius:999px;"><div style="height:100%;width:75%;background:rgba(200,155,109,0.75);border-radius:999px;"></div></div></div>
+                <div><div style="display:flex;justify-content:space-between;margin-bottom:6px;"><span style="color:#B9B2A6;font-size:12px;">Vitality habit</span><span style="color:#57534B;font-size:12px;">83%</span></div><div style="height:5px;background:#201D19;border-radius:999px;"><div style="height:100%;width:83%;background:rgba(200,155,109,0.75);border-radius:999px;"></div></div></div>
+              </div>
+            </div>
+          </div>
+          <div style="background:#12100E;border-top:1px solid #201D19;display:flex;padding:10px 0 28px;">
+            <div style="flex:1;text-align:center;"><div style="color:#6E675D;font-size:11px;">Today</div></div>
+            <div style="flex:1;text-align:center;"><div style="color:#6E675D;font-size:11px;">Restructure</div></div>
+            <div style="flex:1;text-align:center;"><div style="color:#C89B6D;font-size:11px;font-weight:600;">Baseline</div></div>
+            <div style="flex:1;text-align:center;"><div style="color:#6E675D;font-size:11px;">You</div></div>
+          </div>
+        </div>
+      </x-import>
+      <div style="color:#94a3b8;font-size:13px;font-weight:600;">E16 · Baseline — self-generated proof of change</div>
+    </div>
+
+    <!-- 17 YOU / PROFILE -->
+    <div style="display:flex;flex-direction:column;gap:12px;align-items:center;">
+      <x-import component-from-global-scope="IOSDevice" from="./ios-frame.jsx" dark="{{ true }}" hint-size="402px,874px">
+        <div data-screen-label="E17 You" style="width:100%;height:100%;background:#0C0B09;display:flex;flex-direction:column;font-family:-apple-system,system-ui,sans-serif;">
+          <div style="flex:1;padding:72px 28px 0;overflow:hidden;">
+            <div style="color:#8A8378;font-size:11px;font-weight:600;letter-spacing:0.28em;text-transform:uppercase;">You</div>
+            <div style="color:#EDE8E2;font-size:30px;font-weight:300;font-family:'Source Serif 4',serif;margin-top:6px;">Marcus</div>
+            <div style="background:#161412;border:1px solid #262220;border-radius:18px;padding:18px;display:flex;align-items:center;gap:14px;margin-top:20px;">
+              <div style="width:42px;height:42px;border-radius:999px;background:#1C1916;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                <svg width="19" height="19" viewBox="0 0 24 24" fill="none" stroke="#C89B6D" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M22 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+              </div>
+              <div style="flex:1;"><div style="color:#EDE8E2;font-size:14px;font-weight:600;">Partner guide</div><div style="color:#8A8378;font-size:12px;margin-top:2px;line-height:16px;">Hand them your phone. Two minutes of reading replaces the hardest conversation.</div></div>
+            </div>
+            <div style="background:#161412;border:1px solid #262220;border-radius:18px;padding:18px;display:flex;align-items:center;gap:14px;margin-top:11px;">
+              <div style="width:42px;height:42px;border-radius:999px;background:#1C1916;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#C89B6D" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect width="18" height="11" x="3" y="11" rx="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+              </div>
+              <div style="flex:1;"><div style="color:#EDE8E2;font-size:14px;font-weight:600;">Discretion</div><div style="color:#8A8378;font-size:12px;margin-top:2px;line-height:16px;">Icon, notifications, Face ID, app switcher.</div></div>
+            </div>
+            <div style="display:flex;align-items:center;gap:8px;margin:26px 0 12px;">
+              <span style="color:#57534B;font-size:11px;font-weight:700;letter-spacing:0.16em;text-transform:uppercase;">The vault · local record only</span>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:11px;">
+              <div style="background:#161412;border:1px solid #262220;border-radius:16px;padding:16px;">
+                <div style="display:flex;justify-content:space-between;margin-bottom:8px;"><span style="color:#57534B;font-size:11px;">Jun 28</span><span style="color:#8A8378;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;">Mind-reading</span></div>
+                <div style="color:#B9B2A6;font-size:14px;line-height:22px;font-family:'Source Serif 4',serif;font-style:italic;">"She said she felt closer to me that night. The story that she was disappointed was mine, not hers."</div>
+              </div>
+              <div style="background:#161412;border:1px solid #262220;border-radius:16px;padding:16px;">
+                <div style="display:flex;justify-content:space-between;margin-bottom:8px;"><span style="color:#57534B;font-size:11px;">Jun 21</span><span style="color:#8A8378;font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:0.08em;">Catastrophizing</span></div>
+                <div style="color:#B9B2A6;font-size:14px;line-height:22px;font-family:'Source Serif 4',serif;font-style:italic;">"My body followed adrenaline. That's physiology, not a verdict on me."</div>
+              </div>
+            </div>
+            <div style="color:#57534B;font-size:12px;text-align:center;margin-top:18px;">Everything on this screen lives only on this device.</div>
+          </div>
+          <div style="background:#12100E;border-top:1px solid #201D19;display:flex;padding:10px 0 28px;">
+            <div style="flex:1;text-align:center;"><div style="color:#6E675D;font-size:11px;">Today</div></div>
+            <div style="flex:1;text-align:center;"><div style="color:#6E675D;font-size:11px;">Restructure</div></div>
+            <div style="flex:1;text-align:center;"><div style="color:#6E675D;font-size:11px;">Baseline</div></div>
+            <div style="flex:1;text-align:center;"><div style="color:#C89B6D;font-size:11px;font-weight:600;">You</div></div>
+          </div>
+        </div>
+      </x-import>
+      <div style="color:#94a3b8;font-size:13px;font-weight:600;">E17 · You — vault as identity record, Discretion entry</div>
+    </div>
+
+    <!-- 18 DISCREET MODE -->
+    <div style="display:flex;flex-direction:column;gap:12px;align-items:center;">
+      <x-import component-from-global-scope="IOSDevice" from="./ios-frame.jsx" dark="{{ true }}" hint-size="402px,874px">
+        <div data-screen-label="E18 Discretion" style="width:100%;height:100%;background:#0C0B09;display:flex;flex-direction:column;padding:72px 28px 0;font-family:-apple-system,system-ui,sans-serif;">
+          <div style="color:#8A8378;font-size:11px;font-weight:600;letter-spacing:0.28em;text-transform:uppercase;">Discretion</div>
+          <div style="color:#EDE8E2;font-size:26px;font-weight:300;font-family:'Source Serif 4',serif;margin-top:6px;">Unreadable at a glance</div>
+          <div style="color:#8A8378;font-size:13.5px;line-height:20px;margin-top:8px;">How Compose appears on your home screen, lock screen, and anywhere outside the app.</div>
+          <div style="color:#57534B;font-size:11px;font-weight:700;letter-spacing:0.16em;text-transform:uppercase;margin:26px 0 12px;">App icon &amp; name</div>
+          <div style="display:flex;gap:12px;">
+            <div style="flex:1;background:#161412;border:1px solid rgba(200,155,109,0.55);border-radius:16px;padding:14px 10px;display:flex;flex-direction:column;align-items:center;gap:8px;">
+              <div style="width:44px;height:44px;border-radius:11px;background:#1C1916;border:1px solid #2E2A24;display:flex;align-items:center;justify-content:center;"><div style="width:10px;height:10px;border-radius:999px;border:1.5px solid #C89B6D;"></div></div>
+              <span style="color:#B9B2A6;font-size:11px;">Compose</span>
+            </div>
+            <div style="flex:1;background:#161412;border:1px solid #262220;border-radius:16px;padding:14px 10px;display:flex;flex-direction:column;align-items:center;gap:8px;">
+              <div style="width:44px;height:44px;border-radius:11px;background:#1A1D24;display:flex;align-items:center;justify-content:center;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#8B93C7" stroke-width="2" stroke-linecap="round"><path d="M12 2v20"></path><path d="M2 12h20"></path></svg></div>
+              <span style="color:#B9B2A6;font-size:11px;">Habits</span>
+            </div>
+            <div style="flex:1;background:#161412;border:1px solid #262220;border-radius:16px;padding:14px 10px;display:flex;flex-direction:column;align-items:center;gap:8px;">
+              <div style="width:44px;height:44px;border-radius:11px;background:#151A17;display:flex;align-items:center;justify-content:center;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#7FA893" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v18"></path><path d="M5.5 8.5 12 3l6.5 5.5"></path></svg></div>
+              <span style="color:#B9B2A6;font-size:11px;">Breathe</span>
+            </div>
+          </div>
+          <div style="color:#57534B;font-size:11px;font-weight:700;letter-spacing:0.16em;text-transform:uppercase;margin:26px 0 12px;">Surfaces</div>
+          <div style="background:#161412;border:1px solid #262220;border-radius:16px;overflow:hidden;">
+            <div style="padding:15px 16px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #201D19;">
+              <div style="flex:1;padding-right:12px;"><div style="color:#EDE8E2;font-size:14px;">Neutral notifications</div><div style="color:#8A8378;font-size:11.5px;margin-top:2px;">"Today's session is ready." Never more.</div></div>
+              <div style="width:44px;height:26px;border-radius:999px;background:#C89B6D;position:relative;"><div style="position:absolute;top:3px;right:3px;width:20px;height:20px;border-radius:999px;background:#171310;"></div></div>
+            </div>
+            <div style="padding:15px 16px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #201D19;">
+              <div style="flex:1;padding-right:12px;"><div style="color:#EDE8E2;font-size:14px;">Face ID to open</div><div style="color:#8A8378;font-size:11.5px;margin-top:2px;">A handed-over phone shows nothing.</div></div>
+              <div style="width:44px;height:26px;border-radius:999px;background:#C89B6D;position:relative;"><div style="position:absolute;top:3px;right:3px;width:20px;height:20px;border-radius:999px;background:#171310;"></div></div>
+            </div>
+            <div style="padding:15px 16px;display:flex;align-items:center;justify-content:space-between;">
+              <div style="flex:1;padding-right:12px;"><div style="color:#EDE8E2;font-size:14px;">Hide from app switcher</div><div style="color:#8A8378;font-size:11.5px;margin-top:2px;">Blurs the preview card when you switch apps.</div></div>
+              <div style="width:44px;height:26px;border-radius:999px;background:#33302A;position:relative;"><div style="position:absolute;top:3px;left:3px;width:20px;height:20px;border-radius:999px;background:#6E675D;"></div></div>
+            </div>
+          </div>
+          <div style="color:#57534B;font-size:12px;line-height:17px;margin-top:14px;">Purchases appear on card statements as "CMPS Media."</div>
+        </div>
+      </x-import>
+      <div style="color:#94a3b8;font-size:13px;font-weight:600;">E18 · Discreet Mode — build first (churn floor)</div>
+    </div>
+
+    <!-- 19 GRADUATION -->
+    <div style="display:flex;flex-direction:column;gap:12px;align-items:center;">
+      <x-import component-from-global-scope="IOSDevice" from="./ios-frame.jsx" dark="{{ true }}" hint-size="402px,874px">
+        <div data-screen-label="E19 Graduation" style="width:100%;height:100%;background:#0C0B09;display:flex;flex-direction:column;padding:72px 28px 0;font-family:-apple-system,system-ui,sans-serif;">
+          <div style="color:#C89B6D;font-size:11px;font-weight:700;letter-spacing:0.28em;text-transform:uppercase;">Day seventy-five</div>
+          <div style="color:#EDE8E2;font-size:30px;font-weight:300;font-family:'Source Serif 4',serif;line-height:1.3;margin-top:10px;">The protocol is over.<br>The baseline is yours.</div>
+          <div style="background:#161412;border:1px solid #262220;border-radius:18px;padding:20px;margin-top:24px;">
+            <div style="color:#8A8378;font-size:10px;font-weight:700;letter-spacing:0.2em;text-transform:uppercase;">What you built · from your own logs</div>
+            <div style="display:flex;gap:10px;margin-top:14px;">
+              <div style="flex:1;text-align:center;"><div style="color:#EDE8E2;font-size:22px;font-weight:300;font-family:'Source Serif 4',serif;">75</div><div style="color:#57534B;font-size:10.5px;margin-top:2px;">days completed</div></div>
+              <div style="flex:1;text-align:center;"><div style="color:#EDE8E2;font-size:22px;font-weight:300;font-family:'Source Serif 4',serif;">2.1→4.3</div><div style="color:#57534B;font-size:10.5px;margin-top:2px;">control score</div></div>
+              <div style="flex:1;text-align:center;"><div style="color:#EDE8E2;font-size:22px;font-weight:300;font-family:'Source Serif 4',serif;">19</div><div style="color:#57534B;font-size:10.5px;margin-top:2px;">anchors written</div></div>
+            </div>
+            <div style="border-top:1px solid #201D19;margin-top:16px;padding-top:14px;">
+              <div style="color:#B9B2A6;font-size:14px;line-height:23px;font-family:'Source Serif 4',serif;font-style:italic;">"My body followed adrenaline. That's physiology, not a verdict on me." <span style="color:#57534B;font-size:11px;font-style:normal;font-family:-apple-system,system-ui,sans-serif;">— you, Day 21</span></div>
+            </div>
+          </div>
+          <div style="background:#0F0E0C;border:1px solid #201D19;border-radius:16px;padding:18px;margin-top:14px;">
+            <div style="color:#EDE8E2;font-size:14px;font-weight:700;">Keep the toolkit within reach</div>
+            <div style="color:#8A8378;font-size:12.5px;line-height:18px;margin-top:4px;">Steady-Me tools, your vault, maintenance tracks, and the log that proves the shift — $4.99/mo. Or leave with everything you've learned. Both are wins.</div>
+            <div style="display:flex;gap:10px;margin-top:14px;">
+              <div style="flex:1;background:#C89B6D;border-radius:12px;padding:13px;text-align:center;color:#171310;font-weight:700;font-size:13.5px;">Keep the toolkit</div>
+              <div style="flex:1;background:transparent;border:1px solid #33302A;border-radius:12px;padding:13px;text-align:center;color:#8A8378;font-weight:600;font-size:13.5px;">I'm done — export my record</div>
+            </div>
+          </div>
+          <div style="flex:1;"></div>
+          <div style="color:#57534B;font-size:12px;text-align:center;padding-bottom:26px;">Your data stays on this device either way.</div>
+        </div>
+      </x-import>
+      <div style="color:#94a3b8;font-size:13px;font-weight:600;">E19 · Graduation — continuation as endowment</div>
+    </div>
+  </div>
+
+  <div style="max-width:900px;margin-top:72px;background:#111623;border:1px solid #1e293b;border-radius:16px;padding:28px 32px;">
+    <div style="color:#e2e8f0;font-size:15px;font-weight:700;">Implementation order</div>
+    <div style="color:#94a3b8;font-size:13.5px;line-height:1.75;margin-top:8px;">1. Discreet Mode (E18) — churn insurance before anything else. 2. Ember token swap across existing screens (E08–E17) — pure restyle, no logic changes. 3. Breathing orb in conditioning + SOS (E10, E15). 4. Funnel copy pass + profile readout (E02, E05). 5. Paywall A/B (E06 vs E07) via RevenueCat offerings. Say the word and I'll package the developer handoff for Claude Code to execute in your Expo repo.</div>
+  </div>
+</section>
+
+</x-dc>
+</body>
+</html>
