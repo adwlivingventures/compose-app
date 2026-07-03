@@ -1052,6 +1052,21 @@ function CheckoutScreen({
         <Text className="text-slate-500 text-xs">Restore Purchases</Text>
       </TouchableOpacity>
 
+      {__DEV__ && (
+        <TouchableOpacity
+          onPress={async () => {
+            if (!advancedRef.current) {
+              advancedRef.current = true;
+              await onPurchaseComplete();
+            }
+          }}
+          activeOpacity={0.7}
+          className="py-2 items-center"
+        >
+          <Text className="text-slate-700 text-xs">Skip paywall (dev only)</Text>
+        </TouchableOpacity>
+      )}
+
       {/* Legal links — Apple requires both on any paywall offering an
           auto-renewable subscription */}
       <View className="flex-row justify-center gap-6 mt-1">

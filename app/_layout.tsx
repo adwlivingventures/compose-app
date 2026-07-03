@@ -24,9 +24,11 @@ export default function RootLayout() {
     Purchases.setLogLevel(IS_DEV ? LOG_LEVEL.DEBUG : LOG_LEVEL.ERROR);
 
     if (Platform.OS === 'ios') {
-      Purchases.configure({
-        apiKey: IS_DEV ? RC_API_KEYS.applTest : RC_API_KEYS.apple,
-      });
+      // One key for dev and prod: RevenueCat auto-detects sandbox vs
+      // production receipts from the build environment. The test_ key
+      // targets RC's separate Test Store, which has no products configured —
+      // it left the dev paywall with an empty offering.
+      Purchases.configure({ apiKey: RC_API_KEYS.apple });
     } else if (Platform.OS === 'android') {
       Purchases.configure({ apiKey: RC_API_KEYS.google });
     }
