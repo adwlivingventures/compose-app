@@ -6,6 +6,7 @@ import {
   ShieldCheck,
   Users,
   EyeOff,
+  Sun,
   RotateCcw,
   ChevronRight,
   X,
@@ -123,7 +124,7 @@ export default function ProfileScreen() {
       <TouchableOpacity
         onPress={() => router.push('/discretion')}
         activeOpacity={0.85}
-        className="bg-surface border border-line rounded-2xl p-5 flex-row items-center gap-4 mb-6"
+        className="bg-surface border border-line rounded-2xl p-5 flex-row items-center gap-4 mb-3"
       >
         <View className="w-11 h-11 rounded-full bg-surface-deep border border-line items-center justify-center">
           <EyeOff color="#C89B6D" size={20} />
@@ -132,6 +133,24 @@ export default function ProfileScreen() {
           <Text className="text-ink text-sm font-bold">Discretion</Text>
           <Text className="text-muted text-xs mt-0.5 leading-4">
             How Compose appears anywhere outside the app.
+          </Text>
+        </View>
+        <ChevronRight color="#8A8378" size={18} />
+      </TouchableOpacity>
+
+      {/* Vitality Baseline — the reference behind the daily Vitality Habit */}
+      <TouchableOpacity
+        onPress={() => router.push('/vitality')}
+        activeOpacity={0.85}
+        className="bg-surface border border-line rounded-2xl p-5 flex-row items-center gap-4 mb-6"
+      >
+        <View className="w-11 h-11 rounded-full bg-surface-deep border border-line items-center justify-center">
+          <Sun color="#C89B6D" size={20} />
+        </View>
+        <View className="flex-1">
+          <Text className="text-ink text-sm font-bold">The Vitality Baseline</Text>
+          <Text className="text-muted text-xs mt-0.5 leading-4">
+            The daily physiological floor — chemistry, sleep, focus.
           </Text>
         </View>
         <ChevronRight color="#8A8378" size={18} />
