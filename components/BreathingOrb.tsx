@@ -1,6 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import { Animated, Easing, View } from 'react-native';
 import Svg, { Circle, Defs, RadialGradient, Stop } from 'react-native-svg';
+import * as Haptics from 'expo-haptics';
 
 /**
  * BreathingOrb — the Ember signature mechanic (design/ember-v1, E10/E15).
@@ -48,8 +49,22 @@ interface BreathingOrbProps {
    * counters from here so text stays locked to the glow.
    */
   onPhaseStart?: (phaseIndex: number, completedCycles: number) => void;
+  /**
+   * Soft haptic tick at each phase boundary — lets the user follow the
+   * pacing with eyes closed, which is where the extended-exhale work lands
+   * best. Consumers toggle it (e.g. off until the counted sequence starts).
+   */
+  haptics?: boolean;
   /** Inner circle content: phase word (E10) or countdown numeral (E15). */
   children?: React.ReactNode;
+}
+
+// Guarded: on a dev build that predates the expo-haptics native module the
+// call throws — skip silently rather than take down the breathing screen.
+function softTick() {
+  try {
+    Haptics.impactAsync(Haptics.ImpactFeedbackStyle.Soft).catch(() => {});
+  } catch {}
 }
 
 export default function BreathingOrb({
@@ -58,6 +73,7 @@ export default function BreathingOrb({
   glowSize,
   innerSize,
   onPhaseStart,
+  haptics = false,
   children,
 }: BreathingOrbProps) {
   const scale = useRef(new Animated.Value(1)).current;
@@ -67,12 +83,15 @@ export default function BreathingOrb({
   onPhaseStartRef.current = onPhaseStart;
   const phasesRef = useRef(phases);
   phasesRef.current = phases;
+  const hapticsRef = useRef(haptics);
+  hapticsRef.current = haptics;
 
   useEffect(() => {
     let alive = true;
     let cycles = 0;
     const runPhase = (index: number) => {
       if (!alive) return;
+      if (hapticsRef.current) softTick();
       onPhaseStartRef.current?.(index, cycles);
       const phase = phasesRef.current[index];
       Animated.timing(scale, {

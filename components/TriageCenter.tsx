@@ -117,6 +117,7 @@ function BreathingGuide() {
           glowSize={210}
           innerSize={150}
           onPhaseStart={onPhaseStart}
+          haptics
         >
           <Text className="text-accent-soft text-3xl font-serif-light">{secondsLeft}</Text>
         </BreathingOrb>

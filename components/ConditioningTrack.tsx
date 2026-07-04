@@ -64,6 +64,7 @@ export default function ConditioningTrack({ onComplete }: ConditioningTrackProps
         glowSize={260}
         innerSize={180}
         onPhaseStart={onPhaseStart}
+        haptics={started}
       >
         <Text className="text-accent-soft text-[13px] font-bold uppercase tracking-[0.22em]">
           {inhaling ? 'Soften' : 'Engage'}
