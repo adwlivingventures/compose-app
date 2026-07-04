@@ -1,11 +1,11 @@
-# Ember v1 Redesign — Phase 1 Progress (token swap + serif pass)
+# Ember v1 Redesign — Progress
 
 Read this file first in any new session to resume without re-reading full chat history. Full design spec lives at `design/ember-v1/README.md` (source of truth) and `design/ember-v1/COMPOSE - Ember v1.dc.html` (E01–E19 reference renders + screenshots).
 
 ## Overall plan (5 phases, per design/ember-v1/README.md "Implementation Order")
 
-1. **Ember token swap + serif fonts** across existing screens (E08–E17) — pure restyle, no logic changes. **✅ DONE (committed). Phase 2 (breathing orb) is next.**
-2. Breathing orb mechanic (E10 conditioning, E15 SOS 4-7-8) — replace current simple scale animation with the signature glow-orb per spec.
+1. **Ember token swap + serif fonts** across existing screens (E08–E17) — pure restyle, no logic changes. **✅ DONE (committed).**
+2. **Breathing orb mechanic** (E10 conditioning, E15 SOS 4-7-8). **✅ DONE (committed). Phase 3 (funnel copy + profile readout) is next.**
 3. Funnel copy pass + new Profile Readout screen (E02 template applied to all 23 onboarding steps, E05 new screen between analyzer and paywall).
 4. Discreet Mode (E18) — Face ID lock + app-switcher blur now; alternate app icons + neutral notifications deferred (assets/notification system don't exist yet).
 5. Paywall A/B (E06 vs E07) via RevenueCat offerings — **with corrections**: E06's "guaranteed refund" claim must be reworded (Apple controls refunds, we can't promise them — say "we'll help you request one, one tap" instead), and the "statement reads 'CMPS Media'" claim is wrong (Apple Pay statements always show "Apple", not merchant name — this is actually a *stronger* trust claim, use it).
@@ -39,6 +39,16 @@ All seven checklist items done: welcome headline → serif-light 34px, session s
 E01 render shows copy/layout deltas (left-aligned headline, "Find my baseline" CTA, privacy line) — those are Phase 3 funnel-template scope, intentionally not done in Phase 1.
 
 Day 1 anchor audio: already handled and committed separately (`198332c Register Day 1 anchor audio`).
+
+## Phase 2 completion notes (2026-07-03)
+
+New shared `components/BreathingOrb.tsx` — the signature glow-orb. SVG radial copper gradient (0.26→0.05→0 stops, per .dc.html) inside an `Animated.View`; scale 1→1.18 with opacity 0.75→1 derived via interpolate, native driver. **Phase-synced, not symmetric sine**: glow expands over the real inhale duration and contracts over the exhale (holds full through the 4-7-8 retention) — README says "synced to phase durations from ProtocolData"; the HTML's symmetric keyframe was a prototype limitation. Canonical phase timings exported from the orb module (`CONDITIONING_PHASES` 4s/6s = 10s, `SOS_478_PHASES` 4/7/8 = 19s) — ProtocolData.ts is a day manifest, wrong home for them. Loop starts at mount (pre-tap entrainment), effect has empty deps + refs for callbacks so re-renders never restart it; `onPhaseStart(index, cycles)` callback drives all words/counters so text can't drift from the glow.
+
+`ConditioningTrack.tsx` (E10): orb 280/260/180, phase word SOFTEN/ENGAGE inside (13px 0.22em accent-soft), counting starts at the first inhale *after* Begin (tap never jerks the animation; sub-line "Your count begins on the next inhale."), completion fires at the phase-0 boundary after breath 30's exhale finishes. 3px `line-soft` progress bar.
+
+`TriageCenter.tsx` BreathingGuide (E15): orb 230/210/150, serif-light countdown numeral inside (1s interval reset on each `onPhaseStart`), labels kept as full clinical cues (nose in / lips out). **Auto-starts on mount** — acute-anxiety user shouldn't face a Begin decision (Hick's law / render shows running state as default); Stop → static circle + "Begin again"; restart remounts orb via `key={runId}` so it begins at the top of an inhale. Old `Animated`/`Easing` imports removed.
+
+`npx tsc --noEmit` passes. **On-device check still pending for both Phase 1 and 2** (animation smoothness, orb sizing on the user's iPhone dev build). Haptics mentioned in README ("keep haptics/timer logic") don't exist in the current code — nothing was removed; adding phase-boundary haptics would need `expo-haptics` (not installed), flag as an option for the user.
 
 ## Context the next session needs (don't re-derive)
 

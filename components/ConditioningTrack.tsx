@@ -1,12 +1,18 @@
-import React, { useEffect, useRef, useState } from 'react';
-import { View, Text, TouchableOpacity, Animated, Easing } from 'react-native';
+import React, { useRef, useState } from 'react';
+import { View, Text, TouchableOpacity } from 'react-native';
+import BreathingOrb, { CONDITIONING_PHASES } from './BreathingOrb';
 
 /**
- * Physical Conditioning Track (CLAUDE.md §5, item 2).
+ * Physical Conditioning Track (CLAUDE.md §5, item 2) — E10 orb variant.
  *
  * Paced breath + pelvic-floor sequence: soften/release on the inhale, a
- * gentle engagement on the exhale. The expanding/contracting circle carries
- * the pacing so the user's attention stays somatic, not arithmetic.
+ * gentle engagement on the exhale. The breathing orb carries the pacing so
+ * the user's attention stays somatic, not arithmetic — and it breathes from
+ * the moment the screen mounts, so entrainment starts before any tap.
+ *
+ * The counted sequence begins on the first inhale *after* Begin is pressed:
+ * the tap never jerks the animation, and the first counted breath always
+ * starts from the top of a cycle rather than mid-exhale.
  *
  * Phase 1 emphasis is reverse-kegel-style release work — hence the inhale cue
  * leads with "soften" and the exhale cue is deliberately worded as *gentle*
@@ -14,8 +20,6 @@ import { View, Text, TouchableOpacity, Animated, Easing } from 'react-native';
  * goal. Copy stays in conditioning/nervous-system language per §1/§4 tone.
  */
 
-const INHALE_MS = 4000;
-const EXHALE_MS = 6000;
 // 30 breath cycles × 10s = 5 minutes
 const TOTAL_REPS = 30;
 
@@ -24,100 +28,75 @@ interface ConditioningTrackProps {
 }
 
 export default function ConditioningTrack({ onComplete }: ConditioningTrackProps) {
-  const scale = useRef(new Animated.Value(1)).current;
   const runningRef = useRef(false);
   const completedRef = useRef(false);
-  const [phase, setPhase] = useState<'idle' | 'inhale' | 'exhale'>('idle');
+  const repRef = useRef(0);
+  const [started, setStarted] = useState(false);
+  const [phaseIndex, setPhaseIndex] = useState(0);
   const [rep, setRep] = useState(0);
 
-  const finish = () => {
-    if (completedRef.current) return;
-    completedRef.current = true;
-    runningRef.current = false;
-    onComplete();
-  };
-
-  const runRep = (repIndex: number) => {
-    if (!runningRef.current) return;
-    if (repIndex >= TOTAL_REPS) {
-      finish();
+  const onPhaseStart = (index: number) => {
+    setPhaseIndex(index);
+    // Counting advances only at the top of an inhale.
+    if (index !== 0 || !runningRef.current || completedRef.current) return;
+    if (repRef.current >= TOTAL_REPS) {
+      completedRef.current = true;
+      runningRef.current = false;
+      onComplete();
       return;
     }
-    setRep(repIndex + 1);
-    setPhase('inhale');
-    Animated.timing(scale, {
-      toValue: 1.35,
-      duration: INHALE_MS,
-      easing: Easing.inOut(Easing.ease),
-      useNativeDriver: true,
-    }).start(({ finished }) => {
-      if (!finished || !runningRef.current) return;
-      setPhase('exhale');
-      Animated.timing(scale, {
-        toValue: 1,
-        duration: EXHALE_MS,
-        easing: Easing.inOut(Easing.ease),
-        useNativeDriver: true,
-      }).start(({ finished: f2 }) => {
-        if (!f2 || !runningRef.current) return;
-        runRep(repIndex + 1);
-      });
-    });
+    repRef.current += 1;
+    setRep(repRef.current);
   };
 
-  const start = () => {
+  const begin = () => {
+    setStarted(true);
     runningRef.current = true;
-    runRep(0);
   };
 
-  useEffect(() => {
-    return () => {
-      runningRef.current = false;
-      scale.stopAnimation();
-    };
-  }, []);
-
-  const active = phase !== 'idle';
-  const progress = rep / TOTAL_REPS;
+  const inhaling = phaseIndex === 0;
 
   return (
     <View className="items-center w-full">
-      <View className="h-56 items-center justify-center">
-        <Animated.View
-          style={{ transform: [{ scale }] }}
-          className="w-40 h-40 rounded-full bg-accent/10 border-2 border-accent/50 items-center justify-center"
-        >
-          {active && (
-            <Text className="text-accent text-xs font-bold uppercase tracking-widest">
-              {phase === 'inhale' ? 'Soften' : 'Engage'}
-            </Text>
-          )}
-        </Animated.View>
-      </View>
+      <BreathingOrb
+        phases={CONDITIONING_PHASES}
+        size={280}
+        glowSize={260}
+        innerSize={180}
+        onPhaseStart={onPhaseStart}
+      >
+        <Text className="text-accent-soft text-[13px] font-bold uppercase tracking-[0.22em]">
+          {inhaling ? 'Soften' : 'Engage'}
+        </Text>
+      </BreathingOrb>
 
-      <Text className="text-ink text-base font-bold h-6">
-        {phase === 'idle'
+      <Text className="text-ink text-[17px] font-semibold mt-4 h-6">
+        {!started
           ? 'Conditioning Track'
-          : phase === 'inhale'
+          : inhaling
           ? 'Inhale — release, let go'
           : 'Exhale — gentle engagement'}
       </Text>
-      <Text className="text-muted text-xs mt-1 h-5">
-        {active ? `${rep} of ${TOTAL_REPS}` : 'Five minutes. Follow the circle — nothing forced.'}
+      <Text className="text-muted text-[12.5px] mt-1 h-5">
+        {!started
+          ? 'Five minutes. Follow the orb — nothing forced.'
+          : rep === 0
+          ? 'Your count begins on the next inhale.'
+          : `breath ${rep} of ${TOTAL_REPS}`}
       </Text>
 
-      {active ? (
+      {started ? (
         <View className="w-full mt-6">
-          <View className="h-1 bg-surface-deep rounded-full overflow-hidden">
+          <View className="h-[3px] bg-line-soft rounded-full overflow-hidden">
             <View
               className="h-full bg-accent rounded-full"
-              style={{ width: `${Math.min(progress * 100, 100)}%` }}
+              style={{ width: `${Math.min((rep / TOTAL_REPS) * 100, 100)}%` }}
             />
           </View>
         </View>
       ) : (
         <TouchableOpacity
-          onPress={start}
+          onPress={begin}
           activeOpacity={0.85}
           className="bg-accent rounded-xl py-3.5 px-10 mt-6"
         >

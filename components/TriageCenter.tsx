@@ -7,13 +7,12 @@ import {
   ScrollView,
   Pressable,
   TextInput,
-  Animated,
-  Easing,
   KeyboardAvoidingView,
   Platform,
 } from 'react-native';
 import { ChevronLeft, ChevronRight, Wind, Anchor, PenLine, CheckCircle2 } from 'lucide-react-native';
 import { useDefusionLog, FALLACY_META, Fallacy } from '../hooks/useDefusionLog';
+import BreathingOrb, { SOS_478_PHASES } from './BreathingOrb';
 
 /**
  * Triage Center — the "painkiller" mechanic (CLAUDE.md §6).
@@ -56,83 +55,107 @@ const GROUNDING_STEPS = [
 
 // ─── Branch: 4-7-8 Breathing ──────────────────────────────────────────────────
 
-const BREATH_PHASES = [
-  { label: 'Inhale through your nose', seconds: 4, to: 1.35 },
-  { label: 'Hold', seconds: 7, to: 1.35 },
-  { label: 'Exhale slowly through your lips', seconds: 8, to: 1 },
+const BREATH_LABELS = [
+  'Inhale through your nose',
+  'Hold',
+  'Exhale slowly through your lips',
 ] as const;
+const BREATH_SECONDS = SOS_478_PHASES.map((p) => Math.round(p.durationMs / 1000));
 
 function BreathingGuide() {
-  const scale = useRef(new Animated.Value(1)).current;
-  const [phaseIndex, setPhaseIndex] = useState<number | null>(null);
+  // Starts breathing the moment the branch opens — the user arrived
+  // sympathetically activated; asking them to make a "start" decision first
+  // is one decision too many. Stop is the only control while running.
+  // runId keys the orb so an explicit restart begins cleanly from the top of
+  // an inhale (re-renders never restart it — that's handled inside the orb).
+  const [runId, setRunId] = useState(1);
+  const [phaseIndex, setPhaseIndex] = useState(0);
   const [cycles, setCycles] = useState(0);
-  const runningRef = useRef(false);
+  const [secondsLeft, setSecondsLeft] = useState(BREATH_SECONDS[0]);
+  const tickRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
-  const runPhase = (index: number) => {
-    if (!runningRef.current) return;
-    setPhaseIndex(index);
-    const phase = BREATH_PHASES[index];
-    Animated.timing(scale, {
-      toValue: phase.to,
-      duration: phase.seconds * 1000,
-      easing: Easing.inOut(Easing.ease),
-      useNativeDriver: true,
-    }).start(({ finished }) => {
-      if (!finished || !runningRef.current) return;
-      const next = (index + 1) % BREATH_PHASES.length;
-      if (next === 0) setCycles((c) => c + 1);
-      runPhase(next);
-    });
+  const clearTick = () => {
+    if (tickRef.current) {
+      clearInterval(tickRef.current);
+      tickRef.current = null;
+    }
   };
 
-  const start = () => {
-    runningRef.current = true;
-    setCycles(0);
-    runPhase(0);
+  const onPhaseStart = (index: number, completedCycles: number) => {
+    setPhaseIndex(index);
+    setCycles(completedCycles);
+    setSecondsLeft(BREATH_SECONDS[index]);
+    clearTick();
+    tickRef.current = setInterval(() => {
+      setSecondsLeft((s) => Math.max(1, s - 1));
+    }, 1000);
   };
 
   const stop = () => {
-    runningRef.current = false;
-    scale.stopAnimation();
-    scale.setValue(1);
-    setPhaseIndex(null);
+    clearTick();
+    setRunId(0);
+    setCycles(0);
   };
 
-  useEffect(() => stop, []);
+  const start = () => {
+    setPhaseIndex(0);
+    setSecondsLeft(BREATH_SECONDS[0]);
+    setRunId((id) => id + 1);
+  };
 
-  const active = phaseIndex !== null;
+  useEffect(() => clearTick, []);
+
+  const running = runId > 0;
 
   return (
     <View className="items-center py-4">
-      <View className="h-52 items-center justify-center">
-        <Animated.View
-          style={{ transform: [{ scale }] }}
-          className="w-36 h-36 rounded-full bg-accent/10 border-2 border-accent/50 items-center justify-center"
+      {running ? (
+        <BreathingOrb
+          key={runId}
+          phases={SOS_478_PHASES}
+          size={230}
+          glowSize={210}
+          innerSize={150}
+          onPhaseStart={onPhaseStart}
         >
-          <Text className="text-accent text-sm font-bold">
-            {active ? BREATH_PHASES[phaseIndex].seconds : '4 · 7 · 8'}
-          </Text>
-        </Animated.View>
-      </View>
+          <Text className="text-accent-soft text-3xl font-serif-light">{secondsLeft}</Text>
+        </BreathingOrb>
+      ) : (
+        <View style={{ width: 230, height: 230 }} className="items-center justify-center">
+          <View
+            style={{
+              width: 150,
+              height: 150,
+              borderRadius: 75,
+              backgroundColor: 'rgba(200,155,109,0.09)',
+              borderWidth: 1.5,
+              borderColor: 'rgba(200,155,109,0.5)',
+            }}
+            className="items-center justify-center"
+          >
+            <Text className="text-accent-soft text-lg font-serif-light">4 · 7 · 8</Text>
+          </View>
+        </View>
+      )}
 
-      <Text className="text-ink text-base font-bold mt-2 h-6">
-        {active ? BREATH_PHASES[phaseIndex].label : 'Ready when you are'}
+      <Text className="text-ink text-[17px] font-semibold mt-2 h-6">
+        {running ? BREATH_LABELS[phaseIndex] : 'Ready when you are'}
       </Text>
-      <Text className="text-muted text-xs mt-1 h-5">
-        {active
+      <Text className="text-muted text-[12.5px] mt-1 h-5">
+        {running
           ? cycles > 0
-            ? `${cycles} ${cycles === 1 ? 'cycle' : 'cycles'} complete`
-            : 'Follow the circle'
+            ? `${cycles} ${cycles === 1 ? 'cycle' : 'cycles'} complete · four is usually enough`
+            : 'Follow the orb'
           : 'Four rounds is usually enough to feel the shift.'}
       </Text>
 
       <TouchableOpacity
-        onPress={active ? stop : start}
+        onPress={running ? stop : start}
         activeOpacity={0.85}
-        className={`rounded-xl py-3.5 px-10 mt-5 ${active ? 'bg-surface-deep border border-line' : 'bg-accent'}`}
+        className={`rounded-xl py-3.5 px-11 mt-5 ${running ? 'bg-surface border border-line' : 'bg-accent'}`}
       >
-        <Text className={`font-bold text-sm ${active ? 'text-body' : 'text-on-accent'}`}>
-          {active ? 'Stop' : 'Begin'}
+        <Text className={`font-semibold text-sm ${running ? 'text-body' : 'text-on-accent'}`}>
+          {running ? 'Stop' : 'Begin again'}
         </Text>
       </TouchableOpacity>
     </View>
