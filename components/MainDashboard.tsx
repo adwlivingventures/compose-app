@@ -10,29 +10,10 @@ import TriageCenter from './TriageCenter';
  * Today dashboard — E08 (session pending) and E13 (completed) states.
  *
  * E13 deliberately offers no next action: the completed state is closure,
- * not a hook. Day numbers render as words there ("Twelve days composed") —
- * a ledger of identity, not a counter to optimize. The only interactive
- * element after completion is the Steady-me pill, because anxiety doesn't
- * check whether today's session is done.
+ * not a hook. The only interactive element after completion is the
+ * Steady-me pill, because anxiety doesn't check whether today's session
+ * is done.
  */
-
-// ─── Day numerals as words (E13 "Twelve", E08 "of seventy-five") ─────────────
-
-const ONES = [
-  '', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine',
-  'ten', 'eleven', 'twelve', 'thirteen', 'fourteen', 'fifteen', 'sixteen',
-  'seventeen', 'eighteen', 'nineteen',
-];
-const TENS = ['', '', 'twenty', 'thirty', 'forty', 'fifty', 'sixty', 'seventy'];
-
-function dayInWords(n: number): string {
-  if (n < 20) return ONES[n];
-  const tens = TENS[Math.floor(n / 10)];
-  const one = n % 10;
-  return one ? `${tens}-${ONES[one]}` : tens;
-}
-
-const capitalize = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
 
 const PHASE_NUMERALS = ['I', 'II', 'III'];
 
@@ -78,10 +59,10 @@ function ProgressRing({ day, completedToday }: { day: number; completedToday: bo
         {completedToday ? (
           <>
             <Check color="#C89B6D" size={26} style={{ marginBottom: 6 }} />
-            <Text className="text-ink text-[44px] font-serif-light leading-[48px]">
-              {capitalize(dayInWords(day))}
+            <Text className="text-ink text-[56px] font-serif-light leading-[60px]">{day}</Text>
+            <Text className="text-faint text-[13px] mt-0.5">
+              {day === 1 ? 'day composed' : 'days composed'}
             </Text>
-            <Text className="text-faint text-[13px] mt-0.5">days composed</Text>
           </>
         ) : (
           <>

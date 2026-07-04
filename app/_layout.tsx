@@ -75,6 +75,7 @@ export default function RootLayout() {
           <Stack.Screen name="session" options={{ presentation: 'fullScreenModal' }} />
           <Stack.Screen name="discretion" />
           <Stack.Screen name="vitality" />
+          <Stack.Screen name="technique" />
         </Stack>
         {/* Above everything: the app-switcher cover and Face ID gate (E18). */}
         <PrivacyShield />

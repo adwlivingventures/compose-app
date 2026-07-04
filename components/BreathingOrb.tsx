@@ -118,6 +118,15 @@ export default function BreathingOrb({
     outputRange: [0.75, 1],
     extrapolate: 'clamp',
   });
+  // The inner circle breathes at a fraction of the glow's travel: the soft
+  // glow alone (26% peak opacity) is near-invisible on a real OLED, and an
+  // imperceptible pacing target defeats the entrainment mechanic. Derived
+  // from the same Animated.Value, so glow and circle can never drift.
+  const innerScale = scale.interpolate({
+    inputRange: [1, 1.18],
+    outputRange: [1, 1.07],
+    extrapolate: 'clamp',
+  });
 
   return (
     <View style={{ width: size, height: size }} className="items-center justify-center">
@@ -141,7 +150,7 @@ export default function BreathingOrb({
           <Circle cx={glowSize / 2} cy={glowSize / 2} r={glowSize / 2} fill="url(#orbGlow)" />
         </Svg>
       </Animated.View>
-      <View
+      <Animated.View
         style={{
           width: innerSize,
           height: innerSize,
@@ -149,11 +158,12 @@ export default function BreathingOrb({
           backgroundColor: 'rgba(200,155,109,0.09)',
           borderWidth: 1.5,
           borderColor: 'rgba(200,155,109,0.5)',
+          transform: [{ scale: innerScale }],
         }}
         className="items-center justify-center"
       >
         {children}
-      </View>
+      </Animated.View>
     </View>
   );
 }

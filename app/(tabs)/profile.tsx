@@ -7,6 +7,7 @@ import {
   Users,
   EyeOff,
   Sun,
+  ArrowDown,
   RotateCcw,
   ChevronRight,
   X,
@@ -138,6 +139,24 @@ export default function ProfileScreen() {
         <ChevronRight color="#8A8378" size={18} />
       </TouchableOpacity>
 
+      {/* Somatic Drop technique — the Day 1 primer, permanently re-readable */}
+      <TouchableOpacity
+        onPress={() => router.push('/technique')}
+        activeOpacity={0.85}
+        className="bg-surface border border-line rounded-2xl p-5 flex-row items-center gap-4 mb-3"
+      >
+        <View className="w-11 h-11 rounded-full bg-surface-deep border border-line items-center justify-center">
+          <ArrowDown color="#C89B6D" size={20} />
+        </View>
+        <View className="flex-1">
+          <Text className="text-ink text-sm font-bold">The Somatic Drop</Text>
+          <Text className="text-muted text-xs mt-0.5 leading-4">
+            Revisit the reverse-kegel mechanics from Day 1.
+          </Text>
+        </View>
+        <ChevronRight color="#8A8378" size={18} />
+      </TouchableOpacity>
+
       {/* Vitality Baseline — the reference behind the daily Vitality Habit */}
       <TouchableOpacity
         onPress={() => router.push('/vitality')}
@@ -235,11 +254,11 @@ export default function ProfileScreen() {
       {/* Partner Guide modal */}
       <Modal
         visible={guideVisible}
-        animationType="slide"
+        animationType="fade"
         transparent
         onRequestClose={() => setGuideVisible(false)}
       >
-        <Pressable className="flex-1 bg-scrim/70" onPress={() => setGuideVisible(false)} />
+        <Pressable className="flex-1 bg-scrim/80" onPress={() => setGuideVisible(false)} />
         <View className="bg-tab border-t border-line-soft rounded-t-3xl max-h-[88%]">
           <View className="px-6 pt-5 pb-3 flex-row items-start justify-between">
             <View className="flex-1 pr-4">

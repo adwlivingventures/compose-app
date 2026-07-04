@@ -338,8 +338,10 @@ export default function TriageCenter({ visible, onClose }: TriageCenterProps) {
   };
 
   return (
-    <Modal visible={visible} transparent animationType="slide" onRequestClose={close}>
-      <Pressable className="flex-1 bg-scrim/70" onPress={close} />
+    // Fade, not slide: a transparent modal slides its scrim up along with
+    // the sheet, leaving the top of the screen un-dimmed mid-animation.
+    <Modal visible={visible} transparent animationType="fade" onRequestClose={close}>
+      <Pressable className="flex-1 bg-scrim/80" onPress={close} />
       <KeyboardAvoidingView behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
         <View className="bg-tab border-t border-line-soft rounded-t-3xl px-6 pt-5 pb-10 max-h-[85%]">
           <View className="w-10 h-1 bg-line rounded-full self-center mb-4" />

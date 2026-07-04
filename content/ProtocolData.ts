@@ -29,8 +29,8 @@ const PHASE_TITLES: Record<number, string> = {
 // Raw per-day content: [title, focus]. Index 0 = Day 1.
 const DAYS: [string, string][] = [
   // ── Phase 1: The Autonomic Reset (Days 1–25) ──────────────────────────────
-  ['The Sovereign Presence', 'Overcoming "spectatoring" and performance evaluation.'],
-  ['Neutralizing the Perfect Metric', 'Dismantling "all-or-nothing" thinking patterns regarding erection quality.'],
+  ['The Sovereign Presence', "Overcoming 'spectatoring' and performance evaluation."],
+  ['Neutralizing the Perfect Metric', "Dismantling 'all-or-nothing' thinking patterns regarding erection quality."],
   ['The Pelvic Drop', 'Introducing pelvic floor down-training and reverse kegels.'],
   ['The Stopwatch Trap', 'Dismantling time-driven performance metrics.'],
   ['The Autonomic Window', 'Understanding the neurobiology of consecutive intimacy.'],
@@ -51,7 +51,7 @@ const DAYS: [string, string][] = [
   ['Visual vs. Somatic Arousal', 'Shifting from cognitive/visual fantasy to physical presence.'],
   ['The Edging Misconception', 'Clarifying the difference between clinical arousal control and destructive edging.'],
   ['Communicating the Pause', 'Exact phrasing to pause an encounter before the point of no return.'],
-  ['Redefining Intimacy', 'Broadening the definition of a "successful" encounter.'],
+  ['Redefining Intimacy', "Broadening the definition of a 'successful' encounter."],
   ['Forgiving the Falter', 'Practicing self-compassion and breaking the frustration cycle after a difficult session.'],
   ['The Bridge to Exposure', 'Wrapping up Phase 1 and preparing the nervous system for Phase 2.'],
   // ── Phase 2: Somatic Exposure & Mastery (Days 26–50) ──────────────────────

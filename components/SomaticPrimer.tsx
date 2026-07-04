@@ -68,9 +68,14 @@ interface SomaticPrimerProps {
   onComplete: () => void;
   /** Leave without completing (back to dashboard). The gate stays armed. */
   onExit: () => void;
+  /**
+   * Re-reading from the You tab rather than gating Day 1 — same content,
+   * reference framing (no "Acknowledge" language, nothing to arm).
+   */
+  refresher?: boolean;
 }
 
-export default function SomaticPrimer({ onComplete, onExit }: SomaticPrimerProps) {
+export default function SomaticPrimer({ onComplete, onExit, refresher = false }: SomaticPrimerProps) {
   const [currentStep, setCurrentStep] = useState(0);
   const isLast = currentStep === PRIMER_STEPS.length - 1;
   const step = PRIMER_STEPS[currentStep];
@@ -113,7 +118,7 @@ export default function SomaticPrimer({ onComplete, onExit }: SomaticPrimerProps
 
       <View className="items-center mt-4">
         <Text className="text-muted text-xs font-bold uppercase tracking-widest">
-          Day 1 · Somatic Primer
+          {refresher ? 'Technique · Somatic Primer' : 'Day 1 · Somatic Primer'}
         </Text>
       </View>
 
@@ -134,7 +139,7 @@ export default function SomaticPrimer({ onComplete, onExit }: SomaticPrimerProps
         className="bg-accent rounded-2xl py-[19px] items-center"
       >
         <Text className="text-on-accent font-bold text-base">
-          {isLast ? 'Acknowledge & Complete' : 'Next'}
+          {isLast ? (refresher ? 'Done' : 'Acknowledge & Complete') : 'Next'}
         </Text>
       </TouchableOpacity>
     </View>
