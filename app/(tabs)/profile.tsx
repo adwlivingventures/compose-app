@@ -35,6 +35,36 @@ import {
  * who he is becoming.
  */
 
+// Compact navigation row for the grouped sections — one tap, minimal read.
+function NavRow({
+  icon,
+  title,
+  subtitle,
+  onPress,
+  last,
+}: {
+  icon: React.ReactNode;
+  title: string;
+  subtitle?: string;
+  onPress: () => void;
+  last?: boolean;
+}) {
+  return (
+    <TouchableOpacity
+      onPress={onPress}
+      activeOpacity={0.7}
+      className={`p-4 flex-row items-center gap-3 ${last ? '' : 'border-b border-line'}`}
+    >
+      {icon}
+      <View className="flex-1">
+        <Text className="text-ink text-sm font-bold">{title}</Text>
+        {subtitle && <Text className="text-muted text-xs mt-0.5 leading-4">{subtitle}</Text>}
+      </View>
+      <ChevronRight color="#6E675D" size={16} />
+    </TouchableOpacity>
+  );
+}
+
 export default function ProfileScreen() {
   const router = useRouter();
   const { activeDay, resetProtocol } = useProtocol();
@@ -102,116 +132,51 @@ export default function ProfileScreen() {
         )}
       </View>
 
-      {/* Partner Guide */}
-      <TouchableOpacity
-        onPress={() => setGuideVisible(true)}
-        activeOpacity={0.85}
-        className="bg-surface border border-line rounded-2xl p-5 flex-row items-center gap-4 mb-3"
-      >
-        <View className="w-11 h-11 rounded-full bg-surface-deep border border-line items-center justify-center">
-          <Users color="#C89B6D" size={20} />
-        </View>
-        <View className="flex-1">
-          <Text className="text-ink text-sm font-bold">
-            Partner Guide: The Autonomic Reset
-          </Text>
-          <Text className="text-muted text-xs mt-0.5 leading-4">
-            Hand them your phone. Two minutes of reading replaces the hardest
-            conversation.
-          </Text>
-        </View>
-        <ChevronRight color="#8A8378" size={18} />
-      </TouchableOpacity>
+      {/* Library — reading material as a table of contents, not a feed.
+          Six icon-cards with subtitles was approaching the library-of-
+          choices §6 warns about; compact rows keep every destination one
+          tap away without asking the eye to process six paragraphs. */}
+      <Text className="text-muted text-xs font-bold uppercase tracking-widest mb-3">
+        Library
+      </Text>
+      <View className="bg-surface border border-line rounded-2xl overflow-hidden mb-6">
+        <NavRow
+          icon={<ArrowDown color="#C89B6D" size={18} />}
+          title="The Somatic Drop"
+          onPress={() => router.push('/technique')}
+        />
+        <NavRow
+          icon={<Sun color="#C89B6D" size={18} />}
+          title="The Vitality Baseline"
+          onPress={() => router.push('/vitality')}
+        />
+        <NavRow
+          icon={<BookOpen color="#C89B6D" size={18} />}
+          title="The Success Vault"
+          onPress={() => router.push('/success-vault')}
+        />
+        <NavRow
+          icon={<Users color="#C89B6D" size={18} />}
+          title="Partner Guide"
+          onPress={() => setGuideVisible(true)}
+          last
+        />
+      </View>
 
-      {/* Discretion (E18) */}
-      <TouchableOpacity
-        onPress={() => router.push('/discretion')}
-        activeOpacity={0.85}
-        className="bg-surface border border-line rounded-2xl p-5 flex-row items-center gap-4 mb-3"
-      >
-        <View className="w-11 h-11 rounded-full bg-surface-deep border border-line items-center justify-center">
-          <EyeOff color="#C89B6D" size={20} />
-        </View>
-        <View className="flex-1">
-          <Text className="text-ink text-sm font-bold">Discretion</Text>
-          <Text className="text-muted text-xs mt-0.5 leading-4">
-            How Compose appears anywhere outside the app.
-          </Text>
-        </View>
-        <ChevronRight color="#8A8378" size={18} />
-      </TouchableOpacity>
-
-      {/* Somatic Drop technique — the Day 1 primer, permanently re-readable */}
-      <TouchableOpacity
-        onPress={() => router.push('/technique')}
-        activeOpacity={0.85}
-        className="bg-surface border border-line rounded-2xl p-5 flex-row items-center gap-4 mb-3"
-      >
-        <View className="w-11 h-11 rounded-full bg-surface-deep border border-line items-center justify-center">
-          <ArrowDown color="#C89B6D" size={20} />
-        </View>
-        <View className="flex-1">
-          <Text className="text-ink text-sm font-bold">The Somatic Drop</Text>
-          <Text className="text-muted text-xs mt-0.5 leading-4">
-            Revisit the reverse-kegel mechanics from Day 1.
-          </Text>
-        </View>
-        <ChevronRight color="#8A8378" size={18} />
-      </TouchableOpacity>
-
-      {/* Vitality Baseline — the reference behind the daily Vitality Habit */}
-      <TouchableOpacity
-        onPress={() => router.push('/vitality')}
-        activeOpacity={0.85}
-        className="bg-surface border border-line rounded-2xl p-5 flex-row items-center gap-4 mb-3"
-      >
-        <View className="w-11 h-11 rounded-full bg-surface-deep border border-line items-center justify-center">
-          <Sun color="#C89B6D" size={20} />
-        </View>
-        <View className="flex-1">
-          <Text className="text-ink text-sm font-bold">The Vitality Baseline</Text>
-          <Text className="text-muted text-xs mt-0.5 leading-4">
-            The daily physiological floor — chemistry, sleep, focus.
-          </Text>
-        </View>
-        <ChevronRight color="#8A8378" size={18} />
-      </TouchableOpacity>
-
-      {/* Success Vault — curated relapse-normalization narratives */}
-      <TouchableOpacity
-        onPress={() => router.push('/success-vault')}
-        activeOpacity={0.85}
-        className="bg-surface border border-line rounded-2xl p-5 flex-row items-center gap-4 mb-3"
-      >
-        <View className="w-11 h-11 rounded-full bg-surface-deep border border-line items-center justify-center">
-          <BookOpen color="#C89B6D" size={20} />
-        </View>
-        <View className="flex-1">
-          <Text className="text-ink text-sm font-bold">The Success Vault</Text>
-          <Text className="text-muted text-xs mt-0.5 leading-4">
-            Case studies of the road through — relapse included.
-          </Text>
-        </View>
-        <ChevronRight color="#8A8378" size={18} />
-      </TouchableOpacity>
-
-      {/* Mastery Suite — Day-76 continuation teaser (future-pacing) */}
-      <TouchableOpacity
-        onPress={() => router.push('/mastery')}
-        activeOpacity={0.85}
-        className="bg-surface border border-line rounded-2xl p-5 flex-row items-center gap-4 mb-6"
-      >
-        <View className="w-11 h-11 rounded-full bg-surface-deep border border-line items-center justify-center">
-          <Crown color="#C89B6D" size={20} />
-        </View>
-        <View className="flex-1">
-          <Text className="text-ink text-sm font-bold">Mastery Suite</Text>
-          <Text className="text-muted text-xs mt-0.5 leading-4">
-            Phase IV — what unlocks on Day 76.
-          </Text>
-        </View>
-        <ChevronRight color="#8A8378" size={18} />
-      </TouchableOpacity>
+      {/* Phase IV — kept apart from the Library: it's a tier, not reading,
+          and separation preserves its future-pacing job. */}
+      <Text className="text-muted text-xs font-bold uppercase tracking-widest mb-3">
+        Phase IV
+      </Text>
+      <View className="bg-surface border border-line rounded-2xl overflow-hidden mb-6">
+        <NavRow
+          icon={<Crown color="#C89B6D" size={18} />}
+          title="Mastery Suite"
+          subtitle="What unlocks on Day 76."
+          onPress={() => router.push('/mastery')}
+          last
+        />
+      </View>
 
       {/* CBT Vault */}
       <View className="flex-row items-center gap-2 mb-3">
@@ -258,11 +223,23 @@ export default function ProfileScreen() {
         </View>
       )}
 
-      {/* Account */}
+      {/* Settings — Discretion lives here now: it's configuration, not
+          content, and always was. */}
       <Text className="text-muted text-xs font-bold uppercase tracking-widest mt-8 mb-3">
-        Account
+        Settings
       </Text>
       <View className="bg-surface border border-line rounded-2xl overflow-hidden">
+        <TouchableOpacity
+          onPress={() => router.push('/discretion')}
+          activeOpacity={0.7}
+          className="p-4 flex-row items-center justify-between border-b border-line"
+        >
+          <View className="flex-row items-center gap-2">
+            <EyeOff color="#B9B2A6" size={14} />
+            <Text className="text-body text-sm">Discretion</Text>
+          </View>
+          <ChevronRight color="#6E675D" size={16} />
+        </TouchableOpacity>
         <TouchableOpacity
           onPress={restorePurchases}
           disabled={isProcessing}
