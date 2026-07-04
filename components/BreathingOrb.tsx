@@ -24,16 +24,20 @@ export interface OrbPhase {
   durationMs: number;
 }
 
+// Full-inhale glow scale. The design's 1.18 read as barely moving on real
+// hardware (device feedback) — the pacing target has to be unmistakable.
+const FULL_BREATH = 1.3;
+
 /** Conditioning cycle (E10): 4s soften on the inhale, 6s engage on the exhale. */
 export const CONDITIONING_PHASES: OrbPhase[] = [
-  { toScale: 1.18, durationMs: 4000 },
+  { toScale: FULL_BREATH, durationMs: 4000 },
   { toScale: 1, durationMs: 6000 },
 ];
 
 /** SOS cycle (E15): 4-7-8 — the glow holds full through the 7s retention. */
 export const SOS_478_PHASES: OrbPhase[] = [
-  { toScale: 1.18, durationMs: 4000 },
-  { toScale: 1.18, durationMs: 7000 },
+  { toScale: FULL_BREATH, durationMs: 4000 },
+  { toScale: FULL_BREATH, durationMs: 7000 },
   { toScale: 1, durationMs: 8000 },
 ];
 
@@ -114,7 +118,7 @@ export default function BreathingOrb({
   }, []);
 
   const glowOpacity = scale.interpolate({
-    inputRange: [1, 1.18],
+    inputRange: [1, FULL_BREATH],
     outputRange: [0.75, 1],
     extrapolate: 'clamp',
   });
@@ -123,8 +127,8 @@ export default function BreathingOrb({
   // imperceptible pacing target defeats the entrainment mechanic. Derived
   // from the same Animated.Value, so glow and circle can never drift.
   const innerScale = scale.interpolate({
-    inputRange: [1, 1.18],
-    outputRange: [1, 1.07],
+    inputRange: [1, FULL_BREATH],
+    outputRange: [1, 1.16],
     extrapolate: 'clamp',
   });
 

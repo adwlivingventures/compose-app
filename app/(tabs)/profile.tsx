@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { View, Text, ScrollView, TouchableOpacity, Modal, Alert, Pressable } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, Alert } from 'react-native';
 import { useFocusEffect, useRouter } from 'expo-router';
 import {
   Lock,
@@ -23,6 +23,7 @@ import {
   PARTNER_GUIDE_INTRO,
   PARTNER_GUIDE_SECTIONS,
 } from '../../content/partnerGuide';
+import BottomSheet from '../../components/BottomSheet';
 
 /**
  * Profile — the CBT Vault, Partner Guide, and account utilities.
@@ -252,7 +253,9 @@ export default function ProfileScreen() {
         <TouchableOpacity
           onPress={confirmReset}
           activeOpacity={0.7}
-          className="p-4 flex-row items-center justify-between"
+          className={`p-4 flex-row items-center justify-between ${
+            __DEV__ ? 'border-b border-line' : ''
+          }`}
         >
           <View className="flex-row items-center gap-2">
             <RotateCcw color="#B9B2A6" size={14} />
@@ -260,20 +263,24 @@ export default function ProfileScreen() {
           </View>
           <ChevronRight color="#6E675D" size={16} />
         </TouchableOpacity>
+        {__DEV__ && (
+          <TouchableOpacity
+            onPress={() => router.push('/onboarding')}
+            activeOpacity={0.7}
+            className="p-4 flex-row items-center justify-between"
+          >
+            <Text className="text-dim text-sm">Replay Onboarding (dev only)</Text>
+            <ChevronRight color="#57534B" size={16} />
+          </TouchableOpacity>
+        )}
       </View>
 
       <Text className="text-faint text-xs text-center mt-6 leading-4">
         Everything on this screen is stored only on this device.
       </Text>
 
-      {/* Partner Guide modal */}
-      <Modal
-        visible={guideVisible}
-        animationType="fade"
-        transparent
-        onRequestClose={() => setGuideVisible(false)}
-      >
-        <Pressable className="flex-1 bg-scrim/80" onPress={() => setGuideVisible(false)} />
+      {/* Partner Guide sheet */}
+      <BottomSheet visible={guideVisible} onClose={() => setGuideVisible(false)}>
         <View className="bg-tab border-t border-line-soft rounded-t-3xl max-h-[88%]">
           <View className="px-6 pt-5 pb-3 flex-row items-start justify-between">
             <View className="flex-1 pr-4">
@@ -306,7 +313,7 @@ export default function ProfileScreen() {
             ))}
           </ScrollView>
         </View>
-      </Modal>
+      </BottomSheet>
     </ScrollView>
   );
 }
