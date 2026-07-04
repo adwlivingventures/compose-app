@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, Alert, ActivityIndicator } from 'react-native';
 import { useRouter } from 'expo-router';
 import RevenueCatUI from 'react-native-purchases-ui';
-import { Settings, Sparkles, CheckCircle2 } from 'lucide-react-native';
+import { Settings, Sparkles, CheckCircle2, ChevronRight } from 'lucide-react-native';
 import { useProtocol } from '../../context/ProtocolContext';
 import { useRevenueCat, RC_PRODUCTS, RC_MAINTENANCE_ENTITLEMENT_ID } from '../../hooks/useRevenueCat';
 import MainDashboard from '../../components/MainDashboard';
@@ -84,6 +84,20 @@ export default function DashboardScreen() {
               <Text className="text-body text-xs mt-1 leading-4">
                 Streaks, interactive logs, and maintenance content stay unlocked.
               </Text>
+              {/* First concrete deliverable of the maintenance tier */}
+              <TouchableOpacity
+                onPress={() => router.push('/copilot')}
+                activeOpacity={0.85}
+                className="bg-surface-deep border border-line rounded-xl px-4 py-3.5 mt-4 flex-row items-center justify-between"
+              >
+                <View className="flex-1 pr-3">
+                  <Text className="text-ink text-sm font-bold">Somatic Copilot</Text>
+                  <Text className="text-muted text-xs mt-0.5 leading-4">
+                    Deterministic reframes for intimacy roadblocks, on demand.
+                  </Text>
+                </View>
+                <ChevronRight color="#8A8378" size={16} />
+              </TouchableOpacity>
               <TouchableOpacity
                 onPress={openCustomerCenter}
                 activeOpacity={0.8}

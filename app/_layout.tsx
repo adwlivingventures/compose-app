@@ -78,6 +78,7 @@ export default function RootLayout() {
           <Stack.Screen name="technique" />
           <Stack.Screen name="mastery" />
           <Stack.Screen name="autonomic-sync" />
+          <Stack.Screen name="copilot" />
         </Stack>
         {/* Above everything: the app-switcher cover and Face ID gate (E18). */}
         <PrivacyShield />
