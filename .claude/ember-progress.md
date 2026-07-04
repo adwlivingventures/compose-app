@@ -10,6 +10,10 @@ Read this file first in any new session to resume without re-reading full chat h
 4. **Discreet Mode (E18)** — Face ID lock + app-switcher cover. **✅ DONE (committed).** Alternate icons + notifications still deferred (no assets / no notification system).
 5. **Paywall A/B (E06 vs E07)**, with both copy corrections applied. **✅ DONE (committed). ALL FIVE PHASES COMPLETE.**
 
+## Current dev build (2026-07-03)
+
+EAS iOS development build succeeded at commit `8814be0` (all 5 phases + haptics): https://expo.dev/accounts/adwlv/projects/COMPOSE/builds/6de83f73-04b0-40bf-8920-48859c29220e — includes expo-haptics, expo-local-authentication, and the "Compose" display name. This is the build the on-device walkthrough should happen on.
+
 ## Remaining beyond the 5 phases
 
 - **E19 Graduation flow (Day 75)** — in the design bundle ("four product mechanics" incl. Day-75 graduation/continuation) but NOT in the 5-phase implementation order and not built. Current post-program state in `app/(tabs)/index.tsx` ("75 Days. Complete." + maintenance card) is the functional stand-in. E19 = evidence card from real logs + $4.99 keep-toolkit vs export-record choice.
