@@ -1,12 +1,14 @@
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { View, Text, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { useRouter } from 'expo-router';
 import { X, LifeBuoy, Check } from 'lucide-react-native';
 import { useProtocol, getPhaseForDay, HabitState } from '../context/ProtocolContext';
 import { getAnchorForDay } from '../content/anchors';
+import { LocalStore } from '../services/storage';
 import AudioPlayer from '../components/AudioPlayer';
 import ConditioningTrack from '../components/ConditioningTrack';
 import TriageCenter from '../components/TriageCenter';
+import SomaticPrimer from '../components/SomaticPrimer';
 
 /**
  * Daily Session — the full loop (CLAUDE.md §5), one linear all-or-nothing flow:
@@ -69,6 +71,20 @@ export default function SessionScreen() {
   const anchor = getAnchorForDay(day);
   const stageIndex = STAGE_ORDER.indexOf(stage);
 
+  // Day 1 gate: the Somatic Primer must be acknowledged before the first
+  // session — the conditioning track's "soften" cue presumes the reverse-
+  // kegel motor skill it teaches. Completion persists, so it never reshows
+  // (leaving via X keeps the gate armed for the next attempt).
+  const [primerState, setPrimerState] = useState<'loading' | 'show' | 'done'>(
+    day === 1 ? 'loading' : 'done',
+  );
+  useEffect(() => {
+    if (day !== 1) return;
+    LocalStore.getItem<boolean>('@somatic_primer_done').then((done) =>
+      setPrimerState(done ? 'done' : 'show'),
+    );
+  }, []);
+
   const handleComplete = async (finalHabits: HabitState) => {
     if (finishing) return;
     setFinishing(true);
@@ -85,6 +101,22 @@ export default function SessionScreen() {
     const next = STAGE_ORDER[stageIndex + 1];
     if (next) setStage(next);
   };
+
+  // Hold ground while the primer flag loads (one AsyncStorage read) so a
+  // Day 1 user never sees a frame of session before the gate resolves.
+  if (primerState === 'loading') return <View className="flex-1 bg-ground" />;
+
+  if (primerState === 'show') {
+    return (
+      <SomaticPrimer
+        onComplete={() => {
+          LocalStore.setItem('@somatic_primer_done', true);
+          setPrimerState('done');
+        }}
+        onExit={() => router.back()}
+      />
+    );
+  }
 
   return (
     <View className="flex-1 bg-ground px-6 pt-16">
