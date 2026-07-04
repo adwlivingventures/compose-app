@@ -43,8 +43,8 @@ const PILLARS: Pillar[] = [
     pillar: 'Chemical Vitality',
     title: 'Chemical & Vascular Support',
     rule:
-      'Take Vitamin D3+K2, Magnesium Glycinate, Zinc, and L-Citrulline. Get 15 minutes of ' +
-      'morning sunlight.',
+      'Common supports: Vitamin D3+K2, Magnesium Glycinate, Zinc, and L-Citrulline. Get 15 ' +
+      'minutes of morning sunlight.',
     mechanism:
       'Vitamin D3 is essential for testosterone synthesis, but it must be paired with ' +
       'Vitamin K2. K2 prevents calcium from building up in your arteries (arterial ' +

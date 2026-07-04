@@ -34,7 +34,7 @@ const PRIMER_STEPS: PrimerStep[] = [
   {
     headline: 'The Kegel Trap',
     body:
-      'Most internet advice tells you to clench your pelvic floor (Kegels). For 90% of men ' +
+      'Most internet advice tells you to clench your pelvic floor (Kegels). For most men ' +
       'with premature ejaculation or performance ED, your pelvic floor is already too tight ' +
       '(Hypertonic).',
     subBody:
