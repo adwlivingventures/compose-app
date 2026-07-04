@@ -1,11 +1,13 @@
-import React, { useEffect } from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, Alert, ActivityIndicator } from 'react-native';
 import { useRouter } from 'expo-router';
 import RevenueCatUI from 'react-native-purchases-ui';
 import { Settings, Sparkles, CheckCircle2, ChevronRight } from 'lucide-react-native';
 import { useProtocol } from '../../context/ProtocolContext';
 import { useRevenueCat, RC_PRODUCTS, RC_MAINTENANCE_ENTITLEMENT_ID } from '../../hooks/useRevenueCat';
+import { LocalStore } from '../../services/storage';
 import MainDashboard from '../../components/MainDashboard';
+import GraduationScreen from '../../components/GraduationScreen';
 
 export default function DashboardScreen() {
   const router = useRouter();
@@ -19,6 +21,16 @@ export default function DashboardScreen() {
     refreshCustomerInfo,
   } = useRevenueCat();
 
+  // Graduation (E19) shows once: after Day 75 completes, until a
+  // continuation choice is recorded. 'loading' avoids a one-frame flash of
+  // the post-program screen before the stored choice hydrates.
+  const [graduationChoice, setGraduationChoice] = useState<string | null | 'loading'>('loading');
+  useEffect(() => {
+    LocalStore.getItem<string>('@graduation_choice').then((choice) =>
+      setGraduationChoice(choice),
+    );
+  }, []);
+
   // Refresh subscription status when the dashboard mounts
   useEffect(() => {
     refreshCustomerInfo();
@@ -26,16 +38,21 @@ export default function DashboardScreen() {
 
   const protocolComplete = completedDays[75]?.completed === true;
 
-  const handleContinuationPurchase = async () => {
+  const handleContinuationPurchase = async (): Promise<boolean> => {
     const pack =
       getPackageByProduct(RC_PRODUCTS.continuation) ??
       currentOffering?.availablePackages.find((p) => p.packageType === 'MONTHLY');
 
     if (!pack) {
       Alert.alert('Offer Unavailable', 'Please check your connection and try again.');
-      return;
+      return false;
     }
-    await purchasePackage(pack, RC_MAINTENANCE_ENTITLEMENT_ID);
+    return purchasePackage(pack, RC_MAINTENANCE_ENTITLEMENT_ID);
+  };
+
+  const recordGraduationChoice = async (choice: 'toolkit' | 'export') => {
+    await LocalStore.setItem('@graduation_choice', choice);
+    setGraduationChoice(choice);
   };
 
   const openCustomerCenter = async () => {
@@ -54,6 +71,24 @@ export default function DashboardScreen() {
       <View className="flex-1 bg-ground items-center justify-center">
         <ActivityIndicator color="#C89B6D" />
       </View>
+    );
+  }
+
+  // Graduation gate: Day 75 done, no choice recorded yet → E19.
+  if (protocolComplete && graduationChoice === 'loading') {
+    return <View className="flex-1 bg-ground" />;
+  }
+  if (protocolComplete && graduationChoice === null) {
+    return (
+      <GraduationScreen
+        isProcessing={isProcessing}
+        onKeepToolkit={async () => {
+          const granted = await handleContinuationPurchase();
+          if (granted) await recordGraduationChoice('toolkit');
+          return granted;
+        }}
+        onExported={() => recordGraduationChoice('export')}
+      />
     );
   }
 
