@@ -63,7 +63,7 @@ One linear, all-or-nothing daily flow, under 10 minutes, three items:
 
 ## 6. Visual & UX Language
 
-- **Visual Language — "Twilight Anchor":** dark mode only; deep blacks, charcoal greys, muted sophisticated accents; high contrast, minimalist, grounding. No bright/clinical colors, no playful iconography.
+- **Visual Language — "Ember":** dark mode only; a warm, low-chroma candlelight system (warm low light is a parasympathetic safety cue; high-chroma color is stimulating). Deep warm blacks (`ground #0C0B09`), warm charcoal surfaces, a single copper accent (`#C89B6D` — one primary action per screen, never two), Source Serif 4 for display type (numerals, questions, titles, quotes; UI/body text stays system font). No bright/clinical colors, no playful iconography, no shadows — flat surfaces with 1px borders. Canonical tokens live in `tailwind.config.js`; the full spec is `design/ember-v1/README.md` with reference renders in `design/ember-v1/screenshots/`. **All new screens and components must be built in Ember via NativeWind classes — no StyleSheet one-offs, no pre-Ember emerald/slate styling.** (Ember supersedes the earlier "Twilight Anchor" implementation; the UX philosophy below is unchanged.)
 - **UX Philosophy — "Ventral Vagal Sanctuary":** users arrive anxious; the UI's job is to down-regulate them, not stimulate decision-making.
   - **Zero decision fatigue (Hick's Law):** no library-of-choices UI. Linear flow. One dominant action: "Begin Today's Session."
   - **Persistent SOS access:** a one-tap triage control, reachable from anywhere in the app, that leads to a grounding sequence (e.g., paced breathing, sensory grounding) for acute anxiety spikes.
