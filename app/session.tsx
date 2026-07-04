@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { View, Text, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { useRouter } from 'expo-router';
-import { X, Check } from 'lucide-react-native';
+import { X, Check, Info } from 'lucide-react-native';
 import { useProtocol, HabitState } from '../context/ProtocolContext';
 import { getAnchorForDay } from '../content/anchors';
 import { LocalStore } from '../services/storage';
@@ -222,6 +222,18 @@ export default function SessionScreen() {
                       <Text className="text-ink text-sm font-bold">{item.title}</Text>
                       <Text className="text-muted text-xs mt-0.5 leading-4">{item.subtitle}</Text>
                     </View>
+                    {/* The Vitality Baseline reference, at the moment it's
+                        relevant — tapping (i) must not toggle the habit. */}
+                    {item.key === 'vitality' && (
+                      <TouchableOpacity
+                        onPress={() => router.push('/vitality')}
+                        activeOpacity={0.7}
+                        hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+                        className="p-1"
+                      >
+                        <Info color="#6E675D" size={16} />
+                      </TouchableOpacity>
+                    )}
                   </TouchableOpacity>
                 );
               })}
