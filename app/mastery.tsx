@@ -131,14 +131,7 @@ export default function MasterySuiteScreen() {
           <MasteryModuleCard
             key={module.title}
             module={module}
-            onPress={
-              module.locked
-                ? undefined
-                : () => {
-                    // TODO: route to the Autonomic Sync preview lesson once
-                    // that content exists.
-                  }
-            }
+            onPress={module.locked ? undefined : () => router.push('/autonomic-sync')}
           />
         ))}
       </View>
