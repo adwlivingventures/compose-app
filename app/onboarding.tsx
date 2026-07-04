@@ -22,10 +22,9 @@ import {
   Pill,
   Target,
   Lock,
-  ChevronRight,
-  Crown,
-  Check,
+  ShieldCheck,
 } from 'lucide-react-native';
+import Purchases from 'react-native-purchases';
 import { useProtocol } from '../context/ProtocolContext';
 import { useRevenueCat, RC_PRODUCTS } from '../hooks/useRevenueCat';
 import { LocalStore } from '../services/storage';
@@ -42,7 +41,6 @@ import { LocalStore } from '../services/storage';
 
 // ─── Types ───────────────────────────────────────────────────────────────────
 
-type Pathway = 'Presence' | 'Control' | 'Confidence';
 type ClenchPhase = 'ready' | 'clench' | 'relax' | 'result';
 
 interface OnboardingAnswers {
@@ -63,13 +61,6 @@ interface OnboardingAnswers {
   mentalLoop: string | null;
   spillover: string | null;
   goal: string | null;
-}
-
-// The user's stated pain point weights their protocol label on the paywall.
-function pathwayForPainPoint(painPoint: string | null): Pathway {
-  if (painPoint === 'I finish too quickly') return 'Control';
-  if (painPoint === 'I struggle to maintain my erection') return 'Confidence';
-  return 'Presence';
 }
 
 // Steps 1–23 show the progress bar (the diagnostic arc). Welcome, analyzer,
@@ -400,10 +391,10 @@ export default function OnboardingScreen() {
         <ProfileReadoutScreen answers={answers} onContinue={goNext} />
       )}
 
-      {/* 27 — Paywall */}
+      {/* 27 — Paywall (A/B: E06 diagnosis stack vs E07 signature) */}
       {step === STEP_CHECKOUT && (
         <CheckoutScreen
-          pathway={pathwayForPainPoint(answers.painPoint)}
+          answers={answers}
           onPurchaseComplete={async () => {
             await unlockProtocol();
             // Surface Discreet Mode once, right after purchase (E18): the
@@ -1119,20 +1110,279 @@ const LEGAL_URLS = {
   terms: 'https://adwlivingventures.github.io/compose-legal/terms-of-use.html',
 };
 
-const PAYWALL_FEATURES = [
-  'Full 75-day somatic & pelvic protocol',
-  'Interactive hypertonicity release tracks',
-  'Daily guided pacing sessions',
-  'CBST cognitive restructuring log',
-  'Pathway-specific habit coaching',
-  'Optional $4.99/mo membership after Day 75',
-];
+type PaywallArm = 'diagnosis' | 'signature';
+
+/**
+ * Paywall A/B (E06 vs E07). Both arms sell the same one-time $49.99 IAP.
+ *
+ * Assignment: random 50/50 at first paywall view, persisted to
+ * `@paywall_arm` so the user never sees the other arm, and written to
+ * RevenueCat as a subscriber attribute — every conversion event in the RC
+ * dashboard then carries the arm, which is the whole experiment readout.
+ * (Moving assignment server-side later = read RC Experiments / offering
+ * metadata here instead of Math.random; storage and logging stay the same.)
+ */
+function usePaywallArm(): PaywallArm | null {
+  const [arm, setArm] = useState<PaywallArm | null>(null);
+
+  useEffect(() => {
+    (async () => {
+      let assigned = await LocalStore.getItem<PaywallArm>('@paywall_arm');
+      if (assigned !== 'diagnosis' && assigned !== 'signature') {
+        assigned = Math.random() < 0.5 ? 'diagnosis' : 'signature';
+        await LocalStore.setItem('@paywall_arm', assigned);
+      }
+      try {
+        Purchases.setAttributes({ paywall_arm: assigned });
+      } catch {}
+      setArm(assigned);
+    })();
+  }, []);
+
+  return arm;
+}
+
+// Shared footer: restore (App Store review requirement) + legal links.
+function PaywallFooter({
+  onRestore,
+  disabled,
+  prefix,
+}: {
+  onRestore: () => void;
+  disabled: boolean;
+  prefix?: string;
+}) {
+  return (
+    <View className="flex-row justify-center items-center py-3">
+      {prefix ? <Text className="text-dim text-xs">{prefix} </Text> : null}
+      <TouchableOpacity onPress={onRestore} disabled={disabled} activeOpacity={0.7}>
+        <Text className="text-dim text-xs">Restore</Text>
+      </TouchableOpacity>
+      <Text className="text-dim text-xs"> · </Text>
+      <TouchableOpacity onPress={() => Linking.openURL(LEGAL_URLS.privacy)} activeOpacity={0.7}>
+        <Text className="text-dim text-xs">Privacy</Text>
+      </TouchableOpacity>
+      <Text className="text-dim text-xs"> · </Text>
+      <TouchableOpacity onPress={() => Linking.openURL(LEGAL_URLS.terms)} activeOpacity={0.7}>
+        <Text className="text-dim text-xs">Terms</Text>
+      </TouchableOpacity>
+    </View>
+  );
+}
+
+// ─── Arm A (E06): the Diagnosis Stack ─────────────────────────────────────────
+// Sells continuity: profile → price anchor → guarantee → discretion. The
+// compressed meters make the price read as "the plan for this profile."
+
+function DiagnosisPaywall({
+  answers,
+  onPurchase,
+  onRestore,
+  isProcessing,
+}: {
+  answers: OnboardingAnswers;
+  onPurchase: () => void;
+  onRestore: () => void;
+  isProcessing: boolean;
+}) {
+  // Top two load meters only — the readout already showed all three; here
+  // they are a receipt, not a report.
+  const meters = computeProfileMeters(answers).slice(0, 2);
+
+  return (
+    <ScrollView
+      contentContainerStyle={{ flexGrow: 1, paddingHorizontal: 26, paddingTop: 24, paddingBottom: 24 }}
+      className="bg-ground"
+    >
+      <View className="bg-surface border border-line rounded-[18px] p-[18px]">
+        <Text className="text-muted text-[10px] font-bold uppercase tracking-[0.2em]">
+          Your autonomic profile · from your answers
+        </Text>
+        <View className="gap-3 mt-3.5">
+          {meters.map((meter) => (
+            <View key={meter.label}>
+              <View className="flex-row justify-between mb-[5px]">
+                <Text className="text-body text-[12.5px]">{meter.label}</Text>
+                <Text
+                  className={`text-xs font-bold ${meter.high ? 'text-accent-bright' : 'text-muted'}`}
+                >
+                  {meter.grade}
+                </Text>
+              </View>
+              <MeterBar value={meter.value} high={meter.high} />
+            </View>
+          ))}
+        </View>
+        <Text className="text-muted text-xs leading-[17px] mt-3">
+          Reversible with daily somatic retraining.
+        </Text>
+      </View>
+
+      <Text className="text-ink text-xl font-semibold mt-5 leading-7">
+        The 75-Day Reset, built for this profile
+      </Text>
+
+      {/* Price anchor — therapy sets the reference frame the one-time price
+          is judged against. */}
+      <View className="flex-row gap-2.5 mt-3.5">
+        <View className="flex-1 bg-surface border border-line rounded-[14px] p-3.5">
+          <Text className="text-muted text-[11px] line-through">Sex therapy, 12 weeks</Text>
+          <Text className="text-body text-[17px] font-bold mt-1">$1,800+</Text>
+        </View>
+        <View className="flex-1 bg-accent/10 border border-accent/40 rounded-[14px] p-3.5">
+          <Text className="text-accent text-[11px] font-semibold">COMPOSE, 75 days</Text>
+          <Text className="text-ink text-[17px] font-bold mt-1">
+            $49.99 <Text className="text-muted text-[11px] font-normal">once</Text>
+          </Text>
+        </View>
+      </View>
+
+      {/* Guarantee — reworded from the design: Apple owns the refund, so the
+          honest promise is hands-on help with the request, not the refund
+          itself. */}
+      <View className="bg-surface border border-line rounded-[14px] px-4 py-3.5 mt-3 flex-row items-center gap-3">
+        <ShieldCheck color="#C89B6D" size={18} />
+        <View className="flex-1">
+          <Text className="text-ink text-[13px] font-bold">14-day baseline check</Text>
+          <Text className="text-muted text-[11.5px] leading-4 mt-0.5">
+            If your control score hasn't moved after 14 days, we'll help you request a full
+            refund from Apple — one tap.
+          </Text>
+        </View>
+      </View>
+
+      <View className="bg-surface-deep border border-line-soft rounded-[14px] px-4 py-3 mt-3">
+        <Text className="text-muted text-xs leading-[17px]">
+          No subscription. Your card statement shows Apple — never this app's name.
+          Notifications stay neutral.
+        </Text>
+      </View>
+
+      <View className="flex-1" />
+
+      <TouchableOpacity
+        onPress={onPurchase}
+        disabled={isProcessing}
+        activeOpacity={0.85}
+        className="bg-accent rounded-2xl py-[15px] items-center mt-5"
+      >
+        {isProcessing ? (
+          <ActivityIndicator color="#171310" />
+        ) : (
+          <>
+            <Text className="text-on-accent font-bold text-base">Begin my reset — $49.99</Text>
+            <Text className="text-on-accent/70 text-[11.5px] mt-0.5">
+              $0.67 a day · pay once, keep it
+            </Text>
+          </>
+        )}
+      </TouchableOpacity>
+
+      <PaywallFooter onRestore={onRestore} disabled={isProcessing} />
+    </ScrollView>
+  );
+}
+
+// ─── Arm B (E07): the Signature ───────────────────────────────────────────────
+// Sells commitment: the oath + typed signature is an effort-justification
+// device — the CTA stays inert until he signs, so the purchase completes a
+// promise he already made rather than opening a transaction.
+
+function SignaturePaywall({
+  onPurchase,
+  onRestore,
+  isProcessing,
+}: {
+  onPurchase: (signature: string) => void;
+  onRestore: () => void;
+  isProcessing: boolean;
+}) {
+  const [signature, setSignature] = useState('');
+  const signed = signature.trim().length > 0;
+
+  return (
+    <ScrollView
+      contentContainerStyle={{ flexGrow: 1, paddingHorizontal: 28, paddingTop: 32, paddingBottom: 24 }}
+      className="bg-ground"
+      keyboardShouldPersistTaps="handled"
+    >
+      <Text className="text-muted text-[11px] font-semibold uppercase tracking-[0.28em]">
+        Day zero
+      </Text>
+      <Text className="text-ink text-[27px] font-serif-regular leading-9 mt-2.5">
+        This only works if you show up. So we start with your word.
+      </Text>
+
+      <View className="bg-surface border border-line rounded-[18px] p-6 mt-6">
+        <Text className="text-body text-[15px] leading-[26px] font-serif-italic">
+          "For the next 75 days I will give this ten minutes a day. Not to perform better — to
+          stop performing at all."
+        </Text>
+        <TextInput
+          className="text-ink text-2xl font-serif-italic mt-7 pb-1.5"
+          style={{ borderBottomWidth: 1, borderBottomColor: '#3A362F' }}
+          placeholder="Sign your first name"
+          placeholderTextColor="#57534B"
+          value={signature}
+          onChangeText={setSignature}
+          autoCapitalize="words"
+          autoCorrect={false}
+          returnKeyType="done"
+        />
+        <Text className="text-dim text-[11px] mt-1.5">
+          Signed on this device · seen by no one
+        </Text>
+      </View>
+
+      <View className="flex-row gap-2.5 mt-3.5">
+        {[
+          ['75', 'days'],
+          ['10 min', 'a day'],
+          ['$0.67', 'a day, once'],
+        ].map(([stat, label]) => (
+          <View
+            key={label}
+            className="flex-1 bg-surface-deep border border-line-soft rounded-[14px] py-3 items-center"
+          >
+            <Text className="text-ink text-base font-bold">{stat}</Text>
+            <Text className="text-dim text-[10.5px] mt-0.5">{label}</Text>
+          </View>
+        ))}
+      </View>
+
+      <View className="flex-1" />
+
+      <TouchableOpacity
+        onPress={() => onPurchase(signature.trim())}
+        disabled={isProcessing || !signed}
+        activeOpacity={0.85}
+        className={`rounded-2xl py-[19px] items-center mt-5 ${signed ? 'bg-accent' : 'bg-surface-deep'}`}
+      >
+        {isProcessing ? (
+          <ActivityIndicator color="#171310" />
+        ) : (
+          <Text className={`font-bold text-base ${signed ? 'text-on-accent' : 'text-faint'}`}>
+            Sign & begin — $49.99
+          </Text>
+        )}
+      </TouchableOpacity>
+
+      <PaywallFooter
+        onRestore={onRestore}
+        disabled={isProcessing}
+        prefix="One payment. No subscription."
+      />
+    </ScrollView>
+  );
+}
+
+// ─── Checkout shell ───────────────────────────────────────────────────────────
 
 function CheckoutScreen({
-  pathway,
+  answers,
   onPurchaseComplete,
 }: {
-  pathway: Pathway | null;
+  answers: OnboardingAnswers;
   onPurchaseComplete: () => Promise<void>;
 }) {
   const {
@@ -1143,6 +1393,8 @@ function CheckoutScreen({
     hasProAccess,
     getPackageByProduct,
   } = useRevenueCat();
+  const arm = usePaywallArm();
+  const [devArmFlip, setDevArmFlip] = useState(false);
 
   // If the entitlement arrives asynchronously — a delayed StoreKit
   // confirmation or a restore landing via the customer-info listener — the
@@ -1155,7 +1407,16 @@ function CheckoutScreen({
     }
   }, [hasProAccess]);
 
-  const handlePurchase = async () => {
+  const handlePurchase = async (signature?: string) => {
+    // The oath is his the moment he signs it, purchase or not — and if the
+    // purchase is interrupted, the signature survives for the retry.
+    if (signature) {
+      await LocalStore.setItem('@signature_data', {
+        name: signature,
+        signedAt: new Date().toISOString(),
+      });
+    }
+
     // Try to get the specific 75-day product first
     const pack =
       getPackageByProduct(RC_PRODUCTS.program) ??
@@ -1180,124 +1441,51 @@ function CheckoutScreen({
     }
   };
 
+  // Assignment resolves in one AsyncStorage read — hold ground until then so
+  // the user's first paywall frame is already their arm.
+  if (!arm) return <View className="flex-1 bg-ground" />;
+
+  const shownArm: PaywallArm = devArmFlip
+    ? arm === 'diagnosis'
+      ? 'signature'
+      : 'diagnosis'
+    : arm;
+
   return (
-    <ScrollView
-      contentContainerStyle={{ flexGrow: 1, paddingBottom: 48 }}
-      className="px-6 bg-ground"
-    >
-      <View className="items-center mt-6 mb-6">
-        <View className="w-16 h-16 rounded-full bg-accent/10 border border-accent/30 items-center justify-center mb-4">
-          <Crown color="#C89B6D" size={30} />
-        </View>
-        <Text className="text-ink text-2xl font-serif-regular text-center">
-          Your {pathway ?? 'Personalized'} Protocol Is Ready
-        </Text>
-        <Text className="text-muted text-sm text-center mt-2 leading-5">
-          Commit to the 75-day autonomic reset and reclaim your confidence.
-        </Text>
-      </View>
-
-      {/* Feature list */}
-      <View className="bg-surface border border-line rounded-2xl p-5 mb-5">
-        {PAYWALL_FEATURES.map((feature, i) => (
-          <View
-            key={feature}
-            className={`flex-row items-center gap-3 ${
-              i < PAYWALL_FEATURES.length - 1 ? 'mb-3' : ''
-            }`}
-          >
-            <Check color="#C89B6D" size={16} />
-            <Text className="text-body text-sm flex-1">{feature}</Text>
-          </View>
-        ))}
-      </View>
-
-      {/* Primary price card — $49.99 one-time */}
-      <View className="bg-accent/10 border border-accent/30 rounded-2xl p-5 mb-3 items-center">
-        <Text className="text-body text-xs uppercase tracking-widest font-bold">
-          One-time offer
-        </Text>
-        <Text className="text-ink text-5xl font-serif-light mt-2">$49.99</Text>
-        <Text className="text-muted text-xs mt-1">
-          Full 75-day protocol · No subscription required
-        </Text>
-      </View>
-
-      {/* Secondary info card — $4.99/mo continuation */}
-      <View className="bg-surface border border-line rounded-2xl px-5 py-4 mb-6 flex-row items-center gap-3">
-        <View className="w-8 h-8 rounded-full bg-surface-deep border border-line items-center justify-center">
-          <Crown color="#B9B2A6" size={14} />
-        </View>
-        <View className="flex-1">
-          <Text className="text-body text-sm font-bold">
-            Keep access after Day 75
-          </Text>
-          <Text className="text-muted text-xs mt-0.5 leading-4">
-            Continue your protocol membership for $4.99/mo — cancel anytime.
-          </Text>
-        </View>
-      </View>
-
-      {/* Primary CTA */}
-      <TouchableOpacity
-        onPress={handlePurchase}
-        disabled={isProcessing}
-        activeOpacity={0.85}
-        className="bg-accent rounded-xl py-4 items-center mb-3 flex-row justify-center gap-2"
-      >
-        {isProcessing ? (
-          <ActivityIndicator color="#171310" />
-        ) : (
-          <>
-            <Text className="text-on-accent font-bold text-base">Begin My Reset — $49.99</Text>
-            <ChevronRight color="#171310" size={18} />
-          </>
-        )}
-      </TouchableOpacity>
-
-      {/* Restore Purchases — required for App Store review compliance */}
-      <TouchableOpacity
-        onPress={handleRestore}
-        disabled={isProcessing}
-        activeOpacity={0.7}
-        className="py-3 items-center"
-      >
-        <Text className="text-muted text-xs">Restore Purchases</Text>
-      </TouchableOpacity>
-
-      {__DEV__ && (
-        <TouchableOpacity
-          onPress={async () => {
-            if (!advancedRef.current) {
-              advancedRef.current = true;
-              await onPurchaseComplete();
-            }
-          }}
-          activeOpacity={0.7}
-          className="py-2 items-center"
-        >
-          <Text className="text-dim text-xs">Skip paywall (dev only)</Text>
-        </TouchableOpacity>
+    <View className="flex-1 bg-ground">
+      {shownArm === 'diagnosis' ? (
+        <DiagnosisPaywall
+          answers={answers}
+          onPurchase={() => handlePurchase()}
+          onRestore={handleRestore}
+          isProcessing={isProcessing}
+        />
+      ) : (
+        <SignaturePaywall
+          onPurchase={(signature) => handlePurchase(signature)}
+          onRestore={handleRestore}
+          isProcessing={isProcessing}
+        />
       )}
 
-      {/* Legal links — Apple requires both on any paywall offering an
-          auto-renewable subscription */}
-      <View className="flex-row justify-center gap-6 mt-1">
-        <TouchableOpacity
-          onPress={() => Linking.openURL(LEGAL_URLS.privacy)}
-          activeOpacity={0.7}
-          className="py-2"
-        >
-          <Text className="text-faint text-xs">Privacy Policy</Text>
-        </TouchableOpacity>
-        <TouchableOpacity
-          onPress={() => Linking.openURL(LEGAL_URLS.terms)}
-          activeOpacity={0.7}
-          className="py-2"
-        >
-          <Text className="text-faint text-xs">Terms of Use</Text>
-        </TouchableOpacity>
-      </View>
-    </ScrollView>
+      {__DEV__ && (
+        <View className="flex-row justify-center gap-6 pb-2 bg-ground">
+          <TouchableOpacity onPress={() => setDevArmFlip((f) => !f)} activeOpacity={0.7}>
+            <Text className="text-dim text-xs">View other arm (dev)</Text>
+          </TouchableOpacity>
+          <TouchableOpacity
+            onPress={async () => {
+              if (!advancedRef.current) {
+                advancedRef.current = true;
+                await onPurchaseComplete();
+              }
+            }}
+            activeOpacity={0.7}
+          >
+            <Text className="text-dim text-xs">Skip paywall (dev only)</Text>
+          </TouchableOpacity>
+        </View>
+      )}
+    </View>
   );
 }

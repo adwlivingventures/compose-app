@@ -7,8 +7,17 @@ Read this file first in any new session to resume without re-reading full chat h
 1. **Ember token swap + serif fonts** across existing screens (E08–E17) — pure restyle, no logic changes. **✅ DONE (committed).**
 2. **Breathing orb mechanic** (E10 conditioning, E15 SOS 4-7-8). **✅ DONE (committed).** Follow-up commit added soft haptic ticks at phase boundaries (expo-haptics — native module, needs a new EAS dev build to be felt).
 3. **Funnel copy pass + Profile Readout** (E01–E05). **✅ DONE (committed).**
-4. **Discreet Mode (E18)** — Face ID lock + app-switcher cover. **✅ DONE (committed). Phase 5 (paywall A/B) is next.** Alternate icons + notifications still deferred (no assets / no notification system).
-5. Paywall A/B (E06 vs E07) via RevenueCat offerings — **with corrections**: E06's "guaranteed refund" claim must be reworded (Apple controls refunds, we can't promise them — say "we'll help you request one, one tap" instead), and the "statement reads 'CMPS Media'" claim is wrong (Apple Pay statements always show "Apple", not merchant name — this is actually a *stronger* trust claim, use it).
+4. **Discreet Mode (E18)** — Face ID lock + app-switcher cover. **✅ DONE (committed).** Alternate icons + notifications still deferred (no assets / no notification system).
+5. **Paywall A/B (E06 vs E07)**, with both copy corrections applied. **✅ DONE (committed). ALL FIVE PHASES COMPLETE.**
+
+## Remaining beyond the 5 phases
+
+- **E19 Graduation flow (Day 75)** — in the design bundle ("four product mechanics" incl. Day-75 graduation/continuation) but NOT in the 5-phase implementation order and not built. Current post-program state in `app/(tabs)/index.tsx` ("75 Days. Complete." + maintenance card) is the functional stand-in. E19 = evidence card from real logs + $4.99 keep-toolkit vs export-record choice.
+- **E13 Day-complete dashboard variant** — current completed-state dashboard exists but hasn't been checked line-by-line against E13 ("Twelve days composed", "Tonight's line" card).
+- **Signature resurfacing** at Day 25/50 + churn moments (E07 spec) — `@signature_data` is stored; resurfacing UX not built.
+- Alternate app icons (need icon asset production), neutral notifications (need notification system — copy rules in CLAUDE.md §6 are binding when built).
+- **On-device walkthrough of everything (Phases 1–5) + new EAS dev build** (expo-haptics, expo-local-authentication are native modules; display-name change also needs the rebuild).
+- RC dashboard: `paywall_arm` subscriber attribute will appear on conversions automatically; if moving to RC Experiments later, swap the random assignment in `usePaywallArm` for offering-metadata/experiment reads.
 
 Also pending: update CLAUDE.md §6 so "Ember" formally replaces the emerald/slate implementation description of Twilight Anchor (currently still describes old palette).
 
@@ -73,6 +82,18 @@ All in `app/onboarding.tsx`:
 - **expo-local-authentication is a native module** — Face ID gate is inert (fail-open) on the existing dev build; needs the next EAS build, same as expo-haptics.
 
 `npx tsc --noEmit` passes. On-device: test lock/unlock cycle, switcher cover timing (overlay must beat the iOS snapshot), and intro flow after the next EAS build.
+
+## Phase 5 completion notes (2026-07-03)
+
+All in `app/onboarding.tsx`. Old generic CheckoutScreen (crown/features/price cards) fully replaced.
+
+- **`usePaywallArm()`**: random 50/50 at first paywall view → persisted `@paywall_arm` (user never sees the other arm) → `Purchases.setAttributes({ paywall_arm })` so every RC conversion event carries the arm. Comment marks the swap point for server-side RC Experiments later. Shell holds a ground view for the one AsyncStorage read so the first paywall frame is already the assigned arm.
+- **Arm A `DiagnosisPaywall` (E06)**: compressed profile card reusing `computeProfileMeters(answers).slice(0,2)` + MeterBar (the receipt, not the report), "The 75-Day Reset, built for this profile", therapy-vs-COMPOSE price anchor row, guarantee card **reworded** ("14-day baseline check — …we'll help you request a full refund from Apple — one tap." — Apple owns refunds, we can't promise them; title also changed guarantee→check to avoid an FTC-ish "guarantee" we don't control), trust strip **corrected** ("Your card statement shows Apple — never this app's name."), CTA "Begin my reset — $49.99" + "$0.67 a day · pay once, keep it" sub-line.
+- **Arm B `SignaturePaywall` (E07)**: "Day zero" eyebrow, serif 27 headline, commitment card with italic-serif oath (design-final copy) + typed-signature TextInput (serif italic 24px, baseline #3A362F — the spec-sanctioned TextInput fallback; draw-pad skipped for ScrollView gesture-conflict risk), "Signed on this device · seen by no one", stat trio 75/10min/$0.67, **CTA inert until signed** (effort-justification: purchase completes a promise already made). Signature saved to `@signature_data` `{name, signedAt}` at CTA press (survives interrupted purchases; resurfacing at Day 25/50 is future work).
+- **Shell**: purchase/restore/entitlement-listener/advancedRef logic unchanged from the old paywall; `PaywallFooter` (Restore · Privacy · Terms) shared; dev-only row adds "View other arm" next to "Skip paywall". `Pathway`/`pathwayForPainPoint`/`PAYWALL_FEATURES` removed (paywall was their only consumer). CheckoutScreen prop changed `pathway` → `answers`.
+- Note: this paywall sells only the one-time IAP (no auto-renewable sub on-screen), so the old "$4.99/mo after Day 75" feature line is gone per design; the continuation is offered at graduation (E19, unbuilt).
+
+`npx tsc --noEmit` passes; verified against E06/E07 renders. Sandbox purchases still blocked on Paid Applications Agreement (user-deferred) — dev testing via the dev-skip link.
 
 ## Context the next session needs (don't re-derive)
 
