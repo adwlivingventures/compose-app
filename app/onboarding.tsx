@@ -8,21 +8,21 @@ import {
   TextInput,
   Alert,
   Linking,
+  Animated,
+  Easing,
   NativeSyntheticEvent,
   NativeScrollEvent,
 } from 'react-native';
 import { useRouter } from 'expo-router';
-import Svg, { Circle } from 'react-native-svg';
+import Svg, { Circle, Defs, RadialGradient, Stop } from 'react-native-svg';
 import {
   Brain,
   Zap,
   Repeat,
   Pill,
   Target,
-  Activity,
+  Lock,
   ChevronRight,
-  CheckCircle2,
-  Circle as CircleIcon,
   Crown,
   Check,
 } from 'lucide-react-native';
@@ -73,11 +73,11 @@ function pathwayForPainPoint(painPoint: string | null): Pathway {
 }
 
 // Steps 1–23 show the progress bar (the diagnostic arc). Welcome, analyzer,
-// blueprint, and checkout stand outside it.
+// profile readout, and checkout stand outside it.
 const DIAGNOSTIC_FIRST = 1;
 const DIAGNOSTIC_LAST = 23;
 const STEP_ANALYZER = 24;
-const STEP_BLUEPRINT = 25;
+const STEP_PROFILE = 25;
 const STEP_CHECKOUT = 26;
 
 // ─── Root ────────────────────────────────────────────────────────────────────
@@ -176,6 +176,7 @@ export default function OnboardingScreen() {
       {step === 5 && (
         <ChoiceScreen
           title="How long has this been affecting your intimate life?"
+          normalization="However long it's been: conditioned means learned, and learned means reversible."
           options={[
             'Less than 6 months',
             '1 to 3 years',
@@ -190,8 +191,9 @@ export default function OnboardingScreen() {
       {/* 7 — Spectator */}
       {step === 6 && (
         <ChoiceScreen
-          title="During intimacy, do you ever feel like you are 'watching yourself perform' from the outside, evaluating your own body?"
-          options={['Yes, constantly', 'Sometimes', 'Rarely']}
+          title="During intimacy, do you ever feel like you're watching yourself from the outside — evaluating instead of experiencing?"
+          normalization={'Clinicians call this "spectatoring." It has a name because it\'s common.'}
+          options={['Yes — almost every time', 'Sometimes', 'Rarely']}
           value={answers.spectator}
           onSelect={pick('spectator')}
         />
@@ -201,6 +203,7 @@ export default function OnboardingScreen() {
       {step === 7 && (
         <ChoiceScreen
           title="When you initiate intimacy, do you feel a sudden spike in your heart rate, or a rush of nervous adrenaline in your chest?"
+          normalization="That surge is adrenaline — a nervous-system reflex, not a verdict on you."
           options={['Yes, it feels like panic', 'Sometimes', 'No, I stay calm']}
           value={answers.autonomic}
           onSelect={pick('autonomic')}
@@ -222,6 +225,7 @@ export default function OnboardingScreen() {
       {step === 9 && (
         <ChoiceScreen
           title="When things don't go as planned in the bedroom, how does it affect your connection with your partner?"
+          normalization="Most men have never said this part out loud. Here, you're just tapping a card."
           options={[
             "She thinks it's her fault",
             'It causes tension and frustration',
@@ -242,6 +246,7 @@ export default function OnboardingScreen() {
       {step === 11 && (
         <ChoiceScreen
           title="Are your solo sessions (masturbation) generally easier to control and maintain than partner intimacy?"
+          normalization="If solo is easier, the machinery works. The difference is nervous-system state."
           options={['Yes, significantly easier', 'About the same', 'No']}
           value={answers.hardware}
           onSelect={pick('hardware')}
@@ -252,6 +257,7 @@ export default function OnboardingScreen() {
       {step === 12 && (
         <ChoiceScreen
           title="In an average week, how frequently do you rely on highly visual stimulation (adult content) during solo sessions?"
+          normalization="No judgment in this question — it maps how your arousal system has been trained."
           options={['Rarely / Never', '1 to 2 times', '3 to 5 times', 'Daily']}
           value={answers.dopamine}
           onSelect={pick('dopamine')}
@@ -273,6 +279,7 @@ export default function OnboardingScreen() {
       {step === 14 && (
         <ChoiceScreen
           title="Have you ever tried pills (Viagra/Cialis), sprays, or numbing creams to fix this?"
+          normalization="Most men try these first. What they treat isn't what's driving this."
           options={['Yes, pills', 'Yes, sprays/creams', 'Both', 'Neither']}
           value={answers.bandaid}
           onSelect={pick('bandaid')}
@@ -294,6 +301,7 @@ export default function OnboardingScreen() {
       {step === 16 && (
         <ChoiceScreen
           title="Right before the point of no return, or right before you lose an erection, does your breathing become shallow, rapid — or do you hold your breath?"
+          normalization="Breath-holding under arousal is a textbook sympathetic tell. Most men have never been asked."
           options={['Yes, I gasp / hold it', "I haven't noticed", 'No, I breathe deeply']}
           value={answers.breath}
           onSelect={pick('breath')}
@@ -314,6 +322,7 @@ export default function OnboardingScreen() {
       {step === 18 && (
         <ChoiceScreen
           title="When a session ends prematurely or falters, where does your mind go?"
+          normalization="These are scripts, not facts. Naming yours is the first step to interrupting it."
           options={[
             '"I am broken"',
             '"She is disappointed in me"',
@@ -384,9 +393,11 @@ export default function OnboardingScreen() {
       {/* 25 — Analyzer */}
       {step === STEP_ANALYZER && <AnalyzerScreen onComplete={goNext} />}
 
-      {/* 26 — Blueprint Ready */}
-      {step === STEP_BLUEPRINT && (
-        <BlueprintReadyScreen name={answers.name} onContinue={goNext} />
+      {/* 26 — Profile Readout (E05): the personalization receipt before the
+          ask — the user sees his own answers reflected back as a map, so the
+          paywall reads as "the plan for *this* profile," not a generic sell. */}
+      {step === STEP_PROFILE && (
+        <ProfileReadoutScreen answers={answers} onContinue={goNext} />
       )}
 
       {/* 27 — Paywall */}
@@ -403,16 +414,35 @@ export default function OnboardingScreen() {
   );
 }
 
-// ─── Progress Header ──────────────────────────────────────────────────────────
+// ─── Progress Header (E02) ───────────────────────────────────────────────────
 
+// Time-remaining beats raw step-count: "7 of 23" invites bail-out math, while
+// "~4 min left" frames the rest of the arc as nearly free (goal-gradient).
 function ProgressHeader({ step, total }: { step: number; total: number }) {
   const pct = Math.round((step / total) * 100);
+  const minutesLeft = Math.max(1, Math.ceil(((total - step) * 12) / 60));
   return (
-    <View className="px-6 pt-14 pb-3">
-      <View className="h-1.5 w-full bg-surface-deep rounded-full overflow-hidden">
+    <View className="px-7 pt-14">
+      <View className="flex-row items-center justify-between mb-2.5">
+        <Text className="text-dim text-[11px] font-semibold tracking-[0.14em]">
+          MAPPING · {step} OF {total}
+        </Text>
+        <Text className="text-dim text-[11px]">~{minutesLeft} min left</Text>
+      </View>
+      <View className="h-[3px] w-full bg-line-soft rounded-full overflow-hidden">
         <View className="h-full bg-accent rounded-full" style={{ width: `${pct}%` }} />
       </View>
     </View>
+  );
+}
+
+// E02 footer — the privacy promise repeats on every diagnostic step because
+// disclosure depth tracks perceived safety, not one-time assurances.
+function PrivacyFooter() {
+  return (
+    <Text className="text-dim text-xs text-center pb-2">
+      Answers stay on this phone. Always.
+    </Text>
   );
 }
 
@@ -420,26 +450,51 @@ function ProgressHeader({ step, total }: { step: number; total: number }) {
 
 function WelcomeScreen({ onContinue }: { onContinue: () => void }) {
   return (
-    <View className="flex-1 px-6 justify-between pb-10">
-      <View className="flex-1 items-center justify-center">
-        <Text className="text-body text-sm font-bold uppercase tracking-[0.3em] mb-8">
-          COMPOSE
+    <View className="flex-1 px-7 pb-9" style={{ overflow: 'hidden' }}>
+      {/* Radial copper glow, bottom-center — the first frame is already a
+          warm-light parasympathetic cue, before a single word is read. */}
+      <View
+        pointerEvents="none"
+        style={{ position: 'absolute', bottom: -180, left: '50%', marginLeft: -260 }}
+      >
+        <Svg width={520} height={520}>
+          <Defs>
+            <RadialGradient id="welcomeGlow" cx="50%" cy="50%" r="50%">
+              <Stop offset="0%" stopColor="#C89B6D" stopOpacity={0.13} />
+              <Stop offset="65%" stopColor="#C89B6D" stopOpacity={0} />
+            </RadialGradient>
+          </Defs>
+          <Circle cx={260} cy={260} r={260} fill="url(#welcomeGlow)" />
+        </Svg>
+      </View>
+
+      <View className="flex-1 justify-center">
+        <Text className="text-muted text-xs font-semibold uppercase tracking-[0.32em]">
+          Compose
         </Text>
-        <Text className="text-ink text-[34px] font-serif-light text-center leading-[44px]">
+        <Text className="text-ink text-[34px] font-serif-light leading-[44px] mt-5">
           Your body isn't failing you.{'\n'}It's following orders.
         </Text>
-        <Text className="text-muted text-base text-center mt-5 leading-6 px-2">
-          COMPOSE retrains the system giving them.{'\n'}Let's find your baseline.
+        <Text className="text-muted text-[15.5px] mt-4 leading-6">
+          Over the next few minutes we'll map where those orders come from. Every answer stays
+          on this phone.
         </Text>
+        {/* Privacy promise before the first question — for this user, safety
+            is the conversion lever, not a compliance footnote. */}
+        <View className="flex-row items-center gap-2.5 mt-6">
+          <Lock color="#C89B6D" size={14} />
+          <Text className="text-muted text-[12.5px]">
+            Private by design — no account, no sync, no lock-screen tells
+          </Text>
+        </View>
       </View>
 
       <TouchableOpacity
         onPress={onContinue}
         activeOpacity={0.85}
-        className="bg-accent rounded-xl py-4 items-center flex-row justify-center gap-2"
+        className="bg-accent rounded-2xl py-[19px] items-center"
       >
-        <Text className="text-on-accent font-bold text-base">Begin</Text>
-        <ChevronRight color="#171310" size={18} />
+        <Text className="text-on-accent font-bold text-base">Find my baseline</Text>
       </TouchableOpacity>
     </View>
   );
@@ -452,9 +507,9 @@ function NameScreen({ value, onSubmit }: { value: string; onSubmit: (name: strin
   const canContinue = name.trim().length > 0;
 
   return (
-    <View className="flex-1 px-6 pt-6">
-      <Text className="text-ink text-2xl font-serif-regular leading-8">What is your name?</Text>
-      <Text className="text-muted text-sm mt-2 leading-5">
+    <View className="flex-1 px-7 pt-9">
+      <Text className="text-ink text-[23px] font-serif-regular leading-8">What is your name?</Text>
+      <Text className="text-muted text-[13px] mt-3 leading-5">
         First name only. Like every answer here, it never leaves this device.
       </Text>
       <TextInput
@@ -472,12 +527,14 @@ function NameScreen({ value, onSubmit }: { value: string; onSubmit: (name: strin
         onPress={() => onSubmit(name.trim())}
         disabled={!canContinue}
         activeOpacity={0.85}
-        className={`rounded-xl py-4 items-center mt-4 ${canContinue ? 'bg-accent' : 'bg-surface-deep'}`}
+        className={`rounded-2xl py-[19px] items-center mt-4 ${canContinue ? 'bg-accent' : 'bg-surface-deep'}`}
       >
         <Text className={`font-bold text-base ${canContinue ? 'text-on-accent' : 'text-faint'}`}>
           Continue
         </Text>
       </TouchableOpacity>
+      <View className="flex-1" />
+      <PrivacyFooter />
     </View>
   );
 }
@@ -501,8 +558,8 @@ function AgeScreen({ onSubmit }: { onSubmit: (age: number) => void }) {
   };
 
   return (
-    <View className="flex-1 px-6 pt-6">
-      <Text className="text-ink text-2xl font-serif-regular leading-8">How old are you?</Text>
+    <View className="flex-1 px-7 pt-9">
+      <Text className="text-ink text-[23px] font-serif-regular leading-8">How old are you?</Text>
 
       <View className="flex-1 justify-center">
         <View style={{ height: ITEM_HEIGHT * 5 }} className="overflow-hidden">
@@ -540,10 +597,11 @@ function AgeScreen({ onSubmit }: { onSubmit: (age: number) => void }) {
       <TouchableOpacity
         onPress={() => onSubmit(selected)}
         activeOpacity={0.85}
-        className="bg-accent rounded-xl py-4 items-center mb-10"
+        className="bg-accent rounded-2xl py-[19px] items-center mb-4"
       >
         <Text className="text-on-accent font-bold text-base">Continue</Text>
       </TouchableOpacity>
+      <PrivacyFooter />
     </View>
   );
 }
@@ -597,76 +655,62 @@ function HypertonicityScreen({ onSelect }: { onSelect: (v: string) => void }) {
   ];
 
   return (
-    <ScrollView contentContainerStyle={{ flexGrow: 1, paddingBottom: 40 }} className="px-6">
-      <View className="mt-4 mb-6">
-        <View className="w-14 h-14 rounded-2xl bg-accent/10 border border-accent/20 items-center justify-center mb-5">
-          <Activity color="#C89B6D" size={28} />
-        </View>
-        <Text className="text-ink text-xl font-serif-regular leading-7">
-          Let's test that adrenaline response — right now.
+    <ScrollView contentContainerStyle={{ flexGrow: 1, paddingBottom: 36 }} className="px-7">
+      <View className="mt-8">
+        <Text className="text-ink text-[23px] font-serif-regular leading-8">
+          Let's feel it, not describe it.
         </Text>
-        <Text className="text-muted text-sm mt-2 leading-5">
-          Chronic pelvic tightness (hypertonicity) is the hidden physical arm of the
-          adrenaline trap. This 20-second check gives us your baseline.
+        <Text className="text-muted text-[13.5px] mt-2.5 leading-5">
+          Chronic pelvic tension is the physical arm of the adrenaline trap. Twenty seconds
+          gives us your baseline.
         </Text>
       </View>
 
       {phase === 'ready' && (
-        <View className="gap-4">
-          <View className="bg-surface border border-line rounded-2xl p-5 gap-3">
-            <StepInstruction number="1" text="Sit comfortably with feet flat on the floor." />
+        <>
+          <View className="bg-surface border border-line rounded-[18px] p-5 gap-3 mt-6">
+            <StepInstruction number="1" text="Sit comfortably, feet flat on the floor." />
             <StepInstruction
               number="2"
-              text="When you tap Begin, clench your pelvic floor muscles — like you're stopping urine flow."
+              text="On Begin, clench your pelvic floor — as if stopping urine flow."
             />
             <StepInstruction
               number="3"
-              text="Hold for 5 seconds, then fully release on cue. Observe what you feel."
+              text="Hold five seconds, release fully on cue. Notice what release feels like."
             />
           </View>
+          <View className="items-center mt-8">
+            <ClenchCircle numeral="5" label="Clench & hold" active={false} />
+          </View>
+          <View className="flex-1" />
           <TouchableOpacity
             onPress={startClench}
             activeOpacity={0.85}
-            className="bg-accent rounded-xl py-4 items-center mt-2"
+            className="bg-accent rounded-2xl py-[18px] items-center mt-6"
           >
-            <Text className="text-on-accent font-bold text-base">Begin 20-Second Test</Text>
+            <Text className="text-on-accent font-bold text-[15px]">Begin the 20-second check</Text>
           </TouchableOpacity>
-        </View>
+        </>
       )}
 
       {(phase === 'clench' || phase === 'relax') && (
-        <View className="items-center py-4 gap-6">
-          <View
-            className="w-36 h-36 rounded-full border-2 items-center justify-center"
-            style={{ borderColor: phase === 'clench' ? '#C89B6D' : '#8A8378' }}
-          >
-            <Text className="text-ink text-4xl font-serif-light">{count}</Text>
-            <Text className="text-body text-xs uppercase tracking-widest mt-1">seconds</Text>
-          </View>
-
-          <View className="bg-surface border border-line rounded-2xl p-5 w-full items-center gap-2">
-            {phase === 'clench' ? (
-              <>
-                <Text className="text-accent text-base font-bold">CLENCH & HOLD</Text>
-                <Text className="text-body text-sm text-center">
-                  Squeeze your pelvic floor firmly upward and inward.
-                </Text>
-              </>
-            ) : (
-              <>
-                <Text className="text-body text-base font-bold">RELEASE & OBSERVE</Text>
-                <Text className="text-body text-sm text-center">
-                  Let go completely. Notice how fully your muscles can relax.
-                </Text>
-              </>
-            )}
-          </View>
+        <View className="items-center pt-10 gap-8">
+          <ClenchCircle
+            numeral={String(count)}
+            label={phase === 'clench' ? 'Clench & hold' : 'Release & observe'}
+            active={phase === 'clench'}
+          />
+          <Text className="text-body text-sm text-center px-6 leading-5">
+            {phase === 'clench'
+              ? 'Squeeze your pelvic floor firmly upward and inward.'
+              : 'Let go completely. Notice how fully your muscles can relax.'}
+          </Text>
         </View>
       )}
 
       {phase === 'result' && (
-        <View className="gap-3">
-          <Text className="text-ink text-base font-bold mb-1">
+        <View className="gap-[11px] mt-8">
+          <Text className="text-ink text-base font-serif-regular mb-1">
             After releasing, what did you notice?
           </Text>
           {RESULT_OPTIONS.map((option) => (
@@ -674,10 +718,9 @@ function HypertonicityScreen({ onSelect }: { onSelect: (v: string) => void }) {
               key={option}
               activeOpacity={0.8}
               onPress={() => onSelect(option)}
-              className="flex-row items-center justify-between bg-surface border border-line rounded-xl p-4 gap-3"
+              className="bg-surface border border-line rounded-[14px] px-[18px] py-[17px]"
             >
-              <Text className="text-body text-sm flex-1">{option}</Text>
-              <CircleIcon color="#6E675D" size={20} />
+              <Text className="text-body text-[15px]">{option}</Text>
             </TouchableOpacity>
           ))}
         </View>
@@ -686,12 +729,39 @@ function HypertonicityScreen({ onSelect }: { onSelect: (v: string) => void }) {
   );
 }
 
+// E03's 150px countdown ring — the numeral is serif display type; the copper
+// border reads "active" during the clench, neutral during release.
+function ClenchCircle({
+  numeral,
+  label,
+  active,
+}: {
+  numeral: string;
+  label: string;
+  active: boolean;
+}) {
+  return (
+    <View
+      style={{
+        width: 150,
+        height: 150,
+        borderRadius: 75,
+        borderWidth: 1.5,
+        borderColor: active ? 'rgba(200,155,109,0.9)' : 'rgba(200,155,109,0.5)',
+        backgroundColor: 'rgba(200,155,109,0.07)',
+      }}
+      className="items-center justify-center"
+    >
+      <Text className="text-ink text-[34px] font-serif-light">{numeral}</Text>
+      <Text className="text-muted text-[10.5px] uppercase tracking-[0.2em] mt-0.5">{label}</Text>
+    </View>
+  );
+}
+
 function StepInstruction({ number, text }: { number: string; text: string }) {
   return (
     <View className="flex-row gap-3 items-start">
-      <View className="w-6 h-6 rounded-full bg-accent/20 items-center justify-center mt-0.5">
-        <Text className="text-accent text-xs font-bold">{number}</Text>
-      </View>
+      <Text className="text-accent text-[13px] font-serif-semi mt-0.5">{number}</Text>
       <Text className="text-body text-sm leading-5 flex-1">{text}</Text>
     </View>
   );
@@ -701,21 +771,31 @@ function StepInstruction({ number, text }: { number: string; text: string }) {
 
 function ChoiceScreen({
   title,
+  normalization,
   options,
   value,
   onSelect,
 }: {
   title: string;
+  /**
+   * One line under sensitive questions that names the pattern as common
+   * before the user answers — normalization lowers the disclosure cost, and
+   * honest answers are what make the profile readout land later (E02).
+   */
+  normalization?: string;
   options: string[];
   value: string | null;
   onSelect: (value: string) => void;
 }) {
   return (
-    <ScrollView contentContainerStyle={{ flexGrow: 1, paddingBottom: 40 }} className="px-6">
-      <View className="mt-4 mb-8">
-        <Text className="text-ink text-xl font-serif-regular leading-7">{title}</Text>
+    <ScrollView contentContainerStyle={{ flexGrow: 1, paddingBottom: 12 }} className="px-7">
+      <View className="mt-9">
+        <Text className="text-ink text-[23px] font-serif-regular leading-8">{title}</Text>
+        {normalization && (
+          <Text className="text-muted text-[13px] mt-3 leading-5">{normalization}</Text>
+        )}
       </View>
-      <View className="gap-3">
+      <View className="gap-[11px] mt-8">
         {options.map((option) => {
           const isSelected = value === option;
           return (
@@ -723,26 +803,19 @@ function ChoiceScreen({
               key={option}
               activeOpacity={0.8}
               onPress={() => onSelect(option)}
-              className={`flex-row items-center justify-between rounded-xl border p-4 ${
-                isSelected ? 'bg-accent/10 border-accent' : 'bg-surface border-line'
+              className={`rounded-[14px] border px-[18px] py-[17px] ${
+                isSelected ? 'bg-accent/10 border-accent/50' : 'bg-surface border-line'
               }`}
             >
-              <Text
-                className={`text-sm font-medium flex-1 ${
-                  isSelected ? 'text-accent' : 'text-body'
-                }`}
-              >
+              <Text className={`text-[15px] ${isSelected ? 'text-accent-soft' : 'text-body'}`}>
                 {option}
               </Text>
-              {isSelected ? (
-                <CheckCircle2 color="#C89B6D" size={20} />
-              ) : (
-                <CircleIcon color="#6E675D" size={20} />
-              )}
             </TouchableOpacity>
           );
         })}
       </View>
+      <View className="flex-1" />
+      <PrivacyFooter />
     </ScrollView>
   );
 }
@@ -763,7 +836,7 @@ function EducationScreen({
   onContinue: () => void;
 }) {
   return (
-    <View className="flex-1 px-6 justify-between pb-10">
+    <View className="flex-1 px-7 justify-between pb-9">
       <View className="flex-1 justify-center">
         <View className="w-16 h-16 rounded-2xl bg-accent/10 border border-accent/20 items-center justify-center mb-6">
           {icon}
@@ -778,7 +851,7 @@ function EducationScreen({
       <TouchableOpacity
         onPress={onContinue}
         activeOpacity={0.85}
-        className="bg-accent rounded-xl py-4 items-center"
+        className="bg-accent rounded-2xl py-[19px] items-center"
       >
         <Text className="text-on-accent font-bold text-base">{cta}</Text>
       </TouchableOpacity>
@@ -788,22 +861,12 @@ function EducationScreen({
 
 // ─── Screen 25: Analyzer ──────────────────────────────────────────────────────
 
-const ANALYZER_LABELS = [
-  'Analyzing autonomic profile...',
-  'Structuring neuroplasticity timeline...',
-  'Building 75-day clinical protocol...',
-];
-
 function AnalyzerScreen({ onComplete }: { onComplete: () => void }) {
   const [progress, setProgress] = useState(0);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
-  const labelIndex = Math.min(
-    Math.floor((progress / 100) * ANALYZER_LABELS.length),
-    ANALYZER_LABELS.length - 1,
-  );
 
-  const size = 180;
-  const strokeWidth = 12;
+  const size = 190;
+  const strokeWidth = 6;
   const radius = (size - strokeWidth) / 2;
   const circumference = 2 * Math.PI * radius;
   const strokeDashoffset = circumference * (1 - progress / 100);
@@ -855,46 +918,193 @@ function AnalyzerScreen({ onComplete }: { onComplete: () => void }) {
             strokeLinecap="round"
           />
         </Svg>
-        <Text className="text-ink text-3xl font-serif-light">{progress}%</Text>
+        <Text className="text-ink text-[38px] font-serif-light">{progress}%</Text>
       </View>
 
-      <Text
-        className="text-accent text-sm text-center font-mono"
-        style={{ minHeight: 20 }}
-      >
-        {ANALYZER_LABELS[labelIndex]}
+      <Text className="text-body text-sm text-center">
+        Structuring your neuroplasticity timeline
+      </Text>
+      <Text className="text-dim text-xs text-center mt-2">
+        autonomic profile ✓ · pelvic baseline ✓ · 75-day sequence…
       </Text>
     </View>
   );
 }
 
-// ─── Screen 26: Blueprint Ready ───────────────────────────────────────────────
+// ─── Screen 26: Profile Readout (E05) ─────────────────────────────────────────
 
-function BlueprintReadyScreen({ name, onContinue }: { name: string; onContinue: () => void }) {
-  const firstName = name.trim();
+interface ProfileMeter {
+  label: string;
+  value: number; // 0–100
+  grade: string;
+  high: boolean; // High grades get the accent-bright label + copper bar
+}
+
+function scoreFor(
+  map: Record<string, number>,
+  answer: string | null,
+  fallback: number,
+): number {
+  return answer !== null && map[answer] !== undefined ? map[answer] : fallback;
+}
+
+/**
+ * Maps questionnaire answers → the three severity meters (E05). Weights are
+ * deterministic and versioned here (§7 — no runtime generation). Each meter
+ * blends the two answers that most directly index that construct; fallbacks
+ * sit mid-scale so a skipped answer never fabricates severity.
+ */
+function computeProfileMeters(a: OnboardingAnswers): ProfileMeter[] {
+  const autonomic = scoreFor(
+    { 'Yes, it feels like panic': 88, Sometimes: 62, 'No, I stay calm': 34 },
+    a.autonomic,
+    62,
+  );
+  const breath = scoreFor(
+    { 'Yes, I gasp / hold it': 84, "I haven't noticed": 58, 'No, I breathe deeply': 30 },
+    a.breath,
+    58,
+  );
+  const sympathetic = Math.round(autonomic * 0.6 + breath * 0.4);
+
+  const spectator = scoreFor(
+    { 'Yes — almost every time': 86, Sometimes: 60, Rarely: 32 },
+    a.spectator,
+    60,
+  );
+  const rumination = scoreFor(
+    {
+      '"I am broken"': 78,
+      '"She is disappointed in me"': 74,
+      '"I will never fix this"': 78,
+      'All of the above': 90,
+    },
+    a.mentalLoop,
+    66,
+  );
+  const spectatoring = Math.round(spectator * 0.6 + rumination * 0.4);
+
+  // Capacity meter (higher = better), from the felt clench test — the one
+  // answer in the funnel the user experienced rather than estimated.
+  const release = scoreFor(
+    {
+      'Complete release — I felt clear relaxation': 76,
+      'Partial release — some tension remained': 38,
+      'Difficulty releasing — stayed contracted': 22,
+    },
+    a.pelvic,
+    38,
+  );
+
+  const loadGrade = (v: number) => (v >= 70 ? 'High' : v >= 45 ? 'Moderate' : 'Low');
+  const capacityGrade = (v: number) => (v >= 70 ? 'Strong' : v >= 35 ? 'Partial' : 'Limited');
+
+  return [
+    {
+      label: 'Sympathetic override',
+      value: sympathetic,
+      grade: loadGrade(sympathetic),
+      high: sympathetic >= 70,
+    },
+    {
+      label: 'Spectatoring loop',
+      value: spectatoring,
+      grade: loadGrade(spectatoring),
+      high: spectatoring >= 70,
+    },
+    {
+      label: 'Pelvic release capacity',
+      value: release,
+      grade: capacityGrade(release),
+      high: release >= 70,
+    },
+  ];
+}
+
+const TIMELINE_PHRASES: Record<string, string> = {
+  'Less than 6 months': 'over the last six months',
+  '1 to 3 years': 'over 1–3 years',
+  'More than 3 years': 'over more than three years',
+  'As long as I can remember': 'over most of your adult life',
+};
+
+// Bar widths animate in on mount (300ms ease-out per spec) — the meters
+// filling is the "your answers were computed" receipt, not decoration.
+function MeterBar({ value, high }: { value: number; high: boolean }) {
+  const width = useRef(new Animated.Value(0)).current;
+  useEffect(() => {
+    Animated.timing(width, {
+      toValue: value,
+      duration: 300,
+      easing: Easing.out(Easing.ease),
+      useNativeDriver: false, // width in % can't ride the native driver
+    }).start();
+  }, []);
   return (
-    <View className="flex-1 px-6 justify-between pb-10">
-      <View className="flex-1 justify-center items-center">
-        <View className="w-16 h-16 rounded-full bg-accent/10 border border-accent/30 items-center justify-center mb-6">
-          <CheckCircle2 color="#C89B6D" size={32} />
-        </View>
-        <Text className="text-ink text-2xl font-serif-regular text-center leading-9">
-          {firstName ? `${firstName}, your 75-Day Blueprint is ready.` : 'Your 75-Day Blueprint is ready.'}
-        </Text>
-        <Text className="text-body text-base text-center mt-4 leading-6">
-          Your baseline can be reset. We have compiled your daily autonomic exposure and
-          somatic training protocol.
-        </Text>
+    <View className="h-[5px] bg-line rounded-full overflow-hidden">
+      <Animated.View
+        className={`h-full rounded-full ${high ? 'bg-accent' : 'bg-muted'}`}
+        style={{
+          width: width.interpolate({ inputRange: [0, 100], outputRange: ['0%', '100%'] }),
+        }}
+      />
+    </View>
+  );
+}
+
+function ProfileReadoutScreen({
+  answers,
+  onContinue,
+}: {
+  answers: OnboardingAnswers;
+  onContinue: () => void;
+}) {
+  const meters = computeProfileMeters(answers);
+  const firstName = answers.name.trim();
+  const duration = (answers.timeline && TIMELINE_PHRASES[answers.timeline]) || 'over time';
+
+  return (
+    <View className="flex-1 px-7 pt-16">
+      <Text className="text-muted text-[11px] font-semibold uppercase tracking-[0.28em]">
+        Your map
+      </Text>
+      <Text className="text-ink text-[27px] font-serif-light leading-9 mt-2">
+        {firstName
+          ? `${firstName}, here is what your answers show.`
+          : 'Here is what your answers show.'}
+      </Text>
+
+      <View className="bg-surface border border-line rounded-[18px] p-5 mt-5 gap-[13px]">
+        {meters.map((meter) => (
+          <View key={meter.label}>
+            <View className="flex-row justify-between mb-[5px]">
+              <Text className="text-body text-[13px]">{meter.label}</Text>
+              <Text
+                className={`text-xs font-bold ${meter.high ? 'text-accent-bright' : 'text-muted'}`}
+              >
+                {meter.grade}
+              </Text>
+            </View>
+            <MeterBar value={meter.value} high={meter.high} />
+          </View>
+        ))}
       </View>
+
+      <Text className="text-body text-sm leading-[22px] mt-4">
+        This is a conditioned adrenaline response, established {duration}. Conditioned means
+        learned — and learned means reversible. Your 75-day sequence is built.
+      </Text>
+
+      <View className="flex-1" />
 
       <TouchableOpacity
         onPress={onContinue}
         activeOpacity={0.85}
-        className="bg-accent rounded-xl py-4 items-center flex-row justify-center gap-2"
+        className="bg-accent rounded-2xl py-[19px] items-center"
       >
-        <Text className="text-on-accent font-bold text-base">Unlock My Protocol</Text>
-        <ChevronRight color="#171310" size={18} />
+        <Text className="text-on-accent font-bold text-base">See my protocol</Text>
       </TouchableOpacity>
+      <Text className="text-dim text-xs text-center py-3 mb-3">Stored on this device only</Text>
     </View>
   );
 }

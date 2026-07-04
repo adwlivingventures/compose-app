@@ -5,8 +5,8 @@ Read this file first in any new session to resume without re-reading full chat h
 ## Overall plan (5 phases, per design/ember-v1/README.md "Implementation Order")
 
 1. **Ember token swap + serif fonts** across existing screens (E08–E17) — pure restyle, no logic changes. **✅ DONE (committed).**
-2. **Breathing orb mechanic** (E10 conditioning, E15 SOS 4-7-8). **✅ DONE (committed). Phase 3 (funnel copy + profile readout) is next.**
-3. Funnel copy pass + new Profile Readout screen (E02 template applied to all 23 onboarding steps, E05 new screen between analyzer and paywall).
+2. **Breathing orb mechanic** (E10 conditioning, E15 SOS 4-7-8). **✅ DONE (committed).** Follow-up commit added soft haptic ticks at phase boundaries (expo-haptics — native module, needs a new EAS dev build to be felt).
+3. **Funnel copy pass + Profile Readout** (E01–E05). **✅ DONE (committed). Phase 4 (Discreet Mode, E18) is next.**
 4. Discreet Mode (E18) — Face ID lock + app-switcher blur now; alternate app icons + neutral notifications deferred (assets/notification system don't exist yet).
 5. Paywall A/B (E06 vs E07) via RevenueCat offerings — **with corrections**: E06's "guaranteed refund" claim must be reworded (Apple controls refunds, we can't promise them — say "we'll help you request one, one tap" instead), and the "statement reads 'CMPS Media'" claim is wrong (Apple Pay statements always show "Apple", not merchant name — this is actually a *stronger* trust claim, use it).
 
@@ -49,6 +49,19 @@ New shared `components/BreathingOrb.tsx` — the signature glow-orb. SVG radial 
 `TriageCenter.tsx` BreathingGuide (E15): orb 230/210/150, serif-light countdown numeral inside (1s interval reset on each `onPhaseStart`), labels kept as full clinical cues (nose in / lips out). **Auto-starts on mount** — acute-anxiety user shouldn't face a Begin decision (Hick's law / render shows running state as default); Stop → static circle + "Begin again"; restart remounts orb via `key={runId}` so it begins at the top of an inhale. Old `Animated`/`Easing` imports removed.
 
 `npx tsc --noEmit` passes. **On-device check still pending for both Phase 1 and 2** (animation smoothness, orb sizing on the user's iPhone dev build). Haptics mentioned in README ("keep haptics/timer logic") don't exist in the current code — nothing was removed; adding phase-boundary haptics would need `expo-haptics` (not installed), flag as an option for the user.
+
+## Phase 3 completion notes (2026-07-03)
+
+All in `app/onboarding.tsx`:
+
+- **E01 Welcome**: left-aligned layout, SVG radial copper glow bottom-center (520px, 0.13→0 at 65%), eyebrow "Compose" 0.32em, design-final sub-copy, lock-icon privacy row ("Private by design — no account, no sync, no lock-screen tells"), CTA "Find my baseline" (rounded-2xl, py-[19px], no chevron).
+- **E02 template across the 23-step arc**: ProgressHeader now "MAPPING · N OF 23" + "~X min left" (estimate: `ceil((23-step)*12/60)` min — calibrated to match the renders: step 7→4 min, step 11→3 min) over a 3px copper-on-line-soft bar. ChoiceScreen: serif 23px questions, optional `normalization` prop (13px muted line under sensitive questions), icon-free option cards (radius 14, 17/18 padding, selected = accent-tint/accent-border/accent-soft), `PrivacyFooter` ("Answers stay on this phone. Always.") on all question-type screens (Choice/Name/Age). Normalization lines authored for: timeline, spectator (design-final), autonomic, partnerImpact, hardware, dopamine, bandaid, breath, mentalLoop. **Spectator question + options updated to design-final copy** ("watching yourself from the outside — evaluating instead of experiencing", "Yes — almost every time").
+- **E03 Clench test**: serif "Let's feel it, not describe it.", design-final steps (serif copper numerals via reworked StepInstruction), 150px ClenchCircle (serif-light 34px numeral + 10.5px 0.2em label inside; shows "5 / Clench & hold" preview in ready state), CTA "Begin the 20-second check". Timer logic untouched. Result options restyled to template cards.
+- **E04 Analyzer**: 190px ring, 6px stroke, serif-light 38px %, static design-final lines ("Structuring your neuroplasticity timeline" / "autonomic profile ✓ · pelvic baseline ✓ · 75-day sequence…"). Cycling mono labels removed.
+- **E05 Profile Readout REPLACES BlueprintReadyScreen** (design flow is analyzer→readout→paywall; E05's "Your 75-day sequence is built" + "See my protocol" IS the blueprint-ready beat). `computeProfileMeters()` maps answers→three meters with deterministic weights: Sympathetic override (autonomic .6 + breath .4), Spectatoring loop (spectator .6 + mentalLoop .4), Pelvic release capacity (clench-test result; higher=better). Grades: load ≥70 High/≥45 Moderate/Low; capacity ≥70 Strong/≥35 Partial/Limited. High = accent-bright label + copper bar, else muted. Bars animate width 300ms ease-out on mount (MeterBar, JS driver — % width). Body copy interpolates the timeline answer ("established over 1–3 years" etc. via TIMELINE_PHRASES). **Phase 5 note: paywall arm A (E06) reuses these meters — `computeProfileMeters` is ready for it.**
+- Funnel screens moved to 28px horizontal padding (px-7) + primary CTAs to radius-16/py-[19px] per token spec. Paywall (CheckoutScreen) deliberately untouched — Phase 5.
+
+`npx tsc --noEmit` passes; verified against E01/E02/E03/E05 renders. On-device funnel walkthrough still pending.
 
 ## Context the next session needs (don't re-derive)
 
