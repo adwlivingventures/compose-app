@@ -2,6 +2,8 @@ import React from 'react';
 import { ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { ChevronLeft, ChevronRight, Lock } from 'lucide-react-native';
+import { useProtocol } from '../context/ProtocolContext';
+import { useRevenueCat } from '../hooks/useRevenueCat';
 
 /**
  * Mastery Suite — the strategic teaser for the Day-76 continuation
@@ -20,7 +22,11 @@ import { ChevronLeft, ChevronRight, Lock } from 'lucide-react-native';
 interface MasteryModule {
   title: string;
   description: string;
-  locked: boolean;
+  /** Route when unlocked; modules without built content stay locked. */
+  route?: string;
+  /** 'always' = free preview; 'maintenance' = Day 76 + active toolkit. */
+  unlock: 'always' | 'maintenance' | 'never';
+  badge?: string;
 }
 
 const MODULES: MasteryModule[] = [
@@ -29,37 +35,48 @@ const MODULES: MasteryModule[] = [
     description:
       'Learn the 3-Second Vagus Sync for partner co-regulation, and test the deterministic ' +
       'Somatic Copilot.',
-    locked: false,
+    route: '/autonomic-sync',
+    unlock: 'always',
+    badge: 'Unlocked Preview',
+  },
+  {
+    title: 'Sensate Mastery',
+    description:
+      'Ride the arousal waveform — co-regulation, the dip, and the somatic checkpoint.',
+    route: '/sensate-mastery',
+    unlock: 'maintenance',
   },
   {
     title: 'The Refractory Window Guide',
     description: 'Advanced neuro-mechanics for reducing downtime between sessions.',
-    locked: true,
+    unlock: 'never',
   },
   {
     title: 'The Anxious Partner De-escalator',
     description:
       "Interactive scripts to verbally down-regulate your partner's nervous system when " +
       'intimacy stalls.',
-    locked: true,
+    unlock: 'never',
   },
   {
     title: 'Somatic Sandbox & Pacer',
     description:
       'Fully customize your inhale/pelvic-drop ratios for on-demand stress regulation ' +
       'outside of the daily protocol.',
-    locked: true,
+    unlock: 'never',
   },
 ];
 
 function MasteryModuleCard({
   module,
+  locked,
   onPress,
 }: {
   module: MasteryModule;
+  locked: boolean;
   onPress?: () => void;
 }) {
-  const { title, description, locked } = module;
+  const { title, description, badge } = module;
 
   const body = (
     <>
@@ -90,11 +107,13 @@ function MasteryModuleCard({
       activeOpacity={0.85}
       className="bg-surface border border-accent/40 rounded-[18px] p-5"
     >
-      <View className="self-start bg-accent/10 border border-accent/30 rounded-full px-2.5 py-1 mb-3">
-        <Text className="text-accent text-[10px] font-bold uppercase tracking-[0.14em]">
-          Unlocked Preview
-        </Text>
-      </View>
+      {badge && (
+        <View className="self-start bg-accent/10 border border-accent/30 rounded-full px-2.5 py-1 mb-3">
+          <Text className="text-accent text-[10px] font-bold uppercase tracking-[0.14em]">
+            {badge}
+          </Text>
+        </View>
+      )}
       {body}
     </TouchableOpacity>
   );
@@ -102,6 +121,14 @@ function MasteryModuleCard({
 
 export default function MasterySuiteScreen() {
   const router = useRouter();
+  const { completedDays } = useProtocol();
+  const { hasMaintenanceAccess } = useRevenueCat();
+  // Same completion derivation as the Today tab's post-program state.
+  const protocolComplete = completedDays[75]?.completed === true;
+  const maintenanceUnlocked = protocolComplete && hasMaintenanceAccess;
+
+  const isLocked = (module: MasteryModule) =>
+    module.unlock === 'always' ? false : module.unlock === 'maintenance' ? !maintenanceUnlocked : true;
 
   return (
     <ScrollView
@@ -127,13 +154,19 @@ export default function MasterySuiteScreen() {
       </View>
 
       <View className="gap-3 mt-5">
-        {MODULES.map((module) => (
-          <MasteryModuleCard
-            key={module.title}
-            module={module}
-            onPress={module.locked ? undefined : () => router.push('/autonomic-sync')}
-          />
-        ))}
+        {MODULES.map((module) => {
+          const locked = isLocked(module);
+          return (
+            <MasteryModuleCard
+              key={module.title}
+              module={module}
+              locked={locked}
+              onPress={
+                locked || !module.route ? undefined : () => router.push(module.route as never)
+              }
+            />
+          );
+        })}
       </View>
     </ScrollView>
   );
