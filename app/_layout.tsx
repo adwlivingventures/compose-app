@@ -80,6 +80,7 @@ export default function RootLayout() {
           <Stack.Screen name="autonomic-sync" />
           <Stack.Screen name="copilot" />
           <Stack.Screen name="sensate-mastery" />
+          <Stack.Screen name="success-vault" />
         </Stack>
         {/* Above everything: the app-switcher cover and Face ID gate (E18). */}
         <PrivacyShield />
