@@ -6,8 +6,8 @@ Read this file first in any new session to resume without re-reading full chat h
 
 1. **Ember token swap + serif fonts** across existing screens (E08–E17) — pure restyle, no logic changes. **✅ DONE (committed).**
 2. **Breathing orb mechanic** (E10 conditioning, E15 SOS 4-7-8). **✅ DONE (committed).** Follow-up commit added soft haptic ticks at phase boundaries (expo-haptics — native module, needs a new EAS dev build to be felt).
-3. **Funnel copy pass + Profile Readout** (E01–E05). **✅ DONE (committed). Phase 4 (Discreet Mode, E18) is next.**
-4. Discreet Mode (E18) — Face ID lock + app-switcher blur now; alternate app icons + neutral notifications deferred (assets/notification system don't exist yet).
+3. **Funnel copy pass + Profile Readout** (E01–E05). **✅ DONE (committed).**
+4. **Discreet Mode (E18)** — Face ID lock + app-switcher cover. **✅ DONE (committed). Phase 5 (paywall A/B) is next.** Alternate icons + notifications still deferred (no assets / no notification system).
 5. Paywall A/B (E06 vs E07) via RevenueCat offerings — **with corrections**: E06's "guaranteed refund" claim must be reworded (Apple controls refunds, we can't promise them — say "we'll help you request one, one tap" instead), and the "statement reads 'CMPS Media'" claim is wrong (Apple Pay statements always show "Apple", not merchant name — this is actually a *stronger* trust claim, use it).
 
 Also pending: update CLAUDE.md §6 so "Ember" formally replaces the emerald/slate implementation description of Twilight Anchor (currently still describes old palette).
@@ -62,6 +62,17 @@ All in `app/onboarding.tsx`:
 - Funnel screens moved to 28px horizontal padding (px-7) + primary CTAs to radius-16/py-[19px] per token spec. Paywall (CheckoutScreen) deliberately untouched — Phase 5.
 
 `npx tsc --noEmit` passes; verified against E01/E02/E03/E05 renders. On-device funnel walkthrough still pending.
+
+## Phase 4 completion notes (2026-07-03)
+
+- **`context/DiscreetContext.tsx`**: persists `@discreet_faceid` / `@discreet_blur` via LocalStore (repo's @-prefix convention for the spec's `discreet_faceid`/`discreet_blur` keys). No notifications key — CLAUDE.md §6 makes neutrality binding, not a preference (see below).
+- **`components/PrivacyShield.tsx`** (mounted last in root layout, zIndex 999): (1) app-switcher cover — opaque ground card with wordmark when `appState !== 'active'` (opaque beats blur: no layout/color leak, no expo-blur native dep; E18 sub-copy adjusted "Covers the preview card…"); (2) Face ID gate — locks on cold start (after settings hydrate; hydration cover prevents content flash) and on `background` (NOT `inactive` — the biometric prompt itself fires inactive), auto-prompts on active, manual Unlock button, passcode fallback via authenticateAsync default. **Fail-open** if biometrics unavailable/module missing (old dev build) — never bricks. Switcher cover suppressed while auth prompt is up (authInFlight ref, re-render piggybacks on appState change).
+- **`app/discretion.tsx`** (E18): eyebrow/serif header, icon picker section with Compose selected + Habits/Breathe cards **dimmed** ("Alternate icons and names arrive in a coming update" — no icon assets exist yet), Surfaces card with 3 rows: Neutral notifications **locked-ON disabled toggle** (neutrality is a guarantee per CLAUDE.md §6 — no off position exists by design), Face ID (live; availability check + confirm-authenticate before arming), Hide from app switcher (live, default off). Footer **corrects the E06/E18 "CMPS Media" claim**: "Billing is handled by Apple. Your card statement shows Apple — never this app's name." (statement-descriptor correction from the Phase 5 plan applied here too). Intro mode (`/discretion?intro=1`): no Back row, "Begin Day 1" CTA → tabs.
+- **Wiring**: route registered in root Stack; You-tab nav card "Discretion" (EyeOff icon) under Partner Guide per E17; post-purchase flow now routes `onboarding → /discretion?intro=1 → tabs` (trust signal at peak exposure-fear moment, per README "surface once during onboarding after purchase").
+- **`app.json`**: `expo-local-authentication` plugin with faceIDPermission "Face ID keeps Compose locked to you."; display name `"COMPOSE"` → `"Compose"` (CLAUDE.md §2 home-screen name — was a discretion violation, all-caps reads louder).
+- **expo-local-authentication is a native module** — Face ID gate is inert (fail-open) on the existing dev build; needs the next EAS build, same as expo-haptics.
+
+`npx tsc --noEmit` passes. On-device: test lock/unlock cycle, switcher cover timing (overlay must beat the iOS snapshot), and intro flow after the next EAS build.
 
 ## Context the next session needs (don't re-derive)
 

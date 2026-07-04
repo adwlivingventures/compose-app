@@ -1,10 +1,11 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { View, Text, ScrollView, TouchableOpacity, Modal, Alert, Pressable } from 'react-native';
-import { useFocusEffect } from 'expo-router';
+import { useFocusEffect, useRouter } from 'expo-router';
 import {
   Lock,
   ShieldCheck,
   Users,
+  EyeOff,
   RotateCcw,
   ChevronRight,
   X,
@@ -31,6 +32,7 @@ import {
  */
 
 export default function ProfileScreen() {
+  const router = useRouter();
   const { activeDay, resetProtocol } = useProtocol();
   const { hasProAccess, hasMaintenanceAccess, restorePurchases, isProcessing } = useRevenueCat();
   const { entries, reload } = useDefusionLog();
@@ -100,7 +102,7 @@ export default function ProfileScreen() {
       <TouchableOpacity
         onPress={() => setGuideVisible(true)}
         activeOpacity={0.85}
-        className="bg-surface border border-line rounded-2xl p-5 flex-row items-center gap-4 mb-6"
+        className="bg-surface border border-line rounded-2xl p-5 flex-row items-center gap-4 mb-3"
       >
         <View className="w-11 h-11 rounded-full bg-surface-deep border border-line items-center justify-center">
           <Users color="#C89B6D" size={20} />
@@ -112,6 +114,24 @@ export default function ProfileScreen() {
           <Text className="text-muted text-xs mt-0.5 leading-4">
             Hand them your phone. Two minutes of reading replaces the hardest
             conversation.
+          </Text>
+        </View>
+        <ChevronRight color="#8A8378" size={18} />
+      </TouchableOpacity>
+
+      {/* Discretion (E18) */}
+      <TouchableOpacity
+        onPress={() => router.push('/discretion')}
+        activeOpacity={0.85}
+        className="bg-surface border border-line rounded-2xl p-5 flex-row items-center gap-4 mb-6"
+      >
+        <View className="w-11 h-11 rounded-full bg-surface-deep border border-line items-center justify-center">
+          <EyeOff color="#C89B6D" size={20} />
+        </View>
+        <View className="flex-1">
+          <Text className="text-ink text-sm font-bold">Discretion</Text>
+          <Text className="text-muted text-xs mt-0.5 leading-4">
+            How Compose appears anywhere outside the app.
           </Text>
         </View>
         <ChevronRight color="#8A8378" size={18} />

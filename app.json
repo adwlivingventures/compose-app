@@ -1,6 +1,6 @@
 {
   "expo": {
-    "name": "COMPOSE",
+    "name": "Compose",
     "slug": "COMPOSE",
     "scheme": "compose",
     "version": "1.0.0",
@@ -47,7 +47,13 @@
           "microphonePermission": false
         }
       ],
-      "expo-font"
+      "expo-font",
+      [
+        "expo-local-authentication",
+        {
+          "faceIDPermission": "Face ID keeps Compose locked to you."
+        }
+      ]
     ],
     "extra": {
       "router": {},

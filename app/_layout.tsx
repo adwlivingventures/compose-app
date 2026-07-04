@@ -12,6 +12,8 @@ import {
   SourceSerif4_600SemiBold,
 } from '@expo-google-fonts/source-serif-4';
 import { ProtocolProvider } from '../context/ProtocolContext';
+import { DiscreetProvider } from '../context/DiscreetContext';
+import PrivacyShield from '../components/PrivacyShield';
 
 const IS_DEV = __DEV__;
 
@@ -56,21 +58,26 @@ export default function RootLayout() {
 
   return (
     <ProtocolProvider>
-      <StatusBar style="light" />
-      {/* contentStyle keeps the scene background on Ember ground during transition
-          animations — without it, iOS flashes the default white card behind
-          screens mid-push (§6: nothing in this app may flash bright). */}
-      <Stack
-        screenOptions={{
-          headerShown: false,
-          contentStyle: { backgroundColor: '#0C0B09' },
-        }}
-      >
-        <Stack.Screen name="index" />
-        <Stack.Screen name="onboarding" />
-        <Stack.Screen name="(tabs)" />
-        <Stack.Screen name="session" options={{ presentation: 'fullScreenModal' }} />
-      </Stack>
+      <DiscreetProvider>
+        <StatusBar style="light" />
+        {/* contentStyle keeps the scene background on Ember ground during transition
+            animations — without it, iOS flashes the default white card behind
+            screens mid-push (§6: nothing in this app may flash bright). */}
+        <Stack
+          screenOptions={{
+            headerShown: false,
+            contentStyle: { backgroundColor: '#0C0B09' },
+          }}
+        >
+          <Stack.Screen name="index" />
+          <Stack.Screen name="onboarding" />
+          <Stack.Screen name="(tabs)" />
+          <Stack.Screen name="session" options={{ presentation: 'fullScreenModal' }} />
+          <Stack.Screen name="discretion" />
+        </Stack>
+        {/* Above everything: the app-switcher cover and Face ID gate (E18). */}
+        <PrivacyShield />
+      </DiscreetProvider>
     </ProtocolProvider>
   );
 }

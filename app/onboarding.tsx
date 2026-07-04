@@ -406,7 +406,10 @@ export default function OnboardingScreen() {
           pathway={pathwayForPainPoint(answers.painPoint)}
           onPurchaseComplete={async () => {
             await unlockProtocol();
-            router.replace('/(tabs)');
+            // Surface Discreet Mode once, right after purchase (E18): the
+            // moment after paying is when exposure fear peaks — showing the
+            // privacy controls here converts buyer's remorse into trust.
+            router.replace('/discretion?intro=1');
           }}
         />
       )}
