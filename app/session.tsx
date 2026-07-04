@@ -1,8 +1,8 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { View, Text, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { useRouter } from 'expo-router';
-import { X, LifeBuoy, Check } from 'lucide-react-native';
-import { useProtocol, getPhaseForDay, HabitState } from '../context/ProtocolContext';
+import { X, Check } from 'lucide-react-native';
+import { useProtocol, HabitState } from '../context/ProtocolContext';
 import { getAnchorForDay } from '../content/anchors';
 import { LocalStore } from '../services/storage';
 import AudioPlayer from '../components/AudioPlayer';
@@ -26,7 +26,7 @@ import SomaticPrimer from '../components/SomaticPrimer';
 type Stage = 'anchor' | 'conditioning' | 'score' | 'checklist';
 
 const STAGE_LABELS: Record<Stage, string> = {
-  anchor: 'Auditory Anchor',
+  anchor: 'The Anchor',
   conditioning: 'Conditioning',
   score: 'Control',
   checklist: 'Check-In',
@@ -67,7 +67,6 @@ export default function SessionScreen() {
   const [sosVisible, setSosVisible] = useState(false);
 
   const day = dayRef.current;
-  const phase = getPhaseForDay(day);
   const anchor = getAnchorForDay(day);
   const stageIndex = STAGE_ORDER.indexOf(stage);
 
@@ -142,8 +141,8 @@ export default function SessionScreen() {
       </View>
 
       <View className="items-center mt-4">
-        <Text className="text-muted text-xs font-bold uppercase tracking-widest">
-          Day {day} · Phase {phase.number} · {STAGE_LABELS[stage]}
+        <Text className="text-dim text-[11px] font-semibold uppercase tracking-[0.2em]">
+          Day {day} · {STAGE_LABELS[stage]}
         </Text>
       </View>
 
@@ -168,7 +167,7 @@ export default function SessionScreen() {
         {stage === 'score' && (
           <View className="items-center">
             <Text className="text-ink text-2xl font-serif-regular text-center px-4">
-              How much control did you feel through the sequence?
+              How much ease did you feel through the sequence?
             </Text>
             <Text className="text-muted text-xs text-center mt-2 leading-4 px-8">
               There is no good or bad answer — this is a signal you're learning to read, not a grade.
@@ -198,7 +197,7 @@ export default function SessionScreen() {
         {stage === 'checklist' && (
           <View>
             <Text className="text-ink text-2xl font-serif-regular text-center px-4 mb-6">
-              Today's Check-In
+              Before the day closes
             </Text>
             <View className="gap-3">
               {CHECKLIST_ITEMS.map((item) => {
@@ -246,14 +245,15 @@ export default function SessionScreen() {
         )}
       </View>
 
-      {/* SOS — reachable mid-session too (§6: one tap from anywhere) */}
+      {/* SOS — reachable mid-session too (§6: one tap from anywhere).
+          Unboxed per E09/E10: a quiet presence, not a competing CTA. */}
       <TouchableOpacity
         onPress={() => setSosVisible(true)}
-        activeOpacity={0.85}
-        className="bg-surface border border-line rounded-2xl py-3.5 items-center flex-row justify-center gap-2 mb-6"
+        activeOpacity={0.7}
+        className="items-center flex-row justify-center gap-2 py-2.5 mb-6"
       >
-        <LifeBuoy color="#B9B2A6" size={16} />
-        <Text className="text-body font-bold text-sm">Steady Me — Right Now</Text>
+        <View className="w-1.5 h-1.5 rounded-full bg-accent" />
+        <Text className="text-muted text-[13px] font-semibold">Steady me — right now</Text>
       </TouchableOpacity>
 
       {__DEV__ && stage !== 'checklist' && (

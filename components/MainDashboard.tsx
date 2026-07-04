@@ -1,20 +1,49 @@
 import React, { useState } from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
 import Svg, { Circle } from 'react-native-svg';
-import { CheckCircle2, LifeBuoy, Play } from 'lucide-react-native';
+import { Check, Play } from 'lucide-react-native';
 import { useProtocol, localDateString } from '../context/ProtocolContext';
 import { getProtocolDay } from '../content/ProtocolData';
 import TriageCenter from './TriageCenter';
 
-// ─── Progress Ring ────────────────────────────────────────────────────────────
+/**
+ * Today dashboard — E08 (session pending) and E13 (completed) states.
+ *
+ * E13 deliberately offers no next action: the completed state is closure,
+ * not a hook. Day numbers render as words there ("Twelve days composed") —
+ * a ledger of identity, not a counter to optimize. The only interactive
+ * element after completion is the Steady-me pill, because anxiety doesn't
+ * check whether today's session is done.
+ */
 
-const RING_SIZE = 240;
-const RING_STROKE = 10;
+// ─── Day numerals as words (E13 "Twelve", E08 "of seventy-five") ─────────────
+
+const ONES = [
+  '', 'one', 'two', 'three', 'four', 'five', 'six', 'seven', 'eight', 'nine',
+  'ten', 'eleven', 'twelve', 'thirteen', 'fourteen', 'fifteen', 'sixteen',
+  'seventeen', 'eighteen', 'nineteen',
+];
+const TENS = ['', '', 'twenty', 'thirty', 'forty', 'fifty', 'sixty', 'seventy'];
+
+function dayInWords(n: number): string {
+  if (n < 20) return ONES[n];
+  const tens = TENS[Math.floor(n / 10)];
+  const one = n % 10;
+  return one ? `${tens}-${ONES[one]}` : tens;
+}
+
+const capitalize = (s: string) => s.charAt(0).toUpperCase() + s.slice(1);
+
+const PHASE_NUMERALS = ['I', 'II', 'III'];
+
+// ─── Progress Ring (250px, 6px stroke per E08) ────────────────────────────────
+
+const RING_SIZE = 250;
+const RING_STROKE = 6;
 const RING_RADIUS = (RING_SIZE - RING_STROKE) / 2;
 const RING_CIRCUMFERENCE = 2 * Math.PI * RING_RADIUS;
 
 function ProgressRing({ day, completedToday }: { day: number; completedToday: boolean }) {
-  const meta = getProtocolDay(day);
   // Count today's session in the ring the moment it's done — the visible jump
   // in the arc is the completion reward.
   const daysDone = Math.min(day - 1 + (completedToday ? 1 : 0), 75);
@@ -28,7 +57,7 @@ function ProgressRing({ day, completedToday }: { day: number; completedToday: bo
           cx={RING_SIZE / 2}
           cy={RING_SIZE / 2}
           r={RING_RADIUS}
-          stroke="#201D19"
+          stroke="#221F1B"
           strokeWidth={RING_STROKE}
           fill="none"
         />
@@ -46,12 +75,23 @@ function ProgressRing({ day, completedToday }: { day: number; completedToday: bo
         />
       </Svg>
       <View className="absolute items-center">
-        <Text className="text-muted text-xs font-bold uppercase tracking-widest">Day</Text>
-        <Text className="text-ink text-6xl font-serif-light">{day}</Text>
-        <Text className="text-muted text-sm">of 75</Text>
-        <Text className="text-accent/80 text-xs font-bold uppercase tracking-widest mt-2">
-          Phase {meta.phase} · {meta.phaseTitle}
-        </Text>
+        {completedToday ? (
+          <>
+            <Check color="#C89B6D" size={26} style={{ marginBottom: 6 }} />
+            <Text className="text-ink text-[44px] font-serif-light leading-[48px]">
+              {capitalize(dayInWords(day))}
+            </Text>
+            <Text className="text-faint text-[13px] mt-0.5">days composed</Text>
+          </>
+        ) : (
+          <>
+            <Text className="text-muted text-[11px] font-semibold uppercase tracking-[0.24em]">
+              Day
+            </Text>
+            <Text className="text-ink text-[64px] font-serif-light leading-[68px]">{day}</Text>
+            <Text className="text-faint text-[13px]">of seventy-five</Text>
+          </>
+        )}
       </View>
     </View>
   );
@@ -68,64 +108,81 @@ export default function MainDashboard({ onStartSession }: { onStartSession: () =
   // not tomorrow's number — activeDay has already advanced.
   const displayDay = completedToday ? Math.max(activeDay - 1, 1) : activeDay;
   const todayMeta = getProtocolDay(displayDay);
+  const focusLine = todayMeta.focus.replace(/\.$/, '');
 
   return (
-    <View className="flex-1 bg-ground">
-      <View className="flex-1 items-center px-6 pt-20">
+    <View className="flex-1 bg-ground px-7 pt-[76px]">
+      {/* Header: wordmark + the Steady-me pill (§6 — SOS one tap away,
+          identical in both states) */}
+      <View className="flex-row items-center justify-between">
+        <Text className="text-muted text-[11px] font-semibold uppercase tracking-[0.28em]">
+          Compose
+        </Text>
+        <TouchableOpacity
+          onPress={() => setSosVisible(true)}
+          activeOpacity={0.8}
+          className="flex-row items-center gap-1.5 bg-surface border border-line rounded-full px-3.5 py-[7px]"
+        >
+          <View className="w-1.5 h-1.5 rounded-full bg-accent" />
+          <Text className="text-body text-xs font-semibold">Steady me</Text>
+        </TouchableOpacity>
+      </View>
+
+      <View className="flex-1 items-center justify-center">
         <ProgressRing day={displayDay} completedToday={completedToday} />
 
-        {streak > 1 && (
-          <Text className="text-muted text-xs mt-4">
-            {streak} consecutive days
-          </Text>
+        {completedToday ? (
+          <>
+            <Text className="text-ink text-xl font-serif-regular mt-7">Today is complete.</Text>
+            <Text className="text-muted text-[13.5px] text-center leading-5 mt-2">
+              Day {Math.min(displayDay + 1, 75)} unlocks at midnight.{'\n'}Rest is part of the
+              work.
+            </Text>
+          </>
+        ) : (
+          <>
+            <Text className="text-accent text-[11px] font-bold uppercase tracking-[0.22em] mt-7">
+              Phase {PHASE_NUMERALS[todayMeta.phase - 1]} · {todayMeta.phaseTitle}
+            </Text>
+            <Text className="text-ink text-[22px] font-serif-regular mt-1.5 text-center">
+              {todayMeta.title}
+            </Text>
+            <Text className="text-muted text-[13px] mt-1.5 text-center leading-5">
+              {focusLine}
+            </Text>
+          </>
         )}
+      </View>
 
-        {/* Today's anchor — the manifest title tells him what today is about
-            before he commits, without adding a single decision */}
-        <View className="items-center mt-6">
-          <Text className="text-faint text-[10px] font-bold uppercase tracking-[0.25em]">
-            Today's Anchor
-          </Text>
-          <Text className="text-ink text-xl font-serif-regular mt-1 text-center">
-            {todayMeta.title}
-          </Text>
-        </View>
-
-        {/* The single primary action — no library, no choices */}
-        <View className="w-full mt-10">
-          {completedToday ? (
-            <View className="bg-surface border border-line rounded-2xl py-5 items-center">
-              <CheckCircle2 color="#C89B6D" size={26} />
-              <Text className="text-ink font-serif-regular text-lg mt-2">Today Is Complete</Text>
-              <Text className="text-muted text-xs mt-1">
-                Day {Math.min(displayDay + 1, 75)} unlocks at midnight. Rest is part of the work.
-              </Text>
-            </View>
-          ) : (
+      <View className="pb-5">
+        {completedToday ? (
+          /* Tonight's line — the day's thesis read back as a quote. Closure,
+             no next-action pressure. */
+          <View className="bg-surface border border-line rounded-2xl px-[18px] py-4">
+            <Text className="text-dim text-[10px] font-bold uppercase tracking-[0.2em]">
+              Tonight's line
+            </Text>
+            <Text className="text-body text-sm leading-[22px] font-serif-italic mt-1.5">
+              "{todayMeta.focus}"
+            </Text>
+          </View>
+        ) : (
+          <>
             <TouchableOpacity
               onPress={onStartSession}
               activeOpacity={0.85}
-              className="bg-accent rounded-2xl py-5 items-center flex-row justify-center gap-2.5"
+              className="bg-accent rounded-2xl py-[19px] items-center flex-row justify-center gap-2.5"
             >
-              <Play color="#171310" size={20} fill="#171310" />
-              <Text className="text-on-accent font-bold text-lg">
-                Listen to Today’s Anchor
-              </Text>
+              <Play color="#171310" size={16} fill="#171310" />
+              <Text className="text-on-accent font-bold text-base">Begin today's session</Text>
             </TouchableOpacity>
-          )}
-        </View>
-      </View>
-
-      {/* Persistent SOS — always one thumb-tap away, floating above the tab bar */}
-      <View className="px-6 pb-6">
-        <TouchableOpacity
-          onPress={() => setSosVisible(true)}
-          activeOpacity={0.85}
-          className="bg-surface border border-line rounded-2xl py-4 items-center flex-row justify-center gap-2"
-        >
-          <LifeBuoy color="#B9B2A6" size={18} />
-          <Text className="text-body font-bold text-sm">Steady Me — Right Now</Text>
-        </TouchableOpacity>
+            {streak > 1 && (
+              <Text className="text-faint text-xs text-center mt-3">
+                {streak} consecutive days · rest is part of the work
+              </Text>
+            )}
+          </>
+        )}
       </View>
 
       <TriageCenter visible={sosVisible} onClose={() => setSosVisible(false)} />
