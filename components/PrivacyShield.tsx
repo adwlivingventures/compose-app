@@ -1,6 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { AppState, AppStateStatus, Text, TouchableOpacity, View } from 'react-native';
-import * as LocalAuthentication from 'expo-local-authentication';
+import { authenticate, biometricsEnrolled } from '../services/biometrics';
 import { useDiscreet } from '../context/DiscreetContext';
 
 /**
@@ -19,20 +19,9 @@ import { useDiscreet } from '../context/DiscreetContext';
  * Fail-open by design: if biometrics are unavailable at unlock time (e.g. a
  * dev build that predates the native module), the gate releases rather than
  * bricking the app — the passcode fallback inside authenticateAsync covers
- * the legitimate "Face ID won't read" case.
+ * the legitimate "Face ID won't read" case. All module access goes through
+ * services/biometrics, which absorbs the import-time crash on old clients.
  */
-
-async function biometricsAvailable(): Promise<boolean> {
-  try {
-    const [hasHardware, enrolled] = await Promise.all([
-      LocalAuthentication.hasHardwareAsync(),
-      LocalAuthentication.isEnrolledAsync(),
-    ]);
-    return hasHardware && enrolled;
-  } catch {
-    return false;
-  }
-}
 
 export default function PrivacyShield() {
   const { loaded, faceId, hideSwitcher } = useDiscreet();
@@ -72,16 +61,13 @@ export default function PrivacyShield() {
     if (authInFlight.current) return;
     authInFlight.current = true;
     try {
-      if (!(await biometricsAvailable())) {
-        setLocked(false);
+      if (!(await biometricsEnrolled())) {
+        setLocked(false); // fail-open: nothing to authenticate against
         return;
       }
-      const result = await LocalAuthentication.authenticateAsync({
-        promptMessage: 'Unlock Compose',
-      });
-      if (result.success) setLocked(false);
-    } catch {
-      setLocked(false);
+      const outcome = await authenticate('Unlock Compose');
+      // 'failed' = prompted and didn't pass — stay locked, Unlock retries.
+      if (outcome !== 'failed') setLocked(false);
     } finally {
       authInFlight.current = false;
     }

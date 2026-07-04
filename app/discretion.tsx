@@ -1,7 +1,7 @@
 import React from 'react';
 import { Alert, ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
-import * as LocalAuthentication from 'expo-local-authentication';
+import { authenticate, biometricsEnrolled, biometricsPresent } from '../services/biometrics';
 import { ChevronLeft, Plus, ArrowUp } from 'lucide-react-native';
 import { useDiscreet } from '../context/DiscreetContext';
 
@@ -120,29 +120,24 @@ export default function DiscretionScreen() {
       setFaceId(false);
       return;
     }
-    try {
-      const [hasHardware, enrolled] = await Promise.all([
-        LocalAuthentication.hasHardwareAsync(),
-        LocalAuthentication.isEnrolledAsync(),
-      ]);
-      if (!hasHardware || !enrolled) {
-        Alert.alert(
-          'Face ID Unavailable',
-          'This device has no enrolled Face ID or Touch ID. Set one up in your phone settings, then return here.',
-        );
-        return;
-      }
-      // Confirm once before arming the gate — the toggle should never enable
-      // a lock the user can't immediately pass.
-      const result = await LocalAuthentication.authenticateAsync({
-        promptMessage: 'Confirm to enable Face ID lock',
-      });
-      if (result.success) setFaceId(true);
-    } catch {
+    if (!biometricsPresent) {
       Alert.alert(
         'Face ID Unavailable',
         'Biometric support is missing from this build. Update the app and try again.',
       );
+      return;
+    }
+    if (!(await biometricsEnrolled())) {
+      Alert.alert(
+        'Face ID Unavailable',
+        'This device has no enrolled Face ID or Touch ID. Set one up in your phone settings, then return here.',
+      );
+      return;
+    }
+    // Confirm once before arming the gate — the toggle should never enable
+    // a lock the user can't immediately pass.
+    if ((await authenticate('Confirm to enable Face ID lock')) === 'success') {
+      setFaceId(true);
     }
   };
 
