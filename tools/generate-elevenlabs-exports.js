@@ -60,7 +60,7 @@ function finalize(paragraphs) {
   // The scripts' pause convention: every "..." is a deliberate ~2s pause.
   // ElevenLabs only guarantees pause length via break tags; the negative
   // lookahead keeps the transform idempotent.
-  joined = joined.replace(/(\.\.\.|…)(?!\s*<break)/g, '... <break time="2.0s" />');
+  joined = joined.replace(/(\.\.\.|…)(?!\s*<break)/g, '... <break time="1.5s" />');
   return joined.trim() + '\n';
 }
 
