@@ -1,4 +1,4 @@
-Welcome to Day 33. Breathe in... expand the stomach... and let it go. Once you have mastered stillness, we introduce motion using the 10-Second Rule.
+Welcome to Day 33. Breathe in... <break time="2.0s" /> expand the stomach... <break time="2.0s" /> and let it go. Once you have mastered stillness, we introduce motion using the 10-Second Rule.
 
 When you begin to move, do so for only ten seconds. Then, stop completely. Breathe. Assess your arousal scale. Drop the tension. Then, resume for another ten seconds.
 

@@ -9,8 +9,10 @@
  *
  * Cleanup performed: markdown headers, Core Focus lines, bold markers, and
  * backslash escapes are stripped; the wrapping quotation marks around each
- * script are removed; ellipses are preserved verbatim (they are the pause
- * convention — ~2 seconds each).
+ * script are removed. Every ellipsis (the scripts' 2-second pause
+ * convention) is followed by an explicit ElevenLabs break tag — the tag
+ * guarantees the pause duration, while the ellipsis keeps the trailing
+ * intonation.
  *
  * Re-run after any script edit:  node tools/generate-elevenlabs-exports.js
  */
@@ -55,6 +57,10 @@ function finalize(paragraphs) {
   let joined = paragraphs.join('\n\n');
   // Strip the wrapping quotation marks around the spoken script.
   joined = joined.replace(/^["“]/, '').replace(/["”]$/, '');
+  // The scripts' pause convention: every "..." is a deliberate ~2s pause.
+  // ElevenLabs only guarantees pause length via break tags; the negative
+  // lookahead keeps the transform idempotent.
+  joined = joined.replace(/(\.\.\.|…)(?!\s*<break)/g, '... <break time="2.0s" />');
   return joined.trim() + '\n';
 }
 
