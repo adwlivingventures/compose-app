@@ -42,7 +42,7 @@ const DAYS: [string, string][] = [
   ['The Mind-Reading Trap', 'Eliminating cognitive projections of partner disappointment.'],
   ['Somatic Capillary Flow', 'Introducing low-excitation vascular retraining.'],
   ['Anchoring the Breath', 'Breathing as the ultimate autonomic master switch.'],
-  ['Phase 1 Consolidation', 'Consolidating the Phase 1 foundations before moving into Phase 2.'],
+  ['The Midpoint Consolidation', 'Consolidating the first two weeks of foundations before going deeper.'],
   ['The Myth of Spontaneity', 'Dismantling the ideal that intimacy must be entirely spontaneous.'],
   ['Sensory Grounding', 'An emergency brake for acute spectatoring using the 5-4-3-2-1 technique.'],
   ['Normalizing the Soft Reset', 'Redefining the temporary loss of an erection as a biological reset, not a failure.'],
