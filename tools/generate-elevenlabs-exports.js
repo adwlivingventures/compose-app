@@ -57,7 +57,11 @@ function finalize(paragraphs) {
   let joined = paragraphs.join('\n\n');
   // Strip the wrapping quotation marks around the spoken script.
   joined = joined.replace(/^["“]/, '').replace(/["”]$/, '');
-  // The scripts' pause convention: every "..." is a deliberate ~2s pause.
+  // Every day opens with "Welcome to Day N…" — give the greeting its own
+  // beat before the teaching begins (production note, 2026-07-06). Runs
+  // before the break-tag transform so it picks up the tag automatically.
+  joined = joined.replace(/^(Welcome to Day \d+[^.]*)\.(?!\.)/, '$1...');
+  // The scripts' pause convention: every "..." is a deliberate pause.
   // ElevenLabs only guarantees pause length via break tags; the negative
   // lookahead keeps the transform idempotent.
   joined = joined.replace(/(\.\.\.|…)(?!\s*<break)/g, '... <break time="1.5s" />');
