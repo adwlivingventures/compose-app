@@ -58,6 +58,10 @@ interface ProtocolContextType {
   /** Wipes protocol progress (day, streak, completions) back to Day 1.
    *  Deliberately does NOT touch the purchase entitlement flag. */
   resetProtocol: () => Promise<void>;
+  /** DEV ONLY: jump to an arbitrary protocol day for content testing.
+   *  Releases the midnight pacing lock so the target day plays
+   *  immediately. No-ops in production builds. */
+  devJumpToDay: (day: number) => Promise<void>;
   loading: boolean;
 }
 
@@ -125,6 +129,19 @@ export const ProtocolProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     await LocalStore.setItem('@completed_days_data', {});
   };
 
+  const devJumpToDay = async (day: number) => {
+    if (!__DEV__) return;
+    const clamped = Math.max(1, Math.min(75, Math.round(day)));
+    setActiveDay(clamped);
+    // Release the one-session-per-day lock so the jumped-to day is playable now.
+    setLastCompletedDate(null);
+    await LocalStore.setItem('@user_protocol_state', {
+      activeDay: clamped,
+      streak,
+      lastCompletedDate: null,
+    });
+  };
+
   /**
    * Real-time toggling for the daily presence, focus, and vitality checklist habits.
    */
@@ -188,6 +205,7 @@ export const ProtocolProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       updateDailyHabits,
       unlockProtocol,
       resetProtocol,
+      devJumpToDay,
       loading
     }}>
       {children}

@@ -68,7 +68,7 @@ function NavRow({
 
 export default function ProfileScreen() {
   const router = useRouter();
-  const { activeDay, resetProtocol } = useProtocol();
+  const { activeDay, resetProtocol, devJumpToDay } = useProtocol();
   const { hasProAccess, hasMaintenanceAccess, restorePurchases, isProcessing } = useRevenueCat();
   const { entries, reload } = useDefusionLog();
   const [guideVisible, setGuideVisible] = useState(false);
@@ -264,14 +264,36 @@ export default function ProfileScreen() {
           <ChevronRight color="#6E675D" size={16} />
         </TouchableOpacity>
         {__DEV__ && (
-          <TouchableOpacity
-            onPress={() => router.push('/onboarding')}
-            activeOpacity={0.7}
-            className="p-4 flex-row items-center justify-between"
-          >
-            <Text className="text-dim text-sm">Replay Onboarding (dev only)</Text>
-            <ChevronRight color="#57534B" size={16} />
-          </TouchableOpacity>
+          <>
+            <TouchableOpacity
+              onPress={() => router.push('/onboarding')}
+              activeOpacity={0.7}
+              className="p-4 flex-row items-center justify-between border-b border-line"
+            >
+              <Text className="text-dim text-sm">Replay Onboarding (dev only)</Text>
+              <ChevronRight color="#57534B" size={16} />
+            </TouchableOpacity>
+            <TouchableOpacity
+              onPress={() =>
+                Alert.prompt(
+                  'Jump to Day (dev only)',
+                  `Currently on Day ${activeDay}. Enter 1–75; the midnight lock is released so the day plays immediately.`,
+                  (value) => {
+                    const day = parseInt(value ?? '', 10);
+                    if (!Number.isNaN(day)) devJumpToDay(day);
+                  },
+                  'plain-text',
+                  '',
+                  'number-pad',
+                )
+              }
+              activeOpacity={0.7}
+              className="p-4 flex-row items-center justify-between"
+            >
+              <Text className="text-dim text-sm">Jump to Day (dev only)</Text>
+              <ChevronRight color="#57534B" size={16} />
+            </TouchableOpacity>
+          </>
         )}
       </View>
 
