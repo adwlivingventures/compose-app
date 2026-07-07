@@ -1,5 +1,6 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
 import { LocalStore } from '../services/storage';
+import { disableDailyReminder } from '../services/notifications';
 
 export interface HabitState {
   presence: boolean;
@@ -192,6 +193,15 @@ export const ProtocolProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       streak: newStreak,
       lastCompletedDate: today,
     });
+
+    // Protocol complete: the daily reminder's job is over. A "session is
+    // ready" line after Day 75 is a broken promise — the graduation flow
+    // owns what comes next. Flag written straight to storage; the E18
+    // toggle re-syncs on next hydration.
+    if (day === 75) {
+      await disableDailyReminder();
+      await LocalStore.setItem('@discreet_notifications', false);
+    }
   };
 
   return (

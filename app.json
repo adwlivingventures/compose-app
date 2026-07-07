@@ -53,7 +53,8 @@
         {
           "faceIDPermission": "Face ID keeps Compose locked to you."
         }
-      ]
+      ],
+      "expo-notifications"
     ],
     "extra": {
       "router": {},

@@ -2,6 +2,12 @@ import React from 'react';
 import { Alert, ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
 import { authenticate, biometricsEnrolled, biometricsPresent } from '../services/biometrics';
+import {
+  disableDailyReminder,
+  enableDailyReminder,
+  getReminderTime,
+  notificationsPresent,
+} from '../services/notifications';
 import { ChevronLeft, Plus, ArrowUp } from 'lucide-react-native';
 import { useDiscreet } from '../context/DiscreetContext';
 
@@ -15,10 +21,11 @@ import { useDiscreet } from '../context/DiscreetContext';
  * this is the moment the exposure fear peaks — buyer's remorse here is
  * privacy panic, and this screen is the antidote.
  *
- * Live now: Face ID gate + app-switcher cover. Alternate icons ship when the
- * icon sets are produced. Neutral notifications render locked-on: CLAUDE.md
- * §6 makes neutrality a binding rule, so it is shown as a guarantee, not a
- * preference — there is no off position for that switch by design.
+ * Live now: Face ID gate + app-switcher cover + the daily-reminder toggle.
+ * Alternate icons ship when the icon sets are produced. The notifications
+ * row governs SCHEDULING only — neutrality itself is not a setting:
+ * CLAUDE.md §6 makes the copy a binding rule, so the sub-copy states it as
+ * a guarantee whether the reminder is on or off.
  */
 
 function SectionLabel({ children }: { children: string }) {
@@ -113,7 +120,36 @@ export default function DiscretionScreen() {
   const router = useRouter();
   const { intro } = useLocalSearchParams<{ intro?: string }>();
   const isIntro = intro === '1';
-  const { faceId, hideSwitcher, setFaceId, setHideSwitcher } = useDiscreet();
+  const { faceId, hideSwitcher, notifications, setFaceId, setHideSwitcher, setNotifications } =
+    useDiscreet();
+
+  const toggleNotifications = async () => {
+    if (notifications) {
+      await disableDailyReminder();
+      setNotifications(false);
+      return;
+    }
+    if (!notificationsPresent) {
+      Alert.alert(
+        'Reminders Unavailable',
+        'Notification support is missing from this build. Update the app and try again.',
+      );
+      return;
+    }
+    // Re-enabling reuses the hour Day 1 set; a user who never opted in
+    // gets the current hour — the moment he's in the app is his hour.
+    const now = new Date();
+    const time = (await getReminderTime()) ?? { hour: now.getHours(), minute: now.getMinutes() };
+    const result = await enableDailyReminder(time);
+    if (result === 'scheduled') {
+      setNotifications(true);
+    } else if (result === 'denied') {
+      Alert.alert(
+        'Notifications Are Off for Compose',
+        'Allow notifications in your phone settings, then return here.',
+      );
+    }
+  };
 
   const toggleFaceId = async () => {
     if (faceId) {
@@ -205,8 +241,8 @@ export default function DiscretionScreen() {
         <SurfaceRow
           title="Neutral notifications"
           subtitle={'"Today’s session is ready." Never more.'}
-          on
-          disabled
+          on={notifications}
+          onToggle={toggleNotifications}
         />
         <SurfaceRow
           title="Face ID to open"

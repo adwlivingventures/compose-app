@@ -3,8 +3,10 @@ import { View, Text, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { useRouter } from 'expo-router';
 import { X, Check, Info } from 'lucide-react-native';
 import { useProtocol, HabitState } from '../context/ProtocolContext';
+import { useDiscreet } from '../context/DiscreetContext';
 import { getAnchorForDay } from '../content/anchors';
 import { LocalStore } from '../services/storage';
+import { enableDailyReminder, notificationsPresent } from '../services/notifications';
 import AudioPlayer from '../components/AudioPlayer';
 import ConditioningTrack from '../components/ConditioningTrack';
 import TriageCenter from '../components/TriageCenter';
@@ -65,6 +67,9 @@ export default function SessionScreen() {
   const [habits, setHabits] = useState<HabitState>({ presence: false, focus: false, vitality: false });
   const [finishing, setFinishing] = useState(false);
   const [sosVisible, setSosVisible] = useState(false);
+  const [askReminder, setAskReminder] = useState(false);
+  const [enablingReminder, setEnablingReminder] = useState(false);
+  const { setNotifications } = useDiscreet();
 
   const day = dayRef.current;
   const anchor = getAnchorForDay(day);
@@ -92,7 +97,29 @@ export default function SessionScreen() {
       pelvicRating,
       habits: finalHabits,
     });
+    // Day-1 only: the reminder opt-in rides the completion high (a
+    // post-success ask converts far better than a cold-start permission
+    // grab, and the hour he just finished at IS the schedule). Gated on the
+    // module being present — never show an ask the build can't honor.
+    if (day === 1 && notificationsPresent) {
+      setAskReminder(true);
+      return;
+    }
     // Land back on the dashboard so the ring's advance is the closing image.
+    router.back();
+  };
+
+  const handleEnableReminder = async () => {
+    if (enablingReminder) return;
+    setEnablingReminder(true);
+    const now = new Date();
+    const result = await enableDailyReminder({
+      hour: now.getHours(),
+      minute: now.getMinutes(),
+    });
+    // A denied system prompt is a decision, not an error — no nagging,
+    // the E18 row remains the way back in.
+    setNotifications(result === 'scheduled');
     router.back();
   };
 
@@ -114,6 +141,56 @@ export default function SessionScreen() {
         }}
         onExit={() => router.back()}
       />
+    );
+  }
+
+  // Day-1 reminder opt-in (post-success ask). One decision, quiet exit —
+  // the notification preview is shown verbatim so consent is informed: he
+  // sees exactly what a stranger's glance at his lock screen would see.
+  if (askReminder) {
+    return (
+      <View className="flex-1 bg-ground px-7 justify-center">
+        <Text className="text-muted text-[11px] font-semibold uppercase tracking-[0.28em]">
+          Day one complete
+        </Text>
+        <Text className="text-ink text-[26px] font-serif-regular leading-9 mt-2.5">
+          Same time tomorrow?
+        </Text>
+        <Text className="text-muted text-[13.5px] leading-5 mt-3">
+          One quiet line at this hour each day. This is the whole notification — nothing a
+          glance at your lock screen could read into:
+        </Text>
+
+        <View className="bg-surface border border-line rounded-[14px] px-4 py-3.5 mt-5">
+          <Text className="text-ink text-[13px] font-bold">Compose</Text>
+          <Text className="text-body text-[13px] mt-0.5">Today's session is ready.</Text>
+        </View>
+        <Text className="text-faint text-[11.5px] leading-4 mt-2.5">
+          Never a streak warning. Never a word about the work. Turn it off any time under
+          Discretion.
+        </Text>
+
+        <TouchableOpacity
+          onPress={handleEnableReminder}
+          disabled={enablingReminder}
+          activeOpacity={0.85}
+          className="bg-accent rounded-2xl py-[17px] items-center mt-8"
+        >
+          {enablingReminder ? (
+            <ActivityIndicator color="#171310" />
+          ) : (
+            <Text className="text-on-accent font-bold text-base">Remind me at this hour</Text>
+          )}
+        </TouchableOpacity>
+        <TouchableOpacity
+          onPress={() => router.back()}
+          disabled={enablingReminder}
+          activeOpacity={0.7}
+          className="items-center py-4"
+        >
+          <Text className="text-muted text-[13px] font-semibold">Not now</Text>
+        </TouchableOpacity>
+      </View>
     );
   }
 
