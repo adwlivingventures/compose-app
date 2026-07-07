@@ -31,13 +31,6 @@ interface AudioPlayerProps {
   onComplete: () => void;
 }
 
-function formatTime(seconds: number): string {
-  const totalSec = Math.max(0, Math.floor(seconds));
-  const m = Math.floor(totalSec / 60);
-  const s = String(totalSec % 60).padStart(2, '0');
-  return `${m}:${s}`;
-}
-
 export default function AudioPlayer({ title, focus, source, onComplete }: AudioPlayerProps) {
   const player = useAudioPlayer(source);
   const status = useAudioPlayerStatus(player);
@@ -67,7 +60,6 @@ export default function AudioPlayer({ title, focus, source, onComplete }: AudioP
   };
 
   const progress = status.duration > 0 ? status.currentTime / status.duration : 0;
-  const remaining = status.duration - status.currentTime;
 
   return (
     <View className="items-center w-full px-2">
@@ -95,19 +87,16 @@ export default function AudioPlayer({ title, focus, source, onComplete }: AudioP
         )}
       </TouchableOpacity>
 
-      {/* Progress — display only, not a scrubber */}
+      {/* Progress — display only, not a scrubber. No numeric time: a
+          countdown is a stopwatch, and clock-watching is the evaluation
+          habit the anchor exists to down-regulate. The bar alone says
+          "this is moving and it will end" without pricing the track. */}
       <View className="w-full mt-10">
         <View className="h-1.5 bg-surface-deep rounded-full overflow-hidden">
           <View
             className="h-full bg-accent rounded-full"
             style={{ width: `${Math.min(progress * 100, 100)}%` }}
           />
-        </View>
-        <View className="flex-row justify-between mt-2">
-          <Text className="text-faint text-xs">{formatTime(status.currentTime)}</Text>
-          <Text className="text-faint text-xs">
-            {status.duration > 0 ? `−${formatTime(remaining)}` : '–:––'}
-          </Text>
         </View>
       </View>
     </View>
