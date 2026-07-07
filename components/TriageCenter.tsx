@@ -362,15 +362,20 @@ export default function TriageCenter({ visible, onClose }: TriageCenterProps) {
 
               {/* Normalization — the isolation is part of the spike, so the
                   counter-signal lives where the spike is. Real, hedged
-                  epidemiology (published reviews estimate sexual performance
-                  anxiety at 9–25% of men — hence "up to one in four"), NOT
-                  manufactured active-user telemetry: fabricated social-proof
-                  counters are an FTC/App-Store tripwire and would contradict
-                  the app's own no-sync privacy story. Ruling logged in
-                  .claude/ember-progress.md. */}
+                  epidemiology only ("most common sexual complaint" is
+                  standard ISSM/urology literature; "most men meet it at
+                  least once" is the defensible phrasing of lifetime
+                  figures), NOT manufactured active-user telemetry —
+                  fabricated social-proof counters are an FTC/App-Store
+                  tripwire, ruling in .claude/ember-progress.md. Kept
+                  number-free and PE-nonspecific in the closing beat: the
+                  SOS user may be the ED or pure-anxiety profile, and a
+                  minutes/percentage benchmark mid-spike invites the exact
+                  comparison loop this sheet exists to interrupt. */}
               <Text className="text-faint text-xs leading-[18px] text-center px-3 pt-2 pb-1">
-                Most men never say this out loud — researchers estimate up to one in four
-                live with performance anxiety. You are not an outlier here.
+                Most men never say this out loud — yet early finishing is the most common
+                sexual complaint men report, and most men meet it at least once. Whatever
+                brought you here tonight, you are not an outlier.
               </Text>
             </>
           ) : (
