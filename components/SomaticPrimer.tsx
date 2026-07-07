@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
 import { X } from 'lucide-react-native';
+import BreathingPiston from './BreathingPiston';
 
 /**
  * Day 1 Somatic Primer — un-skippable 3-step module shown once, immediately
@@ -28,6 +29,10 @@ interface PrimerStep {
   headline: string;
   body: string;
   subBody: string;
+  /** Animated piston diagram between body and subBody (step 2). */
+  diagram?: boolean;
+  /** Error-correction note — the most common wrong rep, named. */
+  correction?: string;
 }
 
 const PRIMER_STEPS: PrimerStep[] = [
@@ -51,6 +56,10 @@ const PRIMER_STEPS: PrimerStep[] = [
       'As this happens, consciously push your pelvic floor down and away (similar to the ' +
       'feeling of releasing your bladder). This is the Reverse Kegel. On the 6-second ' +
       'exhale, do not clench—just let it naturally recoil.',
+    diagram: true,
+    correction:
+      'If your abs brace or your glutes squeeze, you clenched. Soften, and let the breath ' +
+      'do the pushing.',
   },
   {
     headline: 'The Towel Test',
@@ -129,7 +138,17 @@ export default function SomaticPrimer({ onComplete, onExit, refresher = false }:
           </Text>
           <Text className="text-ink text-[26px] font-serif-light mt-3">{step.headline}</Text>
           <Text className="text-body text-[15px] leading-6 mt-4">{step.body}</Text>
+          {step.diagram && (
+            <View className="mt-2">
+              <BreathingPiston />
+            </View>
+          )}
           <Text className="text-muted text-[13.5px] leading-5 mt-4">{step.subBody}</Text>
+          {step.correction && (
+            <View className="border-l-2 border-l-accent/50 pl-3 mt-4">
+              <Text className="text-accent-soft text-[13px] leading-5">{step.correction}</Text>
+            </View>
+          )}
         </View>
       </View>
 
