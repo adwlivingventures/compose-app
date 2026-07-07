@@ -26,6 +26,7 @@ import {
 } from 'lucide-react-native';
 import Purchases from 'react-native-purchases';
 import { useProtocol } from '../context/ProtocolContext';
+import CommitmentCard from '../components/CommitmentCard';
 import { useRevenueCat, RC_PRODUCTS } from '../hooks/useRevenueCat';
 import { LocalStore } from '../services/storage';
 
@@ -413,10 +414,14 @@ export default function OnboardingScreen() {
           answers={answers}
           onPurchaseComplete={async () => {
             await unlockProtocol();
+            // Universal Day Zero oath: arm B signed at the paywall, arm A
+            // hasn't — route the unsigned through /oath so 100% of users
+            // hold @signature_data for the Day-26/51 resurfacing moments.
+            const signature = await LocalStore.getItem('@signature_data');
             // Surface Discreet Mode once, right after purchase (E18): the
             // moment after paying is when exposure fear peaks — showing the
             // privacy controls here converts buyer's remorse into trust.
-            router.replace('/discretion?intro=1');
+            router.replace(signature ? '/discretion?intro=1' : '/oath');
           }}
         />
       )}
@@ -1404,25 +1409,8 @@ function SignaturePaywall({
         This only works if you show up. So we start with your word.
       </Text>
 
-      <View className="bg-surface border border-line rounded-[18px] p-6 mt-6">
-        <Text className="text-body text-[15px] leading-[26px] font-serif-italic">
-          "For the next 75 days I will give this ten minutes a day. Not to perform better — to
-          stop performing at all."
-        </Text>
-        <TextInput
-          className="text-ink text-2xl font-serif-italic mt-7 pb-1.5"
-          style={{ borderBottomWidth: 1, borderBottomColor: '#3A362F' }}
-          placeholder="Sign your first name"
-          placeholderTextColor="#57534B"
-          value={signature}
-          onChangeText={setSignature}
-          autoCapitalize="words"
-          autoCorrect={false}
-          returnKeyType="done"
-        />
-        <Text className="text-dim text-[11px] mt-1.5">
-          Signed on this device · seen by no one
-        </Text>
+      <View className="mt-6">
+        <CommitmentCard value={signature} onChangeText={setSignature} />
       </View>
 
       <View className="flex-row gap-2.5 mt-3.5">

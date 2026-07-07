@@ -73,6 +73,9 @@ export default function RootLayout() {
           <Stack.Screen name="onboarding" />
           <Stack.Screen name="(tabs)" />
           <Stack.Screen name="session" options={{ presentation: 'fullScreenModal' }} />
+          {/* No swipe-back: the oath is a threshold, not a form (arm A signs
+              here post-purchase; see app/oath.tsx). */}
+          <Stack.Screen name="oath" options={{ gestureEnabled: false }} />
           <Stack.Screen name="discretion" />
           <Stack.Screen name="vitality" />
           <Stack.Screen name="technique" />
