@@ -22,10 +22,9 @@ import { useRevenueCat } from '../hooks/useRevenueCat';
 interface MasteryModule {
   title: string;
   description: string;
-  /** Route when unlocked; modules without built content stay locked. */
-  route?: string;
+  route: string;
   /** 'always' = free preview; 'maintenance' = Day 76 + active toolkit. */
-  unlock: 'always' | 'maintenance' | 'never';
+  unlock: 'always' | 'maintenance';
   badge?: string;
 }
 
@@ -43,20 +42,21 @@ const MODULES: MasteryModule[] = [
     title: 'Sensate Mastery',
     description:
       'Ride the arousal waveform — co-regulation, the dip, and the somatic checkpoint.',
-    route: '/sensate-mastery',
+    route: '/lesson/sensate-mastery',
     unlock: 'maintenance',
   },
   {
     title: 'The Refractory Window Guide',
-    description: 'Advanced neuro-mechanics for reducing downtime between sessions.',
-    unlock: 'never',
+    description: 'The neuro-mechanics of the recovery window — and what quietly holds it open.',
+    route: '/lesson/refractory-window',
+    unlock: 'maintenance',
   },
   {
     title: 'The Anxious Partner De-escalator',
     description:
-      "Interactive scripts to verbally down-regulate your partner's nervous system when " +
-      'intimacy stalls.',
-    unlock: 'never',
+      "Scripts to verbally down-regulate your partner's nervous system when intimacy stalls.",
+    route: '/lesson/partner-deescalator',
+    unlock: 'maintenance',
   },
 ];
 // (Somatic Sandbox moved out of this suite: strategy ruling is a Day-26
@@ -124,7 +124,7 @@ export default function MasterySuiteScreen() {
   const maintenanceUnlocked = protocolComplete && hasMaintenanceAccess;
 
   const isLocked = (module: MasteryModule) =>
-    module.unlock === 'always' ? false : module.unlock === 'maintenance' ? !maintenanceUnlocked : true;
+    module.unlock === 'maintenance' && !maintenanceUnlocked;
 
   return (
     <ScrollView

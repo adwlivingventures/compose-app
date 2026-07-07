@@ -29,21 +29,28 @@ if (Platform.OS === 'android' && UIManager.setLayoutAnimationEnabledExperimental
   UIManager.setLayoutAnimationEnabledExperimental(true);
 }
 
+// Cards 1–2 are deliberately hook-depth: the full mechanics (the anxiety
+// transfer, the waveform, the dip, the checkpoint) are Sensate Mastery's
+// content in the paid tier, and a preview that serves the meal kills the
+// Day-76 appetite it exists to create. Each card names what the full
+// module adds; only card 3 (the Vagus Sync) is given away whole.
 const LESSON_CARDS: { title: string; body: string; cta: string }[] = [
   {
     title: 'The Polyvagal Secret',
     body:
       'Most men believe being a great partner means performing like a machine. Neurobiology ' +
-      "tells a different story. The highest level of physical connection isn't about speed; " +
-      "it's about Polyvagal Co-regulation—the biological ability to sync two nervous systems.",
+      'tells a different story: the highest level of physical connection is Polyvagal ' +
+      'Co-regulation — two nervous systems syncing. Sensate Mastery unpacks the full ' +
+      'mechanics after Day 75. What follows here is the one move you can take tonight.',
     cta: 'Next',
   },
   {
     title: 'The Anxiety Transfer',
     body:
-      "When you feel your adrenaline spike (performance anxiety), your partner's nervous " +
-      'system subconsciously detects your shallow breathing and muscle tension. She absorbs ' +
-      "that anxiety. To be an elite partner, you don't speed up—you drop the baseline.",
+      "One thing to know for now: your partner's body reads your breathing and your muscle " +
+      'tension, and absorbs what it finds there. The complete down-shift — the arousal ' +
+      'waveform, riding the dip, the somatic checkpoint — lives in Sensate Mastery. The ' +
+      'opening move is next.',
     cta: 'Next',
   },
   {
