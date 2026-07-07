@@ -53,6 +53,7 @@ interface OnboardingAnswers {
   autonomic: string | null;
   partnerImpact: string | null;
   pelvic: string | null;
+  morning: string | null;
   hardware: string | null;
   dopamine: string | null;
   bandaid: string | null;
@@ -63,13 +64,13 @@ interface OnboardingAnswers {
   goal: string | null;
 }
 
-// Steps 1–23 show the progress bar (the diagnostic arc). Welcome, analyzer,
+// Steps 1–24 show the progress bar (the diagnostic arc). Welcome, analyzer,
 // profile readout, and checkout stand outside it.
 const DIAGNOSTIC_FIRST = 1;
-const DIAGNOSTIC_LAST = 23;
-const STEP_ANALYZER = 24;
-const STEP_PROFILE = 25;
-const STEP_CHECKOUT = 26;
+const DIAGNOSTIC_LAST = 24;
+const STEP_ANALYZER = 25;
+const STEP_PROFILE = 26;
+const STEP_CHECKOUT = 27;
 
 // ─── Root ────────────────────────────────────────────────────────────────────
 
@@ -88,6 +89,7 @@ export default function OnboardingScreen() {
     autonomic: null,
     partnerImpact: null,
     pelvic: null,
+    morning: null,
     hardware: null,
     dopamine: null,
     bandaid: null,
@@ -233,8 +235,22 @@ export default function OnboardingScreen() {
           estimating it) */}
       {step === 10 && <HypertonicityScreen onSelect={pick('pelvic')} />}
 
-      {/* 12 — Hardware Check */}
+      {/* 12 — Morning Arousal (the classic psychogenic differentiator:
+          hardware that fires with zero performance demand proves the
+          problem is conditioning, not plumbing — and powers both the
+          readout's "the machinery works" line and the physician pathway) */}
       {step === 11 && (
+        <ChoiceScreen
+          title="When you wake up in the morning, does your body show physical arousal on its own?"
+          normalization="Morning arousal is a hardware report — it fires without any performance demand."
+          options={['Most mornings', 'Sometimes', 'Rarely or never']}
+          value={answers.morning}
+          onSelect={pick('morning')}
+        />
+      )}
+
+      {/* 13 — Hardware Check */}
+      {step === 12 && (
         <ChoiceScreen
           title="Are your solo sessions (masturbation) generally easier to control and maintain than partner intimacy?"
           normalization="If solo is easier, the machinery works. The difference is nervous-system state."
@@ -244,8 +260,8 @@ export default function OnboardingScreen() {
         />
       )}
 
-      {/* 13 — Dopamine */}
-      {step === 12 && (
+      {/* 14 — Dopamine */}
+      {step === 13 && (
         <ChoiceScreen
           title="In an average week, how frequently do you rely on highly visual stimulation (adult content) during solo sessions?"
           normalization="No judgment in this question — it maps how your arousal system has been trained."
@@ -255,8 +271,8 @@ export default function OnboardingScreen() {
         />
       )}
 
-      {/* 14 — EDU: The Novelty Loop */}
-      {step === 13 && (
+      {/* 15 — EDU: The Novelty Loop */}
+      {step === 14 && (
         <EducationScreen
           icon={<Repeat color="#C89B6D" size={30} />}
           title="The Novelty Loop"
@@ -266,8 +282,8 @@ export default function OnboardingScreen() {
         />
       )}
 
-      {/* 15 — Band-Aid */}
-      {step === 14 && (
+      {/* 16 — Band-Aid */}
+      {step === 15 && (
         <ChoiceScreen
           title="Have you ever tried pills (Viagra/Cialis), sprays, or numbing creams to fix this?"
           normalization="Most men try these first. What they treat isn't what's driving this."
@@ -277,8 +293,8 @@ export default function OnboardingScreen() {
         />
       )}
 
-      {/* 16 — EDU: Why Band-Aids Fail */}
-      {step === 15 && (
+      {/* 17 — EDU: Why Band-Aids Fail */}
+      {step === 16 && (
         <EducationScreen
           icon={<Pill color="#C89B6D" size={30} />}
           title="Why Band-Aids Fail"
@@ -288,8 +304,8 @@ export default function OnboardingScreen() {
         />
       )}
 
-      {/* 17 — Breath Mechanics */}
-      {step === 16 && (
+      {/* 18 — Breath Mechanics */}
+      {step === 17 && (
         <ChoiceScreen
           title="Right before the point of no return, or right before you lose an erection, does your breathing become shallow, rapid — or do you hold your breath?"
           normalization="Breath-holding under arousal is a textbook sympathetic tell. Most men have never been asked."
@@ -299,8 +315,8 @@ export default function OnboardingScreen() {
         />
       )}
 
-      {/* 18 — Avoidance */}
-      {step === 17 && (
+      {/* 19 — Avoidance */}
+      {step === 18 && (
         <ChoiceScreen
           title="How often does this anxiety prevent you from initiating intimacy with a partner altogether?"
           options={['Frequently', 'Sometimes', 'Rarely']}
@@ -309,8 +325,8 @@ export default function OnboardingScreen() {
         />
       )}
 
-      {/* 19 — Mental Loop */}
-      {step === 18 && (
+      {/* 20 — Mental Loop */}
+      {step === 19 && (
         <ChoiceScreen
           title="When a session ends prematurely or falters, where does your mind go?"
           normalization="These are scripts, not facts. Naming yours is the first step to interrupting it."
@@ -325,8 +341,8 @@ export default function OnboardingScreen() {
         />
       )}
 
-      {/* 20 — EDU: The Default Mode Network */}
-      {step === 19 && (
+      {/* 21 — EDU: The Default Mode Network */}
+      {step === 20 && (
         <EducationScreen
           icon={<Brain color="#C89B6D" size={30} />}
           title="The Default Mode Network"
@@ -336,8 +352,8 @@ export default function OnboardingScreen() {
         />
       )}
 
-      {/* 21 — Spillover */}
-      {step === 20 && (
+      {/* 22 — Spillover */}
+      {step === 21 && (
         <ChoiceScreen
           title="Does the anxiety you feel in the bedroom ever spill over into your daily confidence — work, social life, self-esteem?"
           options={['Yes, heavily', 'Sometimes', 'No, strictly in the bedroom']}
@@ -346,8 +362,8 @@ export default function OnboardingScreen() {
         />
       )}
 
-      {/* 22 — Transformation Goal */}
-      {step === 21 && (
+      {/* 23 — Transformation Goal */}
+      {step === 22 && (
         <ChoiceScreen
           title="If you could retrain your nervous system to stay completely calm and grounded during intimacy, how would it change your life?"
           options={[
@@ -360,8 +376,8 @@ export default function OnboardingScreen() {
         />
       )}
 
-      {/* 23 — EDU: The Protocol */}
-      {step === 22 && (
+      {/* 24 — EDU: The Protocol */}
+      {step === 23 && (
         <EducationScreen
           icon={<Target color="#C89B6D" size={30} />}
           title="The 75-Day Blueprint"
@@ -371,8 +387,8 @@ export default function OnboardingScreen() {
         />
       )}
 
-      {/* 24 — Commitment */}
-      {step === 23 && (
+      {/* 25 — Commitment */}
+      {step === 24 && (
         <ChoiceScreen
           title="Are you willing to commit less than ten focused minutes a day to your Auditory Anchor and dropping your pelvic tension?"
           options={['Yes, I am fully committed']}
@@ -1085,9 +1101,28 @@ function ProfileReadoutScreen({
       </View>
 
       <Text className="text-body text-sm leading-[22px] mt-4">
-        This is a conditioned adrenaline response, established {duration}. Conditioned means
-        learned — and learned means reversible. Your 75-day sequence is built.
+        {answers.morning === 'Most mornings'
+          ? 'Your body still responds on its own — the machinery works. What you have is a ' +
+            `conditioned adrenaline response, established ${duration}. Conditioned means ` +
+            'learned — and learned means reversible. Your 75-day sequence is built.'
+          : `This is a conditioned adrenaline response, established ${duration}. Conditioned ` +
+            'means learned — and learned means reversible. Your 75-day sequence is built.'}
       </Text>
+
+      {/* Physician pathway — good medicine and honest trust: a rarely-fires
+          hardware report + multi-year onset + 40+ can carry a vascular
+          component no breathing protocol reaches. Wellness-phrased, no
+          diagnosis (CLAUDE.md §4). */}
+      {answers.morning === 'Rarely or never' &&
+        (answers.timeline === 'More than 3 years' ||
+          answers.timeline === 'As long as I can remember') &&
+        (answers.age ?? 0) >= 40 && (
+          <Text className="text-muted text-[12.5px] leading-[18px] mt-3">
+            One honest note: if your body rarely wakes ready, it's worth having your
+            circulation checked by a physician — blood flow is health, not shame. This
+            protocol trains the nervous-system side either way.
+          </Text>
+        )}
 
       <View className="flex-1" />
 
