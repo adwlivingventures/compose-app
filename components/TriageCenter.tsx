@@ -359,6 +359,19 @@ export default function TriageCenter({ visible, onClose }: TriageCenterProps) {
                   </TouchableOpacity>
                 ))}
               </View>
+
+              {/* Normalization — the isolation is part of the spike, so the
+                  counter-signal lives where the spike is. Real, hedged
+                  epidemiology (published reviews estimate sexual performance
+                  anxiety at 9–25% of men — hence "up to one in four"), NOT
+                  manufactured active-user telemetry: fabricated social-proof
+                  counters are an FTC/App-Store tripwire and would contradict
+                  the app's own no-sync privacy story. Ruling logged in
+                  .claude/ember-progress.md. */}
+              <Text className="text-faint text-xs leading-[18px] text-center px-3 pt-2 pb-1">
+                Most men never say this out loud — researchers estimate up to one in four
+                live with performance anxiety. You are not an outlier here.
+              </Text>
             </>
           ) : (
             <>
