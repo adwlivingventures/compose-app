@@ -59,6 +59,10 @@ export default function OathScreen() {
         onPress={handleContinue}
         disabled={!signed || saving}
         activeOpacity={0.85}
+        accessibilityRole="button"
+        accessibilityLabel="Sign and begin"
+        accessibilityHint={signed ? undefined : 'Sign your first name above to enable'}
+        accessibilityState={{ disabled: !signed || saving }}
         className={`rounded-2xl py-[19px] items-center mt-6 ${signed ? 'bg-accent' : 'bg-surface-deep'}`}
       >
         <Text className={`font-bold text-base ${signed ? 'text-on-accent' : 'text-faint'}`}>

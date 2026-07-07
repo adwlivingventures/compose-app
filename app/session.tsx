@@ -258,6 +258,8 @@ export default function SessionScreen() {
                     advance();
                   }}
                   activeOpacity={0.8}
+                  accessibilityRole="button"
+                  accessibilityLabel={`${n} of 5 — ${SCORE_LABELS[n - 1]}`}
                   className="w-14 h-14 rounded-2xl bg-surface border border-line items-center justify-center"
                 >
                   <Text className="text-ink text-2xl font-serif-light">{n}</Text>
@@ -284,6 +286,9 @@ export default function SessionScreen() {
                     key={item.key}
                     onPress={() => setHabits((h) => ({ ...h, [item.key]: !h[item.key] }))}
                     activeOpacity={0.8}
+                    accessibilityRole="checkbox"
+                    accessibilityState={{ checked: on }}
+                    accessibilityLabel={`${item.title}. ${item.subtitle}`}
                     className={`rounded-2xl p-4 flex-row items-center gap-3 border ${
                       on ? 'bg-accent/10 border-accent/40' : 'bg-surface border-line'
                     }`}
@@ -306,6 +311,8 @@ export default function SessionScreen() {
                         onPress={() => router.push('/vitality')}
                         activeOpacity={0.7}
                         hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+                        accessibilityRole="button"
+                        accessibilityLabel="Open the Vitality Baseline reference"
                         className="p-1"
                       >
                         <Info color="#6E675D" size={16} />
@@ -339,6 +346,8 @@ export default function SessionScreen() {
       <TouchableOpacity
         onPress={() => setSosVisible(true)}
         activeOpacity={0.7}
+        accessibilityRole="button"
+        accessibilityLabel="Steady me — open calming support right now"
         className="items-center flex-row justify-center gap-2 py-2.5 mb-6"
       >
         <View className="w-1.5 h-1.5 rounded-full bg-accent" />

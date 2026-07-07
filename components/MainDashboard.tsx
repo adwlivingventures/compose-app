@@ -103,6 +103,8 @@ export default function MainDashboard({ onStartSession }: { onStartSession: () =
         <TouchableOpacity
           onPress={() => setSosVisible(true)}
           activeOpacity={0.8}
+          accessibilityRole="button"
+          accessibilityLabel="Steady me — open calming support right now"
           className="flex-row items-center gap-1.5 bg-surface border border-line rounded-full px-3.5 py-[7px]"
         >
           <View className="w-1.5 h-1.5 rounded-full bg-accent" />

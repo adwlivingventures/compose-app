@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from 'react';
-import { Animated, Easing, View } from 'react-native';
+import { AccessibilityInfo, Animated, Easing, View } from 'react-native';
 import Svg, { Circle, Defs, RadialGradient, Stop } from 'react-native-svg';
 import * as Haptics from 'expo-haptics';
 
@@ -61,6 +61,14 @@ interface BreathingOrbProps {
    * best. Consumers toggle it (e.g. off until the counted sequence starts).
    */
   haptics?: boolean;
+  /**
+   * Spoken phase cues for screen-reader users, one per phase (e.g.
+   * ['Inhale, soften', 'Exhale, engage']). Announced at each phase start —
+   * a purely visual pacer is unusable with VoiceOver, and the haptic tick
+   * alone doesn't say which direction the breath goes. No-op when no
+   * screen reader is active.
+   */
+  announcements?: string[];
   /** Inner circle content: phase word (E10) or countdown numeral (E15). */
   children?: React.ReactNode;
 }
@@ -80,6 +88,7 @@ export default function BreathingOrb({
   innerSize,
   onPhaseStart,
   haptics = false,
+  announcements,
   children,
 }: BreathingOrbProps) {
   const scale = useRef(new Animated.Value(1)).current;
@@ -91,6 +100,8 @@ export default function BreathingOrb({
   phasesRef.current = phases;
   const hapticsRef = useRef(haptics);
   hapticsRef.current = haptics;
+  const announcementsRef = useRef(announcements);
+  announcementsRef.current = announcements;
 
   useEffect(() => {
     let alive = true;
@@ -98,6 +109,8 @@ export default function BreathingOrb({
     const runPhase = (index: number) => {
       if (!alive) return;
       if (hapticsRef.current) softTick();
+      const announcement = announcementsRef.current?.[index];
+      if (announcement) AccessibilityInfo.announceForAccessibility(announcement);
       onPhaseStartRef.current?.(index, cycles);
       const phase = phasesRef.current[index];
       Animated.timing(scale, {

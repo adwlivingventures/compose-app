@@ -1360,6 +1360,9 @@ function DiagnosisPaywall({
         onPress={onPurchase}
         disabled={isProcessing}
         activeOpacity={0.85}
+        accessibilityRole="button"
+        accessibilityLabel="Begin my reset — $49.99, one-time payment"
+        accessibilityState={{ disabled: isProcessing }}
         className="bg-accent rounded-2xl py-[15px] items-center mt-5"
       >
         {isProcessing ? (
@@ -1437,6 +1440,10 @@ function SignaturePaywall({
         onPress={() => onPurchase(signature.trim())}
         disabled={isProcessing || !signed}
         activeOpacity={0.85}
+        accessibilityRole="button"
+        accessibilityLabel="Sign and begin — $49.99, one-time payment"
+        accessibilityHint={signed ? undefined : 'Sign your first name above to enable'}
+        accessibilityState={{ disabled: isProcessing || !signed }}
         className={`rounded-2xl py-[19px] items-center mt-5 ${signed ? 'bg-accent' : 'bg-surface-deep'}`}
       >
         {isProcessing ? (

@@ -222,6 +222,7 @@ export default function SandboxScreen() {
           innerSize={180}
           onPhaseStart={handlePhaseStart}
           haptics
+          announcements={labels}
         >
           <Text className="text-ink text-[34px] font-serif-light">{count}</Text>
           <Text className="text-accent-soft text-[11px] font-semibold uppercase tracking-[0.22em] mt-1">

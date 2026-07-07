@@ -81,6 +81,9 @@ export default function AudioPlayer({ title, focus, source, onComplete }: AudioP
         onPress={togglePlayback}
         disabled={!status.isLoaded}
         activeOpacity={0.85}
+        accessibilityRole="button"
+        accessibilityLabel={status.playing ? 'Pause the anchor' : 'Play the anchor'}
+        accessibilityState={{ disabled: !status.isLoaded }}
         className="w-20 h-20 rounded-full bg-accent items-center justify-center mt-8"
       >
         {!status.isLoaded ? (
