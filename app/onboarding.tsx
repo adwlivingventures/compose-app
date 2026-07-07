@@ -23,6 +23,7 @@ import {
   Target,
   Lock,
   ShieldCheck,
+  ChevronLeft,
 } from 'lucide-react-native';
 import Purchases from 'react-native-purchases';
 import { useProtocol } from '../context/ProtocolContext';
@@ -73,6 +74,13 @@ const STEP_ANALYZER = 25;
 const STEP_PROFILE = 26;
 const STEP_CHECKOUT = 27;
 
+// Selection acknowledgment: the tapped card holds its highlighted state for
+// this long before the arc advances — long enough to register "I was heard,"
+// short enough that 23 questions never feel gated. (A mandatory Continue tap
+// per question was considered and rejected: it doubles the interaction cost
+// of the arc, and the back control below covers genuine mis-taps.)
+const SELECTION_PAUSE_MS = 450;
+
 // ─── Root ────────────────────────────────────────────────────────────────────
 
 export default function OnboardingScreen() {
@@ -103,18 +111,47 @@ export default function OnboardingScreen() {
 
   const goNext = () => setStep((s) => Math.min(s + 1, STEP_CHECKOUT));
 
+  // The pending pause between a selection and the advance — cleared on Back
+  // so a mid-pause back-tap can't fire a stale advance afterward.
+  const advanceTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  useEffect(
+    () => () => {
+      if (advanceTimer.current) clearTimeout(advanceTimer.current);
+    },
+    [],
+  );
+
+  const advanceAfterPause = () => {
+    if (advanceTimer.current) clearTimeout(advanceTimer.current);
+    advanceTimer.current = setTimeout(() => {
+      advanceTimer.current = null;
+      goNext();
+    }, SELECTION_PAUSE_MS);
+  };
+
+  // Back within the diagnostic arc only. The analyzer→readout→paywall run is
+  // one-way by design: re-opening the questions after "your sequence is
+  // built" would contradict the computation the analyzer just performed.
+  const goBack = () => {
+    if (advanceTimer.current) {
+      clearTimeout(advanceTimer.current);
+      advanceTimer.current = null;
+    }
+    setStep((s) => Math.max(s - 1, 0));
+  };
+
   const pick =
     (key: keyof OnboardingAnswers) =>
     (value: string) => {
       setAnswers((a) => ({ ...a, [key]: value }));
-      goNext();
+      advanceAfterPause();
     };
 
   const inDiagnostic = step >= DIAGNOSTIC_FIRST && step <= DIAGNOSTIC_LAST;
 
   return (
     <View className="flex-1 bg-ground">
-      {inDiagnostic && <ProgressHeader step={step} total={DIAGNOSTIC_LAST} />}
+      {inDiagnostic && <ProgressHeader step={step} total={DIAGNOSTIC_LAST} onBack={goBack} />}
 
       {/* 1 — Welcome */}
       {step === 0 && <WelcomeScreen onContinue={goNext} />}
@@ -135,6 +172,7 @@ export default function OnboardingScreen() {
       {/* 3 — Demographics */}
       {step === 2 && (
         <AgeScreen
+          initialAge={answers.age ?? 30}
           onSubmit={(age) => {
             setAnswers((a) => ({ ...a, age }));
             goNext();
@@ -394,7 +432,7 @@ export default function OnboardingScreen() {
           title="Are you willing to commit less than ten focused minutes a day to your Auditory Anchor and dropping your pelvic tension?"
           options={['Yes, I am fully committed']}
           value={null}
-          onSelect={() => goNext()}
+          onSelect={() => advanceAfterPause()}
         />
       )}
 
@@ -433,15 +471,36 @@ export default function OnboardingScreen() {
 
 // Time-remaining beats raw step-count: "7 of 23" invites bail-out math, while
 // "~4 min left" frames the rest of the arc as nearly free (goal-gradient).
-function ProgressHeader({ step, total }: { step: number; total: number }) {
+// The back chevron is deliberately quiet (dim, small): reversibility lowers
+// the cost of honest disclosure, but forward is still the dominant direction.
+function ProgressHeader({
+  step,
+  total,
+  onBack,
+}: {
+  step: number;
+  total: number;
+  onBack: () => void;
+}) {
   const pct = Math.round((step / total) * 100);
   const minutesLeft = Math.max(1, Math.ceil(((total - step) * 12) / 60));
   return (
     <View className="px-7 pt-14">
       <View className="flex-row items-center justify-between mb-2.5">
-        <Text className="text-dim text-[11px] font-semibold tracking-[0.14em]">
-          MAPPING · {step} OF {total}
-        </Text>
+        <View className="flex-row items-center gap-1.5">
+          <TouchableOpacity
+            onPress={onBack}
+            activeOpacity={0.7}
+            hitSlop={{ top: 12, bottom: 12, left: 12, right: 12 }}
+            accessibilityRole="button"
+            accessibilityLabel="Back to the previous question"
+          >
+            <ChevronLeft size={15} color="#57534B" />
+          </TouchableOpacity>
+          <Text className="text-dim text-[11px] font-semibold tracking-[0.14em]">
+            MAPPING · {step} OF {total}
+          </Text>
+        </View>
         <Text className="text-dim text-[11px]">~{minutesLeft} min left</Text>
       </View>
       <View className="h-[3px] w-full bg-line-soft rounded-full overflow-hidden">
@@ -563,8 +622,15 @@ const ITEM_HEIGHT = 56;
 // Rows visible above/below the selection line
 const WHEEL_PADDING = ITEM_HEIGHT * 2;
 
-function AgeScreen({ onSubmit }: { onSubmit: (age: number) => void }) {
-  const [selected, setSelected] = useState(30);
+function AgeScreen({
+  initialAge = 30,
+  onSubmit,
+}: {
+  /** Restores the prior answer when the user navigates back to this step. */
+  initialAge?: number;
+  onSubmit: (age: number) => void;
+}) {
+  const [selected, setSelected] = useState(initialAge);
 
   const onMomentumEnd = (e: NativeSyntheticEvent<NativeScrollEvent>) => {
     const index = Math.round(e.nativeEvent.contentOffset.y / ITEM_HEIGHT);
@@ -588,7 +654,7 @@ function AgeScreen({ onSubmit }: { onSubmit: (age: number) => void }) {
             showsVerticalScrollIndicator={false}
             snapToInterval={ITEM_HEIGHT}
             decelerationRate="fast"
-            contentOffset={{ x: 0, y: (30 - AGE_MIN) * ITEM_HEIGHT }}
+            contentOffset={{ x: 0, y: (initialAge - AGE_MIN) * ITEM_HEIGHT }}
             onMomentumScrollEnd={onMomentumEnd}
             contentContainerStyle={{ paddingVertical: WHEEL_PADDING }}
           >
@@ -626,6 +692,9 @@ function AgeScreen({ onSubmit }: { onSubmit: (age: number) => void }) {
 function HypertonicityScreen({ onSelect }: { onSelect: (v: string) => void }) {
   const [phase, setPhase] = useState<ClenchPhase>('ready');
   const [count, setCount] = useState(5);
+  // Same select-lock as ChoiceScreen: highlight holds through the pause,
+  // second taps are ignored.
+  const [picked, setPicked] = useState<string | null>(null);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
   const clearTimer = () => {
@@ -728,16 +797,29 @@ function HypertonicityScreen({ onSelect }: { onSelect: (v: string) => void }) {
           <Text className="text-ink text-base font-serif-regular mb-1">
             After releasing, what did you notice?
           </Text>
-          {RESULT_OPTIONS.map((option) => (
-            <TouchableOpacity
-              key={option}
-              activeOpacity={0.8}
-              onPress={() => onSelect(option)}
-              className="bg-surface border border-line rounded-[14px] px-[18px] py-[17px]"
-            >
-              <Text className="text-body text-[15px]">{option}</Text>
-            </TouchableOpacity>
-          ))}
+          {RESULT_OPTIONS.map((option) => {
+            const isSelected = picked === option;
+            return (
+              <TouchableOpacity
+                key={option}
+                activeOpacity={0.8}
+                onPress={() => {
+                  if (picked !== null) return;
+                  setPicked(option);
+                  onSelect(option);
+                }}
+                accessibilityRole="button"
+                accessibilityState={{ selected: isSelected }}
+                className={`rounded-[14px] border px-[18px] py-[17px] ${
+                  isSelected ? 'bg-accent/10 border-accent' : 'bg-surface border-line'
+                }`}
+              >
+                <Text className={`text-[15px] ${isSelected ? 'text-accent-soft' : 'text-body'}`}>
+                  {option}
+                </Text>
+              </TouchableOpacity>
+            );
+          })}
         </View>
       )}
     </ScrollView>
@@ -802,6 +884,17 @@ function ChoiceScreen({
   value: string | null;
   onSelect: (value: string) => void;
 }) {
+  // Locks after the first tap: the selection pause means the screen lingers
+  // ~450ms after a pick, and a second tap in that window must not re-fire
+  // onSelect (which would queue a double advance). Remounts fresh on Back,
+  // so a returning user can change his answer.
+  const [picked, setPicked] = useState<string | null>(null);
+  const select = (option: string) => {
+    if (picked !== null) return;
+    setPicked(option);
+    onSelect(option);
+  };
+
   return (
     <ScrollView contentContainerStyle={{ flexGrow: 1, paddingBottom: 12 }} className="px-7">
       <View className="mt-9">
@@ -812,14 +905,16 @@ function ChoiceScreen({
       </View>
       <View className="gap-[11px] mt-8">
         {options.map((option) => {
-          const isSelected = value === option;
+          const isSelected = picked !== null ? picked === option : value === option;
           return (
             <TouchableOpacity
               key={option}
               activeOpacity={0.8}
-              onPress={() => onSelect(option)}
+              onPress={() => select(option)}
+              accessibilityRole="button"
+              accessibilityState={{ selected: isSelected }}
               className={`rounded-[14px] border px-[18px] py-[17px] ${
-                isSelected ? 'bg-accent/10 border-accent/50' : 'bg-surface border-line'
+                isSelected ? 'bg-accent/10 border-accent' : 'bg-surface border-line'
               }`}
             >
               <Text className={`text-[15px] ${isSelected ? 'text-accent-soft' : 'text-body'}`}>
