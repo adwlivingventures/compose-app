@@ -1205,6 +1205,60 @@ function PaywallFooter({
   );
 }
 
+// ─── Authority Frame — shared across both arms ────────────────────────────────
+// The Zeigarnik device from the strategy log: the locked Phase-IV suite is
+// listed at the point of purchase, with the clinical reason it's locked. The
+// open loop ("there is more, and it is sealed") deepens the perceived value of
+// the $49.99 program, and the lock itself performs authority — a system
+// confident enough to withhold features reads as a protocol, not a content
+// library. The Day-76 line uses opt-in phrasing deliberately: continuation is
+// a choice made at graduation (E19), never a rollover.
+
+const PHASE_IV_MODULES: [string, string][] = [
+  ['Somatic Copilot', 'Scenario-matched interventions for real moments — not theory.'],
+  ['Sensate Mastery', 'Ride high arousal without leaving your body.'],
+  ['The Refractory Window Guide', 'The neuro-mechanics of the recovery window.'],
+  [
+    'The Anxious Partner De-escalator',
+    "Scripts that settle your partner's nervous system, word by word.",
+  ],
+];
+
+function AuthorityFrame() {
+  return (
+    <View className="mt-3">
+      <View className="bg-surface-deep border border-line-soft rounded-[18px] p-[18px]">
+        <Text className="text-muted text-[10px] font-bold uppercase tracking-[0.2em]">
+          Phase IV · Locked until Day 76
+        </Text>
+        <Text className="text-body text-[12.5px] leading-[19px] mt-3">
+          The work of the next 75 days is getting out of your head. Mid-moment
+          troubleshooting — analyzing, adjusting, managing — is the adrenaline loop with
+          better vocabulary. So the advanced tools stay sealed until the reset they would
+          interrupt is complete.
+        </Text>
+        <View className="gap-2.5 mt-4">
+          {PHASE_IV_MODULES.map(([title, description]) => (
+            <View key={title} className="flex-row items-start gap-2.5">
+              <Lock color="#6E675D" size={13} style={{ marginTop: 2 }} />
+              <View className="flex-1">
+                <Text className="text-body text-[13px] font-semibold">{title}</Text>
+                <Text className="text-faint text-[11.5px] leading-4 mt-0.5">{description}</Text>
+              </View>
+            </View>
+          ))}
+        </View>
+        <Text className="text-muted text-[11.5px] leading-4 mt-4">
+          Unlocks with the Maintenance Toolkit — your choice on Day 76.
+        </Text>
+      </View>
+      <Text className="text-body text-[14px] font-serif-italic leading-5 mt-3">
+        Pills and creams manage tonight. This retrains the system.
+      </Text>
+    </View>
+  );
+}
+
 // ─── Arm A (E06): the Diagnosis Stack ─────────────────────────────────────────
 // Sells continuity: profile → price anchor → guarantee → discretion. The
 // compressed meters make the price read as "the plan for this profile."
@@ -1285,6 +1339,8 @@ function DiagnosisPaywall({
           </Text>
         </View>
       </View>
+
+      <AuthorityFrame />
 
       <View className="bg-surface-deep border border-line-soft rounded-[14px] px-4 py-3 mt-3">
         <Text className="text-muted text-xs leading-[17px]">
@@ -1384,6 +1440,8 @@ function SignaturePaywall({
           </View>
         ))}
       </View>
+
+      <AuthorityFrame />
 
       <View className="flex-1" />
 
