@@ -58,8 +58,9 @@ const LESSON_CARDS: { title: string; body: string; cta: string }[] = [
     body:
       'Next time you are intimate, press your chest against hers. For 60 seconds, do not ' +
       'move. Inhale deeply for 4 seconds, feeling your chest expand against hers. Exhale ' +
-      'for 6 seconds, dropping your pelvic floor. Within three breaths, her heart rate will ' +
-      'sync to yours, and your adrenaline loop will shatter. You are now anchoring the room.',
+      'for 6 seconds, dropping your pelvic floor. Within a few breaths, her heart rate ' +
+      'begins to sync with yours, and the adrenaline loop loses its grip. You are now ' +
+      'anchoring the room.',
     cta: 'Test the Copilot',
   },
 ];

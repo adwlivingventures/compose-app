@@ -157,7 +157,7 @@ export default function DashboardScreen() {
                 <View className="flex-1 pr-3">
                   <Text className="text-ink text-sm font-bold">Somatic Copilot</Text>
                   <Text className="text-muted text-xs mt-0.5 leading-4">
-                    Deterministic reframes for intimacy roadblocks, on demand.
+                    Scenario-matched reframes for intimacy roadblocks, on demand.
                   </Text>
                 </View>
                 <ChevronRight color="#8A8378" size={16} />

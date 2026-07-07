@@ -61,7 +61,7 @@ const SCENARIOS: CopilotScenario[] = [
       'stimulation crossed the threshold, the reflex triggered. Your Copilot Reframe: Pause ' +
       'all movement. Do not clench. Execute a 4-second deep belly inhale and consciously ' +
       'push the pelvic floor down and away (The Somatic Drop). Hold the expansion. This ' +
-      'manually overrides the ejaculatory reflex.',
+      'interrupts the ejaculatory reflex.',
   },
   {
     id: '3',

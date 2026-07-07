@@ -581,8 +581,8 @@ function PartnerScriptsTab() {
       contentContainerStyle={{ paddingHorizontal: 24, paddingTop: 20, paddingBottom: 48 }}
     >
       <Text className="text-muted text-sm leading-5 mb-5">
-        Research-backed scripts for opening conversations with your partner — adapted
-        from Sensate Focus and CBST communication frameworks.
+        Scripts for opening conversations with your partner, adapted from Sensate Focus
+        and CBST communication frameworks.
       </Text>
 
       {Object.entries(grouped).map(([category, scripts]) => (

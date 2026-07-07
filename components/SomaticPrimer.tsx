@@ -39,8 +39,8 @@ const PRIMER_STEPS: PrimerStep[] = [
   {
     headline: 'The Kegel Trap',
     body:
-      'Most internet advice tells you to clench your pelvic floor (Kegels). For most men ' +
-      'with premature ejaculation or performance ED, your pelvic floor is already too tight ' +
+      'Most internet advice tells you to clench your pelvic floor (Kegels). For many men ' +
+      'with premature ejaculation or performance ED, the pelvic floor is already too tight ' +
       '(Hypertonic).',
     subBody:
       'Clenching acts like a coiled spring—the moment you get excited, it snaps, causing ' +
@@ -68,7 +68,8 @@ const PRIMER_STEPS: PrimerStep[] = [
       'between the scrotum and anus). Take a deep belly breath and push down.',
     subBody:
       'If you feel the muscle bulge outward against your fingers, you have successfully ' +
-      'executed the Somatic Drop. You are now controlling your autonomic nervous system.',
+      'executed the Somatic Drop. You are now working directly with your autonomic nervous ' +
+      'system.',
   },
 ];
 

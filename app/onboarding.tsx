@@ -287,7 +287,7 @@ export default function OnboardingScreen() {
       {step === 15 && (
         <ChoiceScreen
           title="Have you ever tried pills (Viagra/Cialis), sprays, or numbing creams to fix this?"
-          normalization="Most men try these first. What they treat isn't what's driving this."
+          normalization="Most men try these first. What they target isn't what's driving this."
           options={['Yes, pills', 'Yes, sprays/creams', 'Both', 'Neither']}
           value={answers.bandaid}
           onSelect={pick('bandaid')}
@@ -299,7 +299,7 @@ export default function OnboardingScreen() {
         <EducationScreen
           icon={<Pill color="#C89B6D" size={30} />}
           title="Why Band-Aids Fail"
-          body="Pills treat blood flow. Numbing creams treat skin. Neither treats the amygdala — the fear center of your brain. COMPOSE works by physically down-training the pelvic floor and retraining the autonomic nervous system."
+          body="Pills act on blood flow. Numbing creams act on skin. Neither reaches the amygdala — the fear center of your brain. COMPOSE works by physically down-training the pelvic floor and retraining the autonomic nervous system."
           cta="Show me how"
           onContinue={goNext}
         />

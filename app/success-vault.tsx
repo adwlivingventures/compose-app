@@ -70,13 +70,13 @@ const CASE_STUDIES: CaseStudy[] = [
       'I was dealing with a hair-trigger. The moment there was any physical connection, my ' +
       "pelvic floor would clamp down like a vice, and I'd finish before it even started.",
     relapse:
-      'By Phase 2, I thought I was cured. I got over-excited, clenched my pelvic floor out ' +
+      'By Phase 2, I thought the work was finished. I got over-excited, clenched my pelvic floor out ' +
       'of old habits, and finished in two minutes. The shame rush was heavy.',
     breakthrough:
       "The Auditory Anchor on 'Welcoming the Fluctuation' saved me. I learned that arousal " +
       "is a waveform. Now, when I feel the wave peak, I use the 'Somatic Drop' we learned " +
-      'on Day 1. I physically push the pelvic floor away. It acts as a manual override to ' +
-      'the reflex. I now dictate the pacing.',
+      'on Day 1. I physically push the pelvic floor away. It interrupts the reflex. ' +
+      'I now dictate the pacing.',
   },
   {
     id: '3',
@@ -134,7 +134,7 @@ function CaseStudyCard({ study }: { study: CaseStudy }) {
         </>
       ) : (
         <View className="flex-row items-center gap-1.5 mt-4">
-          <Text className="text-muted text-xs font-semibold">Read full case study</Text>
+          <Text className="text-muted text-xs font-semibold">Read the full narrative</Text>
           <ChevronDown color="#8A8378" size={14} />
         </View>
       )}
@@ -164,7 +164,7 @@ export default function SuccessVaultScreen() {
       </Text>
       <Text className="text-ink text-[26px] font-serif-light mt-1.5">The Success Vault</Text>
       <Text className="text-muted text-[13.5px] leading-5 mt-2">
-        Clinical case studies of autonomic reclamation.
+        Composite narratives of autonomic reclamation.
       </Text>
 
       <View className="gap-3 mt-7">

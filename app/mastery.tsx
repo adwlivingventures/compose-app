@@ -32,7 +32,7 @@ const MODULES: MasteryModule[] = [
   {
     title: 'The Autonomic Sync',
     description:
-      'Learn the 3-Second Vagus Sync for partner co-regulation, and test the deterministic ' +
+      'Learn the 3-Second Vagus Sync for partner co-regulation, and test the ' +
       'Somatic Copilot.',
     route: '/autonomic-sync',
     unlock: 'always',

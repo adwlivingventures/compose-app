@@ -46,10 +46,10 @@ const PILLARS: Pillar[] = [
       'Common supports: Vitamin D3+K2, Magnesium Glycinate, Zinc, and L-Citrulline. Get 15 ' +
       'minutes of morning sunlight.',
     mechanism:
-      'Vitamin D3 is essential for testosterone synthesis, but it must be paired with ' +
-      'Vitamin K2. K2 prevents calcium from building up in your arteries (arterial ' +
-      'calcification), ensuring your endothelium can release Nitric Oxide for optimal blood ' +
-      'flow. Morning sunlight anchors your circadian rhythm, optimizing the overnight ' +
+      'Vitamin D3 supports testosterone synthesis, and it works best paired with ' +
+      'Vitamin K2. K2 helps keep calcium out of your artery walls (arterial ' +
+      'calcification), supporting the endothelium’s release of Nitric Oxide for healthy ' +
+      'blood flow. Morning sunlight anchors your circadian rhythm, supporting the overnight ' +
       'release of testosterone.',
   },
   {
@@ -57,21 +57,21 @@ const PILLARS: Pillar[] = [
     title: 'Sleep Architecture',
     rule: 'Zero screen time 60 minutes before sleep.',
     mechanism:
-      'Testosterone is not produced evenly throughout the day; the vast majority is ' +
+      'Testosterone is not produced evenly throughout the day; much of it is ' +
       'synthesized by the endocrine system during Deep (Slow-Wave) and REM sleep. Blue ' +
-      'light from screens destroys melatonin production, breaking your sleep architecture ' +
-      'and chronically elevating cortisol. High cortisol directly suppresses testosterone.',
+      'light from screens suppresses melatonin production, disrupting your sleep architecture ' +
+      'and elevating cortisol. High cortisol works against testosterone.',
   },
   {
     pillar: 'Dopaminergic Baseline',
     title: 'D2 Receptor Resensitization',
     rule: 'Absolute abstinence from high-speed digital pornography.',
     mechanism:
-      'Hyper-stimulating digital content floods the brain with unnatural dopamine, causing ' +
-      'your D2 receptors to down-regulate (numb themselves) to survive the surge. When your ' +
-      'receptors are numbed, real-life intimacy no longer provides enough chemical voltage ' +
-      'to maintain an erection. For the next 75 days, we are starving the artificial ' +
-      'pathways to resensitize your brain to reality.',
+      'Hyper-stimulating digital content floods the brain with unnatural dopamine, which ' +
+      'can cause your D2 receptors to down-regulate (numb themselves) to survive the surge. ' +
+      'When your receptors are numbed, real-life intimacy can struggle to provide enough ' +
+      'chemical voltage to maintain an erection. For the next 75 days, we are starving the ' +
+      'artificial pathways to resensitize your brain to reality.',
   },
 ];
 
@@ -138,8 +138,8 @@ export default function VitalityPrimerScreen() {
       </Text>
       <Text className="text-ink text-[26px] font-serif-light mt-1.5">The Vitality Baseline</Text>
       <Text className="text-muted text-[13.5px] leading-5 mt-2">
-        Permanent autonomic regulation is impossible if your endocrine system (hormones) and
-        neurochemistry are compromised. Honor these three pillars daily.
+        Lasting autonomic regulation is far harder when your endocrine system (hormones) and
+        neurochemistry are working against you. Honor these three pillars daily.
       </Text>
 
       <View className="gap-3 mt-7">
