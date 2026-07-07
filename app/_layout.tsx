@@ -78,6 +78,7 @@ export default function RootLayout() {
           <Stack.Screen name="oath" options={{ gestureEnabled: false }} />
           <Stack.Screen name="discretion" />
           <Stack.Screen name="vitality" />
+          <Stack.Screen name="sandbox" />
           <Stack.Screen name="technique" />
           <Stack.Screen name="mastery" />
           <Stack.Screen name="autonomic-sync" />

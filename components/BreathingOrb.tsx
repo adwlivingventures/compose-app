@@ -26,7 +26,9 @@ export interface OrbPhase {
 
 // Full-inhale glow scale. The design's 1.18 read as barely moving on real
 // hardware (device feedback) — the pacing target has to be unmistakable.
-const FULL_BREATH = 1.3;
+// Exported so consumers that build their own phase arrays (the Sandbox)
+// share the same travel.
+export const FULL_BREATH = 1.3;
 
 /** Conditioning cycle (E10): 4s soften on the inhale, 6s engage on the exhale. */
 export const CONDITIONING_PHASES: OrbPhase[] = [

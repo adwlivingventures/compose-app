@@ -58,14 +58,10 @@ const MODULES: MasteryModule[] = [
       'intimacy stalls.',
     unlock: 'never',
   },
-  {
-    title: 'Somatic Sandbox & Pacer',
-    description:
-      'Fully customize your inhale/pelvic-drop ratios for on-demand stress regulation ' +
-      'outside of the daily protocol.',
-    unlock: 'never',
-  },
 ];
+// (Somatic Sandbox moved out of this suite: strategy ruling is a Day-26
+// unlock inside the $49.99 tier — it lives in the You-tab Library and
+// app/sandbox.tsx, not behind the Day-76 continuation.)
 
 function MasteryModuleCard({
   module,

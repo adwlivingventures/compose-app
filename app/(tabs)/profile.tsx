@@ -12,6 +12,7 @@ import {
   BookOpen,
   RotateCcw,
   ChevronRight,
+  Wind,
   X,
 } from 'lucide-react-native';
 import { useProtocol } from '../../context/ProtocolContext';
@@ -68,7 +69,8 @@ function NavRow({
 
 export default function ProfileScreen() {
   const router = useRouter();
-  const { activeDay, resetProtocol, devJumpToDay } = useProtocol();
+  const { activeDay, completedDays, resetProtocol, devJumpToDay } = useProtocol();
+  const sandboxUnlocked = activeDay >= 26 || completedDays[75]?.completed === true;
   const { hasProAccess, hasMaintenanceAccess, restorePurchases, isProcessing } = useRevenueCat();
   const { entries, reload } = useDefusionLog();
   const [guideVisible, setGuideVisible] = useState(false);
@@ -141,6 +143,29 @@ export default function ProfileScreen() {
         Library
       </Text>
       <View className="bg-surface border border-line rounded-2xl overflow-hidden mb-6">
+        {/* Somatic Sandbox — Day-26 unlock (Phase 2 milestone reward; locked
+            through Phase 1 to protect single-ratio habituation). The locked
+            row is inert and quiet, same discipline as the Mastery cards. */}
+        {sandboxUnlocked ? (
+          <NavRow
+            icon={<Wind color="#C89B6D" size={18} />}
+            title="Somatic Sandbox"
+            subtitle="Your pacer, your ratio — on demand."
+            onPress={() => router.push('/sandbox')}
+          />
+        ) : (
+          <View
+            style={{ opacity: 0.55 }}
+            className="p-4 flex-row items-center gap-3 border-b border-line"
+          >
+            <Wind color="#6E675D" size={18} />
+            <View className="flex-1">
+              <Text className="text-ink text-sm font-bold">Somatic Sandbox</Text>
+              <Text className="text-muted text-xs mt-0.5 leading-4">Opens on Day 26.</Text>
+            </View>
+            <Lock color="#6E675D" size={14} />
+          </View>
+        )}
         <NavRow
           icon={<ArrowDown color="#C89B6D" size={18} />}
           title="The Somatic Drop"
