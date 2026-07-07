@@ -8,10 +8,11 @@ import { useRevenueCat, RC_PRODUCTS, RC_MAINTENANCE_ENTITLEMENT_ID } from '../..
 import { LocalStore } from '../../services/storage';
 import MainDashboard from '../../components/MainDashboard';
 import GraduationScreen from '../../components/GraduationScreen';
+import PhaseTransition, { SignatureData } from '../../components/PhaseTransition';
 
 export default function DashboardScreen() {
   const router = useRouter();
-  const { completedDays, loading } = useProtocol();
+  const { activeDay, completedDays, loading } = useProtocol();
   const {
     hasMaintenanceAccess,
     currentOffering,
@@ -37,6 +38,34 @@ export default function DashboardScreen() {
   }, []);
 
   const protocolComplete = completedDays[75]?.completed === true;
+
+  // Phase-transition interstitials: fire once on arrival at Day 26/51
+  // (re-evaluated when activeDay advances mid-mount — completing Day 25
+  // lands here). Arrival at 51 with the Day-26 screen never shown retires
+  // it: a stale milestone read late is worse than none.
+  const [phaseGate, setPhaseGate] = useState<'loading' | 'none' | 2 | 3>('loading');
+  const [signature, setSignature] = useState<SignatureData | null>(null);
+  useEffect(() => {
+    if (activeDay < 26) {
+      setPhaseGate('none');
+      return;
+    }
+    Promise.all([
+      LocalStore.getItem<boolean>('@phase_transition_2'),
+      LocalStore.getItem<boolean>('@phase_transition_3'),
+      LocalStore.getItem<SignatureData>('@signature_data'),
+    ]).then(([seen2, seen3, sig]) => {
+      setSignature(sig);
+      if (activeDay >= 51) setPhaseGate(seen3 ? 'none' : 3);
+      else setPhaseGate(seen2 ? 'none' : 2);
+    });
+  }, [activeDay]);
+
+  const dismissPhaseGate = async (phase: 2 | 3) => {
+    await LocalStore.setItem('@phase_transition_2', true);
+    if (phase === 3) await LocalStore.setItem('@phase_transition_3', true);
+    setPhaseGate('none');
+  };
 
   const handleContinuationPurchase = async (): Promise<boolean> => {
     const pack =
@@ -168,6 +197,22 @@ export default function DashboardScreen() {
           )}
         </View>
       </ScrollView>
+    );
+  }
+
+  // Phase-transition gate (Days 26/51) — held on ground during the flag
+  // read so the interstitial never flashes in over the dashboard.
+  if (phaseGate === 'loading') {
+    return <View className="flex-1 bg-ground" />;
+  }
+  if (phaseGate === 2 || phaseGate === 3) {
+    const phase = phaseGate;
+    return (
+      <PhaseTransition
+        phase={phase}
+        signature={signature}
+        onContinue={() => dismissPhaseGate(phase)}
+      />
     );
   }
 
