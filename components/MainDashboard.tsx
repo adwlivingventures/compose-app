@@ -4,6 +4,7 @@ import Svg, { Circle } from 'react-native-svg';
 import { Check, Play } from 'lucide-react-native';
 import { useProtocol, localDateString } from '../context/ProtocolContext';
 import { getProtocolDay } from '../content/ProtocolData';
+import { getTonightLine } from '../content/tonightLines';
 import TriageCenter from './TriageCenter';
 
 /**
@@ -137,14 +138,15 @@ export default function MainDashboard({ onStartSession }: { onStartSession: () =
 
       <View className="pb-5">
         {completedToday ? (
-          /* Tonight's line — the day's thesis read back as a quote. Closure,
-             no next-action pressure. */
+          /* Tonight's line — the day's authored identity line read back as a
+             quote (content/tonightLines.ts), focus string as the fallback.
+             Closure, no next-action pressure. */
           <View className="bg-surface border border-line rounded-2xl px-[18px] py-4">
             <Text className="text-dim text-[10px] font-bold uppercase tracking-[0.2em]">
               Tonight's line
             </Text>
             <Text className="text-body text-sm leading-[22px] font-serif-italic mt-1.5">
-              "{todayMeta.focus}"
+              "{getTonightLine(displayDay) ?? todayMeta.focus}"
             </Text>
           </View>
         ) : (
