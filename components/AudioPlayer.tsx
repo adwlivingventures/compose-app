@@ -79,11 +79,11 @@ export default function AudioPlayer({ title, focus, source, onComplete }: AudioP
         className="w-20 h-20 rounded-full bg-accent items-center justify-center mt-8"
       >
         {!status.isLoaded ? (
-          <ActivityIndicator color="#171310" />
+          <ActivityIndicator color="#0C0B09" />
         ) : status.playing ? (
-          <Pause color="#171310" size={30} fill="#171310" />
+          <Pause color="#0C0B09" size={30} fill="#0C0B09" />
         ) : (
-          <Play color="#171310" size={30} fill="#171310" style={{ marginLeft: 3 }} />
+          <Play color="#0C0B09" size={30} fill="#0C0B09" style={{ marginLeft: 3 }} />
         )}
       </TouchableOpacity>
 

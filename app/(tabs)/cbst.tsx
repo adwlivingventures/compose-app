@@ -122,7 +122,7 @@ export default function CBSTScreen() {
       <View className="flex-row px-6 pt-4 pb-0 gap-3">
         <TabChip
           label="CBST Log"
-          icon={<Brain size={14} color={activeTab === 'log' ? '#171310' : '#8A8378'} />}
+          icon={<Brain size={14} color={activeTab === 'log' ? '#0C0B09' : '#6B7280'} />}
           active={activeTab === 'log'}
           onPress={() => setActiveTab('log')}
         />
@@ -131,7 +131,7 @@ export default function CBSTScreen() {
           icon={
             <MessageSquare
               size={14}
-              color={activeTab === 'scripts' ? '#171310' : '#8A8378'}
+              color={activeTab === 'scripts' ? '#0C0B09' : '#6B7280'}
             />
           }
           active={activeTab === 'scripts'}
@@ -329,7 +329,7 @@ function CBSTLogTab() {
               multiline
               textAlignVertical="top"
               placeholder={STEP_META[logStep].placeholder}
-              placeholderTextColor="#6E675D"
+              placeholderTextColor="#4B5563"
               value={currentValues[logStep]}
               onChangeText={currentSetters[logStep]}
             />
@@ -365,7 +365,7 @@ function CBSTLogTab() {
                 </Text>
                 <ChevronRight
                   size={16}
-                  color={canAdvance ? '#171310' : '#6E675D'}
+                  color={canAdvance ? '#0C0B09' : '#4B5563'}
                 />
               </TouchableOpacity>
             </View>
@@ -451,11 +451,11 @@ function CBSTEntryCard({
         </View>
         <View className="flex-row items-center gap-3">
           <TouchableOpacity onPress={onDelete} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
-            <Trash2 size={16} color="#6E675D" />
+            <Trash2 size={16} color="#4B5563" />
           </TouchableOpacity>
           <ChevronRight
             size={18}
-            color="#6E675D"
+            color="#4B5563"
             style={{ transform: [{ rotate: expanded ? '90deg' : '0deg' }] }}
           />
         </View>
@@ -509,11 +509,11 @@ function DefusionEntryCard({
         </View>
         <View className="flex-row items-center gap-3">
           <TouchableOpacity onPress={onDelete} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
-            <Trash2 size={16} color="#6E675D" />
+            <Trash2 size={16} color="#4B5563" />
           </TouchableOpacity>
           <ChevronRight
             size={18}
-            color="#6E675D"
+            color="#4B5563"
             style={{ transform: [{ rotate: expanded ? '90deg' : '0deg' }] }}
           />
         </View>
@@ -630,7 +630,7 @@ function PartnerScriptCard({
         </View>
         <ChevronRight
           size={18}
-          color="#8A8378"
+          color="#6B7280"
           style={{ transform: [{ rotate: expanded ? '90deg' : '0deg' }] }}
         />
       </TouchableOpacity>
@@ -651,7 +651,7 @@ function PartnerScriptCard({
             {isCopied ? (
               <CheckCircle2 size={16} color="#C89B6D" />
             ) : (
-              <Copy size={16} color="#B9B2A6" />
+              <Copy size={16} color="#9CA3AF" />
             )}
             <Text
               className={`text-xs font-bold ${

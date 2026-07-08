@@ -1,0 +1,563 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+  <meta name="design_doc_mode" content="canvas">
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Source+Serif+4:ital,opsz,wght@0,8..60,400;0,8..60,500;0,8..60,600;1,8..60,400&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400&family=Lora:ital,wght@0,400;0,500;0,600;1,400&display=swap" rel="stylesheet">
+  <style>
+    html, body { background:#0d1017; }
+    body { margin:0; font-family:-apple-system,system-ui,"Helvetica Neue",sans-serif; }
+    a { color:#8B93C7; } a:hover { color:#A9AFD1; }
+  </style>
+</helmet>
+
+<section style="padding:48px 56px 72px;display:flex;flex-direction:column;gap:28px;">
+  <div>
+    <div style="color:#64748b;font-size:12px;font-weight:700;letter-spacing:0.2em;text-transform:uppercase;">Compose · Onboarding Version B · Turn 3 · Figma-faithful twilight</div>
+    <div style="color:#f8fafc;font-size:30px;font-weight:600;margin-top:10px;font-family:'Newsreader',Georgia,serif;">Quieter: bone-white light on deep navy, straight from the Figma file</div>
+    <div style="color:#94a3b8;font-size:14px;line-height:1.65;margin-top:8px;max-width:820px;">What changed after a full review of the Figma set: centered welcome composition with the actual neural-filament hero render (fading into the background, as in the file), pill CTAs in bone #E5E7EB with uppercase letterspaced labels and the file's soft blue glow, 5px-tracked micro-type, 16px cards, periwinkle #5D72A8 for selection and data. No sand anywhere — light itself is the accent.</div>
+  </div>
+
+  <div id="3a" style="display:flex;flex-direction:column;gap:14px;">
+    <div style="display:flex;align-items:center;gap:10px;"><a href="#3a" style="text-decoration:none;background:#1e293b;color:#94a3b8;font-size:12px;font-weight:700;padding:3px 9px;border-radius:999px;">3a</a><span style="color:#e2e8f0;font-size:14px;font-weight:700;">Twilight, bone light — Figma system + Twilight Descent depth</span></div>
+    <div style="display:flex;gap:24px;flex-wrap:wrap;">
+
+      <!-- 3a · B-01 Welcome -->
+      <x-import component-from-global-scope="IOSDevice" from="./ios-frame.jsx" dark="{{ true }}" hint-size="402px,874px">
+        <div data-screen-label="3a B-01 Welcome" style="width:100%;height:100%;background:#080A0F;display:flex;flex-direction:column;position:relative;overflow:hidden;font-family:-apple-system,system-ui,sans-serif;">
+          <div style="padding:76px 32px 0;text-align:center;">
+            <div style="color:#E5E7EB;font-size:10px;font-weight:300;letter-spacing:5px;">COMPOSE</div>
+          </div>
+          <div style="position:relative;margin:18px 40px 0;">
+            <div style="width:100%;height:300px;background:url('content/hero-welcome-drop.png') 50% 50% / cover no-repeat;opacity:0.95;"></div>
+            <div style="position:absolute;inset:0;background:linear-gradient(180deg,rgba(8,10,15,0) 0%,rgba(8,10,15,0) 50%,#080A0F 100%);"></div>
+          </div>
+          <div style="flex:1;display:flex;flex-direction:column;align-items:center;padding:10px 40px 0;text-align:center;position:relative;">
+            <div style="color:#E5E7EB;font-size:31px;line-height:1.28;font-family:'Newsreader',Georgia,serif;font-weight:400;">Your body isn't failing you. It's following orders.</div>
+            <div style="color:#9CA3AF;font-size:14.5px;font-weight:300;line-height:1.62;margin-top:18px;">Over the next few minutes we'll map where those orders come from. Every answer stays on this phone.</div>
+          </div>
+          <div style="padding:0 32px 52px;display:flex;flex-direction:column;align-items:center;gap:20px;">
+            <div style="display:flex;align-items:center;gap:8px;opacity:0.45;">
+              <div style="width:11px;height:9px;border:1px solid #9CA3AF;border-radius:2px;position:relative;"><div style="position:absolute;top:-5px;left:2px;width:5px;height:5px;border:1px solid #9CA3AF;border-bottom:none;border-radius:3px 3px 0 0;"></div></div>
+              <div style="color:#9CA3AF;font-size:10px;letter-spacing:1px;">PRIVATE BY DESIGN — NO ACCOUNT, NO SYNC</div>
+            </div>
+            <div style="width:100%;background:#E5E7EB;border-radius:999px;padding:20px 0;text-align:center;color:#080A0F;font-weight:500;font-size:14px;letter-spacing:0.35px;box-shadow:0 0 20px rgba(46,59,94,0.4);">FIND MY BASELINE</div>
+            <div style="color:#4B5563;font-size:11px;font-weight:300;">Takes about 4 minutes</div>
+          </div>
+        </div>
+      </x-import>
+
+      <!-- 3a · B-10 Question -->
+      <x-import component-from-global-scope="IOSDevice" from="./ios-frame.jsx" dark="{{ true }}" hint-size="402px,874px">
+        <div data-screen-label="3a B-10 Morning arousal" style="width:100%;height:100%;background:#080A0F;display:flex;flex-direction:column;position:relative;overflow:hidden;font-family:-apple-system,system-ui,sans-serif;">
+          <div style="padding:70px 24px 0;">
+            <div style="display:flex;align-items:center;justify-content:space-between;">
+              <div style="color:#E5E7EB;font-size:17px;line-height:1;font-weight:300;">&#8592;</div>
+              <div style="color:#9CA3AF;font-size:10px;font-weight:300;letter-spacing:2px;">MAPPING · 10 OF 24</div>
+              <div style="color:#6B7280;font-size:10px;font-weight:300;">~2 MIN</div>
+            </div>
+            <div style="height:2px;background:#232D42;margin-top:16px;"><div style="width:42%;height:100%;background:#E5E7EB;"></div></div>
+          </div>
+          <div style="flex:1;display:flex;flex-direction:column;padding:38px 24px 0;">
+            <div style="color:#E5E7EB;font-size:26px;line-height:1.32;font-family:'Newsreader',Georgia,serif;font-weight:400;">When you wake up in the morning, does your body show physical arousal on its own?</div>
+            <div style="color:#9CA3AF;font-size:13.5px;font-weight:300;line-height:1.58;margin-top:14px;">This tells us whether the machinery works when nothing is being asked of it. If your body fires on its own, the problem isn't the hardware — it's the interference.</div>
+            <div style="display:flex;flex-direction:column;gap:10px;margin-top:32px;">
+              <div style="display:flex;align-items:center;gap:14px;background:#151A26;border-radius:16px;padding:18px;"><div style="width:18px;height:18px;border:1.5px solid #2E3B5E;border-radius:999px;flex-shrink:0;"></div><span style="color:#E5E7EB;font-size:15px;font-weight:300;">Most mornings</span></div>
+              <div style="display:flex;align-items:center;gap:14px;background:#151A26;border:1px solid #5D72A8;border-radius:16px;padding:17px;box-shadow:0 0 20px rgba(30,58,138,0.2);"><div style="width:18px;height:18px;border:1.5px solid #5D72A8;border-radius:999px;flex-shrink:0;display:flex;align-items:center;justify-content:center;"><div style="width:8px;height:8px;border-radius:999px;background:#5D72A8;"></div></div><span style="color:#E5E7EB;font-size:15px;">Sometimes</span></div>
+              <div style="display:flex;align-items:center;gap:14px;background:#151A26;border-radius:16px;padding:18px;"><div style="width:18px;height:18px;border:1.5px solid #2E3B5E;border-radius:999px;flex-shrink:0;"></div><span style="color:#E5E7EB;font-size:15px;font-weight:300;">Rarely or never</span></div>
+              <div style="display:flex;align-items:center;gap:14px;background:#151A26;border-radius:16px;padding:18px;"><div style="width:18px;height:18px;border:1.5px solid #2E3B5E;border-radius:999px;flex-shrink:0;"></div><span style="color:#E5E7EB;font-size:15px;font-weight:300;">Not sure — I've never paid attention</span></div>
+            </div>
+          </div>
+          <div style="padding:0 24px 44px;"><div style="color:#4B5563;font-size:10px;font-weight:300;letter-spacing:0.5px;text-align:center;">ANSWERS STAY ON THIS PHONE. ALWAYS.</div></div>
+        </div>
+      </x-import>
+
+      <!-- 3a · B-26 Your Map -->
+      <x-import component-from-global-scope="IOSDevice" from="./ios-frame.jsx" dark="{{ true }}" hint-size="402px,874px">
+        <div data-screen-label="3a B-26 Your Map" style="width:100%;height:100%;background:#080A0F;display:flex;flex-direction:column;position:relative;overflow:hidden;font-family:-apple-system,system-ui,sans-serif;">
+          <div style="position:absolute;top:-180px;left:50%;margin-left:-240px;width:480px;height:480px;border-radius:999px;background:radial-gradient(circle,rgba(93,114,168,0.16) 0%,rgba(8,10,15,0) 65%);"></div>
+          <div style="flex:1;display:flex;flex-direction:column;padding:64px 24px 0;position:relative;">
+            <div style="color:#9CA3AF;font-size:10px;font-weight:300;letter-spacing:2px;">YOUR MAP</div>
+            <div style="color:#E5E7EB;font-size:24px;line-height:1.3;margin-top:10px;font-family:'Newsreader',Georgia,serif;font-weight:400;">Marcus, here is what your answers show.</div>
+            <div style="display:flex;align-items:baseline;gap:10px;margin-top:18px;">
+              <div style="color:#E5E7EB;font-size:56px;font-weight:400;line-height:1;font-family:'Newsreader',Georgia,serif;">41<span style="color:#4B5563;font-size:24px;"> / 100</span></div>
+            </div>
+            <div style="color:#6B7280;font-size:11px;font-weight:300;margin-top:6px;">Your Composure Score — re-measured at Days 14, 40, and 75.</div>
+            <div style="margin-top:16px;">
+              <div style="height:8px;background:#151A26;border-radius:6px;position:relative;">
+                <div style="position:absolute;left:80%;right:0;top:0;bottom:0;background:rgba(93,114,168,0.25);border-radius:0 6px 6px 0;"></div>
+                <div style="position:absolute;left:41%;top:-4px;width:2px;height:14px;background:#E5E7EB;border-radius:2px;box-shadow:0 0 10px rgba(229,231,235,0.5);"></div>
+              </div>
+              <div style="display:flex;justify-content:flex-end;"><div style="color:#6C74A3;font-size:10px;font-weight:300;margin-top:6px;">Calm baseline — where the protocol trains you toward</div></div>
+              <div style="color:#6B7280;font-size:11px;font-weight:300;margin-top:2px;">The gap is the work. 75 days is the route.</div>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:8px;margin-top:18px;">
+              <div style="display:flex;align-items:center;justify-content:space-between;background:#151A26;border-radius:12px;padding:11px 14px;"><span style="color:#D1D5DB;font-size:13px;font-weight:300;">Sympathetic override</span><span style="color:#D9A756;font-size:10px;font-weight:600;letter-spacing:0.5px;background:rgba(217,167,86,0.10);border-radius:999px;padding:3px 9px;">MODERATE</span></div>
+              <div style="display:flex;align-items:center;justify-content:space-between;background:#151A26;border-radius:12px;padding:11px 14px;"><span style="color:#D1D5DB;font-size:13px;font-weight:300;">Spectatoring loop</span><span style="color:#E07A5F;font-size:10px;font-weight:600;letter-spacing:0.5px;background:rgba(224,122,95,0.10);border-radius:999px;padding:3px 9px;">HIGH</span></div>
+              <div style="display:flex;align-items:center;justify-content:space-between;background:#151A26;border-radius:12px;padding:11px 14px;"><span style="color:#D1D5DB;font-size:13px;font-weight:300;">Pelvic release capacity</span><span style="color:#D9A756;font-size:10px;font-weight:600;letter-spacing:0.5px;background:rgba(217,167,86,0.10);border-radius:999px;padding:3px 9px;">PARTIAL</span></div>
+              <div style="display:flex;align-items:center;justify-content:space-between;background:#151A26;border-radius:12px;padding:11px 14px;"><span style="color:#D1D5DB;font-size:13px;font-weight:300;">Avoidance pattern</span><span style="color:#D9A756;font-size:10px;font-weight:600;letter-spacing:0.5px;background:rgba(217,167,86,0.10);border-radius:999px;padding:3px 9px;">ELEVATED</span></div>
+            </div>
+            <div style="color:#9CA3AF;font-size:13px;line-height:1.55;margin-top:16px;font-style:italic;font-family:'Newsreader',Georgia,serif;">"Breath-holding at the edge, spectatoring most sessions, partial pelvic release — that triad is the adrenaline trap, and yours has been conditioned over roughly 11 years."</div>
+          </div>
+          <div style="padding:14px 24px 44px;position:relative;">
+            <div style="background:#E5E7EB;border-radius:999px;padding:18px 0;text-align:center;color:#080A0F;font-weight:500;font-size:14px;letter-spacing:0.35px;box-shadow:0 0 20px rgba(46,59,94,0.4);">SEE MY PROTOCOL</div>
+            <div style="color:#4B5563;font-size:10px;font-weight:300;letter-spacing:0.5px;text-align:center;margin-top:12px;">STORED ON THIS DEVICE ONLY</div>
+          </div>
+        </div>
+      </x-import>
+
+      <!-- 3a · B-28 Clinical Card -->
+      <x-import component-from-global-scope="IOSDevice" from="./ios-frame.jsx" dark="{{ true }}" hint-size="402px,874px">
+        <div data-screen-label="3a B-28 Adrenaline Trap" style="width:100%;height:100%;background:#080A0F;display:flex;flex-direction:column;position:relative;overflow:hidden;font-family:-apple-system,system-ui,sans-serif;">
+          <div style="position:absolute;top:-160px;left:50%;margin-left:-240px;width:480px;height:480px;border-radius:999px;background:radial-gradient(circle,rgba(93,114,168,0.14) 0%,rgba(8,10,15,0) 65%);"></div>
+          <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:0 36px;text-align:center;position:relative;">
+            <div style="color:#9CA3AF;font-size:10px;font-weight:300;letter-spacing:2px;">CLINICAL CONTEXT · 1 OF 4</div>
+            <div style="width:190px;height:190px;margin-top:22px;background:url('content/fig-hero-somatic.png') 50% 50% / contain no-repeat;"></div>
+            <div style="color:#E5E7EB;font-size:29px;line-height:1.28;margin-top:14px;font-family:'Newsreader',Georgia,serif;font-weight:400;">The Adrenaline Trap</div>
+            <div style="color:#9CA3AF;font-size:14.5px;font-weight:300;line-height:1.68;margin-top:16px;">What you are experiencing is not a physical defect. It is a sympathetic nervous system override. Your brain is mistakenly treating intimacy as a high-stress exam, flooding your body with adrenaline. Adrenaline constricts blood vessels and accelerates reflexes.</div>
+          </div>
+          <div style="padding:0 32px 52px;">
+            <div style="width:100%;background:#E5E7EB;border-radius:999px;padding:19px 0;text-align:center;color:#080A0F;font-weight:500;font-size:14.5px;letter-spacing:0.2px;box-shadow:0 0 20px rgba(46,59,94,0.4);">I understand</div>
+          </div>
+        </div>
+      </x-import>
+
+      <!-- 3a · B-29 Default Mode Network -->
+      <x-import component-from-global-scope="IOSDevice" from="./ios-frame.jsx" dark="{{ true }}" hint-size="402px,874px">
+        <div data-screen-label="3a B-29 Default Mode Network" style="width:100%;height:100%;background:#080A0F;display:flex;flex-direction:column;position:relative;overflow:hidden;font-family:-apple-system,system-ui,sans-serif;">
+          <div style="position:absolute;top:-160px;left:50%;margin-left:-240px;width:480px;height:480px;border-radius:999px;background:radial-gradient(circle,rgba(93,114,168,0.14) 0%,rgba(8,10,15,0) 65%);"></div>
+          <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:0 36px;text-align:center;position:relative;">
+            <div style="color:#9CA3AF;font-size:10px;font-weight:300;letter-spacing:2px;">CLINICAL CONTEXT · 2 OF 4</div>
+            <div style="width:200px;height:200px;margin-top:22px;background:url('content/fig-hero-validation.png') 50% 50% / contain no-repeat;"></div>
+            <div style="color:#E5E7EB;font-size:29px;line-height:1.28;margin-top:14px;font-family:'Newsreader',Georgia,serif;font-weight:400;">The Default Mode Network</div>
+            <div style="color:#9CA3AF;font-size:14.5px;font-weight:300;line-height:1.68;margin-top:16px;">That shame loop is generated by your Default Mode Network (DMN) — the brain's self-referential replay circuit. It tags bedroom falters as threats, making the anxiety worse next time.</div>
+          </div>
+          <div style="padding:0 32px 52px;">
+            <div style="width:100%;background:#E5E7EB;border-radius:999px;padding:19px 0;text-align:center;color:#080A0F;font-weight:500;font-size:14.5px;letter-spacing:0.2px;box-shadow:0 0 20px rgba(46,59,94,0.4);">Continue</div>
+          </div>
+        </div>
+      </x-import>
+
+      <!-- 3a · B-30 Novelty Loop -->
+      <x-import component-from-global-scope="IOSDevice" from="./ios-frame.jsx" dark="{{ true }}" hint-size="402px,874px">
+        <div data-screen-label="3a B-30 Novelty Loop" style="width:100%;height:100%;background:#080A0F;display:flex;flex-direction:column;position:relative;overflow:hidden;font-family:-apple-system,system-ui,sans-serif;">
+          <div style="position:absolute;top:-160px;left:50%;margin-left:-240px;width:480px;height:480px;border-radius:999px;background:radial-gradient(circle,rgba(93,114,168,0.14) 0%,rgba(8,10,15,0) 65%);"></div>
+          <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:0 34px;text-align:center;position:relative;">
+            <div style="color:#9CA3AF;font-size:10px;font-weight:300;letter-spacing:2px;">CLINICAL CONTEXT · 3 OF 4</div>
+            <div style="width:190px;height:190px;margin-top:18px;background:url('content/fig-hero-philosophy.png') 50% 50% / contain no-repeat;"></div>
+            <div style="color:#E5E7EB;font-size:29px;line-height:1.28;margin-top:12px;font-family:'Newsreader',Georgia,serif;font-weight:400;">The Novelty Loop</div>
+            <div style="color:#9CA3AF;font-size:13.5px;font-weight:300;line-height:1.6;margin-top:14px;">Every session is a training rep. High-novelty stimulation compresses arousal into a sprint: spike, finish, close the tab. Run that loop a few hundred times and your nervous system masters exactly one tempo — fast, alone, on demand. Then you're with a real person, and your body runs the only program it knows.</div>
+          </div>
+          <div style="padding:0 32px 52px;">
+            <div style="width:100%;background:#E5E7EB;border-radius:999px;padding:19px 0;text-align:center;color:#080A0F;font-weight:500;font-size:14.5px;letter-spacing:0.2px;box-shadow:0 0 20px rgba(46,59,94,0.4);">Makes sense</div>
+          </div>
+        </div>
+      </x-import>
+
+      <!-- 3a · B-31 Why Band-Aids Fail -->
+      <x-import component-from-global-scope="IOSDevice" from="./ios-frame.jsx" dark="{{ true }}" hint-size="402px,874px">
+        <div data-screen-label="3a B-31 Why Band-Aids Fail" style="width:100%;height:100%;background:#080A0F;display:flex;flex-direction:column;position:relative;overflow:hidden;font-family:-apple-system,system-ui,sans-serif;">
+          <div style="position:absolute;top:-160px;left:50%;margin-left:-240px;width:480px;height:480px;border-radius:999px;background:radial-gradient(circle,rgba(93,114,168,0.12) 0%,rgba(8,10,15,0) 65%);"></div>
+          <div style="flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:0 36px;text-align:center;position:relative;">
+            <div style="color:#9CA3AF;font-size:10px;font-weight:300;letter-spacing:2px;">CLINICAL CONTEXT · 4 OF 4</div>
+            <div style="width:190px;height:190px;margin-top:22px;background:url('content/hero-welcome-drop.png') 50% 38% / cover no-repeat;border-radius:14px;opacity:0.9;"></div>
+            <div style="color:#E5E7EB;font-size:29px;line-height:1.28;margin-top:16px;font-family:'Newsreader',Georgia,serif;font-weight:400;">Why Band-Aids Fail</div>
+            <div style="color:#9CA3AF;font-size:14px;font-weight:300;line-height:1.64;margin-top:16px;">Pills move blood. Creams numb skin. Neither reaches the amygdala — the alarm that started all of this. And there's a quieter cost: every pill is a rehearsal of the same belief — that your body can't do this without help. A fix that keeps you dependent isn't a fix. It's a subscription to the problem.</div>
+          </div>
+          <div style="padding:0 32px 52px;">
+            <div style="width:100%;background:#E5E7EB;border-radius:999px;padding:19px 0;text-align:center;color:#080A0F;font-weight:500;font-size:14.5px;letter-spacing:0.2px;box-shadow:0 0 20px rgba(46,59,94,0.4);">I understand</div>
+          </div>
+        </div>
+      </x-import>
+
+      <!-- 3a · B-39 Paywall -->
+      <x-import component-from-global-scope="IOSDevice" from="./ios-frame.jsx" dark="{{ true }}" hint-size="402px,874px">
+        <div data-screen-label="3a B-39 Paywall" style="width:100%;height:100%;background:#080A0F;display:flex;flex-direction:column;position:relative;overflow:hidden;font-family:-apple-system,system-ui,sans-serif;">
+          <div style="flex:1;display:flex;flex-direction:column;padding:62px 24px 0;position:relative;">
+            <div style="color:#6C74A3;font-size:11.5px;font-weight:300;font-style:italic;font-family:'Newsreader',Georgia,serif;">Your goal: "Give my partner all of me, not the anxious version."</div>
+            <div style="color:#E5E7EB;font-size:24px;line-height:1.28;margin-top:12px;font-family:'Newsreader',Georgia,serif;font-weight:400;">The 75-Day Reset, built for this profile</div>
+            <div style="display:flex;gap:8px;margin-top:10px;">
+              <div style="color:#9CA3AF;font-size:10.5px;font-weight:300;background:#151A26;border-radius:999px;padding:4px 10px;">Sympathetic override · Moderate</div>
+              <div style="color:#9CA3AF;font-size:10.5px;font-weight:300;background:#151A26;border-radius:999px;padding:4px 10px;">Spectatoring · High</div>
+            </div>
+            <div style="display:flex;gap:10px;margin-top:18px;">
+              <div style="flex:1;background:#151A26;border-radius:16px;padding:16px 14px;opacity:0.55;">
+                <div style="color:#6B7280;font-size:10px;font-weight:300;letter-spacing:1px;">SEX THERAPY</div>
+                <div style="color:#9CA3AF;font-size:19px;margin-top:8px;text-decoration:line-through;font-family:'Newsreader',Georgia,serif;">$1,800+</div>
+                <div style="color:#6B7280;font-size:10.5px;font-weight:300;margin-top:4px;">12 weeks</div>
+              </div>
+              <div style="flex:1.2;background:#151A26;border:1px solid #5D72A8;border-radius:16px;padding:16px 14px;box-shadow:0 0 20px rgba(30,58,138,0.2);">
+                <div style="color:#8B93C7;font-size:10px;font-weight:600;letter-spacing:1px;">COMPOSE · 75 DAYS</div>
+                <div style="color:#E5E7EB;font-size:24px;margin-top:6px;font-family:'Newsreader',Georgia,serif;">$49.99 <span style="color:#6C74A3;font-size:12px;font-family:-apple-system,system-ui,sans-serif;font-weight:300;">once</span></div>
+                <div style="color:#9CA3AF;font-size:10.5px;font-weight:300;margin-top:4px;">No subscription. Ever.</div>
+              </div>
+            </div>
+            <div style="background:#151A26;border-radius:14px;padding:13px 15px;margin-top:12px;">
+              <div style="color:#D1D5DB;font-size:12px;font-weight:500;">14-day baseline check</div>
+              <div style="color:#9CA3AF;font-size:11px;font-weight:300;line-height:1.5;margin-top:3px;">If your Composure Score hasn't moved after 14 days, we'll show you exactly how to request a full refund from Apple — one tap.</div>
+            </div>
+            <div style="margin-top:14px;">
+              <div style="color:#6B7280;font-size:9.5px;font-weight:600;letter-spacing:1.5px;">PHASE IV · LOCKED UNTIL DAY 76</div>
+              <div style="display:flex;flex-direction:column;gap:6px;margin-top:8px;">
+                <div style="display:flex;align-items:center;gap:9px;"><div style="width:9px;height:7px;border:1px solid #4B5563;border-radius:2px;position:relative;flex-shrink:0;"><div style="position:absolute;top:-4px;left:1.5px;width:4px;height:4px;border:1px solid #4B5563;border-bottom:none;border-radius:3px 3px 0 0;"></div></div><span style="color:#6B7280;font-size:11.5px;font-weight:300;">Somatic Copilot — scenario-matched interventions</span></div>
+                <div style="display:flex;align-items:center;gap:9px;"><div style="width:9px;height:7px;border:1px solid #4B5563;border-radius:2px;position:relative;flex-shrink:0;"><div style="position:absolute;top:-4px;left:1.5px;width:4px;height:4px;border:1px solid #4B5563;border-bottom:none;border-radius:3px 3px 0 0;"></div></div><span style="color:#6B7280;font-size:11.5px;font-weight:300;">Sensate Mastery — ride high arousal in your body</span></div>
+                <div style="display:flex;align-items:center;gap:9px;"><div style="width:9px;height:7px;border:1px solid #4B5563;border-radius:2px;position:relative;flex-shrink:0;"><div style="position:absolute;top:-4px;left:1.5px;width:4px;height:4px;border:1px solid #4B5563;border-bottom:none;border-radius:3px 3px 0 0;"></div></div><span style="color:#6B7280;font-size:11.5px;font-weight:300;">The Refractory Window Guide</span></div>
+                <div style="display:flex;align-items:center;gap:9px;"><div style="width:9px;height:7px;border:1px solid #4B5563;border-radius:2px;position:relative;flex-shrink:0;"><div style="position:absolute;top:-4px;left:1.5px;width:4px;height:4px;border:1px solid #4B5563;border-bottom:none;border-radius:3px 3px 0 0;"></div></div><span style="color:#6B7280;font-size:11.5px;font-weight:300;">The Anxious Partner De-escalator</span></div>
+              </div>
+            </div>
+            <div style="color:#6C74A3;font-size:12px;font-style:italic;font-family:'Newsreader',Georgia,serif;margin-top:14px;">Pills and creams manage tonight. This retrains the system.</div>
+            <div style="color:#6B7280;font-size:10.5px;font-weight:300;line-height:1.5;margin-top:10px;">No subscription. Your card statement shows Apple — never this app's name. Notifications stay neutral.</div>
+          </div>
+          <div style="padding:12px 24px 40px;">
+            <div style="width:100%;background:#E5E7EB;border-radius:999px;padding:18px 0;text-align:center;color:#080A0F;font-weight:500;font-size:14px;letter-spacing:0.35px;box-shadow:0 0 20px rgba(46,59,94,0.4);">CONTINUE TO DAY ZERO</div>
+            <div style="display:flex;justify-content:center;gap:18px;margin-top:12px;"><span style="color:#4B5563;font-size:10px;font-weight:300;">Restore</span><span style="color:#4B5563;font-size:10px;font-weight:300;">Privacy</span><span style="color:#4B5563;font-size:10px;font-weight:300;">Terms</span></div>
+          </div>
+        </div>
+      </x-import>
+
+      <!-- 3a · B-41 Day Zero -->
+      <x-import component-from-global-scope="IOSDevice" from="./ios-frame.jsx" dark="{{ true }}" hint-size="402px,874px">
+        <div data-screen-label="3a B-41 Day Zero" style="width:100%;height:100%;background:#080A0F;display:flex;flex-direction:column;position:relative;overflow:hidden;font-family:-apple-system,system-ui,sans-serif;">
+          <div style="position:absolute;top:-160px;left:50%;margin-left:-240px;width:480px;height:480px;border-radius:999px;background:radial-gradient(circle,rgba(93,114,168,0.16) 0%,rgba(8,10,15,0) 65%);"></div>
+          <div style="flex:1;display:flex;flex-direction:column;padding:80px 30px 0;position:relative;">
+            <div style="color:#9CA3AF;font-size:10px;font-weight:300;letter-spacing:2px;text-align:center;">DAY ZERO</div>
+            <div style="color:#E5E7EB;font-size:27px;line-height:1.3;margin-top:18px;font-family:'Newsreader',Georgia,serif;font-weight:400;text-align:center;">This only works if you show up. So we start with your word.</div>
+            <div style="background:#151A26;border-radius:16px;padding:24px 22px;margin-top:28px;">
+              <div style="color:#D1D5DB;font-size:16.5px;line-height:1.6;font-style:italic;font-family:'Newsreader',Georgia,serif;text-align:center;">"For the next 75 days I will give this ten minutes a day. Not to perform better — to stop performing at all."</div>
+            </div>
+            <div style="margin-top:24px;">
+              <div style="border-bottom:1px solid #2E3B5E;padding:8px 4px 10px;"><span style="color:#6C74A3;font-size:22px;font-style:italic;font-family:'Newsreader',Georgia,serif;">Marcus</span></div>
+              <div style="color:#4B5563;font-size:10px;font-weight:300;letter-spacing:0.5px;margin-top:8px;text-align:center;">SIGNED ON THIS DEVICE · SEEN BY NO ONE</div>
+            </div>
+            <div style="display:flex;justify-content:center;gap:8px;margin-top:26px;">
+              <div style="color:#9CA3AF;font-size:11px;font-weight:300;background:#151A26;border-radius:999px;padding:6px 13px;">75 days</div>
+              <div style="color:#9CA3AF;font-size:11px;font-weight:300;background:#151A26;border-radius:999px;padding:6px 13px;">10 min a day</div>
+              <div style="color:#9CA3AF;font-size:11px;font-weight:300;background:#151A26;border-radius:999px;padding:6px 13px;">$0.67 a day, once</div>
+            </div>
+          </div>
+          <div style="padding:0 30px 52px;">
+            <div style="width:100%;background:#E5E7EB;border-radius:999px;padding:19px 0;text-align:center;color:#080A0F;font-weight:500;font-size:15px;box-shadow:0 0 20px rgba(46,59,94,0.4);">Sign &amp; begin — $49.99</div>
+            <div style="color:#4B5563;font-size:10.5px;font-weight:300;text-align:center;margin-top:12px;">One payment. No subscription.</div>
+          </div>
+        </div>
+      </x-import>
+    </div>
+    <div style="color:#94a3b8;font-size:12.5px;line-height:1.6;max-width:800px;">CTA case rule applied: uppercase pills for navigation (FIND MY BASELINE, CONTINUE TO DAY ZERO), sentence case for commitment moments ("I understand", "Sign &amp; begin"). Clinical cards now carry the Figma renders instead of icons: somatic node → Adrenaline Trap, blue brain → Default Mode Network, purple ripples → Novelty Loop, water-drop → Why Band-Aids Fail (a ripple that never reaches the depths). All are transparent PNGs sitting on #080A0F, so they blend with no seams. Welcome hero uses the water-drop render per your note.</div>
+    <div style="color:#94a3b8;font-size:12.5px;line-height:1.6;max-width:800px;">Lifted verbatim from the file: bone pill CTA with rgba(46,59,94,0.4) glow · #151A26 / radius-16 answer cards with #5D72A8 radio selection and rgba(30,58,138,0.2) selection glow · 10px / 5px-tracked COMPOSE wordmark · weight-300 body · the actual hero render with its fade gradient. Kept from Twilight Descent: the dusk radial glow on Your Map. Severity chips stay semantic amber/red — now the only color that isn't light or dusk.</div>
+  </div>
+</section>
+
+<section style="padding:48px 56px 72px;display:flex;flex-direction:column;gap:28px;border-top:1px solid #1e293b;">
+  <div>
+    <div style="color:#64748b;font-size:12px;font-weight:700;letter-spacing:0.2em;text-transform:uppercase;">Compose · Onboarding Version B · Turn 2 · Ember direction</div>
+    <div style="color:#f8fafc;font-size:30px;font-weight:600;margin-top:10px;font-family:'Newsreader',Georgia,serif;">Ember at dusk — sand made scarce, headlines in Newsreader</div>
+    <div style="color:#94a3b8;font-size:14px;line-height:1.65;margin-top:8px;max-width:820px;">Refinements over <a href="#1a">1a</a>: sand now appears ONLY on the next step — CTA, progress fill, selection, and your score marker. Everything structural (eyebrow labels, lock icon, dusk glow, the calm-baseline zone) went periwinkle. On the gauge that reads as a story: a warm ember moving toward cool calm. And yes on the font — see the specimen strip below the phones.</div>
+  </div>
+
+  <div id="2a" style="display:flex;flex-direction:column;gap:14px;">
+    <div style="display:flex;align-items:center;gap:10px;"><a href="#2a" style="text-decoration:none;background:#1e293b;color:#94a3b8;font-size:12px;font-weight:700;padding:3px 9px;border-radius:999px;">2a</a><span style="color:#e2e8f0;font-size:14px;font-weight:700;">Ember at dusk — recommended</span></div>
+    <div style="display:flex;gap:24px;flex-wrap:wrap;">
+
+      <!-- 2a · B-01 Welcome -->
+      <x-import component-from-global-scope="IOSDevice" from="./ios-frame.jsx" dark="{{ true }}" hint-size="402px,874px">
+        <div data-screen-label="2a B-01 Welcome" style="width:100%;height:100%;background:#08090F;display:flex;flex-direction:column;position:relative;overflow:hidden;font-family:-apple-system,system-ui,sans-serif;">
+          <div style="position:absolute;top:-160px;left:50%;margin-left:-240px;width:480px;height:480px;border-radius:999px;background:radial-gradient(circle,rgba(93,114,168,0.20) 0%,rgba(8,9,15,0) 65%);"></div>
+          <div style="flex:1;display:flex;flex-direction:column;padding:120px 28px 0;position:relative;">
+            <div style="color:#8B93C7;font-size:11px;font-weight:600;letter-spacing:0.32em;text-transform:uppercase;">Compose</div>
+            <div style="color:#E5E7EB;font-size:34px;line-height:1.24;margin-top:22px;font-family:'Newsreader',Georgia,serif;font-weight:500;">Your body isn't failing you. It's following orders.</div>
+            <div style="color:#9CA3AF;font-size:15px;line-height:1.6;margin-top:16px;">Over the next few minutes we'll map where those orders come from. Every answer stays on this phone.</div>
+            <div style="display:flex;align-items:center;gap:9px;margin-top:28px;background:rgba(21,26,38,0.8);border:1px solid #232D42;border-radius:14px;padding:13px 16px;">
+              <div style="width:14px;height:11px;border:1.5px solid #8B93C7;border-radius:3px;position:relative;flex-shrink:0;margin-top:3px;"><div style="position:absolute;top:-6px;left:2px;width:6px;height:6px;border:1.5px solid #8B93C7;border-bottom:none;border-radius:4px 4px 0 0;"></div></div>
+              <div style="color:#9CA3AF;font-size:12.5px;line-height:1.5;">Private by design — no account, no sync, no lock-screen tells</div>
+            </div>
+          </div>
+          <div style="padding:0 28px 52px;position:relative;">
+            <div style="color:#6B7280;font-size:12px;text-align:center;margin-bottom:12px;">Takes about 4 minutes</div>
+            <div style="background:#C9985F;border-radius:14px;padding:17px;text-align:center;color:#14100A;font-weight:700;font-size:16px;">Find my baseline</div>
+          </div>
+        </div>
+      </x-import>
+
+      <!-- 2a · B-10 Question -->
+      <x-import component-from-global-scope="IOSDevice" from="./ios-frame.jsx" dark="{{ true }}" hint-size="402px,874px">
+        <div data-screen-label="2a B-10 Morning arousal" style="width:100%;height:100%;background:#08090F;display:flex;flex-direction:column;position:relative;overflow:hidden;font-family:-apple-system,system-ui,sans-serif;">
+          <div style="padding:70px 24px 0;">
+            <div style="display:flex;align-items:center;justify-content:space-between;">
+              <div style="display:flex;align-items:center;gap:14px;">
+                <div style="color:#9CA3AF;font-size:18px;line-height:1;">&#8592;</div>
+                <div style="color:#8B93C7;font-size:10px;font-weight:600;letter-spacing:0.2em;">MAPPING · 10 OF 24</div>
+              </div>
+              <div style="color:#6B7280;font-size:11px;">~2 min left</div>
+            </div>
+            <div style="height:2px;background:#232D42;border-radius:2px;margin-top:14px;overflow:hidden;"><div style="width:42%;height:100%;background:#C9985F;border-radius:2px;"></div></div>
+          </div>
+          <div style="flex:1;display:flex;flex-direction:column;padding:36px 24px 0;">
+            <div style="color:#E5E7EB;font-size:26px;line-height:1.3;font-family:'Newsreader',Georgia,serif;font-weight:500;">When you wake up in the morning, does your body show physical arousal on its own?</div>
+            <div style="color:#9CA3AF;font-size:13.5px;line-height:1.55;margin-top:12px;">This tells us whether the machinery works when nothing is being asked of it. If your body fires on its own, the problem isn't the hardware — it's the interference.</div>
+            <div style="display:flex;flex-direction:column;gap:10px;margin-top:30px;">
+              <div style="background:#151A26;border:1px solid #232D42;border-radius:14px;padding:17px 18px;color:#E5E7EB;font-size:15px;">Most mornings</div>
+              <div style="background:rgba(201,152,95,0.12);border:1px solid #C9985F;border-radius:14px;padding:17px 18px;color:#E5E7EB;font-size:15px;display:flex;justify-content:space-between;align-items:center;"><span>Sometimes</span><span style="color:#C9985F;font-size:14px;">&#10003;</span></div>
+              <div style="background:#151A26;border:1px solid #232D42;border-radius:14px;padding:17px 18px;color:#E5E7EB;font-size:15px;">Rarely or never</div>
+              <div style="background:#151A26;border:1px solid #232D42;border-radius:14px;padding:17px 18px;color:#E5E7EB;font-size:15px;">Not sure — I've never paid attention</div>
+            </div>
+          </div>
+          <div style="padding:0 24px 44px;"><div style="color:#4B5563;font-size:10.5px;text-align:center;">Answers stay on this phone. Always.</div></div>
+        </div>
+      </x-import>
+
+      <!-- 2a · B-26 Your Map -->
+      <x-import component-from-global-scope="IOSDevice" from="./ios-frame.jsx" dark="{{ true }}" hint-size="402px,874px">
+        <div data-screen-label="2a B-26 Your Map" style="width:100%;height:100%;background:#08090F;display:flex;flex-direction:column;position:relative;overflow:hidden;font-family:-apple-system,system-ui,sans-serif;">
+          <div style="position:absolute;top:-180px;left:50%;margin-left:-240px;width:480px;height:480px;border-radius:999px;background:radial-gradient(circle,rgba(93,114,168,0.14) 0%,rgba(8,9,15,0) 65%);"></div>
+          <div style="flex:1;display:flex;flex-direction:column;padding:64px 24px 0;position:relative;">
+            <div style="color:#8B93C7;font-size:10px;font-weight:600;letter-spacing:0.28em;text-transform:uppercase;">Your Map</div>
+            <div style="color:#E5E7EB;font-size:24px;line-height:1.28;margin-top:10px;font-family:'Newsreader',Georgia,serif;font-weight:500;">Marcus, here is what your answers show.</div>
+            <div style="display:flex;align-items:baseline;gap:10px;margin-top:18px;">
+              <div style="color:#E5E7EB;font-size:56px;font-weight:500;line-height:1;font-family:'Newsreader',Georgia,serif;">41<span style="color:#4B5563;font-size:24px;font-weight:400;"> / 100</span></div>
+            </div>
+            <div style="color:#6B7280;font-size:11px;margin-top:6px;">Your Composure Score — re-measured at Days 14, 40, and 75.</div>
+            <div style="margin-top:16px;">
+              <div style="height:8px;background:#151A26;border:1px solid #232D42;border-radius:6px;position:relative;">
+                <div style="position:absolute;left:80%;right:0;top:0;bottom:0;background:rgba(139,147,199,0.22);border-radius:0 6px 6px 0;"></div>
+                <div style="position:absolute;left:41%;top:-4px;width:2px;height:14px;background:#C9985F;border-radius:2px;box-shadow:0 0 10px rgba(201,152,95,0.6);"></div>
+              </div>
+              <div style="display:flex;justify-content:flex-end;"><div style="color:#6C74A3;font-size:10px;margin-top:6px;">Calm baseline — where the protocol trains you toward</div></div>
+              <div style="color:#6B7280;font-size:11px;margin-top:2px;">The gap is the work. 75 days is the route.</div>
+            </div>
+            <div style="display:flex;flex-direction:column;gap:8px;margin-top:18px;">
+              <div style="display:flex;align-items:center;justify-content:space-between;background:#151A26;border:1px solid #232D42;border-radius:10px;padding:10px 14px;"><span style="color:#D1D5DB;font-size:13px;">Sympathetic override</span><span style="color:#D9A756;font-size:10.5px;font-weight:700;background:rgba(217,167,86,0.12);border-radius:999px;padding:3px 9px;">MODERATE</span></div>
+              <div style="display:flex;align-items:center;justify-content:space-between;background:#151A26;border:1px solid #232D42;border-radius:10px;padding:10px 14px;"><span style="color:#D1D5DB;font-size:13px;">Spectatoring loop</span><span style="color:#E07A5F;font-size:10.5px;font-weight:700;background:rgba(224,122,95,0.12);border-radius:999px;padding:3px 9px;">HIGH</span></div>
+              <div style="display:flex;align-items:center;justify-content:space-between;background:#151A26;border:1px solid #232D42;border-radius:10px;padding:10px 14px;"><span style="color:#D1D5DB;font-size:13px;">Pelvic release capacity</span><span style="color:#D9A756;font-size:10.5px;font-weight:700;background:rgba(217,167,86,0.12);border-radius:999px;padding:3px 9px;">PARTIAL</span></div>
+              <div style="display:flex;align-items:center;justify-content:space-between;background:#151A26;border:1px solid #232D42;border-radius:10px;padding:10px 14px;"><span style="color:#D1D5DB;font-size:13px;">Avoidance pattern</span><span style="color:#D9A756;font-size:10.5px;font-weight:700;background:rgba(217,167,86,0.12);border-radius:999px;padding:3px 9px;">ELEVATED</span></div>
+            </div>
+            <div style="color:#9CA3AF;font-size:13px;line-height:1.55;margin-top:16px;font-style:italic;font-family:'Newsreader',Georgia,serif;">"Breath-holding at the edge, spectatoring most sessions, partial pelvic release — that triad is the adrenaline trap, and yours has been conditioned over roughly 11 years."</div>
+          </div>
+          <div style="padding:14px 24px 44px;position:relative;">
+            <div style="background:#C9985F;border-radius:14px;padding:16px;text-align:center;color:#14100A;font-weight:700;font-size:15px;">See my protocol</div>
+            <div style="color:#4B5563;font-size:10.5px;text-align:center;margin-top:10px;">Stored on this device only</div>
+          </div>
+        </div>
+      </x-import>
+    </div>
+
+    <!-- Type specimen strip -->
+    <div style="display:flex;gap:16px;flex-wrap:wrap;margin-top:6px;">
+      <div style="background:#08090F;border:1px solid #232D42;border-radius:16px;padding:20px 22px;width:340px;">
+        <div style="color:#6B7280;font-size:10px;font-weight:700;letter-spacing:0.18em;text-transform:uppercase;">Source Serif 4 — turn 1</div>
+        <div style="color:#E5E7EB;font-size:23px;line-height:1.3;margin-top:10px;font-family:'Source Serif 4',Georgia,serif;font-weight:500;">Your body isn't failing you. It's following orders.</div>
+        <div style="color:#94a3b8;font-size:12px;line-height:1.55;margin-top:10px;">Sturdy, neutral, a bit "docs-site." Reads as software, not as a voice.</div>
+      </div>
+      <div style="background:#08090F;border:1px solid #8B93C7;border-radius:16px;padding:20px 22px;width:340px;">
+        <div style="color:#8B93C7;font-size:10px;font-weight:700;letter-spacing:0.18em;text-transform:uppercase;">Newsreader — recommended</div>
+        <div style="color:#E5E7EB;font-size:23px;line-height:1.3;margin-top:10px;font-family:'Newsreader',Georgia,serif;font-weight:500;">Your body isn't failing you. It's following orders.</div>
+        <div style="color:#94a3b8;font-size:12px;line-height:1.55;margin-top:10px;">Literary and calm — sounds like a steady narrator, not an app. Beautiful true italic for the oath and mirror sentences.</div>
+      </div>
+      <div style="background:#08090F;border:1px solid #232D42;border-radius:16px;padding:20px 22px;width:340px;">
+        <div style="color:#6B7280;font-size:10px;font-weight:700;letter-spacing:0.18em;text-transform:uppercase;">Lora — alternative</div>
+        <div style="color:#E5E7EB;font-size:23px;line-height:1.3;margin-top:10px;font-family:'Lora',Georgia,serif;font-weight:500;">Your body isn't failing you. It's following orders.</div>
+        <div style="color:#94a3b8;font-size:12px;line-height:1.55;margin-top:10px;">Softer and rounder — gentler, but a touch generic-wellness.</div>
+      </div>
+    </div>
+    <div style="color:#94a3b8;font-size:12.5px;line-height:1.6;max-width:800px;">Sand appears exactly four times per screen or fewer. The score marker now glows faintly — you're the ember on the gauge, moving toward the periwinkle calm zone. Severity chips unchanged (semantic amber/red).</div>
+  </div>
+</section>
+
+<section style="padding:48px 56px 96px;display:flex;flex-direction:column;gap:28px;border-top:1px solid #1e293b;">
+  <div>
+    <div style="color:#64748b;font-size:12px;font-weight:700;letter-spacing:0.2em;text-transform:uppercase;">Compose · Onboarding Version B · Turn 1 · Accent decision</div>
+    <div style="color:#f8fafc;font-size:30px;font-weight:600;margin-top:10px;font-family:'Source Serif 4',Georgia,serif;">Sand or periwinkle — same twilight, two temperatures</div>
+    <div style="color:#94a3b8;font-size:14px;line-height:1.65;margin-top:8px;max-width:820px;">Both use the hybrid system: Figma file's deep-navy surfaces (#08090F / #151A26 / #232D42 strokes) + Twilight Descent's dusk glow and night framing, serif headlines per your spec. <a href="#1a">1a</a> keeps the spec's warm sand on CTAs, progress and selection — warm-on-cool, ember-at-dusk. <a href="#1b">1b</a> goes fully cool with Twilight Descent's periwinkle. Copy is verbatim from the PDF (B-01, B-10, B-26).</div>
+  </div>
+
+  <div style="display:flex;gap:48px;flex-wrap:wrap;align-items:flex-start;">
+
+    <!-- ============ 1a SAND ON TWILIGHT ============ -->
+    <div id="1a" style="display:flex;flex-direction:column;gap:14px;">
+      <div style="display:flex;align-items:center;gap:10px;"><a href="#1a" style="text-decoration:none;background:#1e293b;color:#94a3b8;font-size:12px;font-weight:700;padding:3px 9px;border-radius:999px;">1a</a><span style="color:#e2e8f0;font-size:14px;font-weight:700;">Sand on twilight — warm accent, per the spec</span></div>
+      <div style="display:flex;gap:24px;">
+
+        <!-- 1a · B-01 Welcome -->
+        <x-import component-from-global-scope="IOSDevice" from="./ios-frame.jsx" dark="{{ true }}" hint-size="402px,874px">
+          <div data-screen-label="1a B-01 Welcome" style="width:100%;height:100%;background:#08090F;display:flex;flex-direction:column;position:relative;overflow:hidden;font-family:-apple-system,system-ui,sans-serif;">
+            <div style="position:absolute;top:-160px;left:50%;margin-left:-240px;width:480px;height:480px;border-radius:999px;background:radial-gradient(circle,rgba(93,114,168,0.20) 0%,rgba(8,9,15,0) 65%);"></div>
+            <div style="flex:1;display:flex;flex-direction:column;padding:120px 28px 0;position:relative;">
+              <div style="color:#C9985F;font-size:11px;font-weight:600;letter-spacing:0.32em;text-transform:uppercase;">Compose</div>
+              <div style="color:#E5E7EB;font-size:34px;line-height:1.28;margin-top:22px;font-family:'Source Serif 4',Georgia,serif;font-weight:500;">Your body isn't failing you. It's following orders.</div>
+              <div style="color:#9CA3AF;font-size:15px;line-height:1.6;margin-top:16px;">Over the next few minutes we'll map where those orders come from. Every answer stays on this phone.</div>
+              <div style="display:flex;align-items:center;gap:9px;margin-top:28px;background:rgba(21,26,38,0.8);border:1px solid #232D42;border-radius:14px;padding:13px 16px;">
+                <div style="width:14px;height:11px;border:1.5px solid #C9985F;border-radius:3px;position:relative;flex-shrink:0;margin-top:3px;"><div style="position:absolute;top:-6px;left:2px;width:6px;height:6px;border:1.5px solid #C9985F;border-bottom:none;border-radius:4px 4px 0 0;"></div></div>
+                <div style="color:#9CA3AF;font-size:12.5px;line-height:1.5;">Private by design — no account, no sync, no lock-screen tells</div>
+              </div>
+            </div>
+            <div style="padding:0 28px 52px;position:relative;">
+              <div style="color:#6B7280;font-size:12px;text-align:center;margin-bottom:12px;">Takes about 4 minutes</div>
+              <div style="background:#C9985F;border-radius:14px;padding:17px;text-align:center;color:#14100A;font-weight:700;font-size:16px;">Find my baseline</div>
+            </div>
+          </div>
+        </x-import>
+
+        <!-- 1a · B-10 Question -->
+        <x-import component-from-global-scope="IOSDevice" from="./ios-frame.jsx" dark="{{ true }}" hint-size="402px,874px">
+          <div data-screen-label="1a B-10 Morning arousal" style="width:100%;height:100%;background:#08090F;display:flex;flex-direction:column;position:relative;overflow:hidden;font-family:-apple-system,system-ui,sans-serif;">
+            <div style="padding:70px 24px 0;">
+              <div style="display:flex;align-items:center;justify-content:space-between;">
+                <div style="display:flex;align-items:center;gap:14px;">
+                  <div style="color:#9CA3AF;font-size:18px;line-height:1;">&#8592;</div>
+                  <div style="color:#9CA3AF;font-size:10px;font-weight:600;letter-spacing:0.2em;">MAPPING · 10 OF 24</div>
+                </div>
+                <div style="color:#6B7280;font-size:11px;">~2 min left</div>
+              </div>
+              <div style="height:2px;background:#232D42;border-radius:2px;margin-top:14px;overflow:hidden;"><div style="width:42%;height:100%;background:#C9985F;border-radius:2px;"></div></div>
+            </div>
+            <div style="flex:1;display:flex;flex-direction:column;padding:36px 24px 0;">
+              <div style="color:#E5E7EB;font-size:26px;line-height:1.32;font-family:'Source Serif 4',Georgia,serif;font-weight:500;">When you wake up in the morning, does your body show physical arousal on its own?</div>
+              <div style="color:#9CA3AF;font-size:13.5px;line-height:1.55;margin-top:12px;">This tells us whether the machinery works when nothing is being asked of it. If your body fires on its own, the problem isn't the hardware — it's the interference.</div>
+              <div style="display:flex;flex-direction:column;gap:10px;margin-top:30px;">
+                <div style="background:#151A26;border:1px solid #232D42;border-radius:14px;padding:17px 18px;color:#E5E7EB;font-size:15px;">Most mornings</div>
+                <div style="background:rgba(201,152,95,0.12);border:1px solid #C9985F;border-radius:14px;padding:17px 18px;color:#E5E7EB;font-size:15px;display:flex;justify-content:space-between;align-items:center;"><span>Sometimes</span><span style="color:#C9985F;font-size:14px;">&#10003;</span></div>
+                <div style="background:#151A26;border:1px solid #232D42;border-radius:14px;padding:17px 18px;color:#E5E7EB;font-size:15px;">Rarely or never</div>
+                <div style="background:#151A26;border:1px solid #232D42;border-radius:14px;padding:17px 18px;color:#E5E7EB;font-size:15px;">Not sure — I've never paid attention</div>
+              </div>
+            </div>
+            <div style="padding:0 24px 44px;"><div style="color:#4B5563;font-size:10.5px;text-align:center;">Answers stay on this phone. Always.</div></div>
+          </div>
+        </x-import>
+
+        <!-- 1a · B-26 Your Map -->
+        <x-import component-from-global-scope="IOSDevice" from="./ios-frame.jsx" dark="{{ true }}" hint-size="402px,874px">
+          <div data-screen-label="1a B-26 Your Map" style="width:100%;height:100%;background:#08090F;display:flex;flex-direction:column;position:relative;overflow:hidden;font-family:-apple-system,system-ui,sans-serif;">
+            <div style="position:absolute;top:-180px;left:50%;margin-left:-240px;width:480px;height:480px;border-radius:999px;background:radial-gradient(circle,rgba(201,152,95,0.10) 0%,rgba(8,9,15,0) 65%);"></div>
+            <div style="flex:1;display:flex;flex-direction:column;padding:64px 24px 0;position:relative;">
+              <div style="color:#C9985F;font-size:10px;font-weight:600;letter-spacing:0.28em;text-transform:uppercase;">Your Map</div>
+              <div style="color:#E5E7EB;font-size:24px;line-height:1.3;margin-top:10px;font-family:'Source Serif 4',Georgia,serif;font-weight:500;">Marcus, here is what your answers show.</div>
+              <div style="display:flex;align-items:baseline;gap:10px;margin-top:18px;">
+                <div style="color:#E5E7EB;font-size:56px;font-weight:600;line-height:1;font-family:'Source Serif 4',Georgia,serif;">41<span style="color:#4B5563;font-size:24px;font-weight:400;"> / 100</span></div>
+              </div>
+              <div style="color:#6B7280;font-size:11px;margin-top:6px;">Your Composure Score — re-measured at Days 14, 40, and 75.</div>
+              <div style="margin-top:16px;">
+                <div style="height:8px;background:#151A26;border:1px solid #232D42;border-radius:6px;position:relative;">
+                  <div style="position:absolute;left:80%;right:0;top:0;bottom:0;background:rgba(201,152,95,0.20);border-radius:0 6px 6px 0;"></div>
+                  <div style="position:absolute;left:41%;top:-4px;width:2px;height:14px;background:#C9985F;border-radius:2px;"></div>
+                </div>
+                <div style="display:flex;justify-content:flex-end;"><div style="color:#8A7358;font-size:10px;margin-top:6px;">Calm baseline — where the protocol trains you toward</div></div>
+                <div style="color:#6B7280;font-size:11px;margin-top:2px;">The gap is the work. 75 days is the route.</div>
+              </div>
+              <div style="display:flex;flex-direction:column;gap:8px;margin-top:18px;">
+                <div style="display:flex;align-items:center;justify-content:space-between;background:#151A26;border:1px solid #232D42;border-radius:10px;padding:10px 14px;"><span style="color:#D1D5DB;font-size:13px;">Sympathetic override</span><span style="color:#D9A756;font-size:10.5px;font-weight:700;background:rgba(217,167,86,0.12);border-radius:999px;padding:3px 9px;">MODERATE</span></div>
+                <div style="display:flex;align-items:center;justify-content:space-between;background:#151A26;border:1px solid #232D42;border-radius:10px;padding:10px 14px;"><span style="color:#D1D5DB;font-size:13px;">Spectatoring loop</span><span style="color:#E07A5F;font-size:10.5px;font-weight:700;background:rgba(224,122,95,0.12);border-radius:999px;padding:3px 9px;">HIGH</span></div>
+                <div style="display:flex;align-items:center;justify-content:space-between;background:#151A26;border:1px solid #232D42;border-radius:10px;padding:10px 14px;"><span style="color:#D1D5DB;font-size:13px;">Pelvic release capacity</span><span style="color:#D9A756;font-size:10.5px;font-weight:700;background:rgba(217,167,86,0.12);border-radius:999px;padding:3px 9px;">PARTIAL</span></div>
+                <div style="display:flex;align-items:center;justify-content:space-between;background:#151A26;border:1px solid #232D42;border-radius:10px;padding:10px 14px;"><span style="color:#D1D5DB;font-size:13px;">Avoidance pattern</span><span style="color:#D9A756;font-size:10.5px;font-weight:700;background:rgba(217,167,86,0.12);border-radius:999px;padding:3px 9px;">ELEVATED</span></div>
+              </div>
+              <div style="color:#9CA3AF;font-size:12.5px;line-height:1.55;margin-top:16px;font-style:italic;font-family:'Source Serif 4',Georgia,serif;">"Breath-holding at the edge, spectatoring most sessions, partial pelvic release — that triad is the adrenaline trap, and yours has been conditioned over roughly 11 years."</div>
+            </div>
+            <div style="padding:14px 24px 44px;position:relative;">
+              <div style="background:#C9985F;border-radius:14px;padding:16px;text-align:center;color:#14100A;font-weight:700;font-size:15px;">See my protocol</div>
+              <div style="color:#4B5563;font-size:10.5px;text-align:center;margin-top:10px;">Stored on this device only</div>
+            </div>
+          </div>
+        </x-import>
+      </div>
+      <div style="color:#94a3b8;font-size:12.5px;line-height:1.6;max-width:800px;">Warm-on-cool: the sand is the only warm object in a cold room — every CTA reads as "the next step glows." Matches the spec letter-for-letter, and gives severity chips (amber/red) a family resemblance to the accent.</div>
+    </div>
+
+    <!-- ============ 1b PERIWINKLE ============ -->
+    <div id="1b" style="display:flex;flex-direction:column;gap:14px;">
+      <div style="display:flex;align-items:center;gap:10px;"><a href="#1b" style="text-decoration:none;background:#1e293b;color:#94a3b8;font-size:12px;font-weight:700;padding:3px 9px;border-radius:999px;">1b</a><span style="color:#e2e8f0;font-size:14px;font-weight:700;">Periwinkle dusk — fully cool, per Twilight Descent</span></div>
+      <div style="display:flex;gap:24px;">
+
+        <!-- 1b · B-01 Welcome -->
+        <x-import component-from-global-scope="IOSDevice" from="./ios-frame.jsx" dark="{{ true }}" hint-size="402px,874px">
+          <div data-screen-label="1b B-01 Welcome" style="width:100%;height:100%;background:#08090F;display:flex;flex-direction:column;position:relative;overflow:hidden;font-family:-apple-system,system-ui,sans-serif;">
+            <div style="position:absolute;top:-160px;left:50%;margin-left:-240px;width:480px;height:480px;border-radius:999px;background:radial-gradient(circle,rgba(139,147,199,0.22) 0%,rgba(8,9,15,0) 65%);"></div>
+            <div style="flex:1;display:flex;flex-direction:column;padding:120px 28px 0;position:relative;">
+              <div style="color:#8B93C7;font-size:11px;font-weight:600;letter-spacing:0.32em;text-transform:uppercase;">Compose</div>
+              <div style="color:#E8E9F2;font-size:34px;line-height:1.28;margin-top:22px;font-family:'Source Serif 4',Georgia,serif;font-weight:500;">Your body isn't failing you. It's following orders.</div>
+              <div style="color:#9CA3AF;font-size:15px;line-height:1.6;margin-top:16px;">Over the next few minutes we'll map where those orders come from. Every answer stays on this phone.</div>
+              <div style="display:flex;align-items:center;gap:9px;margin-top:28px;background:rgba(21,26,38,0.8);border:1px solid #232D42;border-radius:14px;padding:13px 16px;">
+                <div style="width:14px;height:11px;border:1.5px solid #8B93C7;border-radius:3px;position:relative;flex-shrink:0;margin-top:3px;"><div style="position:absolute;top:-6px;left:2px;width:6px;height:6px;border:1.5px solid #8B93C7;border-bottom:none;border-radius:4px 4px 0 0;"></div></div>
+                <div style="color:#9CA3AF;font-size:12.5px;line-height:1.5;">Private by design — no account, no sync, no lock-screen tells</div>
+              </div>
+            </div>
+            <div style="padding:0 28px 52px;position:relative;">
+              <div style="color:#6B7280;font-size:12px;text-align:center;margin-bottom:12px;">Takes about 4 minutes</div>
+              <div style="background:#8B93C7;border-radius:14px;padding:17px;text-align:center;color:#0B0C18;font-weight:700;font-size:16px;">Find my baseline</div>
+            </div>
+          </div>
+        </x-import>
+
+        <!-- 1b · B-10 Question -->
+        <x-import component-from-global-scope="IOSDevice" from="./ios-frame.jsx" dark="{{ true }}" hint-size="402px,874px">
+          <div data-screen-label="1b B-10 Morning arousal" style="width:100%;height:100%;background:#08090F;display:flex;flex-direction:column;position:relative;overflow:hidden;font-family:-apple-system,system-ui,sans-serif;">
+            <div style="padding:70px 24px 0;">
+              <div style="display:flex;align-items:center;justify-content:space-between;">
+                <div style="display:flex;align-items:center;gap:14px;">
+                  <div style="color:#9CA3AF;font-size:18px;line-height:1;">&#8592;</div>
+                  <div style="color:#9CA3AF;font-size:10px;font-weight:600;letter-spacing:0.2em;">MAPPING · 10 OF 24</div>
+                </div>
+                <div style="color:#6B7280;font-size:11px;">~2 min left</div>
+              </div>
+              <div style="height:2px;background:#232D42;border-radius:2px;margin-top:14px;overflow:hidden;"><div style="width:42%;height:100%;background:#8B93C7;border-radius:2px;"></div></div>
+            </div>
+            <div style="flex:1;display:flex;flex-direction:column;padding:36px 24px 0;">
+              <div style="color:#E8E9F2;font-size:26px;line-height:1.32;font-family:'Source Serif 4',Georgia,serif;font-weight:500;">When you wake up in the morning, does your body show physical arousal on its own?</div>
+              <div style="color:#9CA3AF;font-size:13.5px;line-height:1.55;margin-top:12px;">This tells us whether the machinery works when nothing is being asked of it. If your body fires on its own, the problem isn't the hardware — it's the interference.</div>
+              <div style="display:flex;flex-direction:column;gap:10px;margin-top:30px;">
+                <div style="background:#151A26;border:1px solid #232D42;border-radius:14px;padding:17px 18px;color:#E5E7EB;font-size:15px;">Most mornings</div>
+                <div style="background:rgba(139,147,199,0.12);border:1px solid #8B93C7;border-radius:14px;padding:17px 18px;color:#E8E9F2;font-size:15px;display:flex;justify-content:space-between;align-items:center;"><span>Sometimes</span><span style="color:#A9AFD1;font-size:14px;">&#10003;</span></div>
+                <div style="background:#151A26;border:1px solid #232D42;border-radius:14px;padding:17px 18px;color:#E5E7EB;font-size:15px;">Rarely or never</div>
+                <div style="background:#151A26;border:1px solid #232D42;border-radius:14px;padding:17px 18px;color:#E5E7EB;font-size:15px;">Not sure — I've never paid attention</div>
+              </div>
+            </div>
+            <div style="padding:0 24px 44px;"><div style="color:#4B5563;font-size:10.5px;text-align:center;">Answers stay on this phone. Always.</div></div>
+          </div>
+        </x-import>
+
+        <!-- 1b · B-26 Your Map -->
+        <x-import component-from-global-scope="IOSDevice" from="./ios-frame.jsx" dark="{{ true }}" hint-size="402px,874px">
+          <div data-screen-label="1b B-26 Your Map" style="width:100%;height:100%;background:#08090F;display:flex;flex-direction:column;position:relative;overflow:hidden;font-family:-apple-system,system-ui,sans-serif;">
+            <div style="position:absolute;top:-180px;left:50%;margin-left:-240px;width:480px;height:480px;border-radius:999px;background:radial-gradient(circle,rgba(139,147,199,0.14) 0%,rgba(8,9,15,0) 65%);"></div>
+            <div style="flex:1;display:flex;flex-direction:column;padding:64px 24px 0;position:relative;">
+              <div style="color:#8B93C7;font-size:10px;font-weight:600;letter-spacing:0.28em;text-transform:uppercase;">Your Map</div>
+              <div style="color:#E8E9F2;font-size:24px;line-height:1.3;margin-top:10px;font-family:'Source Serif 4',Georgia,serif;font-weight:500;">Marcus, here is what your answers show.</div>
+              <div style="display:flex;align-items:baseline;gap:10px;margin-top:18px;">
+                <div style="color:#E8E9F2;font-size:56px;font-weight:600;line-height:1;font-family:'Source Serif 4',Georgia,serif;">41<span style="color:#4B5563;font-size:24px;font-weight:400;"> / 100</span></div>
+              </div>
+              <div style="color:#6B7280;font-size:11px;margin-top:6px;">Your Composure Score — re-measured at Days 14, 40, and 75.</div>
+              <div style="margin-top:16px;">
+                <div style="height:8px;background:#151A26;border:1px solid #232D42;border-radius:6px;position:relative;">
+                  <div style="position:absolute;left:80%;right:0;top:0;bottom:0;background:rgba(139,147,199,0.22);border-radius:0 6px 6px 0;"></div>
+                  <div style="position:absolute;left:41%;top:-4px;width:2px;height:14px;background:#8B93C7;border-radius:2px;"></div>
+                </div>
+                <div style="display:flex;justify-content:flex-end;"><div style="color:#6C74A3;font-size:10px;margin-top:6px;">Calm baseline — where the protocol trains you toward</div></div>
+                <div style="color:#6B7280;font-size:11px;margin-top:2px;">The gap is the work. 75 days is the route.</div>
+              </div>
+              <div style="display:flex;flex-direction:column;gap:8px;margin-top:18px;">
+                <div style="display:flex;align-items:center;justify-content:space-between;background:#151A26;border:1px solid #232D42;border-radius:10px;padding:10px 14px;"><span style="color:#D1D5DB;font-size:13px;">Sympathetic override</span><span style="color:#D9A756;font-size:10.5px;font-weight:700;background:rgba(217,167,86,0.12);border-radius:999px;padding:3px 9px;">MODERATE</span></div>
+                <div style="display:flex;align-items:center;justify-content:space-between;background:#151A26;border:1px solid #232D42;border-radius:10px;padding:10px 14px;"><span style="color:#D1D5DB;font-size:13px;">Spectatoring loop</span><span style="color:#E07A5F;font-size:10.5px;font-weight:700;background:rgba(224,122,95,0.12);border-radius:999px;padding:3px 9px;">HIGH</span></div>
+                <div style="display:flex;align-items:center;justify-content:space-between;background:#151A26;border:1px solid #232D42;border-radius:10px;padding:10px 14px;"><span style="color:#D1D5DB;font-size:13px;">Pelvic release capacity</span><span style="color:#D9A756;font-size:10.5px;font-weight:700;background:rgba(217,167,86,0.12);border-radius:999px;padding:3px 9px;">PARTIAL</span></div>
+                <div style="display:flex;align-items:center;justify-content:space-between;background:#151A26;border:1px solid #232D42;border-radius:10px;padding:10px 14px;"><span style="color:#D1D5DB;font-size:13px;">Avoidance pattern</span><span style="color:#D9A756;font-size:10.5px;font-weight:700;background:rgba(217,167,86,0.12);border-radius:999px;padding:3px 9px;">ELEVATED</span></div>
+              </div>
+              <div style="color:#9CA3AF;font-size:12.5px;line-height:1.55;margin-top:16px;font-style:italic;font-family:'Source Serif 4',Georgia,serif;">"Breath-holding at the edge, spectatoring most sessions, partial pelvic release — that triad is the adrenaline trap, and yours has been conditioned over roughly 11 years."</div>
+            </div>
+            <div style="padding:14px 24px 44px;position:relative;">
+              <div style="background:#8B93C7;border-radius:14px;padding:16px;text-align:center;color:#0B0C18;font-weight:700;font-size:15px;">See my protocol</div>
+              <div style="color:#4B5563;font-size:10.5px;text-align:center;margin-top:10px;">Stored on this device only</div>
+            </div>
+          </div>
+        </x-import>
+      </div>
+      <div style="color:#94a3b8;font-size:12.5px;line-height:1.6;max-width:800px;">Fully cool: one continuous temperature from welcome to Day 75 — calmer, more clinical, closer to the Figma reference. Severity chips stay amber/red (semantic), which makes "what needs work" the only warm thing on screen.</div>
+    </div>
+
+  </div>
+</section>
+</x-dc>
+</body>
+</html>

@@ -160,21 +160,21 @@ export default function DashboardScreen() {
                     Scenario-matched reframes for intimacy roadblocks, on demand.
                   </Text>
                 </View>
-                <ChevronRight color="#8A8378" size={16} />
+                <ChevronRight color="#6B7280" size={16} />
               </TouchableOpacity>
               <TouchableOpacity
                 onPress={openCustomerCenter}
                 activeOpacity={0.8}
                 className="flex-row items-center gap-2 mt-4"
               >
-                <Settings color="#8A8378" size={14} />
+                <Settings color="#6B7280" size={14} />
                 <Text className="text-muted text-xs">Manage Subscription</Text>
               </TouchableOpacity>
             </>
           ) : (
             <>
               <View className="flex-row items-center gap-2">
-                <Sparkles color="#B9B2A6" size={14} />
+                <Sparkles color="#9CA3AF" size={14} />
                 <Text className="text-body text-sm font-bold">Keep Your Progress Going</Text>
               </View>
               <Text className="text-muted text-xs mt-1 leading-4">
@@ -188,7 +188,7 @@ export default function DashboardScreen() {
                 className="bg-accent rounded-xl py-3 items-center mt-4"
               >
                 {isProcessing ? (
-                  <ActivityIndicator color="#171310" />
+                  <ActivityIndicator color="#0C0B09" />
                 ) : (
                   <Text className="text-on-accent font-bold text-sm">Continue — $4.99/mo</Text>
                 )}

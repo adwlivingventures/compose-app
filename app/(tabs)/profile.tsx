@@ -62,7 +62,7 @@ function NavRow({
         <Text className="text-ink text-sm font-bold">{title}</Text>
         {subtitle && <Text className="text-muted text-xs mt-0.5 leading-4">{subtitle}</Text>}
       </View>
-      <ChevronRight color="#6E675D" size={16} />
+      <ChevronRight color="#4B5563" size={16} />
     </TouchableOpacity>
   );
 }
@@ -158,12 +158,12 @@ export default function ProfileScreen() {
             style={{ opacity: 0.55 }}
             className="p-4 flex-row items-center gap-3 border-b border-line"
           >
-            <Wind color="#6E675D" size={18} />
+            <Wind color="#4B5563" size={18} />
             <View className="flex-1">
               <Text className="text-ink text-sm font-bold">Somatic Sandbox</Text>
               <Text className="text-muted text-xs mt-0.5 leading-4">Opens on Day 26.</Text>
             </View>
-            <Lock color="#6E675D" size={14} />
+            <Lock color="#4B5563" size={14} />
           </View>
         )}
         <NavRow
@@ -206,7 +206,7 @@ export default function ProfileScreen() {
 
       {/* CBT Vault */}
       <View className="flex-row items-center gap-2 mb-3">
-        <Lock color="#8A8378" size={13} />
+        <Lock color="#6B7280" size={13} />
         <Text className="text-muted text-xs font-bold uppercase tracking-widest">
           The Vault · Local Record Only
         </Text>
@@ -261,10 +261,10 @@ export default function ProfileScreen() {
           className="p-4 flex-row items-center justify-between border-b border-line"
         >
           <View className="flex-row items-center gap-2">
-            <EyeOff color="#B9B2A6" size={14} />
+            <EyeOff color="#9CA3AF" size={14} />
             <Text className="text-body text-sm">Discretion</Text>
           </View>
-          <ChevronRight color="#6E675D" size={16} />
+          <ChevronRight color="#4B5563" size={16} />
         </TouchableOpacity>
         <TouchableOpacity
           onPress={restorePurchases}
@@ -273,7 +273,7 @@ export default function ProfileScreen() {
           className="p-4 flex-row items-center justify-between border-b border-line"
         >
           <Text className="text-body text-sm">Restore Purchases</Text>
-          <ChevronRight color="#6E675D" size={16} />
+          <ChevronRight color="#4B5563" size={16} />
         </TouchableOpacity>
         <TouchableOpacity
           onPress={confirmReset}
@@ -283,10 +283,10 @@ export default function ProfileScreen() {
           }`}
         >
           <View className="flex-row items-center gap-2">
-            <RotateCcw color="#B9B2A6" size={14} />
+            <RotateCcw color="#9CA3AF" size={14} />
             <Text className="text-body text-sm">Reset Protocol Baseline</Text>
           </View>
-          <ChevronRight color="#6E675D" size={16} />
+          <ChevronRight color="#4B5563" size={16} />
         </TouchableOpacity>
         {__DEV__ && (
           <>
@@ -296,7 +296,7 @@ export default function ProfileScreen() {
               className="p-4 flex-row items-center justify-between border-b border-line"
             >
               <Text className="text-dim text-sm">Replay Onboarding (dev only)</Text>
-              <ChevronRight color="#57534B" size={16} />
+              <ChevronRight color="#4B5563" size={16} />
             </TouchableOpacity>
             <TouchableOpacity
               onPress={() =>
@@ -316,7 +316,7 @@ export default function ProfileScreen() {
               className="p-4 flex-row items-center justify-between"
             >
               <Text className="text-dim text-sm">Jump to Day (dev only)</Text>
-              <ChevronRight color="#57534B" size={16} />
+              <ChevronRight color="#4B5563" size={16} />
             </TouchableOpacity>
           </>
         )}
@@ -341,7 +341,7 @@ export default function ProfileScreen() {
               activeOpacity={0.7}
               className="bg-surface-deep rounded-full p-2"
             >
-              <X color="#8A8378" size={16} />
+              <X color="#6B7280" size={16} />
             </TouchableOpacity>
           </View>
           <ScrollView

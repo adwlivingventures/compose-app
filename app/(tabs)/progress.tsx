@@ -38,7 +38,7 @@ function ControlChart({ points }: { points: { day: number; score: number }[] }) 
           y1={yFor(s)}
           x2={CHART_W - PAD_X}
           y2={yFor(s)}
-          stroke="#201D19"
+          stroke="#1B2233"
           strokeWidth={1}
         />
       ))}

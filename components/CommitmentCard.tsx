@@ -26,9 +26,9 @@ export default function CommitmentCard({
       <Text className="text-body text-[15px] leading-[26px] font-serif-italic">{OATH_TEXT}</Text>
       <TextInput
         className="text-ink text-2xl font-serif-italic mt-7 pb-1.5"
-        style={{ borderBottomWidth: 1, borderBottomColor: '#3A362F' }}
+        style={{ borderBottomWidth: 1, borderBottomColor: '#2E3B5E' }}
         placeholder="Sign your first name"
-        placeholderTextColor="#57534B"
+        placeholderTextColor="#4B5563"
         value={value}
         onChangeText={onChangeText}
         autoCapitalize="words"

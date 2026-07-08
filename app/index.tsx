@@ -35,7 +35,7 @@ export default function Index() {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    backgroundColor: '#0C0B09', // Ember ground
+    backgroundColor: '#080A0F', // Ember ground
     justifyContent: 'center',
     alignItems: 'center',
   },

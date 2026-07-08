@@ -135,7 +135,7 @@ export default function GraduationScreen({
             className="flex-1 bg-accent rounded-xl py-[13px] items-center"
           >
             {isProcessing ? (
-              <ActivityIndicator color="#171310" size="small" />
+              <ActivityIndicator color="#0C0B09" size="small" />
             ) : (
               <Text className="text-on-accent font-bold text-[13.5px]">Keep the toolkit</Text>
             )}

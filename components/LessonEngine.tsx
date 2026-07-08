@@ -72,7 +72,7 @@ export default function LessonEngine({ lesson }: { lesson: Lesson }) {
           activeOpacity={0.7}
           className="flex-row items-center gap-1 self-start"
         >
-          <ChevronLeft size={16} color="#8A8378" />
+          <ChevronLeft size={16} color="#6B7280" />
           <Text className="text-muted text-xs font-semibold">Back</Text>
         </TouchableOpacity>
         <Text className="text-dim text-[11px] font-semibold uppercase tracking-[0.2em]">

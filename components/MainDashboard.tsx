@@ -158,7 +158,7 @@ export default function MainDashboard({ onStartSession }: { onStartSession: () =
               activeOpacity={0.85}
               className="bg-accent rounded-2xl py-[19px] items-center flex-row justify-center gap-2.5"
             >
-              <Play color="#171310" size={16} fill="#171310" />
+              <Play color="#0C0B09" size={16} fill="#0C0B09" />
               <Text className="text-on-accent font-bold text-base">Begin today's session</Text>
             </TouchableOpacity>
             {streak > 1 && (

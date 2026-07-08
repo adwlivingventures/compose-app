@@ -98,7 +98,7 @@ function ExpandableCard({ pillar, title, rule, mechanism }: Pillar) {
           <Text className="text-body text-sm leading-5 mt-2">{rule}</Text>
         </View>
         <ChevronDown
-          color="#8A8378"
+          color="#6B7280"
           size={18}
           style={{ marginTop: 2, transform: [{ rotate: expanded ? '180deg' : '0deg' }] }}
         />
@@ -129,7 +129,7 @@ export default function VitalityPrimerScreen() {
         activeOpacity={0.7}
         className="flex-row items-center gap-1 mb-5 self-start"
       >
-        <ChevronLeft size={16} color="#8A8378" />
+        <ChevronLeft size={16} color="#6B7280" />
         <Text className="text-muted text-xs font-semibold">Back</Text>
       </TouchableOpacity>
 

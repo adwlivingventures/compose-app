@@ -98,7 +98,7 @@ function StepperRow({
           className="w-8 h-8 rounded-full border border-line items-center justify-center"
           style={{ opacity: value <= min ? 0.35 : 1 }}
         >
-          <Minus color="#8A8378" size={14} />
+          <Minus color="#6B7280" size={14} />
         </TouchableOpacity>
         <Text className="text-ink text-base font-serif-regular w-8 text-center">{value}s</Text>
         <TouchableOpacity
@@ -108,7 +108,7 @@ function StepperRow({
           className="w-8 h-8 rounded-full border border-line items-center justify-center"
           style={{ opacity: value >= max ? 0.35 : 1 }}
         >
-          <Plus color="#8A8378" size={14} />
+          <Plus color="#6B7280" size={14} />
         </TouchableOpacity>
       </View>
     </View>
@@ -151,10 +151,10 @@ export default function SandboxScreen() {
           activeOpacity={0.7}
           className="flex-row items-center gap-1 mb-10 self-start"
         >
-          <ChevronLeft size={16} color="#8A8378" />
+          <ChevronLeft size={16} color="#6B7280" />
           <Text className="text-muted text-xs font-semibold">Back</Text>
         </TouchableOpacity>
-        <Lock color="#6E675D" size={18} />
+        <Lock color="#4B5563" size={18} />
         <Text className="text-ink text-[24px] font-serif-regular mt-4">
           The Sandbox opens on Day 26.
         </Text>
@@ -200,7 +200,7 @@ export default function SandboxScreen() {
         activeOpacity={0.7}
         className="flex-row items-center gap-1 mb-5 self-start"
       >
-        <ChevronLeft size={16} color="#8A8378" />
+        <ChevronLeft size={16} color="#6B7280" />
         <Text className="text-muted text-xs font-semibold">Back</Text>
       </TouchableOpacity>
 

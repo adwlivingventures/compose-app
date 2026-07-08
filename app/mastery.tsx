@@ -77,7 +77,7 @@ function MasteryModuleCard({
   const body = (
     <>
       <View className="flex-row items-center gap-2.5">
-        {locked && <Lock color="#6E675D" size={14} />}
+        {locked && <Lock color="#4B5563" size={14} />}
         <Text className="text-ink text-[17px] font-serif-regular flex-1">{title}</Text>
         {!locked && <ChevronRight color="#C89B6D" size={16} />}
       </View>
@@ -136,7 +136,7 @@ export default function MasterySuiteScreen() {
         activeOpacity={0.7}
         className="flex-row items-center gap-1 mb-5 self-start"
       >
-        <ChevronLeft size={16} color="#8A8378" />
+        <ChevronLeft size={16} color="#6B7280" />
         <Text className="text-muted text-xs font-semibold">Back</Text>
       </TouchableOpacity>
 

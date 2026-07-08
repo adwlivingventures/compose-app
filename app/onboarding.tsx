@@ -495,7 +495,7 @@ function ProgressHeader({
             accessibilityRole="button"
             accessibilityLabel="Back to the previous question"
           >
-            <ChevronLeft size={15} color="#57534B" />
+            <ChevronLeft size={15} color="#4B5563" />
           </TouchableOpacity>
           <Text className="text-dim text-[11px] font-semibold tracking-[0.14em]">
             MAPPING · {step} OF {total}
@@ -589,7 +589,7 @@ function NameScreen({ value, onSubmit }: { value: string; onSubmit: (name: strin
       <TextInput
         className="bg-surface border border-line rounded-xl p-4 text-ink text-base mt-6"
         placeholder="Your first name"
-        placeholderTextColor="#6E675D"
+        placeholderTextColor="#4B5563"
         value={name}
         onChangeText={setName}
         autoCapitalize="words"
@@ -1012,7 +1012,7 @@ function AnalyzerScreen({ onComplete }: { onComplete: () => void }) {
             cx={size / 2}
             cy={size / 2}
             r={radius}
-            stroke="#201D19"
+            stroke="#1B2233"
             strokeWidth={strokeWidth}
             fill="none"
           />
@@ -1340,7 +1340,7 @@ function AuthorityFrame() {
         <View className="gap-2.5 mt-4">
           {PHASE_IV_MODULES.map(([title, description]) => (
             <View key={title} className="flex-row items-start gap-2.5">
-              <Lock color="#6E675D" size={13} style={{ marginTop: 2 }} />
+              <Lock color="#4B5563" size={13} style={{ marginTop: 2 }} />
               <View className="flex-1">
                 <Text className="text-body text-[13px] font-semibold">{title}</Text>
                 <Text className="text-faint text-[11.5px] leading-4 mt-0.5">{description}</Text>
@@ -1461,7 +1461,7 @@ function DiagnosisPaywall({
         className="bg-accent rounded-2xl py-[15px] items-center mt-5"
       >
         {isProcessing ? (
-          <ActivityIndicator color="#171310" />
+          <ActivityIndicator color="#0C0B09" />
         ) : (
           <>
             <Text className="text-on-accent font-bold text-base">Begin my reset — $49.99</Text>
@@ -1542,7 +1542,7 @@ function SignaturePaywall({
         className={`rounded-2xl py-[19px] items-center mt-5 ${signed ? 'bg-accent' : 'bg-surface-deep'}`}
       >
         {isProcessing ? (
-          <ActivityIndicator color="#171310" />
+          <ActivityIndicator color="#0C0B09" />
         ) : (
           <Text className={`font-bold text-base ${signed ? 'text-on-accent' : 'text-faint'}`}>
             Sign & begin — $49.99

@@ -6,11 +6,11 @@ import { StatusBar } from 'expo-status-bar';
 import Purchases, { LOG_LEVEL } from 'react-native-purchases';
 import {
   useFonts,
-  SourceSerif4_300Light,
-  SourceSerif4_400Regular,
-  SourceSerif4_400Regular_Italic,
-  SourceSerif4_600SemiBold,
-} from '@expo-google-fonts/source-serif-4';
+  Newsreader_300Light,
+  Newsreader_400Regular,
+  Newsreader_400Regular_Italic,
+  Newsreader_500Medium,
+} from '@expo-google-fonts/newsreader';
 import { ProtocolProvider } from '../context/ProtocolContext';
 import { DiscreetProvider } from '../context/DiscreetContext';
 import PrivacyShield from '../components/PrivacyShield';
@@ -29,10 +29,10 @@ const RC_API_KEYS = {
 
 export default function RootLayout() {
   const [fontsLoaded] = useFonts({
-    SourceSerif4_300Light,
-    SourceSerif4_400Regular,
-    SourceSerif4_400Regular_Italic,
-    SourceSerif4_600SemiBold,
+    Newsreader_300Light,
+    Newsreader_400Regular,
+    Newsreader_400Regular_Italic,
+    Newsreader_500Medium,
   });
 
   useEffect(() => {
@@ -53,7 +53,7 @@ export default function RootLayout() {
   // Hold on a plain ground-colored view until the serif faces are ready —
   // a flash of fallback type undermines the composed first impression.
   if (!fontsLoaded) {
-    return <View style={{ flex: 1, backgroundColor: '#0C0B09' }} />;
+    return <View style={{ flex: 1, backgroundColor: '#080A0F' }} />;
   }
 
   return (
@@ -66,7 +66,7 @@ export default function RootLayout() {
         <Stack
           screenOptions={{
             headerShown: false,
-            contentStyle: { backgroundColor: '#0C0B09' },
+            contentStyle: { backgroundColor: '#080A0F' },
           }}
         >
           <Stack.Screen name="index" />

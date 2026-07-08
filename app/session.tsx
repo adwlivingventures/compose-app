@@ -177,7 +177,7 @@ export default function SessionScreen() {
           className="bg-accent rounded-2xl py-[17px] items-center mt-8"
         >
           {enablingReminder ? (
-            <ActivityIndicator color="#171310" />
+            <ActivityIndicator color="#0C0B09" />
           ) : (
             <Text className="text-on-accent font-bold text-base">Remind me at this hour</Text>
           )}
@@ -213,7 +213,7 @@ export default function SessionScreen() {
           activeOpacity={0.7}
           className="bg-surface border border-line rounded-full p-2.5"
         >
-          <X color="#8A8378" size={18} />
+          <X color="#6B7280" size={18} />
         </TouchableOpacity>
       </View>
 
@@ -298,7 +298,7 @@ export default function SessionScreen() {
                         on ? 'bg-accent border-accent' : 'border-faint'
                       }`}
                     >
-                      {on && <Check color="#171310" size={14} strokeWidth={3} />}
+                      {on && <Check color="#0C0B09" size={14} strokeWidth={3} />}
                     </View>
                     <View className="flex-1">
                       <Text className="text-ink text-sm font-bold">{item.title}</Text>
@@ -315,7 +315,7 @@ export default function SessionScreen() {
                         accessibilityLabel="Open the Vitality Baseline reference"
                         className="p-1"
                       >
-                        <Info color="#6E675D" size={16} />
+                        <Info color="#4B5563" size={16} />
                       </TouchableOpacity>
                     )}
                   </TouchableOpacity>
@@ -329,7 +329,7 @@ export default function SessionScreen() {
               className="bg-accent rounded-2xl py-4 items-center mt-6"
             >
               {finishing ? (
-                <ActivityIndicator color="#171310" />
+                <ActivityIndicator color="#0C0B09" />
               ) : (
                 <Text className="text-on-accent font-bold text-base">Complete Day {day}</Text>
               )}

@@ -122,7 +122,7 @@ export default function SomaticPrimer({ onComplete, onExit, refresher = false }:
           activeOpacity={0.7}
           className="bg-surface border border-line rounded-full p-2.5"
         >
-          <X color="#8A8378" size={18} />
+          <X color="#6B7280" size={18} />
         </TouchableOpacity>
       </View>
 

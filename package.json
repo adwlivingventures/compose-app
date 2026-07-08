@@ -3,6 +3,7 @@
   "version": "1.0.0",
   "main": "expo-router/entry",
   "dependencies": {
+    "@expo-google-fonts/newsreader": "^0.4.1",
     "@expo-google-fonts/source-serif-4": "^0.4.1",
     "@react-native-async-storage/async-storage": "^2.2.0",
     "expo": "~56.0.13",
@@ -31,7 +32,11 @@
   },
   "devDependencies": {
     "@babel/core": "^7.29.0",
+    "@react-native/jest-preset": "^0.86.0",
+    "@types/jest": "^29.5.14",
     "@types/react": "~19.2.2",
+    "jest": "~29.7.0",
+    "jest-expo": "~56.0.0",
     "tailwindcss": "^3.3.2",
     "typescript": "~6.0.3"
   },
@@ -39,7 +44,11 @@
     "start": "expo start",
     "android": "expo start --android",
     "ios": "expo start --ios",
-    "web": "expo start --web"
+    "web": "expo start --web",
+    "test": "jest"
+  },
+  "jest": {
+    "preset": "jest-expo"
   },
   "private": true
 }

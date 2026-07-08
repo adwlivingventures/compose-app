@@ -205,7 +205,7 @@ function DefusionLogForm({ onDone }: { onDone: () => void }) {
           multiline
           textAlignVertical="top"
           placeholder="e.g. “My body followed adrenaline. That's physiology, not a verdict on me.”"
-          placeholderTextColor="#6E675D"
+          placeholderTextColor="#4B5563"
           value={ventralAnchor}
           onChangeText={setVentralAnchor}
         />
@@ -253,7 +253,7 @@ function DefusionLogForm({ onDone }: { onDone: () => void }) {
           multiline
           textAlignVertical="top"
           placeholder={meta.placeholder}
-          placeholderTextColor="#6E675D"
+          placeholderTextColor="#4B5563"
           value={meta.value}
           onChangeText={meta.set}
         />
@@ -289,7 +289,7 @@ function DefusionLogForm({ onDone }: { onDone: () => void }) {
             className="bg-surface-deep border border-line rounded-xl px-4 py-3.5 flex-row items-center justify-between"
           >
             <Text className="text-ink text-sm font-bold">{FALLACY_META[f].label}</Text>
-            <ChevronRight size={16} color="#8A8378" />
+            <ChevronRight size={16} color="#6B7280" />
           </TouchableOpacity>
         ))}
       </View>
@@ -355,7 +355,7 @@ export default function TriageCenter({ visible, onClose }: TriageCenterProps) {
                       <Text className="text-ink text-sm font-bold">{item.title}</Text>
                       <Text className="text-muted text-xs mt-0.5 leading-4">{item.subtitle}</Text>
                     </View>
-                    <ChevronRight size={18} color="#8A8378" />
+                    <ChevronRight size={18} color="#6B7280" />
                   </TouchableOpacity>
                 ))}
               </View>
@@ -385,7 +385,7 @@ export default function TriageCenter({ visible, onClose }: TriageCenterProps) {
                 activeOpacity={0.7}
                 className="flex-row items-center gap-1 mb-2 self-start"
               >
-                <ChevronLeft size={16} color="#8A8378" />
+                <ChevronLeft size={16} color="#6B7280" />
                 <Text className="text-muted text-xs font-bold">Back</Text>
               </TouchableOpacity>
 

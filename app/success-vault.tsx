@@ -135,7 +135,7 @@ function CaseStudyCard({ study }: { study: CaseStudy }) {
       ) : (
         <View className="flex-row items-center gap-1.5 mt-4">
           <Text className="text-muted text-xs font-semibold">Read the full narrative</Text>
-          <ChevronDown color="#8A8378" size={14} />
+          <ChevronDown color="#6B7280" size={14} />
         </View>
       )}
     </TouchableOpacity>
@@ -155,7 +155,7 @@ export default function SuccessVaultScreen() {
         activeOpacity={0.7}
         className="flex-row items-center gap-1 mb-5 self-start"
       >
-        <ChevronLeft size={16} color="#8A8378" />
+        <ChevronLeft size={16} color="#6B7280" />
         <Text className="text-muted text-xs font-semibold">Back</Text>
       </TouchableOpacity>
 
