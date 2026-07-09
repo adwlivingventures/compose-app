@@ -15,10 +15,8 @@ import { Alert } from 'react-native';
 // II–III). Day-0 cash matches the old one-time price, so CAC payback is
 // unchanged, while renewals add the recurring-revenue tail.
 export const RC_ENTITLEMENT_ID = 'membership';
-// Grandfather clause: the retired $49.99 one-time purchase granted this
-// entitlement during V1 testing. Anyone holding it is membership-equivalent
-// forever — a promise made under the old model is kept under the new one.
-export const RC_LEGACY_ENTITLEMENT_ID = 'Compose Pro';
+// (No legacy/grandfather path: the V1 one-time model never shipped to real
+// customers — founder ruling 2026-07-09 retired the 'Compose Pro' check.)
 export const RC_OFFERING_ID = 'default_onboarding_offer';
 
 // Product IDs — must match App Store Connect / the RC dashboard.
@@ -50,15 +48,11 @@ export interface RevenueCatState {
 }
 
 /**
- * Membership check, grandfather-inclusive: an active `membership`
- * subscription OR the legacy one-time entitlement (which never lapses).
- * Every access decision in the app routes through this one predicate.
+ * Membership check: an active `membership` entitlement. Every access
+ * decision in the app routes through this one predicate.
  */
 export function hasMembershipEntitlement(info: CustomerInfo): boolean {
-  return (
-    typeof info.entitlements.active[RC_ENTITLEMENT_ID] !== 'undefined' ||
-    typeof info.entitlements.active[RC_LEGACY_ENTITLEMENT_ID] !== 'undefined'
-  );
+  return typeof info.entitlements.active[RC_ENTITLEMENT_ID] !== 'undefined';
 }
 
 // ─── Hook ─────────────────────────────────────────────────────────────────────

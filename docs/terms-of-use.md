@@ -33,8 +33,6 @@ For the membership:
 
 All payments are processed by Apple. Refund requests are handled by Apple under Apple's refund policies at https://support.apple.com/billing. Restoring purchases on a new device is available via "Restore Purchases" in the app.
 
-**Original one-time purchasers.** If you previously bought the one-time 75-Day Protocol, your access continues on those terms: it never renews, never expires, and includes the content that unlocks at program completion.
-
 ## 4. License
 
 We grant you a personal, non-exclusive, non-transferable, revocable license to use the app for your own personal, non-commercial use on Apple devices you own or control. All content in the app — audio programs, scripts, text, and design — is owned by us or our licensors and is protected by copyright. You may not copy, distribute, resell, record, or create derivative works from any app content.
