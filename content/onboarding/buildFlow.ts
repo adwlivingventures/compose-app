@@ -37,11 +37,13 @@ export function buildFlow(variant: Variant): ResolvedScreen[] {
   }
 
   // Assign spec ids (position among numbered screens — section transitions
-  // are unnumbered in the specs) and per-variant card strings.
+  // are unnumbered in the specs, and the Model V2 telemetry-consent step is
+  // a later insertion that must not renumber the handoff's screens) and
+  // per-variant card strings.
   let specNumber = 0;
   let clinicalNumber = 0;
   return ordered.map((screen): ResolvedScreen => {
-    if (screen.archetype === 'section-transition') {
+    if (screen.archetype === 'section-transition' || screen.archetype === 'consent') {
       return { ...screen, specId: null };
     }
     specNumber += 1;

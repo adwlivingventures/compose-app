@@ -6,6 +6,7 @@ import { Settings, Sparkles, CheckCircle2, ChevronRight } from 'lucide-react-nat
 import { useProtocol } from '../../context/ProtocolContext';
 import { useRevenueCat } from '../../hooks/useRevenueCat';
 import { LocalStore } from '../../services/storage';
+import { track } from '../../services/analytics';
 import MainDashboard from '../../components/MainDashboard';
 import GraduationScreen from '../../components/GraduationScreen';
 import PhaseTransition, { SignatureData } from '../../components/PhaseTransition';
@@ -128,7 +129,11 @@ export default function DashboardScreen() {
           if (granted) await recordGraduationChoice('toolkit');
           return granted;
         }}
-        onExported={() => recordGraduationChoice('export')}
+        onExported={() => {
+          // §7: the fact of the export, never the record's content.
+          track('export_used');
+          return recordGraduationChoice('export');
+        }}
       />
     );
   }

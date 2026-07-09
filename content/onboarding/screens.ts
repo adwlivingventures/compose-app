@@ -645,6 +645,27 @@ export const SCREENS: Screen[] = [
       },
     ],
   },
+  // Telemetry consent (§7 exception) — placed directly after the "Private by
+  // architecture" beat that closes the hopeful arc: a consent ask lands best
+  // immediately after a trust proof, and this position leaves the
+  // commit → building-plan → paywall close chain unbroken. Unnumbered
+  // (Model V2 insertion; the handoff's 42-screen numbering is untouched).
+  {
+    id: 'telemetry-consent',
+    section: 'turn',
+    archetype: 'consent',
+    eyebrow: 'ONE QUESTION',
+    headline: 'Help prove this method works?',
+    body:
+      'Everything you answer and write stays on this phone — that does not change. To show the protocol works, we ask to count anonymous milestones across all users.',
+    bullets: [
+      'Counts only — a session completed, a score measured',
+      'Never your words, never who you are',
+      'Decline, and the app works exactly the same',
+    ],
+    acceptButton: 'Count my milestones',
+    declineLink: 'No thanks',
+  },
   {
     id: 'foundations',
     section: 'turn',

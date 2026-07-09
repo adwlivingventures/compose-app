@@ -297,6 +297,22 @@ export interface SignatureScreen extends ScreenBase {
   autoRenew: { annual: string; monthly: string };
 }
 
+/**
+ * Telemetry consent (Model V2 — the single §7 exception). Unnumbered, like
+ * section transitions: it is a 2026-07 insertion into the flow, not part of
+ * the design handoff's 42-screen numbering. Declinable; decline changes
+ * nothing about the app.
+ */
+export interface ConsentScreen extends ScreenBase {
+  archetype: 'consent';
+  eyebrow: string;
+  headline: string;
+  body: string;
+  bullets: string[];
+  acceptButton: string;
+  declineLink: string;
+}
+
 export interface DiscretionScreen extends ScreenBase {
   archetype: 'discretion';
   eyebrow: string;
@@ -329,6 +345,7 @@ export type Screen =
   | PaywallScreen
   | PaywallDismissScreen
   | SignatureScreen
+  | ConsentScreen
   | DiscretionScreen;
 
 /** A screen with its variant-specific strings resolved and its spec position assigned. */

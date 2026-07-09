@@ -27,7 +27,12 @@ import {
 import type { ResolvedScreen, Variant } from '../content/onboarding/types';
 import { getOrAssignVariant, devForceVariant } from '../services/variant';
 import { LocalStore } from '../services/storage';
-import { trackScreen, type ScreenAction } from '../services/analytics';
+import {
+  setTelemetryConsent,
+  track,
+  trackScreen,
+  type ScreenAction,
+} from '../services/analytics';
 import { seal } from '../services/haptics';
 import { useProtocol } from '../context/ProtocolContext';
 import { useRevenueCat } from '../hooks/useRevenueCat';
@@ -46,6 +51,7 @@ import MapScreen from '../components/onboarding/MapScreen';
 import Paywall, { MembershipTerm, PriceStrings } from '../components/onboarding/Paywall';
 import PaywallDismiss from '../components/onboarding/PaywallDismiss';
 import DayZero from '../components/onboarding/DayZero';
+import ConsentScreen from '../components/onboarding/ConsentScreen';
 
 const STATE_KEY = '@onboarding_flow_v1';
 const DISMISSED_KEY = '@paywall_dismissed';
@@ -96,6 +102,10 @@ export default function Onboarding() {
       try {
         Purchases.setAttributes({ onboarding_variant: v });
       } catch {}
+      // Cohort telemetry starts at the very first screen of a fresh install
+      // (§7 events are consent-buffered — nothing leaves the device unless
+      // the consent step later grants it).
+      if (!saved) track('onboarding_started');
       if (saved) {
         setAnswers(saved.answers ?? {});
         const index = resolved.findIndex((s) => s.id === saved.screenId);
@@ -117,6 +127,13 @@ export default function Onboarding() {
   const persist = useCallback((screenId: string, a: Answers) => {
     LocalStore.setItem(STATE_KEY, { screenId, answers: a } satisfies PersistedState);
   }, []);
+
+  // paywall_viewed = the top of the conversion funnel (§7): the variant tag
+  // only — this is the RC Experiment's denominator.
+  useEffect(() => {
+    if (!flow || !variant || showDismiss) return;
+    if (flow[cursor]?.id === 'paywall') track('paywall_viewed', { variant });
+  }, [flow, cursor, variant, showDismiss]);
 
   // ── Navigation ──────────────────────────────────────────────────────────
   // One anonymous event per screen leave: screen_id, variant, elapsed,
@@ -223,6 +240,8 @@ export default function Onboarding() {
       if (granted) {
         seal(); // the word is given and the threshold is crossed
         emit('purchase-success');
+        // Conversion event carries the term only — the funnel's bottom line.
+        track('purchase', { term });
         await unlockProtocol();
         router.replace('/discretion?intro=1');
       }
@@ -366,7 +385,12 @@ export default function Onboarding() {
             screen={screen}
             result={composure}
             headline={withName(screen.headline, answers)}
-            onAdvance={() => advance()}
+            onAdvance={() => {
+              // The Day-0 baseline point of the outcome curve (§7): the
+              // score alone, never the inputs that produced it.
+              track('composure_measured', { score: composure.score, day: 0 });
+              advance();
+            }}
           />
         );
       case 'clinical-card':
@@ -383,6 +407,18 @@ export default function Onboarding() {
         return <DivergingGraphScreen screen={screen} onAdvance={() => advance()} />;
       case 'commit':
         return <Commit screen={screen} onAdvance={() => advance()} />;
+      case 'consent':
+        return (
+          <ConsentScreen
+            screen={screen}
+            onDecision={(granted) => {
+              // Decline is final and total: zero events, including the ones
+              // already buffered this session. The flow continues identically.
+              setTelemetryConsent(granted);
+              advance();
+            }}
+          />
+        );
       case 'beat':
         return <Beat text={screen.text} maxMs={screen.maxMs} onAdvance={() => advance()} />;
       case 'paywall':

@@ -3,6 +3,7 @@ import Purchases from 'react-native-purchases';
 import { LocalStore } from '../services/storage';
 import { disableDailyReminder } from '../services/notifications';
 import { hasMembershipEntitlement } from '../hooks/useRevenueCat';
+import { track } from '../services/analytics';
 
 export interface HabitState {
   presence: boolean;
@@ -218,6 +219,14 @@ export const ProtocolProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     setCompletedDays(newDays);
     setLastCompletedDate(today);
 
+    // Cohort telemetry (§7): the retention curve's raw material — day number
+    // and the 1–5 self-rated control score, nothing else. Consent-gated and
+    // whitelisted inside track().
+    track('day_completed', { day });
+    if (data.pelvicRating > 0) {
+      track('control_score', { value: data.pelvicRating, day });
+    }
+
     let newStreak = streak;
     if (day === activeDay) {
       // Streak with repair semantics (mirrors Day 24: "a falter is not a
@@ -243,6 +252,7 @@ export const ProtocolProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     // owns what comes next. Flag written straight to storage; the E18
     // toggle re-syncs on next hydration.
     if (day === 75) {
+      track('graduated');
       await disableDailyReminder();
       await LocalStore.setItem('@discreet_notifications', false);
     }

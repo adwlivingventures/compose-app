@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { View, Text, TouchableOpacity, ScrollView, TextInput } from 'react-native';
 import { ChevronLeft, ChevronRight, Wind, Anchor, PenLine, CheckCircle2 } from 'lucide-react-native';
 import { useDefusionLog, FALLACY_META, Fallacy } from '../hooks/useDefusionLog';
+import { track } from '../services/analytics';
 import BreathingOrb, { SOS_478_PHASES } from './BreathingOrb';
 import BottomSheet from './BottomSheet';
 
@@ -175,6 +176,8 @@ function DefusionLogForm({ onDone }: { onDone: () => void }) {
       fallacy: chosenFallacy,
       ventralAnchor: ventralAnchor.trim(),
     });
+    // §7: the distortion TAG only — the entry's text never leaves the device.
+    track('restructurer_used', { distortion: chosenFallacy });
     onDone();
   };
 
@@ -322,6 +325,12 @@ const MENU_ITEMS: { view: TriageView; icon: React.ReactNode; title: string; subt
 
 export default function TriageCenter({ visible, onClose }: TriageCenterProps) {
   const [view, setView] = useState<TriageView>('menu');
+
+  // §7 cohort telemetry: the fact that the SOS sheet opened — never which
+  // tool was chosen or what was written inside it.
+  useEffect(() => {
+    if (visible) track('sos_opened');
+  }, [visible]);
 
   const close = () => {
     onClose();

@@ -141,6 +141,22 @@ describe('buildFlow', () => {
     }
   });
 
+  test('telemetry consent (§7 exception) sits after the hopeful arc, unnumbered, in both variants', () => {
+    for (const variant of ['A', 'B'] as const) {
+      const flow = buildFlow(variant);
+      const consent = flow.find((s) => s.id === 'telemetry-consent');
+      // Unnumbered like the transitions: a Model V2 insertion that must not
+      // renumber the design handoff's 42 screens.
+      expect(consent).toMatchObject({ archetype: 'consent', specId: null });
+      const ids = flow.map((s) => s.id);
+      // After the "Private by architecture" trust proof, before the paywall
+      // (acceptance: quiz → composure → consent → paywall).
+      expect(ids.indexOf('telemetry-consent')).toBe(ids.indexOf('hopeful-arc') + 1);
+      expect(ids.indexOf('telemetry-consent')).toBeGreaterThan(ids.indexOf('map'));
+      expect(ids.indexOf('telemetry-consent')).toBeLessThan(ids.indexOf('paywall'));
+    }
+  });
+
   test('teases resolve under A only; card buttons resolve per variant', () => {
     const cardsA = numbered('A').filter((s) => s.archetype === 'clinical-card');
     const cardsB = numbered('B').filter((s) => s.archetype === 'clinical-card');
