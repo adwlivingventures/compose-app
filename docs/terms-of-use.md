@@ -1,6 +1,6 @@
 # Compose — Terms of Use
 
-**Effective date: July 2, 2026**
+**Effective date: July 8, 2026**
 
 These Terms of Use ("Terms") govern your use of the Compose mobile application ("the app"). By downloading or using the app, you agree to these Terms.
 
@@ -16,11 +16,14 @@ You must be at least 18 years old to use Compose.
 
 ## 3. Purchases
 
-**The 75-Day Protocol ($49.99, one-time).** A single purchase that permanently unlocks the 75-day program on your Apple ID. It is not a subscription and never renews.
+**Compose Membership (auto-renewable subscription).** Access to Compose is provided through a membership, offered in two terms:
 
-**Compose Membership ($4.99/month, optional).** An optional auto-renewable subscription available after you complete the program, which keeps streaks, interactive logs, and the maintenance toolkit active.
+- **Annual membership — $99.99 per year.** One payment covers your full year: the 75-day program and everything that follows it, including the content that unlocks when you complete the program.
+- **Monthly membership — $17.99 per month.**
 
-For the membership subscription:
+The exact price is always shown in the app and confirmed by the App Store before you buy, and may vary by country or storefront.
+
+For the membership:
 
 - Payment is charged to your Apple ID account at confirmation of purchase.
 - The subscription automatically renews unless it is cancelled at least 24 hours before the end of the current period.
@@ -29,6 +32,8 @@ For the membership subscription:
 - Any unused portion of the current period is not refunded upon cancellation; access continues until the period ends.
 
 All payments are processed by Apple. Refund requests are handled by Apple under Apple's refund policies at https://support.apple.com/billing. Restoring purchases on a new device is available via "Restore Purchases" in the app.
+
+**Original one-time purchasers.** If you previously bought the one-time 75-Day Protocol, your access continues on those terms: it never renews, never expires, and includes the content that unlocks at program completion.
 
 ## 4. License
 
