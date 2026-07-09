@@ -1,5 +1,26 @@
 # Ember v1 Redesign — Progress
 
+## ⚡ MODEL V2 LAUNCH SCOPE EXECUTED (2026-07-08/09, five commits)
+
+Per docs/BUILD-PROMPT-MODEL-V2.md: (1) RC layer → single `membership`
+entitlement, products compose_annual_9999/compose_annual_6999/
+compose_monthly_1799, offering-driven annual (RC Experiment swap point),
+'Compose Pro' grandfathered, ProtocolContext.hasPurchased = entitlement w/
+keychain cache; (2) paywall → annual-first w/ term selector (accent-free),
+"One payment covers your full year.", Day-14 risk reversal w/o permanence
+language, auto-renew micro-disclosure on paywall + Day Zero; (3) telemetry →
+§7 whitelisted schema in services/analytics.ts, consent step
+`telemetry-consent` (unnumbered, after hopeful-arc), events wired at
+sources, 11 new tests (whitelist + decline-zero-events); (4) legal + ASC
+metadata (docs/APP-STORE-METADATA.md — subscription names pass the stranger
+test on receipts/Settings); (5) repo sweep w/ ⛔ supersession banners on
+historical docs. Verified: tsc clean, 50/50 tests, Expo web screenshot of
+paywall + consent (Ember Dusk compliant). **FOUNDER TO-DO (blocking
+launch):** create the three subscription products + `membership` entitlement
++ offering + price experiment in ASC/RevenueCat; sandbox-purchase test on an
+iOS build (impossible from this machine); pick the telemetry endpoint
+(transport seam in analytics.ts, whitelist/consent unchanged by the swap).
+
 > **Model V2 note (2026-07-08):** every $49.99 / $39.99 / $4.99 / "pay
 > once" / toolkit-SKU reference below is a historical record of V1 work.
 > The live commercial model is the annual-first membership (CLAUDE.md §2,
