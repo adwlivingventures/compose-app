@@ -4,7 +4,7 @@ import { useRouter } from 'expo-router';
 import RevenueCatUI from 'react-native-purchases-ui';
 import { Settings, Sparkles, CheckCircle2, ChevronRight } from 'lucide-react-native';
 import { useProtocol } from '../../context/ProtocolContext';
-import { useRevenueCat, RC_PRODUCTS, RC_MAINTENANCE_ENTITLEMENT_ID } from '../../hooks/useRevenueCat';
+import { useRevenueCat } from '../../hooks/useRevenueCat';
 import { LocalStore } from '../../services/storage';
 import MainDashboard from '../../components/MainDashboard';
 import GraduationScreen from '../../components/GraduationScreen';
@@ -14,9 +14,9 @@ export default function DashboardScreen() {
   const router = useRouter();
   const { activeDay, completedDays, loading } = useProtocol();
   const {
-    hasMaintenanceAccess,
-    currentOffering,
-    getPackageByProduct,
+    hasMembership,
+    getAnnualPackage,
+    getMonthlyPackage,
     purchasePackage,
     isProcessing,
     refreshCustomerInfo,
@@ -67,16 +67,14 @@ export default function DashboardScreen() {
     setPhaseGate('none');
   };
 
-  // Annual-first continuation (CLAUDE.md §2 ruling): $39.99/yr is the
-  // primary offer, $4.99/mo the secondary. Each term resolves its own
-  // package; annual falls back by package type until the product id lands
-  // in the RC offering.
+  // Model V2: graduation is an unlock ceremony, not a sales moment — a
+  // graduating user already holds the membership that includes Act II. This
+  // purchase path exists only for the edge where a lapsed/refunded user
+  // reaches this screen; the full graduation UX rewire is deliberately
+  // deferred (BUSINESS-MODEL-V2 §4 runway — nobody reaches Day 75 for 75
+  // days). Packages resolve from the current Offering (membership terms).
   const continuationPackage = (term: 'annual' | 'monthly') =>
-    term === 'annual'
-      ? (getPackageByProduct(RC_PRODUCTS.continuationAnnual) ??
-        currentOffering?.availablePackages.find((p) => p.packageType === 'ANNUAL'))
-      : (getPackageByProduct(RC_PRODUCTS.continuation) ??
-        currentOffering?.availablePackages.find((p) => p.packageType === 'MONTHLY'));
+    term === 'annual' ? getAnnualPackage() : getMonthlyPackage();
 
   const handleContinuationPurchase = async (term: 'annual' | 'monthly'): Promise<boolean> => {
     const pack = continuationPackage(term);
@@ -84,7 +82,7 @@ export default function DashboardScreen() {
       Alert.alert('Offer Unavailable', 'Please check your connection and try again.');
       return false;
     }
-    return purchasePackage(pack, RC_MAINTENANCE_ENTITLEMENT_ID);
+    return purchasePackage(pack);
   };
 
   // Localized continuation prices from the offering — never hardcoded.
@@ -154,7 +152,7 @@ export default function DashboardScreen() {
         </View>
 
         <View className="bg-surface border border-line rounded-2xl p-5">
-          {hasMaintenanceAccess ? (
+          {hasMembership ? (
             <>
               <Text className="text-accent text-xs font-bold uppercase tracking-widest">
                 Maintenance Toolkit Active

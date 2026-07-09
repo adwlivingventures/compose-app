@@ -1,6 +1,8 @@
 import React, { createContext, useContext, useState, useEffect } from 'react';
+import Purchases from 'react-native-purchases';
 import { LocalStore } from '../services/storage';
 import { disableDailyReminder } from '../services/notifications';
+import { hasMembershipEntitlement } from '../hooks/useRevenueCat';
 
 export interface HabitState {
   presence: boolean;
@@ -84,7 +86,10 @@ export const ProtocolProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   // Initialize and load saved state from secure storage
   useEffect(() => {
     const initializeSession = async () => {
-      // Restore premium validation flag from secure keychain
+      // Cold-start cache: the keychain flag renders the app instantly and
+      // offline. It is a CACHE of the `membership` entitlement, not the
+      // authority — the RC sync effect below reconciles it, because a
+      // subscription (unlike the retired one-time purchase) can lapse.
       const receipt = await LocalStore.secureGet('secure_purchase_receipt');
       if (receipt) setHasPurchased(true);
 
@@ -109,11 +114,50 @@ export const ProtocolProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     initializeSession();
   }, []);
 
+  // hasPurchased maps to the `membership` entitlement (CLAUDE.md §2 Model
+  // V2). Runs after hydration — RootLayout's configure effect fires before
+  // this second-pass effect, and isConfigured() guards the race anyway.
+  // The listener catches renewals, restores, and lapses while the app runs;
+  // every change is written back to the keychain cache so the next cold
+  // start reflects it. A lapsed member is downgraded here and nowhere else.
+  useEffect(() => {
+    if (loading) return;
+
+    const applyMembership = async (active: boolean) => {
+      setHasPurchased(active);
+      if (active) {
+        await LocalStore.secureSave('secure_purchase_receipt', 'membership_active');
+      } else {
+        await LocalStore.secureDelete('secure_purchase_receipt');
+      }
+    };
+
+    let listener: any;
+    (async () => {
+      try {
+        if (!(await Purchases.isConfigured())) return;
+        listener = Purchases.addCustomerInfoUpdateListener((info) => {
+          applyMembership(hasMembershipEntitlement(info));
+        });
+        const info = await Purchases.getCustomerInfo();
+        await applyMembership(hasMembershipEntitlement(info));
+      } catch {
+        // Offline or RC unreachable: keep the cached flag. RC's own cached
+        // CustomerInfo heals this on the next successful fetch.
+      }
+    })();
+
+    return () => {
+      if (listener && typeof listener.remove === 'function') listener.remove();
+    };
+  }, [loading]);
+
   /**
-   * Unlocks full access to the 75-Day program and writes validation securely to device Keychain.
+   * Marks membership active immediately after a successful purchase or
+   * restore and caches it to the Keychain for the next cold start.
    */
   const unlockProtocol = async () => {
-    await LocalStore.secureSave('secure_purchase_receipt', 'activated_75day_token');
+    await LocalStore.secureSave('secure_purchase_receipt', 'membership_active');
     setHasPurchased(true);
   };
 

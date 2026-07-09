@@ -118,10 +118,12 @@ function MasteryModuleCard({
 export default function MasterySuiteScreen() {
   const router = useRouter();
   const { completedDays } = useProtocol();
-  const { hasMaintenanceAccess } = useRevenueCat();
+  const { hasMembership } = useRevenueCat();
   // Same completion derivation as the Today tab's post-program state.
+  // Model V2 gate: Day 75 complete + active membership — the Mastery Suite
+  // is included membership content that unlocks at graduation, not a tier.
   const protocolComplete = completedDays[75]?.completed === true;
-  const maintenanceUnlocked = protocolComplete && hasMaintenanceAccess;
+  const maintenanceUnlocked = protocolComplete && hasMembership;
 
   const isLocked = (module: MasteryModule) =>
     module.unlock === 'maintenance' && !maintenanceUnlocked;

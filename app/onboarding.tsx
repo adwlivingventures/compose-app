@@ -30,7 +30,7 @@ import { LocalStore } from '../services/storage';
 import { trackScreen, type ScreenAction } from '../services/analytics';
 import { seal } from '../services/haptics';
 import { useProtocol } from '../context/ProtocolContext';
-import { useRevenueCat, RC_PRODUCTS } from '../hooks/useRevenueCat';
+import { useRevenueCat } from '../hooks/useRevenueCat';
 import Purchases from 'react-native-purchases';
 
 import { Chapter, ClinicalCard, NoteCard, Beat, Commit, SectionTransition } from '../components/onboarding/archetypes';
@@ -62,7 +62,7 @@ const isStable = (s: ResolvedScreen) =>
 export default function Onboarding() {
   const router = useRouter();
   const { unlockProtocol } = useProtocol();
-  const { getPackageByProduct, purchasePackage, restorePurchases, isProcessing } =
+  const { getAnnualPackage, purchasePackage, restorePurchases, isProcessing } =
     useRevenueCat();
 
   const [variant, setVariant] = useState<Variant | null>(null);
@@ -178,7 +178,7 @@ export default function Onboarding() {
   }, [goBack, emit]);
 
   // ── Purchase (minimal wiring — offerings retry + attributes are step 6) ──
-  const prices = usePriceStrings(getPackageByProduct);
+  const prices = usePriceStrings(getAnnualPackage);
 
   /** Restore (App Store requirement): a reinstalling owner re-enters the app;
    *  unsigned restores route through the existing oath screen first. */
@@ -199,7 +199,10 @@ export default function Onboarding() {
         name: signedName,
         signedAt: new Date().toISOString(),
       });
-      const pack = getPackageByProduct(RC_PRODUCTS.program);
+      // Annual is the pre-selected default (Model V2: annual-first). The
+      // active annual product comes from the current Offering — the RC
+      // Experiment's swap point.
+      const pack = getAnnualPackage();
       if (!pack) return; // silent — never an error toast in onboarding
       emit('purchase-attempt');
       const granted = await purchasePackage(pack);
@@ -210,7 +213,7 @@ export default function Onboarding() {
         router.replace('/discretion?intro=1');
       }
     },
-    [getPackageByProduct, purchasePackage, unlockProtocol, router, emit],
+    [getAnnualPackage, purchasePackage, unlockProtocol, router, emit],
   );
 
   // ── Render ──────────────────────────────────────────────────────────────
@@ -435,20 +438,23 @@ export default function Onboarding() {
 // ── Helpers ────────────────────────────────────────────────────────────────
 
 function usePriceStrings(
-  getPackageByProduct: ReturnType<typeof useRevenueCat>['getPackageByProduct'],
+  getAnnualPackage: ReturnType<typeof useRevenueCat>['getAnnualPackage'],
 ): PriceStrings | null {
-  const pack = getPackageByProduct(RC_PRODUCTS.program);
+  const pack = getAnnualPackage();
   return useMemo(() => {
     if (!pack) return null;
     const { priceString, price, currencyCode } = pack.product;
+    // Per-day reframe of the ANNUAL price (365, not 75): the membership
+    // covers the full year, and honest math is part of the honest-billing
+    // posture — a /75 divisor on an annual charge would be a dark pattern.
     let pricePerDay: string | null = null;
     try {
       pricePerDay = new Intl.NumberFormat(undefined, {
         style: 'currency',
         currency: currencyCode,
-      }).format(price / 75);
+      }).format(price / 365);
     } catch {
-      pricePerDay = `$${(price / 75).toFixed(2)}`;
+      pricePerDay = `$${(price / 365).toFixed(2)}`;
     }
     return { price: priceString, pricePerDay };
   }, [pack]);

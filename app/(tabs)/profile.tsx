@@ -71,7 +71,7 @@ export default function ProfileScreen() {
   const router = useRouter();
   const { activeDay, completedDays, resetProtocol, devJumpToDay } = useProtocol();
   const sandboxUnlocked = activeDay >= 26 || completedDays[75]?.completed === true;
-  const { hasProAccess, hasMaintenanceAccess, restorePurchases, isProcessing } = useRevenueCat();
+  const { hasMembership, restorePurchases, isProcessing } = useRevenueCat();
   const { entries, reload } = useDefusionLog();
   const [guideVisible, setGuideVisible] = useState(false);
   const [firstName, setFirstName] = useState<string | null>(null);
@@ -125,12 +125,10 @@ export default function ProfileScreen() {
             {firstName ?? 'Your Record'}
           </Text>
         </View>
-        {hasProAccess && (
+        {hasMembership && (
           <View className="flex-row items-center gap-1.5 bg-accent/10 border border-accent/30 rounded-full px-3 py-1.5 mt-1">
             <ShieldCheck color="#C89B6D" size={13} />
-            <Text className="text-accent text-xs font-bold">
-              {hasMaintenanceAccess ? 'Membership Active' : 'Pro Access Active'}
-            </Text>
+            <Text className="text-accent text-xs font-bold">Membership active</Text>
           </View>
         )}
       </View>

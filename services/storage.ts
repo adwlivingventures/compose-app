@@ -34,6 +34,18 @@ export const LocalStore = {
   },
 
   /**
+   * Removes a secure credential (e.g. when a membership lapses and the
+   * cached entitlement flag must not survive the next cold start).
+   */
+  async secureDelete(key: string): Promise<void> {
+    try {
+      await SecureStore.deleteItemAsync(key);
+    } catch (e) {
+      console.error('SecureStore delete operation failed', e);
+    }
+  },
+
+  /**
    * Stores progress arrays, habit parameters, and calendar tracking configurations locally.
    */
   async setItem(key: string, data: any): Promise<void> {

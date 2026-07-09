@@ -9,23 +9,27 @@ import { Alert } from 'react-native';
 // ─── RevenueCat Identifier Constants ─────────────────────────────────────────
 // These must match your RevenueCat dashboard exactly.
 
-// Granted permanently by the $49.99 one-time program purchase — gates the
-// core 75-day protocol and app access.
-export const RC_ENTITLEMENT_ID = 'Compose Pro';
-// Granted only while the $4.99/mo continuation is active — gates the
-// post-Day-75 Somatic Maintenance Toolkit, streaks, and interactive logs.
-// Lapses on cancellation, unlike RC_ENTITLEMENT_ID.
-export const RC_MAINTENANCE_ENTITLEMENT_ID = 'Maintenance Toolkit';
+// Model V2 (founder ruling, 2026-07-08): one auto-renewable subscription
+// group behind one entitlement. The membership year is the product — the
+// 75-Day Protocol (Act I) plus consolidation and re-measurement (Acts
+// II–III). Day-0 cash matches the old one-time price, so CAC payback is
+// unchanged, while renewals add the recurring-revenue tail.
+export const RC_ENTITLEMENT_ID = 'membership';
+// Grandfather clause: the retired $49.99 one-time purchase granted this
+// entitlement during V1 testing. Anyone holding it is membership-equivalent
+// forever — a promise made under the old model is kept under the new one.
+export const RC_LEGACY_ENTITLEMENT_ID = 'Compose Pro';
 export const RC_OFFERING_ID = 'default_onboarding_offer';
 
-// Product IDs — must match App Store Connect / Google Play Console
+// Product IDs — must match App Store Connect / the RC dashboard.
+// The active annual product is NEVER resolved by hardcoded id: the RC
+// Experiment ($99.99 vs $69.99 annual, upward-only pricing policy) decides
+// which annual product the current Offering carries, and the paywall must
+// render whatever the Offering serves or the experiment readout is corrupt.
 export const RC_PRODUCTS = {
-  program: 'compose_75day_4999',      // $49.99 one-time 75-day program
-  continuation: 'compose_monthly_499', // $4.99/month post-Day-75 membership (secondary)
-  // Annual-first continuation (CLAUDE.md §2 ruling, 2026-07): $39.99/yr is
-  // the PRIMARY graduation offer. Product must be created in App Store
-  // Connect + attached to the RC offering before it can render.
-  continuationAnnual: 'compose_annual_3999',
+  annual: 'compose_annual_9999', // $99.99/yr — primary
+  annualExperiment: 'compose_annual_6999', // $69.99/yr — experiment arm
+  monthly: 'compose_monthly_1799', // $17.99/mo — secondary
 } as const;
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -33,13 +37,26 @@ export const RC_PRODUCTS = {
 export interface RevenueCatState {
   currentOffering: PurchasesOffering | null;
   customerInfo: CustomerInfo | null;
-  hasProAccess: boolean;
-  hasMaintenanceAccess: boolean;
+  hasMembership: boolean;
   isProcessing: boolean;
-  purchasePackage: (pack: PurchasesPackage, entitlementId?: string) => Promise<boolean>;
+  purchasePackage: (pack: PurchasesPackage) => Promise<boolean>;
   restorePurchases: () => Promise<boolean>;
   refreshCustomerInfo: () => Promise<void>;
-  getPackageByProduct: (productId: string) => PurchasesPackage | undefined;
+  /** The Offering's annual package — whichever product the RC Experiment is serving. */
+  getAnnualPackage: () => PurchasesPackage | undefined;
+  getMonthlyPackage: () => PurchasesPackage | undefined;
+}
+
+/**
+ * Membership check, grandfather-inclusive: an active `membership`
+ * subscription OR the legacy one-time entitlement (which never lapses).
+ * Every access decision in the app routes through this one predicate.
+ */
+export function hasMembershipEntitlement(info: CustomerInfo): boolean {
+  return (
+    typeof info.entitlements.active[RC_ENTITLEMENT_ID] !== 'undefined' ||
+    typeof info.entitlements.active[RC_LEGACY_ENTITLEMENT_ID] !== 'undefined'
+  );
 }
 
 // ─── Hook ─────────────────────────────────────────────────────────────────────
@@ -47,21 +64,12 @@ export interface RevenueCatState {
 export const useRevenueCat = (): RevenueCatState => {
   const [currentOffering, setCurrentOffering] = useState<PurchasesOffering | null>(null);
   const [customerInfo, setCustomerInfo] = useState<CustomerInfo | null>(null);
-  const [hasProAccess, setHasProAccess] = useState(false);
-  const [hasMaintenanceAccess, setHasMaintenanceAccess] = useState(false);
+  const [hasMembership, setHasMembership] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
-
-  // Derive entitlement state from customerInfo — checked independently since
-  // the base program purchase and the monthly continuation grant different
-  // entitlements (see RC_ENTITLEMENT_ID / RC_MAINTENANCE_ENTITLEMENT_ID).
-  const checkEntitlement = (info: CustomerInfo, entitlementId: string): boolean => {
-    return typeof info.entitlements.active[entitlementId] !== 'undefined';
-  };
 
   const applyCustomerInfo = (info: CustomerInfo) => {
     setCustomerInfo(info);
-    setHasProAccess(checkEntitlement(info, RC_ENTITLEMENT_ID));
-    setHasMaintenanceAccess(checkEntitlement(info, RC_MAINTENANCE_ENTITLEMENT_ID));
+    setHasMembership(hasMembershipEntitlement(info));
   };
 
   // Fetch offerings and current customer info on mount. Offerings retry
@@ -126,28 +134,38 @@ export const useRevenueCat = (): RevenueCatState => {
     }
   }, []);
 
-  // Find a specific package by product identifier within the current offering
-  const getPackageByProduct = useCallback(
-    (productId: string): PurchasesPackage | undefined => {
-      return currentOffering?.availablePackages.find(
-        (p) => p.product.identifier === productId,
-      );
-    },
-    [currentOffering],
-  );
+  // Term packages resolve from the CURRENT Offering, by package type first —
+  // that is the RC Experiment's swap point for the annual price test. The
+  // product-id fallback only covers a dashboard misconfiguration where the
+  // package type wasn't set.
+  const getAnnualPackage = useCallback((): PurchasesPackage | undefined => {
+    const packages = currentOffering?.availablePackages ?? [];
+    return (
+      packages.find((p) => p.packageType === 'ANNUAL') ??
+      packages.find((p) =>
+        [RC_PRODUCTS.annual, RC_PRODUCTS.annualExperiment].includes(
+          p.product.identifier as (typeof RC_PRODUCTS)['annual' | 'annualExperiment'],
+        ),
+      )
+    );
+  }, [currentOffering]);
 
-  // Execute a purchase — returns true if the given entitlement (defaults to
-  // the base program entitlement) was granted by this purchase.
+  const getMonthlyPackage = useCallback((): PurchasesPackage | undefined => {
+    const packages = currentOffering?.availablePackages ?? [];
+    return (
+      packages.find((p) => p.packageType === 'MONTHLY') ??
+      packages.find((p) => p.product.identifier === RC_PRODUCTS.monthly)
+    );
+  }, [currentOffering]);
+
+  // Execute a purchase — returns true if membership was granted by it.
   const purchasePackage = useCallback(
-    async (
-      pack: PurchasesPackage,
-      entitlementId: string = RC_ENTITLEMENT_ID,
-    ): Promise<boolean> => {
+    async (pack: PurchasesPackage): Promise<boolean> => {
       try {
         setIsProcessing(true);
         const { customerInfo: info } = await Purchases.purchasePackage(pack);
         applyCustomerInfo(info);
-        return checkEntitlement(info, entitlementId);
+        return hasMembershipEntitlement(info);
       } catch (e: any) {
         if (!e.userCancelled) {
           Alert.alert('Purchase Failed', e.message ?? 'Something went wrong. Please try again.');
@@ -160,24 +178,24 @@ export const useRevenueCat = (): RevenueCatState => {
     [],
   );
 
-  // Restore previous purchases — required for App Store review compliance
+  // Restore previous purchases — required for App Store review compliance.
+  // Copy stays calm and neutral (§8): no urgency, no blame on the "not
+  // found" path — a failed restore is usually a different Apple ID, and the
+  // user is anxious enough already.
   const restorePurchases = useCallback(async (): Promise<boolean> => {
     try {
       setIsProcessing(true);
       const info = await Purchases.restorePurchases();
       applyCustomerInfo(info);
 
-      const granted = checkEntitlement(info, RC_ENTITLEMENT_ID);
+      const granted = hasMembershipEntitlement(info);
 
-      // "Purchase," never "subscription" — the program is a one-time buy
-      // (CLAUDE.md §2), and restore copy that says subscription contradicts
-      // the paywall's core promise.
       if (granted) {
-        Alert.alert('Restored', 'Your access has been restored on this device.');
+        Alert.alert('Restored', 'Your membership is active on this device.');
       } else {
         Alert.alert(
-          'No Purchase Found',
-          "We couldn't find a previous purchase linked to your Apple ID.",
+          'No Membership Found',
+          "We couldn't find an active membership linked to your Apple ID.",
         );
       }
       return granted;
@@ -192,12 +210,12 @@ export const useRevenueCat = (): RevenueCatState => {
   return {
     currentOffering,
     customerInfo,
-    hasProAccess,
-    hasMaintenanceAccess,
+    hasMembership,
     isProcessing,
     purchasePackage,
     restorePurchases,
     refreshCustomerInfo,
-    getPackageByProduct,
+    getAnnualPackage,
+    getMonthlyPackage,
   };
 };
