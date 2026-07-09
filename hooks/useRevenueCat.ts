@@ -23,12 +23,14 @@ export const RC_OFFERING_ID = 'default_onboarding_offer';
 
 // Product IDs — must match App Store Connect / the RC dashboard.
 // The active annual product is NEVER resolved by hardcoded id: the RC
-// Experiment ($99.99 vs $69.99 annual, upward-only pricing policy) decides
+// Experiment ($99.99 vs $79.99 annual, upward-only pricing policy) decides
 // which annual product the current Offering carries, and the paywall must
 // render whatever the Offering serves or the experiment readout is corrupt.
+// (Experiment arm re-priced from $69.99 → $79.99, founder ruling 2026-07-09:
+// "69" is an innuendo this audience must never meet at the point of sale.)
 export const RC_PRODUCTS = {
   annual: 'compose_annual_9999', // $99.99/yr — primary
-  annualExperiment: 'compose_annual_6999', // $69.99/yr — experiment arm
+  annualExperiment: 'compose_annual_7999', // $79.99/yr — experiment arm
   monthly: 'compose_monthly_1799', // $17.99/mo — secondary
 } as const;
 

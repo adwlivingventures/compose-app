@@ -210,8 +210,8 @@ describe('buildFlow', () => {
     const json = JSON.stringify(SCREENS);
     // "$1,800+" is the therapy comparator, not our price. Our own price
     // strings must be {price}/{pricePerDay} tokens resolved from RevenueCat —
-    // the RC Experiment ($99.99 vs $69.99 annual) swaps products server-side.
-    expect(json).not.toMatch(/\$\s?49\.99|\$\s?59\.99|\$\s?69\.99|\$\s?99\.99|\$\s?17\.99|\$0\.67/);
+    // the RC Experiment ($99.99 vs $79.99 annual) swaps products server-side.
+    expect(json).not.toMatch(/\$\s?49\.99|\$\s?59\.99|\$\s?69\.99|\$\s?79\.99|\$\s?99\.99|\$\s?17\.99|\$0\.67/);
     expect(json).toContain('{price}');
     expect(json).toContain('{pricePerDay}');
   });

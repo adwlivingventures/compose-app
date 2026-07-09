@@ -3,8 +3,9 @@
 ## ⚡ MODEL V2 LAUNCH SCOPE EXECUTED (2026-07-08/09, five commits)
 
 Per docs/BUILD-PROMPT-MODEL-V2.md: (1) RC layer → single `membership`
-entitlement, products compose_annual_9999/compose_annual_6999/
-compose_monthly_1799, offering-driven annual (RC Experiment swap point),
+entitlement, products compose_annual_9999/compose_annual_7999/
+compose_monthly_1799 (experiment arm re-priced $69.99→$79.99 on
+2026-07-09 — "69" connotation), offering-driven annual (RC Experiment swap point),
 'Compose Pro' grandfathered, ProtocolContext.hasPurchased = entitlement w/
 keychain cache; (2) paywall → annual-first w/ term selector (accent-free),
 "One payment covers your full year.", Day-14 risk reversal w/o permanence
@@ -26,7 +27,7 @@ iOS build (impossible from this machine); pick the telemetry endpoint
 > The live commercial model is the annual-first membership (CLAUDE.md §2,
 > docs/BUSINESS-MODEL-V2.md), executed per docs/BUILD-PROMPT-MODEL-V2.md.
 > The V1 founder to-do "create compose_annual_3999 in ASC" is VOID —
-> the Model V2 products are compose_annual_9999 / compose_annual_6999 /
+> the Model V2 products are compose_annual_9999 / compose_annual_7999 /
 > compose_monthly_1799 under one `membership` entitlement.
 
 ## ⚡ ACTIVE — Onboarding Rebuild "Ember Dusk v2" (2026-07-08, in flight)

@@ -38,7 +38,7 @@ media app. Passes the stranger test.
 | Product ID | Display name (user-facing) | Duration | Price (US) | Role |
 |---|---|---|---|---|
 | `compose_annual_9999` | `Annual Membership` | 1 year | $99.99 | Primary — default in the offering |
-| `compose_annual_6999` | `Annual Membership` | 1 year | $69.99 | RC Experiment arm only; identical display name so the receipt reads the same |
+| `compose_annual_7999` | `Annual Membership` | 1 year | $79.99 | RC Experiment arm only; identical display name so the receipt reads the same. Re-priced from $69.99 (2026-07-09): "69" is an innuendo this audience must never meet at the point of sale |
 | `compose_monthly_1799` | `Monthly Membership` | 1 month | $17.99 | Secondary |
 
 Notes:

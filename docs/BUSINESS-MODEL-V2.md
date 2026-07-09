@@ -4,7 +4,7 @@ Governing summary lives in CLAUDE.md §2. This document is the full flow map and
 
 ## 1. The model in one paragraph
 
-Annual-first membership sold as a transformation, not a subscription library. **$99.99/yr primary, $17.99/mo secondary** (RC Experiment: $99.99 vs $69.99 annual, upward-only pricing policy). Hard paywall after diagnostic onboarding. The 75-Day Protocol is the headline promise and the first act of a three-act membership year. Graduation is an unlock ceremony, never a sales moment. Honest billing throughout: no trials, no countdowns, no dark patterns, month-11 pre-renewal notice.
+Annual-first membership sold as a transformation, not a subscription library. **$99.99/yr primary, $17.99/mo secondary** (RC Experiment: $99.99 vs $79.99 annual, upward-only pricing policy; $69.99 rejected for its "69" connotation at checkout in this category). Hard paywall after diagnostic onboarding. The 75-Day Protocol is the headline promise and the first act of a three-act membership year. Graduation is an unlock ceremony, never a sales moment. Honest billing throughout: no trials, no countdowns, no dark patterns, month-11 pre-renewal notice.
 
 **Why this model (mechanism):** day-0 cash equals the old one-time price, so CAC payback is unchanged — but renewals add an LTV tail, the monthly tier admits younger/price-sensitive men, and 100% recurring revenue makes the company a clean ARR asset at exit (recurring revenue trades at ~3–4x profit vs. heavy discounts for one-time revenue). The annual price is itself a commitment device: higher sunk cost → higher adherence → better outcomes → better word of mouth.
 
@@ -57,7 +57,7 @@ Annual-first membership sold as a transformation, not a subscription library. **
 
 **Must ship at launch (next 3–4 days):**
 1. Paywall: new offering, new copy, annual pre-selected, honest-billing language.
-2. RevenueCat: subscription group, entitlement (`membership`), $99.99/$69.99/yr + $17.99/mo SKUs, experiment config.
+2. RevenueCat: subscription group, entitlement (`membership`), $99.99/$79.99/yr + $17.99/mo SKUs, experiment config.
 3. Telemetry consent step in onboarding + core anonymous events (cannot be retrofitted — cohort data starts at first install).
 4. Terms of Use / Privacy Policy: auto-renew disclosure, telemetry disclosure.
 5. App Store metadata: subscription disclosure fields.
