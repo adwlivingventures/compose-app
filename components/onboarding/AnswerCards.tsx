@@ -12,6 +12,8 @@ import { Check } from 'lucide-react-native';
 import type { Option } from '../../content/onboarding/types';
 import { DURATION, EASING, SELECTION } from '../../theme/emberDusk';
 import { Easing } from 'react-native';
+import { useReduceMotion } from '../../hooks/useReduceMotion';
+import { acknowledge } from '../../services/haptics';
 
 const breathOut = Easing.bezier(...EASING.breathOut);
 
@@ -39,8 +41,13 @@ function StaggeredEntrance({
   index: number;
   children: React.ReactNode;
 }) {
+  const reduceMotion = useReduceMotion();
   const t = useRef(new Animated.Value(0)).current;
   useEffect(() => {
+    if (reduceMotion) {
+      t.setValue(1);
+      return;
+    }
     Animated.timing(t, {
       toValue: 1,
       duration: DURATION.microMax,
@@ -48,7 +55,7 @@ function StaggeredEntrance({
       easing: breathOut,
       useNativeDriver: true,
     }).start();
-  }, [t, index]);
+  }, [t, index, reduceMotion]);
   return (
     <Animated.View
       style={{
@@ -179,6 +186,7 @@ export function SingleSelectList({
   const choose = (value: string) => {
     if (committed.current) return;
     committed.current = true;
+    acknowledge();
     setSelected(value);
     setTimeout(() => onAdvance(value), SELECTION.holdMs);
   };
@@ -224,7 +232,10 @@ export function MultiSelectList({
           dimmed={false}
           control="checkbox"
           accessibilityRole="checkbox"
-          onPress={() => onToggle(opt.value)}
+          onPress={() => {
+            acknowledge();
+            onToggle(opt.value);
+          }}
         />
       </StaggeredEntrance>
     );

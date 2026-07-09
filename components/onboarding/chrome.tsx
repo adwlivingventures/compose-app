@@ -7,6 +7,7 @@ import { Animated, Pressable, Text, View } from 'react-native';
 import { ChevronLeft } from 'lucide-react-native';
 import Svg, { Defs, RadialGradient, Rect, Stop } from 'react-native-svg';
 import { DUSK_RADIAL } from '../../theme/emberDusk';
+import { useReduceMotion } from '../../hooks/useReduceMotion';
 
 /** 10px, 2px-tracked uppercase micro-type (eyebrows, progress, footers only). */
 export function Eyebrow({
@@ -124,6 +125,25 @@ export function ProgressHeader({
     }).start();
   }, [step, total, fill]);
 
+  // Faint 20s shimmer (±3% luminance) so the fill reads as alive under the
+  // glass — emission, not decoration (Addendum §2). Frozen under Reduce Motion.
+  const reduceMotion = useReduceMotion();
+  const shimmer = useRef(new Animated.Value(1)).current;
+  useEffect(() => {
+    if (reduceMotion) {
+      shimmer.setValue(1);
+      return;
+    }
+    const loop = Animated.loop(
+      Animated.sequence([
+        Animated.timing(shimmer, { toValue: 0.94, duration: 10000, useNativeDriver: true }),
+        Animated.timing(shimmer, { toValue: 1, duration: 10000, useNativeDriver: true }),
+      ]),
+    );
+    loop.start();
+    return () => loop.stop();
+  }, [shimmer, reduceMotion]);
+
   return (
     <View className="px-6 pt-4">
       <View className="flex-row items-center justify-between">
@@ -147,14 +167,16 @@ export function ProgressHeader({
       </View>
       <View className="mt-4 h-[2px] bg-line">
         <Animated.View
-          className="h-full bg-accent"
+          className="h-full"
           style={{
             width: fill.interpolate({
               inputRange: [0, 1],
               outputRange: ['0%', '100%'],
             }),
           }}
-        />
+        >
+          <Animated.View className="h-full w-full bg-accent" style={{ opacity: shimmer }} />
+        </Animated.View>
       </View>
     </View>
   );

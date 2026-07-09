@@ -736,9 +736,13 @@ export const SCREENS: Screen[] = [
     priceAnchor: { label: 'Sex therapy, 12 weeks — $1,800+', struck: true },
     offer: { label: 'COMPOSE, 75 days — {price} once' },
     riskReversal: {
-      title: '14-day baseline check',
+      // Founder ruling (2026-07): no refund promises on any surface, ever.
+      // The risk reversal is evidence, not money-back — the Day-14
+      // re-measurement is a checkpoint he can see, and ownership is
+      // permanent. Refunds are Apple's process and are never referenced.
+      title: 'The Day-14 baseline check',
       body:
-        'If your Composure Score hasn’t moved after 14 days, we’ll show you exactly how to request a full refund from Apple — one tap.',
+        'Your Composure Score is re-measured on Day 14 — you watch the change, or see exactly what to adjust. Measured, not promised. And everything you pay for is yours permanently.',
     },
     lockedBlock: {
       heading: 'PHASE IV · LOCKED UNTIL DAY 76',

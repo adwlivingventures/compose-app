@@ -22,12 +22,16 @@ clinical justification for why they're locked (the **Authority Frame**: "we
 restrict advanced coaching to force a nervous-system reset") — turning a
 missing feature into proof of rigor.
 
-**⚠️ OPEN DECISION (strategy vs build):** the strategy log assumes the $49.99
-**auto-rolls** into the $4.99/mo subscription at Day 76. The built app sells a
-one-time IAP whose paywall promises "No subscription · pay once, keep it," with
-an **opt-in** continuation at the E19 graduation screen ("Both are wins").
-These are incompatible; see the reconciliation report / backlog. Until decided,
-the built opt-in model stands.
+**✅ RESOLVED (founder ruling, 2026-07): opt-in wins, permanently.** The
+$49.99 purchase never auto-rolls into a subscription — the paywall promises
+"No subscription · pay once, keep it," and auto-rolling that user would be a
+broken contract (App Store refund storms, "SCAM" reviews, and the death of
+the "app whose business model is you finishing" position). The continuation
+is offered opt-in at the E19 graduation screen, **annual-first ($39.99/yr
+primary, $4.99/mo secondary)**. Additionally ruled: **no refund promises on
+any surface** — Apple owns the refund process entirely; the risk reversal is
+the Day-14 Composure re-measurement (evidence, not money-back). Codified in
+CLAUDE.md §2; do not relitigate.
 
 ## 2. Feature Map & Gates
 
@@ -105,9 +109,9 @@ against the log:
 ## 7. Content Pipeline (the actual critical path to launch)
 
 Code is ~feature-complete. Remaining launch blockers are content + ops:
-- **Audio**: 75 anchor scripts authored (`/scripts`); only Day 1 recorded and
-  registered (`content/anchors.ts`). Production pipeline: ElevenLabs, matched
-  to Day-1 pacing.
+- **Audio**: ✅ DONE — all 75 anchor scripts authored AND all 75 recordings
+  produced, re-encoded (mono 64kbps), bundled, and registered in
+  `content/anchors.ts`. No longer a launch blocker.
 - Copilot scenario expansion + preview trim (see backlog), further Sensate
   Mastery lessons, additional Success Vault narratives.
 - Paid Applications Agreement, claims-tightening pass, ASO copy (use the

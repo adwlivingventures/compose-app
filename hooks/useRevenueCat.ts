@@ -21,7 +21,11 @@ export const RC_OFFERING_ID = 'default_onboarding_offer';
 // Product IDs — must match App Store Connect / Google Play Console
 export const RC_PRODUCTS = {
   program: 'compose_75day_4999',      // $49.99 one-time 75-day program
-  continuation: 'compose_monthly_499', // $4.99/month post-Day-75 membership
+  continuation: 'compose_monthly_499', // $4.99/month post-Day-75 membership (secondary)
+  // Annual-first continuation (CLAUDE.md §2 ruling, 2026-07): $39.99/yr is
+  // the PRIMARY graduation offer. Product must be created in App Store
+  // Connect + attached to the RC offering before it can render.
+  continuationAnnual: 'compose_annual_3999',
 } as const;
 
 // ─── Types ────────────────────────────────────────────────────────────────────
@@ -60,26 +64,43 @@ export const useRevenueCat = (): RevenueCatState => {
     setHasMaintenanceAccess(checkEntitlement(info, RC_MAINTENANCE_ENTITLEMENT_ID));
   };
 
-  // Fetch offerings and current customer info on mount
+  // Fetch offerings and current customer info on mount. Offerings retry
+  // SILENTLY with backoff — a slow or offline network must never surface an
+  // error anywhere in onboarding (the flow completes without prices; the
+  // paywall simply omits price copy until a retry lands). This replaces the
+  // old console.error path that produced the dev "[RevenueCat] Error
+  // fetching offerings" banner.
   useEffect(() => {
-    const initialize = async () => {
-      try {
-        const [offerings, info] = await Promise.all([
-          Purchases.getOfferings(),
-          Purchases.getCustomerInfo(),
-        ]);
+    let cancelled = false;
 
-        if (offerings.current !== null) {
-          setCurrentOffering(offerings.current);
+    const fetchOfferings = async () => {
+      const delays = [0, 2000, 5000, 12000, 30000];
+      for (const delay of delays) {
+        if (delay) await new Promise((r) => setTimeout(r, delay));
+        if (cancelled) return;
+        try {
+          const offerings = await Purchases.getOfferings();
+          if (offerings.current !== null) {
+            if (!cancelled) setCurrentOffering(offerings.current);
+            return;
+          }
+        } catch {
+          // quiet — next backoff step
         }
-
-        applyCustomerInfo(info);
-      } catch (e) {
-        console.error('RevenueCat: initialization error', e);
       }
     };
 
-    initialize();
+    const fetchCustomer = async () => {
+      try {
+        const info = await Purchases.getCustomerInfo();
+        if (!cancelled) applyCustomerInfo(info);
+      } catch {
+        // quiet — the customerInfo listener below heals this when RC recovers
+      }
+    };
+
+    fetchOfferings();
+    fetchCustomer();
 
     // Listen for CustomerInfo updates (e.g. subscription renewals, restores)
     const customerInfoListener = Purchases.addCustomerInfoUpdateListener((info) => {
@@ -87,6 +108,7 @@ export const useRevenueCat = (): RevenueCatState => {
     });
 
     return () => {
+      cancelled = true;
       const listener = customerInfoListener as any;
       if (listener && typeof listener.remove === 'function') {
         listener.remove();
@@ -147,12 +169,15 @@ export const useRevenueCat = (): RevenueCatState => {
 
       const granted = checkEntitlement(info, RC_ENTITLEMENT_ID);
 
+      // "Purchase," never "subscription" — the program is a one-time buy
+      // (CLAUDE.md §2), and restore copy that says subscription contradicts
+      // the paywall's core promise.
       if (granted) {
-        Alert.alert('Restored', 'Your Compose Pro access has been restored.');
+        Alert.alert('Restored', 'Your access has been restored on this device.');
       } else {
         Alert.alert(
-          'No Active Subscription',
-          "We couldn't find an active Compose Pro subscription linked to your Apple ID.",
+          'No Purchase Found',
+          "We couldn't find a previous purchase linked to your Apple ID.",
         );
       }
       return granted;

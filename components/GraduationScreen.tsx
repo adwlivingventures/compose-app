@@ -17,11 +17,18 @@ import { useDefusionLog } from '../hooks/useDefusionLog';
  */
 
 interface GraduationScreenProps {
-  /** Attempt the $4.99/mo purchase; resolve true if the entitlement landed. */
-  onKeepToolkit: () => Promise<boolean>;
+  /**
+   * Attempt the continuation purchase (annual-first per CLAUDE.md §2:
+   * $39.99/yr primary, $4.99/mo secondary); resolve true if the entitlement
+   * landed.
+   */
+  onKeepToolkit: (term: 'annual' | 'monthly') => Promise<boolean>;
   /** Persist the export choice after a completed share. */
   onExported: () => Promise<void>;
   isProcessing: boolean;
+  /** Localized price strings from the RC offering — null until it loads. */
+  annualPrice: string | null;
+  monthlyPrice: string | null;
 }
 
 function formatDate(iso: string): string {
@@ -32,6 +39,8 @@ export default function GraduationScreen({
   onKeepToolkit,
   onExported,
   isProcessing,
+  annualPrice,
+  monthlyPrice,
 }: GraduationScreenProps) {
   const { completedDays } = useProtocol();
   const { entries } = useDefusionLog();
@@ -120,16 +129,17 @@ export default function GraduationScreen({
         )}
       </View>
 
-      {/* The offer — both exits are wins, and the copy says so */}
+      {/* The offer — annual-first (CLAUDE.md §2), both exits are wins */}
       <View className="bg-surface-deep border border-line-soft rounded-2xl p-[18px] mt-3.5">
         <Text className="text-ink text-sm font-bold">Keep the toolkit within reach</Text>
         <Text className="text-muted text-[12.5px] leading-[18px] mt-1">
-          Steady-Me tools, your vault, maintenance tracks, and the log that proves the shift —
-          $4.99/mo. Or leave with everything you've learned. Both are wins.
+          Steady-Me tools, your vault, maintenance tracks, and the log that proves the shift
+          {annualPrice ? ` — ${annualPrice} a year` : ''}. Or leave with everything you've
+          learned. Both are wins.
         </Text>
         <View className="flex-row gap-2.5 mt-3.5">
           <TouchableOpacity
-            onPress={onKeepToolkit}
+            onPress={() => onKeepToolkit('annual')}
             disabled={isProcessing}
             activeOpacity={0.85}
             className="flex-1 bg-accent rounded-xl py-[13px] items-center"
@@ -137,7 +147,9 @@ export default function GraduationScreen({
             {isProcessing ? (
               <ActivityIndicator color="#0C0B09" size="small" />
             ) : (
-              <Text className="text-on-accent font-bold text-[13.5px]">Keep the toolkit</Text>
+              <Text className="text-on-accent font-bold text-[13.5px]">
+                {annualPrice ? `Keep the toolkit — ${annualPrice}/yr` : 'Keep the toolkit'}
+              </Text>
             )}
           </TouchableOpacity>
           <TouchableOpacity
@@ -151,6 +163,18 @@ export default function GraduationScreen({
             </Text>
           </TouchableOpacity>
         </View>
+        {monthlyPrice && (
+          <TouchableOpacity
+            onPress={() => onKeepToolkit('monthly')}
+            disabled={isProcessing}
+            activeOpacity={0.7}
+            className="items-center mt-3"
+          >
+            <Text className="text-faint text-xs">
+              or {monthlyPrice}/month instead
+            </Text>
+          </TouchableOpacity>
+        )}
       </View>
 
       <View className="flex-1" />

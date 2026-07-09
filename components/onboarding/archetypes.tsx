@@ -15,6 +15,7 @@ import type {
 } from '../../content/onboarding/types';
 import { HERO_RENDERS } from '../../content/onboarding/heroes';
 import { DURATION, EASING } from '../../theme/emberDusk';
+import { useReduceMotion } from '../../hooks/useReduceMotion';
 import EmissiveCTA from './EmissiveCTA';
 import { DuskRadial, Eyebrow, SecondaryLink, Wordmark } from './chrome';
 
@@ -22,15 +23,20 @@ const breathOut = Easing.bezier(...EASING.breathOut);
 
 /** Screen-entrance fade used by every archetype (transitions 380–450ms). */
 export function ScreenFade({ children }: { children: React.ReactNode }) {
+  const reduceMotion = useReduceMotion();
   const t = useRef(new Animated.Value(0)).current;
   useEffect(() => {
+    if (reduceMotion) {
+      t.setValue(1);
+      return;
+    }
     Animated.timing(t, {
       toValue: 1,
       duration: DURATION.transitionMin,
       easing: breathOut,
       useNativeDriver: true,
     }).start();
-  }, [t]);
+  }, [t, reduceMotion]);
   return <Animated.View style={{ flex: 1, opacity: t }}>{children}</Animated.View>;
 }
 

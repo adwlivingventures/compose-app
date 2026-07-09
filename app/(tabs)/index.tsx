@@ -67,17 +67,29 @@ export default function DashboardScreen() {
     setPhaseGate('none');
   };
 
-  const handleContinuationPurchase = async (): Promise<boolean> => {
-    const pack =
-      getPackageByProduct(RC_PRODUCTS.continuation) ??
-      currentOffering?.availablePackages.find((p) => p.packageType === 'MONTHLY');
+  // Annual-first continuation (CLAUDE.md §2 ruling): $39.99/yr is the
+  // primary offer, $4.99/mo the secondary. Each term resolves its own
+  // package; annual falls back by package type until the product id lands
+  // in the RC offering.
+  const continuationPackage = (term: 'annual' | 'monthly') =>
+    term === 'annual'
+      ? (getPackageByProduct(RC_PRODUCTS.continuationAnnual) ??
+        currentOffering?.availablePackages.find((p) => p.packageType === 'ANNUAL'))
+      : (getPackageByProduct(RC_PRODUCTS.continuation) ??
+        currentOffering?.availablePackages.find((p) => p.packageType === 'MONTHLY'));
 
+  const handleContinuationPurchase = async (term: 'annual' | 'monthly'): Promise<boolean> => {
+    const pack = continuationPackage(term);
     if (!pack) {
       Alert.alert('Offer Unavailable', 'Please check your connection and try again.');
       return false;
     }
     return purchasePackage(pack, RC_MAINTENANCE_ENTITLEMENT_ID);
   };
+
+  // Localized continuation prices from the offering — never hardcoded.
+  const annualPriceStr = continuationPackage('annual')?.product.priceString ?? null;
+  const monthlyPriceStr = continuationPackage('monthly')?.product.priceString ?? null;
 
   const recordGraduationChoice = async (choice: 'toolkit' | 'export') => {
     await LocalStore.setItem('@graduation_choice', choice);
@@ -111,8 +123,10 @@ export default function DashboardScreen() {
     return (
       <GraduationScreen
         isProcessing={isProcessing}
-        onKeepToolkit={async () => {
-          const granted = await handleContinuationPurchase();
+        annualPrice={continuationPackage('annual')?.product.priceString ?? null}
+        monthlyPrice={continuationPackage('monthly')?.product.priceString ?? null}
+        onKeepToolkit={async (term) => {
+          const granted = await handleContinuationPurchase(term);
           if (granted) await recordGraduationChoice('toolkit');
           return granted;
         }}
@@ -178,11 +192,11 @@ export default function DashboardScreen() {
                 <Text className="text-body text-sm font-bold">Keep Your Progress Going</Text>
               </View>
               <Text className="text-muted text-xs mt-1 leading-4">
-                Continue for $4.99/mo to keep streaks, the Somatic Maintenance Toolkit, and
-                interactive logs active.
+                Continue{annualPriceStr ? ` for ${annualPriceStr} a year` : ''} to keep
+                streaks, the Somatic Maintenance Toolkit, and interactive logs active.
               </Text>
               <TouchableOpacity
-                onPress={handleContinuationPurchase}
+                onPress={() => handleContinuationPurchase('annual')}
                 disabled={isProcessing}
                 activeOpacity={0.85}
                 className="bg-accent rounded-xl py-3 items-center mt-4"
@@ -190,9 +204,21 @@ export default function DashboardScreen() {
                 {isProcessing ? (
                   <ActivityIndicator color="#0C0B09" />
                 ) : (
-                  <Text className="text-on-accent font-bold text-sm">Continue — $4.99/mo</Text>
+                  <Text className="text-on-accent font-bold text-sm">
+                    {annualPriceStr ? `Continue — ${annualPriceStr}/yr` : 'Keep the toolkit'}
+                  </Text>
                 )}
               </TouchableOpacity>
+              {monthlyPriceStr && (
+                <TouchableOpacity
+                  onPress={() => handleContinuationPurchase('monthly')}
+                  disabled={isProcessing}
+                  activeOpacity={0.7}
+                  className="items-center mt-3"
+                >
+                  <Text className="text-faint text-xs">or {monthlyPriceStr}/month instead</Text>
+                </TouchableOpacity>
+              )}
             </>
           )}
         </View>

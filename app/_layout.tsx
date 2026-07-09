@@ -85,6 +85,8 @@ export default function RootLayout() {
           <Stack.Screen name="copilot" />
           <Stack.Screen name="lesson/[id]" />
           <Stack.Screen name="success-vault" />
+          {/* Dev-only Ember showcase (Addendum §8 demo mode); redirects out in prod. */}
+          <Stack.Screen name="ember-demo" />
         </Stack>
         {/* Above everything: the app-switcher cover and Face ID gate (E18). */}
         <PrivacyShield />

@@ -122,6 +122,13 @@ card placement, and hope-tease lines + button labels on those cards.
    onboarding — this explicitly fixes the current "[RevenueCat] Error fetching
    offerings" banner. Keep existing dev-only controls ("View other arm", "Skip
    paywall") but gate them strictly behind the dev flag.
+   **REFUND RULING (2026-07, supersedes the specs where they differ):** no
+   refund language anywhere. The paywall risk-reversal card reads: title
+   "The Day-14 baseline check"; body "Your Composure Score is re-measured on
+   Day 14 — you watch the change, or see exactly what to adjust. Measured,
+   not promised. And everything you pay for is yours permanently." The
+   canonical copy lives in content/onboarding/screens.ts (riskReversal) —
+   use it verbatim over the PDF/docx if they still show refund copy.
 7. **Reuse.** Reuse existing onboarding components and Ember tokens wherever an
    archetype matches. New components only for: Ember object, Map, Path to Freedom,
    Generating, Paywall, Paywall-dismiss, Day Zero signature.
