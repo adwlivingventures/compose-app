@@ -249,8 +249,18 @@ export interface PaywallScreen extends ScreenBase {
   profileRecap: { title: string; caption: string };
   headline: string;
   priceAnchor: { label: string; struck: true };
-  /** {price} resolves from the RevenueCat offering — never hardcoded. */
-  offer: { label: string };
+  /**
+   * Membership terms (Model V2): annual pre-selected, monthly secondary.
+   * {price} tokens resolve from the RevenueCat offering — never hardcoded;
+   * the RC Experiment decides which annual product the offering serves.
+   */
+  offer: {
+    annual: { eyebrow: string; unit: string; caption: string };
+    monthly: { eyebrow: string; unit: string; caption: string };
+  };
+  termSelector: { annual: string; monthly: string };
+  /** Plain auto-renew disclosure rendered near the CTA (App Review requirement). {price} token. */
+  autoRenew: { annual: string; monthly: string };
   riskReversal: { title: string; body: string };
   lockedBlock: {
     heading: string;
@@ -282,7 +292,9 @@ export interface SignatureScreen extends ScreenBase {
   chips: string[]; // {pricePerDay} token allowed
   /** {price} resolves from the RevenueCat offering. */
   button: string;
-  subLine: string;
+  /** Auto-renew disclosure under the purchase button — the purchase fires on
+   *  this screen, so App Review's disclosure requirement lands here too. */
+  autoRenew: { annual: string; monthly: string };
 }
 
 export interface DiscretionScreen extends ScreenBase {

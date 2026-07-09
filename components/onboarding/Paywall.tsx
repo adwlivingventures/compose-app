@@ -1,9 +1,18 @@
-// B-39/A-39 — Paywall. Layout truth: 3a reference. The offer price renders
-// from the RevenueCat offering ONLY ({price} token) — when offerings haven't
-// loaded, price copy simply doesn't render (silent retry upstream; no error
-// state ever shows in onboarding). "$1,800+" is the therapy comparator, not
-// our price. Testimonial row ships dark (gated upstream — nothing renders
-// here until a real, consented quote exists).
+// B-39/A-39 — Paywall (Model V2: annual-first membership). Layout truth: 3a
+// reference, amended by the Model V2 ruling. Prices render from the
+// RevenueCat offering ONLY — when offerings haven't loaded, price copy
+// simply doesn't render (silent retry upstream; no error state ever shows
+// in onboarding). "$1,800+" is the therapy comparator, not our price.
+// Testimonial row ships dark (gated upstream — nothing renders here until a
+// real, consented quote exists).
+//
+// Conversion mechanics preserved from V1: profile recap (personalization
+// receipt), therapy price anchor, Day-14 evidence-based risk reversal,
+// Phase-IV Zeigarnik block. New in V2: the term selector (annual
+// pre-selected — the higher sunk cost is itself a commitment device that
+// predicts adherence) and the plain auto-renew disclosure near the CTA
+// (honest billing converts the subscription-trap-fearful better than
+// hiding the renewal ever could).
 
 import { Linking, Pressable, ScrollView, Text, View } from 'react-native';
 import { ChevronLeft, Lock } from 'lucide-react-native';
@@ -18,11 +27,15 @@ export const LEGAL_URLS = {
   terms: 'https://adwlivingventures.github.io/compose-legal/terms-of-use.html',
 };
 
+export type MembershipTerm = 'annual' | 'monthly';
+
 export interface PriceStrings {
-  /** Localized, e.g. "$49.99" — from the RC offering's product. */
-  price: string;
-  /** Localized per-day breakdown, e.g. "$0.67" — derived from the same product. */
-  pricePerDay: string | null;
+  /** Localized annual price, e.g. "$99.99" — from the RC offering's ANNUAL package. */
+  annual: string;
+  /** Localized per-day breakdown of the annual price (÷365 — honest math). */
+  annualPerDay: string | null;
+  /** Localized monthly price, e.g. "$17.99" — null until that package loads. */
+  monthly: string | null;
 }
 
 export function PaywallFooter({
@@ -52,6 +65,8 @@ export default function Paywall({
   result,
   goalEcho,
   prices,
+  term,
+  onSelectTerm,
   onContinue,
   onRestore,
   restoring,
@@ -64,6 +79,8 @@ export default function Paywall({
   result: ComposureResult;
   goalEcho: string | null;
   prices: PriceStrings | null;
+  term: MembershipTerm;
+  onSelectTerm: (term: MembershipTerm) => void;
   onContinue: () => void;
   onRestore: () => void;
   restoring: boolean;
@@ -73,8 +90,15 @@ export default function Paywall({
   onDevEmberDemo?: () => void;
 }) {
   const recapBars = result.bars.slice(0, 2);
-  const offerLabel = prices
-    ? screen.offer.label.replace('{price}', prices.price)
+  // Monthly is offered only once its price has loaded — a selectable option
+  // without a price would be a blind commitment.
+  const monthlyAvailable = prices?.monthly != null;
+  const activeTerm: MembershipTerm = monthlyAvailable ? term : 'annual';
+  const offer = screen.offer[activeTerm];
+  const termPrice =
+    prices === null ? null : activeTerm === 'annual' ? prices.annual : prices.monthly;
+  const disclosure = termPrice
+    ? screen.autoRenew[activeTerm].replace('{price}', termPrice)
     : null;
 
   return (
@@ -163,25 +187,56 @@ export default function Paywall({
                 className="text-accent-bright"
                 style={{ fontSize: 10, fontWeight: '600', letterSpacing: 1 }}
               >
-                COMPOSE · 75 DAYS
+                {offer.eyebrow}
               </Text>
-              {offerLabel ? (
+              {termPrice ? (
                 <Text className="font-serif-regular text-ink" style={{ fontSize: 21, marginTop: 6 }}>
-                  {prices!.price}
+                  {termPrice}
                   <Text className="text-accent-deep" style={{ fontSize: 12, fontWeight: '300' }}>
-                    {'  once'}
+                    {offer.unit}
                   </Text>
                 </Text>
               ) : (
                 <Text className="font-serif-regular text-ink" style={{ fontSize: 17, marginTop: 8 }}>
-                  75 days, one payment
+                  The 75-day protocol, and the year beyond it
                 </Text>
               )}
               <Text className="text-body" style={{ fontSize: 10.5, fontWeight: '300', marginTop: 4 }}>
-                No subscription. Ever.
+                {offer.caption}
               </Text>
             </View>
           </View>
+
+          {/* Term selector — annual pre-selected, monthly secondary. Deliberately
+              accent-free: the glowing offer card above is the selection's voice,
+              and the accent budget (§6: ≤4 sand instances) is already spoken for. */}
+          {monthlyAvailable && (
+            <View
+              className="mt-3 flex-row rounded-full border border-line"
+              style={{ padding: 3 }}
+            >
+              {(['annual', 'monthly'] as const).map((t) => {
+                const selected = activeTerm === t;
+                return (
+                  <Pressable
+                    key={t}
+                    accessibilityRole="button"
+                    accessibilityState={{ selected }}
+                    onPress={() => onSelectTerm(t)}
+                    className={selected ? 'bg-surface' : undefined}
+                    style={{ flex: 1, paddingVertical: 8, borderRadius: 999, alignItems: 'center' }}
+                  >
+                    <Text
+                      className={selected ? 'text-ink' : 'text-muted'}
+                      style={{ fontSize: 11.5, fontWeight: selected ? '500' : '300' }}
+                    >
+                      {screen.termSelector[t]}
+                    </Text>
+                  </Pressable>
+                );
+              })}
+            </View>
+          )}
 
           {/* Risk reversal. */}
           <View className="mt-3 rounded-[14px] bg-surface" style={{ paddingVertical: 13, paddingHorizontal: 15 }}>
@@ -244,6 +299,17 @@ export default function Paywall({
         </ScrollView>
 
         <View className="px-6 pb-10" style={{ paddingTop: 12 }}>
+          {/* Plain auto-renew disclosure, muted micro-type, directly above the
+              CTA — App Review requires it; the honest-billing rule wants it
+              visible, calm, and free of fine-print games. */}
+          {disclosure && (
+            <Text
+              className="text-center text-muted"
+              style={{ fontSize: 10, fontWeight: '300', lineHeight: 15, marginBottom: 10 }}
+            >
+              {disclosure}
+            </Text>
+          )}
           <EmissiveCTA label={screen.button} onPress={onContinue} paddingVertical={18} />
           <PaywallFooter onRestore={onRestore} disabled={restoring} />
           {__DEV__ && (onDevSkip || onDevToggleVariant || onDevEmberDemo) && (

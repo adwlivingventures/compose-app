@@ -43,12 +43,13 @@ import HopefulArc from '../components/onboarding/HopefulArc';
 import DivergingGraphScreen from '../components/onboarding/DivergingGraphScreen';
 import Generating from '../components/onboarding/Generating';
 import MapScreen from '../components/onboarding/MapScreen';
-import Paywall, { PriceStrings } from '../components/onboarding/Paywall';
+import Paywall, { MembershipTerm, PriceStrings } from '../components/onboarding/Paywall';
 import PaywallDismiss from '../components/onboarding/PaywallDismiss';
 import DayZero from '../components/onboarding/DayZero';
 
 const STATE_KEY = '@onboarding_flow_v1';
 const DISMISSED_KEY = '@paywall_dismissed';
+const TERM_KEY = '@membership_term';
 
 interface PersistedState {
   screenId: string;
@@ -62,7 +63,7 @@ const isStable = (s: ResolvedScreen) =>
 export default function Onboarding() {
   const router = useRouter();
   const { unlockProtocol } = useProtocol();
-  const { getAnnualPackage, purchasePackage, restorePurchases, isProcessing } =
+  const { getAnnualPackage, getMonthlyPackage, purchasePackage, restorePurchases, isProcessing } =
     useRevenueCat();
 
   const [variant, setVariant] = useState<Variant | null>(null);
@@ -70,6 +71,10 @@ export default function Onboarding() {
   const [cursor, setCursor] = useState(0);
   const [hydrated, setHydrated] = useState(false);
   const [showDismiss, setShowDismiss] = useState(false);
+  // Membership term — annual pre-selected (Model V2 annual-first). Persisted
+  // so a paywall→resume round trip doesn't silently reset his choice before
+  // the Day Zero purchase.
+  const [term, setTerm] = useState<MembershipTerm>('annual');
   const history = useRef<number[]>([]);
   const dismissedThisSession = useRef(false);
   const screenEnteredAt = useRef(Date.now());
@@ -82,6 +87,8 @@ export default function Onboarding() {
       const v = await getOrAssignVariant();
       const saved = await LocalStore.getItem<PersistedState>(STATE_KEY);
       const dismissed = await LocalStore.getItem<boolean>(DISMISSED_KEY);
+      const savedTerm = await LocalStore.getItem<MembershipTerm>(TERM_KEY);
+      if (savedTerm === 'monthly') setTerm('monthly');
       const resolved = buildFlow(v);
       setVariant(v);
       // Variant tag on every RC conversion event (the experiment readout).
@@ -178,7 +185,12 @@ export default function Onboarding() {
   }, [goBack, emit]);
 
   // ── Purchase (minimal wiring — offerings retry + attributes are step 6) ──
-  const prices = usePriceStrings(getAnnualPackage);
+  const prices = usePriceStrings(getAnnualPackage, getMonthlyPackage);
+
+  const selectTerm = useCallback((next: MembershipTerm) => {
+    setTerm(next);
+    LocalStore.setItem(TERM_KEY, next);
+  }, []);
 
   /** Restore (App Store requirement): a reinstalling owner re-enters the app;
    *  unsigned restores route through the existing oath screen first. */
@@ -199,10 +211,12 @@ export default function Onboarding() {
         name: signedName,
         signedAt: new Date().toISOString(),
       });
-      // Annual is the pre-selected default (Model V2: annual-first). The
-      // active annual product comes from the current Offering — the RC
-      // Experiment's swap point.
-      const pack = getAnnualPackage();
+      // The paywall's selected term decides the package; annual is the
+      // pre-selected default (Model V2: annual-first). The active annual
+      // product comes from the current Offering — the RC Experiment's swap
+      // point.
+      const pack =
+        term === 'monthly' ? (getMonthlyPackage() ?? getAnnualPackage()) : getAnnualPackage();
       if (!pack) return; // silent — never an error toast in onboarding
       emit('purchase-attempt');
       const granted = await purchasePackage(pack);
@@ -213,7 +227,7 @@ export default function Onboarding() {
         router.replace('/discretion?intro=1');
       }
     },
-    [getAnnualPackage, purchasePackage, unlockProtocol, router, emit],
+    [term, getAnnualPackage, getMonthlyPackage, purchasePackage, unlockProtocol, router, emit],
   );
 
   // ── Render ──────────────────────────────────────────────────────────────
@@ -378,6 +392,8 @@ export default function Onboarding() {
             result={composure}
             goalEcho={goalEcho}
             prices={prices}
+            term={term}
+            onSelectTerm={selectTerm}
             onContinue={() => advance()}
             onRestore={restore}
             restoring={isProcessing}
@@ -404,6 +420,7 @@ export default function Onboarding() {
           <DayZero
             screen={screen}
             prices={prices}
+            term={term}
             purchasing={isProcessing}
             onSignAndBegin={signAndBegin}
             onBack={closeAttempt}
@@ -439,25 +456,31 @@ export default function Onboarding() {
 
 function usePriceStrings(
   getAnnualPackage: ReturnType<typeof useRevenueCat>['getAnnualPackage'],
+  getMonthlyPackage: ReturnType<typeof useRevenueCat>['getMonthlyPackage'],
 ): PriceStrings | null {
-  const pack = getAnnualPackage();
+  const annualPack = getAnnualPackage();
+  const monthlyPack = getMonthlyPackage();
   return useMemo(() => {
-    if (!pack) return null;
-    const { priceString, price, currencyCode } = pack.product;
+    if (!annualPack) return null;
+    const { priceString, price, currencyCode } = annualPack.product;
     // Per-day reframe of the ANNUAL price (365, not 75): the membership
     // covers the full year, and honest math is part of the honest-billing
     // posture — a /75 divisor on an annual charge would be a dark pattern.
-    let pricePerDay: string | null = null;
+    let annualPerDay: string | null = null;
     try {
-      pricePerDay = new Intl.NumberFormat(undefined, {
+      annualPerDay = new Intl.NumberFormat(undefined, {
         style: 'currency',
         currency: currencyCode,
       }).format(price / 365);
     } catch {
-      pricePerDay = `$${(price / 365).toFixed(2)}`;
+      annualPerDay = `$${(price / 365).toFixed(2)}`;
     }
-    return { price: priceString, pricePerDay };
-  }, [pack]);
+    return {
+      annual: priceString,
+      annualPerDay,
+      monthly: monthlyPack?.product.priceString ?? null,
+    };
+  }, [annualPack, monthlyPack]);
 }
 
 /** The user's goal, echoed verbatim: free text first, else the first selected goal. */

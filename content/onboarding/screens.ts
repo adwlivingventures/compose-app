@@ -732,17 +732,41 @@ export const SCREENS: Screen[] = [
       title: 'Your Autonomic Profile · from your answers',
       caption: 'Reversible with daily somatic retraining.',
     },
-    headline: 'The 75-Day Reset, built for this profile',
+    // Model V2 headline: sells the transformation (the 75-Day Protocol plus
+    // the year that consolidates it), never "a subscription" — the membership
+    // is the delivery vehicle, not the promise.
+    headline: 'The 75-Day Reset, built for this profile — and the year that locks it in',
     priceAnchor: { label: 'Sex therapy, 12 weeks — $1,800+', struck: true },
-    offer: { label: 'COMPOSE, 75 days — {price} once' },
+    offer: {
+      annual: {
+        eyebrow: 'COMPOSE · ONE YEAR',
+        unit: ' /year',
+        caption: 'One payment covers your full year.',
+      },
+      monthly: {
+        eyebrow: 'COMPOSE · MONTHLY',
+        unit: ' /month',
+        caption: 'Cancel anytime in your Apple ID settings.',
+      },
+    },
+    termSelector: { annual: 'Annual', monthly: 'Monthly' },
+    // Honest-billing rule: the disclosure is plain, calm micro-type near the
+    // CTA — no asterisks, no fine-print games. App Review requires it; trust
+    // requires it more.
+    autoRenew: {
+      annual:
+        'Renews yearly at {price} unless cancelled — manage anytime in your Apple ID settings.',
+      monthly:
+        'Renews monthly at {price} unless cancelled — manage anytime in your Apple ID settings.',
+    },
     riskReversal: {
       // Founder ruling (2026-07): no refund promises on any surface, ever.
       // The risk reversal is evidence, not money-back — the Day-14
-      // re-measurement is a checkpoint he can see, and ownership is
-      // permanent. Refunds are Apple's process and are never referenced.
+      // re-measurement is a checkpoint he can see. Refunds are Apple's
+      // process and are never referenced.
       title: 'The Day-14 baseline check',
       body:
-        'Your Composure Score is re-measured on Day 14 — you watch the change, or see exactly what to adjust. Measured, not promised. And everything you pay for is yours permanently.',
+        'Your Composure Score is re-measured on Day 14 — you watch the change, or see exactly what to adjust. Measured, not promised.',
     },
     lockedBlock: {
       heading: 'PHASE IV · LOCKED UNTIL DAY 76',
@@ -754,11 +778,13 @@ export const SCREENS: Screen[] = [
         { title: 'The Refractory Window Guide', description: 'the neuro-mechanics of the recovery window' },
         { title: 'The Anxious Partner De-escalator', description: 'scripts that settle your partner’s nervous system, word by word' },
       ],
-      footer: 'Unlocks with the Maintenance Toolkit — your choice on Day 76.',
+      // Act II future-pacing: the Mastery Suite is included membership
+      // content earned at graduation — never a second purchase decision.
+      footer: 'Included in your membership — it unlocks at graduation, Day 76.',
     },
     positioningLine: 'Pills and creams manage tonight. This retrains the system.',
     trustCard:
-      'No subscription. Your card statement shows Apple — never this app’s name. Notifications stay neutral.',
+      'Your card statement shows Apple — never this app’s name. Notifications stay neutral. Everything you enter stays on this phone.',
     button: 'Continue to Day Zero',
     links: ['Restore', 'Privacy', 'Terms'],
   },
@@ -781,9 +807,14 @@ export const SCREENS: Screen[] = [
       'For the next 75 days I will give this ten minutes a day. Not to perform better — to stop performing at all.',
     signaturePrompt: 'Sign your first name',
     signatureCaption: 'Signed on this device · seen by no one',
-    chips: ['75 days', '10 min a day', '{pricePerDay} a day, once'],
+    chips: ['75 days', '10 min a day', '{pricePerDay} a day'],
     button: 'Sign & begin — {price}',
-    subLine: 'One payment. No subscription.',
+    // The purchase fires on this screen, so the plain auto-renew disclosure
+    // sits directly under the button (App Review + honest billing).
+    autoRenew: {
+      annual: 'One payment covers your full year. Renews yearly at {price} unless cancelled in your Apple ID settings.',
+      monthly: 'Renews monthly at {price} unless cancelled in your Apple ID settings.',
+    },
   },
   {
     id: 'discretion-setup',

@@ -9,7 +9,7 @@ import { useState } from 'react';
 import { Pressable, ScrollView, Text, TextInput, View } from 'react-native';
 import { ChevronLeft } from 'lucide-react-native';
 import type { SignatureScreen as DayZeroDescriptor } from '../../content/onboarding/types';
-import type { PriceStrings } from './Paywall';
+import type { MembershipTerm, PriceStrings } from './Paywall';
 import EmissiveCTA from './EmissiveCTA';
 import { ScreenFade } from './archetypes';
 import { DuskRadial, Eyebrow } from './chrome';
@@ -17,12 +17,15 @@ import { DuskRadial, Eyebrow } from './chrome';
 export default function DayZero({
   screen,
   prices,
+  term,
   purchasing,
   onSignAndBegin,
   onBack,
 }: {
   screen: DayZeroDescriptor;
   prices: PriceStrings | null;
+  /** Membership term selected on the paywall — annual unless he chose monthly. */
+  term: MembershipTerm;
   purchasing: boolean;
   onSignAndBegin: (signedName: string) => void;
   onBack?: () => void;
@@ -30,15 +33,24 @@ export default function DayZero({
   const [signature, setSignature] = useState('');
   const signed = signature.trim().length > 0;
 
-  const buttonLabel = prices
-    ? screen.button.replace('{price}', prices.price)
+  const termPrice =
+    prices === null ? null : term === 'annual' ? prices.annual : prices.monthly;
+  const buttonLabel = termPrice
+    ? screen.button.replace('{price}', termPrice)
     : screen.button.replace(' — {price}', '');
+  // The purchase fires on this button — the auto-renew disclosure sits
+  // directly beneath it (App Review + the honest-billing rule).
+  const disclosure = termPrice
+    ? screen.autoRenew[term].replace('{price}', termPrice)
+    : null;
 
+  // The per-day chip reframes the ANNUAL price only (÷365, honest math);
+  // monthly needs no reframe — its number is already small.
   const chips = screen.chips
     .map((chip) =>
       chip.includes('{pricePerDay}')
-        ? prices?.pricePerDay
-          ? chip.replace('{pricePerDay}', prices.pricePerDay)
+        ? term === 'annual' && prices?.annualPerDay
+          ? chip.replace('{pricePerDay}', prices.annualPerDay)
           : null
         : chip,
     )
@@ -133,12 +145,14 @@ export default function DayZero({
             onPress={() => signed && onSignAndBegin(signature.trim())}
             accessibilityHint={signed ? undefined : 'Sign your first name above to enable'}
           />
-          <Text
-            className="text-center text-faint"
-            style={{ fontSize: 10.5, fontWeight: '300', marginTop: 12 }}
-          >
-            {screen.subLine}
-          </Text>
+          {disclosure && (
+            <Text
+              className="text-center text-faint"
+              style={{ fontSize: 10.5, fontWeight: '300', lineHeight: 15, marginTop: 12 }}
+            >
+              {disclosure}
+            </Text>
+          )}
         </View>
       </View>
     </ScreenFade>
