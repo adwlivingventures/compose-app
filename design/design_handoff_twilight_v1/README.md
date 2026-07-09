@@ -1,5 +1,13 @@
 # COMPOSE — Onboarding vB "Twilight, bone light" — Handoff
 
+> **⛔ COMMERCIAL COPY SUPERSEDED — Model V2 (2026-07-08).** The reference
+> renders and specs in this folder predate the membership migration: any
+> "$49.99 once" / "One payment. No subscription." strings in them are V1
+> history and must NEVER be copied into the app again. The paywall and Day
+> Zero now sell the annual-first membership (CLAUDE.md §2,
+> docs/BUSINESS-MODEL-V2.md); `content/onboarding/screens.ts` is the copy
+> source of truth. Layout guidance in this folder remains valid.
+
 For Claude Code. Build all 42 onboarding screens (B-01 → B-42) from:
 
 1. `spec/COMPOSE_Onboarding_-_Version_B__Batched__No_Hope_.pdf` — the copy + flow spec. Copy is FINAL and paste-ready. All display logic, branching, and design notes live here.

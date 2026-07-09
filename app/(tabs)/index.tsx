@@ -90,7 +90,7 @@ export default function DashboardScreen() {
   const annualPriceStr = continuationPackage('annual')?.product.priceString ?? null;
   const monthlyPriceStr = continuationPackage('monthly')?.product.priceString ?? null;
 
-  const recordGraduationChoice = async (choice: 'toolkit' | 'export') => {
+  const recordGraduationChoice = async (choice: 'membership' | 'export') => {
     await LocalStore.setItem('@graduation_choice', choice);
     setGraduationChoice(choice);
   };
@@ -124,9 +124,9 @@ export default function DashboardScreen() {
         isProcessing={isProcessing}
         annualPrice={continuationPackage('annual')?.product.priceString ?? null}
         monthlyPrice={continuationPackage('monthly')?.product.priceString ?? null}
-        onKeepToolkit={async (term) => {
+        onKeepMembership={async (term) => {
           const granted = await handleContinuationPurchase(term);
-          if (granted) await recordGraduationChoice('toolkit');
+          if (granted) await recordGraduationChoice('membership');
           return granted;
         }}
         onExported={() => {
@@ -160,12 +160,13 @@ export default function DashboardScreen() {
           {hasMembership ? (
             <>
               <Text className="text-accent text-xs font-bold uppercase tracking-widest">
-                Maintenance Toolkit Active
+                Mastery Suite Unlocked
               </Text>
               <Text className="text-body text-xs mt-1 leading-4">
-                Streaks, interactive logs, and maintenance content stay unlocked.
+                Included in your membership — streaks, interactive logs, and the
+                full suite stay open.
               </Text>
-              {/* First concrete deliverable of the maintenance tier */}
+              {/* First concrete deliverable of Act II */}
               <TouchableOpacity
                 onPress={() => router.push('/copilot')}
                 activeOpacity={0.85}
@@ -195,8 +196,8 @@ export default function DashboardScreen() {
                 <Text className="text-body text-sm font-bold">Keep Your Progress Going</Text>
               </View>
               <Text className="text-muted text-xs mt-1 leading-4">
-                Continue{annualPriceStr ? ` for ${annualPriceStr} a year` : ''} to keep
-                streaks, the Somatic Maintenance Toolkit, and interactive logs active.
+                Renew your membership{annualPriceStr ? ` for ${annualPriceStr} a year` : ''} to
+                keep streaks, the Mastery Suite, and interactive logs active.
               </Text>
               <TouchableOpacity
                 onPress={() => handleContinuationPurchase('annual')}
@@ -208,7 +209,7 @@ export default function DashboardScreen() {
                   <ActivityIndicator color="#0C0B09" />
                 ) : (
                   <Text className="text-on-accent font-bold text-sm">
-                    {annualPriceStr ? `Continue — ${annualPriceStr}/yr` : 'Keep the toolkit'}
+                    {annualPriceStr ? `Continue — ${annualPriceStr}/yr` : 'Keep access'}
                   </Text>
                 )}
               </TouchableOpacity>

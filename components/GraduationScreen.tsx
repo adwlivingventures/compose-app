@@ -4,25 +4,33 @@ import { useProtocol } from '../context/ProtocolContext';
 import { useDefusionLog } from '../hooks/useDefusionLog';
 
 /**
- * Graduation (E19) — shown once, when Day 75 is complete and no continuation
- * choice has been made yet.
+ * Graduation (E19) — shown once, when Day 75 is complete and no graduation
+ * choice has been recorded yet.
  *
- * The mechanism is endowment, not upsell: every number on this screen is
- * computed from the user's own logs, and his own vault quote is read back
- * to him — the evidence card proves the shift happened before any offer is
- * made. Both exits are framed as wins ("Both are wins." is design-final
- * copy) because a graduation that punishes leaving would convert the whole
- * 75-day identity arc into a subscription trap in the final frame. The
- * export path is a real, dignified exit: his record, his device, his call.
+ * MODEL V2 NOTE: graduation is now a pure unlock ceremony — a graduating
+ * member already owns the Mastery Suite, so no purchase decision belongs at
+ * the moment of peak triumph. The full ceremony rewire is deliberately
+ * deferred (BUSINESS-MODEL-V2 §4 runway: nobody reaches Day 75 for 75
+ * days); until then this screen's purchase path exists only for the
+ * lapsed-membership edge and compiles against the membership offering.
+ *
+ * The mechanism is endowment: every number on this screen is computed from
+ * the user's own logs, and his own vault quote is read back to him — the
+ * evidence card proves the shift happened. Both exits are framed as wins
+ * ("Both are wins." is design-final copy) because a graduation that
+ * punishes leaving would convert the whole 75-day identity arc into a
+ * subscription trap in the final frame. The export path is a real,
+ * dignified exit: his record, his device, his call — retained verbatim as
+ * a trust artifact.
  */
 
 interface GraduationScreenProps {
   /**
-   * Attempt the continuation purchase (annual-first per CLAUDE.md §2:
-   * $39.99/yr primary, $4.99/mo secondary); resolve true if the entitlement
-   * landed.
+   * Attempt a membership purchase for the lapsed-membership edge
+   * (annual-first per CLAUDE.md §2 Model V2); resolve true if the
+   * `membership` entitlement landed.
    */
-  onKeepToolkit: (term: 'annual' | 'monthly') => Promise<boolean>;
+  onKeepMembership: (term: 'annual' | 'monthly') => Promise<boolean>;
   /** Persist the export choice after a completed share. */
   onExported: () => Promise<void>;
   isProcessing: boolean;
@@ -36,7 +44,7 @@ function formatDate(iso: string): string {
 }
 
 export default function GraduationScreen({
-  onKeepToolkit,
+  onKeepMembership,
   onExported,
   isProcessing,
   annualPrice,
@@ -129,17 +137,17 @@ export default function GraduationScreen({
         )}
       </View>
 
-      {/* The offer — annual-first (CLAUDE.md §2), both exits are wins */}
+      {/* Membership continuation (lapsed-edge only) — annual-first, both exits are wins */}
       <View className="bg-surface-deep border border-line-soft rounded-2xl p-[18px] mt-3.5">
-        <Text className="text-ink text-sm font-bold">Keep the toolkit within reach</Text>
+        <Text className="text-ink text-sm font-bold">Keep it all within reach</Text>
         <Text className="text-muted text-[12.5px] leading-[18px] mt-1">
-          Steady-Me tools, your vault, maintenance tracks, and the log that proves the shift
+          The Mastery Suite, your vault, maintenance tracks, and the log that proves the shift
           {annualPrice ? ` — ${annualPrice} a year` : ''}. Or leave with everything you've
           learned. Both are wins.
         </Text>
         <View className="flex-row gap-2.5 mt-3.5">
           <TouchableOpacity
-            onPress={() => onKeepToolkit('annual')}
+            onPress={() => onKeepMembership('annual')}
             disabled={isProcessing}
             activeOpacity={0.85}
             className="flex-1 bg-accent rounded-xl py-[13px] items-center"
@@ -148,7 +156,7 @@ export default function GraduationScreen({
               <ActivityIndicator color="#0C0B09" size="small" />
             ) : (
               <Text className="text-on-accent font-bold text-[13.5px]">
-                {annualPrice ? `Keep the toolkit — ${annualPrice}/yr` : 'Keep the toolkit'}
+                {annualPrice ? `Keep access — ${annualPrice}/yr` : 'Keep access'}
               </Text>
             )}
           </TouchableOpacity>
@@ -165,7 +173,7 @@ export default function GraduationScreen({
         </View>
         {monthlyPrice && (
           <TouchableOpacity
-            onPress={() => onKeepToolkit('monthly')}
+            onPress={() => onKeepMembership('monthly')}
             disabled={isProcessing}
             activeOpacity={0.7}
             className="items-center mt-3"

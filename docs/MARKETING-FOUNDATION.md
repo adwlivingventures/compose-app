@@ -137,9 +137,12 @@ The marketing-relevant truths about this reader:
 
 **Primary objections to pre-empt:** (1) "Is this another gimmick?" → mechanism +
 restraint. (2) "Will anyone find out?" → discretion architecture. (3) "Do I have to
-talk to someone?" → no, fully self-guided, on-device. (4) "$49.99 is a lot for an
-app" → anchor against therapy cost and against the recurring cost of pills; it's
-once, and it's yours.
+talk to someone?" → no, fully self-guided, on-device. (4) "$99.99 is a lot for an
+app" (Model V2 annual membership) → anchor against therapy cost ($1,800+/12 weeks)
+and against the recurring cost of pills; one payment covers the full year — the
+75-day protocol plus everything after it. Honest billing (no trial, no countdown,
+a plain renewal reminder before year two) is itself the answer to
+subscription-trap fear.
 
 ---
 
@@ -281,15 +284,16 @@ title/subtitle):
 - Why pills and numbing creams miss it (mechanism, not disparagement)
 - What the 75 days actually are (the daily 10-min loop; three phases)
 - The private-by-design section (discretion as a feature)
-- What it is *not* (not therapy, not a medical device, not a subscription trap — one
-  payment, yours to keep)
+- What it is *not* (not therapy, not a medical device, not a subscription trap —
+  honest billing: the price is the price, no trials, no countdown offers, and a
+  plain renewal reminder before your second year; one payment covers your full year)
 - Honest close: identity, not a cure
 
 **Screenshot caption angles** (one claim-safe line each, ladder to the 3 pillars):
 1. "Stop grading yourself. Start being here." (identity)
 2. "Retrain your system in 10 minutes a day." (process)
 3. "Discreet from your lock screen to your card statement." (privacy)
-4. "One payment. Yours to keep." (trust / anti-subscription-trap)
+4. "One payment covers your full year." (trust / honest billing — Model V2)
 
 **Rating & review notes (operational):** the app must be rated 17+; screenshots and
 preview must contain no explicit imagery (Ember's abstract warmth is an asset here);

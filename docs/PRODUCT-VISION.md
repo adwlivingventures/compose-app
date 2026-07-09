@@ -13,6 +13,15 @@ exists without re-reading 68 pages.
 
 ## 1. The Monetization Thesis: "The Graduation Loop"
 
+> **⛔ SUPERSEDED — Model V2 (founder ruling, 2026-07-08).** This section
+> records the V1 one-time model for historical rationale only. The live
+> model is the **annual-first membership** ($99.99/yr primary, $17.99/mo
+> secondary, hard paywall, graduation as a pure unlock ceremony, toolkit
+> SKUs retired): see CLAUDE.md §2 and
+> [BUSINESS-MODEL-V2.md](./BUSINESS-MODEL-V2.md). The psychology below
+> (endowment, Zeigarnik, Authority Frame, no-refund/evidence risk
+> reversal) carries forward unchanged; only the commercial wrapper moved.
+
 No freemium, no day-one feature gating. The $49.99 program is deliberately
 all-inclusive so the tools integrate into daily habit (endowment effect); the
 $4.99/mo continuation is framed as an **Expansion Pack unlock** (Zeigarnik
@@ -23,9 +32,9 @@ restrict advanced coaching to force a nervous-system reset") — turning a
 missing feature into proof of rigor.
 
 **✅ RESOLVED (founder ruling, 2026-07): opt-in wins, permanently.** The
-$49.99 purchase never auto-rolls into a subscription — the paywall promises
-"No subscription · pay once, keep it," and auto-rolling that user would be a
-broken contract (App Store refund storms, "SCAM" reviews, and the death of
+$49.99 purchase never auto-rolls into a subscription — the V1 paywall
+promised a non-renewing single purchase, and auto-rolling that user would be
+a broken contract (App Store refund storms, "SCAM" reviews, and the death of
 the "app whose business model is you finishing" position). The continuation
 is offered opt-in at the E19 graduation screen, **annual-first ($39.99/yr
 primary, $4.99/mo secondary)**. Additionally ruled: **no refund promises on
@@ -37,7 +46,7 @@ CLAUDE.md §2; do not relitigate.
 
 | Feature | Gate | Status | Why it's gated there |
 |---|---|---|---|
-| 75-day protocol (anchors, conditioning orb, score, checklist) | $49.99 | ✅ built | The product |
+| 75-day protocol (anchors, conditioning orb, score, checklist) | membership (Model V2) | ✅ built | The product |
 | Somatic Primer (reverse-kegel mechanics) | Day 1, un-skippable | ✅ built | Mechanical confidence before rep 1 — uncertainty triggers overthinking |
 | Vitality Baseline primer (3 pillars) | always (Library) | ✅ built | Iceberg: rule on the surface, science one tap deep |
 | Success Vault (composite hero's journeys) | always (Library) | ✅ built | Relapse normalization at the churn moment; replaces live community |

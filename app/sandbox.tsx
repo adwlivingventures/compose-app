@@ -7,8 +7,8 @@ import { useProtocol } from '../context/ProtocolContext';
 import { LocalStore } from '../services/storage';
 
 /**
- * Somatic Sandbox — the Day-26 unlock (strategy ruling: Phase 2 start, in
- * the $49.99 tier, NOT Day 76).
+ * Somatic Sandbox — the Day-26 unlock (strategy ruling: Phase 2 start,
+ * inside Act I of the membership, NOT Day 76).
  *
  * A configurable pacer built on the same BreathingOrb as the daily session
  * and the SOS sheet. Locked through Phase 1 on purpose: the first 25 days

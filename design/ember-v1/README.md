@@ -1,5 +1,11 @@
 # Handoff: COMPOSE — Ember v1 Redesign
 
+> **⛔ SUPERSEDED ARCHIVE.** Ember Dusk v2 replaced this design system
+> (CLAUDE.md §6), and Model V2 (2026-07-08) replaced the $49.99 one-time /
+> toolkit commercial copy shown in these renders — including a refund-
+> guarantee line that is now banned on every surface. Nothing in this
+> folder may be copied into the app. Kept for design history only.
+
 ## Overview
 
 Full visual + product redesign of COMPOSE, a 75-day autonomic retraining app for men with performance anxiety / erectile-related distress (Expo / React Native / expo-router / NativeWind, repo: `adwlivingventures/compose-app`).

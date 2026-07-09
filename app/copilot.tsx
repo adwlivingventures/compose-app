@@ -18,11 +18,12 @@ import { ChevronLeft } from 'lucide-react-native';
  * Deterministic end-to-end (§7): nine authored trigger→reframe pairs,
  * versioned here as content. The "asynchronous coach" framing is
  * presentation only — nothing is generated, which is why nothing has to be
- * awaited. Reached from the post-program dashboard when the Maintenance
- * Toolkit entitlement is active; it is the first concrete deliverable of
- * that tier, which matters for continuation retention: a subscription that
- * visibly contains something survives the "what am I paying for?" audit at
- * renewal time.
+ * awaited. Reached from the post-program dashboard when day > 75 and the
+ * membership is active (Model V2: Act II unlock, included content — not a
+ * separate tier). It is the first concrete deliverable past graduation,
+ * which matters for renewal retention: a membership year that visibly
+ * contains something survives the "what am I paying for?" audit at the
+ * month-11 renewal notice.
  *
  * Two-step linear flow, single-directional by design: triage → reframe →
  * acknowledge → out. No browsing back and forth — the user arrives with one
@@ -165,7 +166,7 @@ export default function SomaticCopilotScreen() {
           </TouchableOpacity>
 
           <Text className="text-muted text-[11px] font-semibold uppercase tracking-[0.28em]">
-            Maintenance Toolkit
+            Mastery Suite
           </Text>
           <Text className="text-ink text-[26px] font-serif-light mt-1.5">Somatic Copilot</Text>
           <Text className="text-muted text-[13.5px] leading-5 mt-2">

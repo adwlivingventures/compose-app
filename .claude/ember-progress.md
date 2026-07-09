@@ -1,5 +1,13 @@
 # Ember v1 Redesign — Progress
 
+> **Model V2 note (2026-07-08):** every $49.99 / $39.99 / $4.99 / "pay
+> once" / toolkit-SKU reference below is a historical record of V1 work.
+> The live commercial model is the annual-first membership (CLAUDE.md §2,
+> docs/BUSINESS-MODEL-V2.md), executed per docs/BUILD-PROMPT-MODEL-V2.md.
+> The V1 founder to-do "create compose_annual_3999 in ASC" is VOID —
+> the Model V2 products are compose_annual_9999 / compose_annual_6999 /
+> compose_monthly_1799 under one `membership` entitlement.
+
 ## ⚡ ACTIVE — Onboarding Rebuild "Ember Dusk v2" (2026-07-08, in flight)
 
 Executing `design/design_handoff_twilight_v1/BUILD_PROMPT.md` (founder-directed, stop-per-step work order §7). **Ember Dusk v2 supersedes warm Ember v1 app-wide** — cool dusk ground #080A0F/navy surfaces + copper emission, Newsreader replaces Source Serif 4 (CLAUDE.md §6 + tailwind.config.js + theme/emberDusk.ts codified; old-hex sweep across app/ + components/ done; token names unchanged so all screens inherited the swap).

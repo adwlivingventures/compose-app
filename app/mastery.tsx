@@ -6,24 +6,25 @@ import { useProtocol } from '../context/ProtocolContext';
 import { useRevenueCat } from '../hooks/useRevenueCat';
 
 /**
- * Mastery Suite — the strategic teaser for the Day-76 continuation
- * ($4.99/mo Somatic Maintenance Toolkit, CLAUDE.md §2).
+ * Mastery Suite — Act II future-pacing of included membership content
+ * (Model V2, CLAUDE.md §2). Everything here is already paid for; it
+ * unlocks at graduation, Day 76.
  *
  * The mechanism is future-pacing: the locked cards let the user rehearse a
- * post-Day-75 identity ("what I graduate into") months before the
- * continuation ask, so the Day-76 offer lands as the next chapter of a
- * story he's already in — not a surprise upsell at the moment of goodbye.
- * One module is visibly previewable to make the tier concrete rather than
- * hypothetical; the rest stay quiet. Locked cards are deliberately inert
- * (no toast, no modal): a locked thing that begs for taps reads as a sales
- * surface, and this screen must stay inside the sanctuary register.
+ * post-Day-75 identity ("what I graduate into") months before he arrives,
+ * so graduation lands as the next chapter of a story he's already in —
+ * an earned unlock, never a sales moment. One module is visibly
+ * previewable to make Act II concrete rather than hypothetical; the rest
+ * stay quiet. Locked cards are deliberately inert (no toast, no modal): a
+ * locked thing that begs for taps reads as a sales surface, and this
+ * screen must stay inside the sanctuary register.
  */
 
 interface MasteryModule {
   title: string;
   description: string;
   route: string;
-  /** 'always' = free preview; 'maintenance' = Day 76 + active toolkit. */
+  /** 'always' = preview; 'maintenance' = Day 76 + active membership (Act II unlock). */
   unlock: 'always' | 'maintenance';
   badge?: string;
 }
@@ -60,8 +61,8 @@ const MODULES: MasteryModule[] = [
   },
 ];
 // (Somatic Sandbox moved out of this suite: strategy ruling is a Day-26
-// unlock inside the $49.99 tier — it lives in the You-tab Library and
-// app/sandbox.tsx, not behind the Day-76 continuation.)
+// unlock inside Act I — it lives in the You-tab Library and
+// app/sandbox.tsx, not behind the Day-76 graduation unlock.)
 
 function MasteryModuleCard({
   module,
@@ -148,7 +149,9 @@ export default function MasterySuiteScreen() {
       <Text className="text-ink text-[26px] font-serif-light mt-1.5">Mastery Suite</Text>
 
       <View className="bg-surface-deep border border-line-soft rounded-[14px] px-4 py-3 mt-4">
-        <Text className="text-muted text-xs">Full Suite unlocks on Day 76.</Text>
+        <Text className="text-muted text-xs">
+          Included in your membership — unlocks at graduation.
+        </Text>
       </View>
 
       <View className="gap-3 mt-5">

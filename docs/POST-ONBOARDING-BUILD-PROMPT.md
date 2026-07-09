@@ -1,5 +1,12 @@
 # COMPOSE — Post-Onboarding Build Prompt (Founder-Approved Workstreams)
 
+> **⛔ PRICING SUPERSEDED — Model V2 (founder ruling, 2026-07-08).** This
+> executed work order predates the membership migration: its $39.99/yr +
+> $4.99/mo continuation and one-time-purchase framing are retired. Live
+> model: CLAUDE.md §2 + docs/BUSINESS-MODEL-V2.md ($99.99/yr primary,
+> $17.99/mo secondary, single `membership` entitlement). Non-pricing rules
+> below (refund ban, stranger test, deterministic content) remain binding.
+
 You are implementing the approved items from the Post-Onboarding Strategy Review
 (July 2026) in this repo. Read CLAUDE.md first — §2 now contains binding founder
 rulings (opt-in continuation, annual-first membership, upward-only pricing, and
