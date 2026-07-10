@@ -106,17 +106,41 @@ export function isWhitelisted(
 
 export type TelemetryTransport = (batch: TelemetryEvent[]) => Promise<void>;
 
-const devTransport: TelemetryTransport = async (batch) => {
-  // eslint-disable-next-line no-console
-  console.log(`[telemetry] batch ×${batch.length}`, batch.map((e) => e.event).join(', '));
+// TelemetryDeck (founder pick, 2026-07-09) — privacy-first signal counting.
+// The app ID is public by design (it only ADDRESSES signals; it can't read
+// them back). clientUser is a CONSTANT for every install: we count events,
+// not people — the privacy policy promises "never an account or device
+// identifier," so no per-install id ever ships. Retention curves come from
+// the day-numbered events themselves (day_completed {day}), not from user
+// linkage. isTestMode keeps dev/sandbox signals out of the launch dataset.
+const TELEMETRYDECK_APP_ID = 'D8612264-041A-4426-8D3F-EECBAE5C51B8';
+const TELEMETRYDECK_URL = 'https://nom.telemetrydeck.com/v2/';
+
+const telemetryDeckTransport: TelemetryTransport = async (batch) => {
+  const isDev = typeof __DEV__ !== 'undefined' && __DEV__;
+  if (isDev) {
+    // eslint-disable-next-line no-console
+    console.log(`[telemetry] batch ×${batch.length}`, batch.map((e) => e.event).join(', '));
+  }
+  const signals = batch.map(({ event, ts, ...fields }) => ({
+    appID: TELEMETRYDECK_APP_ID,
+    clientUser: 'anonymous',
+    type: event,
+    isTestMode: isDev,
+    payload: Object.fromEntries(
+      Object.entries(fields).map(([key, value]) => [key, String(value)]),
+    ),
+  }));
+  const response = await fetch(TELEMETRYDECK_URL, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify(signals),
+  });
+  // Non-2xx throws so the queue requeues silently (offline-safe by contract).
+  if (!response.ok) throw new Error(`telemetry endpoint ${response.status}`);
 };
 
-// Release default: void until a provider endpoint exists. Swapping this for
-// a real transport changes delivery only — never what may be collected.
-const voidTransport: TelemetryTransport = async () => {};
-
-let transport: TelemetryTransport =
-  typeof __DEV__ !== 'undefined' && __DEV__ ? devTransport : voidTransport;
+let transport: TelemetryTransport = telemetryDeckTransport;
 
 export function setTelemetryTransport(next: TelemetryTransport): void {
   transport = next;
