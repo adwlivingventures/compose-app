@@ -1,11 +1,15 @@
 // Capture every Compose screen from the running Expo web app as phone-sized
 // PNGs. Uses the app's own resume/persistence mechanisms — no app code changes.
+// Usage: `npx expo start --web`, then `node tools/capture-screens.js` from the
+// repo root (optional arg: comma-separated name-prefix filter, e.g. "41,46").
+// PNGs land in screens-review/ (gitignored). Re-run after UI edits, then
+// re-upload to refresh the Figma review board.
 const puppeteer = require('puppeteer-core');
 const fs = require('fs');
 const path = require('path');
 
 const BASE = 'http://localhost:8081';
-const OUT = path.join(__dirname, 'screens');
+const OUT = path.join(__dirname, '..', 'screens-review');
 const CHROME = 'C:/Program Files (x86)/Google/Chrome/Application/chrome.exe';
 
 // Realistic answer set: triggers physician-note (morningArousal rarely +
