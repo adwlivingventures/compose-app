@@ -13,6 +13,7 @@ import { useSpikeLog, daysSince, weeklyCounts } from '../../hooks/useSpikeLog';
 import { useDefusionLog } from '../../hooks/useDefusionLog';
 import { DISTORTION_META, Distortion } from '../../content/restructure';
 import {
+  getBaseline,
   getComposureHistory,
   ComposureMeasurement,
 } from '../../services/composureHistory';
@@ -282,6 +283,28 @@ export default function ProgressScreen() {
     }, [reloadSpikes, reloadDefusions]),
   );
 
+  // Composure measurements (Day 0 baseline + the 14/40/75 re-measurements),
+  // re-read on focus so a reading taken minutes ago shows up immediately.
+  const [composureHistory, setComposureHistory] = useState<ComposureMeasurement[]>([]);
+  useFocusEffect(
+    useCallback(() => {
+      let alive = true;
+      getComposureHistory().then((history) => {
+        if (alive) setComposureHistory(history);
+      });
+      return () => {
+        alive = false;
+      };
+    }, []),
+  );
+  const composureBaseline = getBaseline(composureHistory);
+  const latestComposure =
+    composureHistory.length > 0 ? composureHistory[composureHistory.length - 1] : null;
+  const composureDelta =
+    composureBaseline && latestComposure && latestComposure.day !== 0
+      ? latestComposure.score - composureBaseline.score
+      : null;
+
   const days = Object.entries(completedDays)
     .map(([day, data]) => ({ day: Number(day), ...data }))
     .filter((d) => d.completed)
@@ -359,6 +382,32 @@ export default function ProgressScreen() {
           label="Baseline Shift"
         />
       </View>
+
+      {/* Composure measurements — the "measured, not promised" ledger.
+          Matte on purpose: this screen's sand is spent on the stat values
+          and the trendline; the ledger is evidence, not a next step. */}
+      {composureHistory.length > 0 && (
+        <View className="mt-6 bg-surface border border-line rounded-2xl p-5">
+          <Text className="text-body text-sm font-bold">Composure</Text>
+          <Text className="text-faint text-xs mt-0.5 mb-2">
+            Same questions, same scale — Day 0, then Days 14, 40, and 75
+          </Text>
+          {composureHistory.map((m) => (
+            <View key={m.day} className="flex-row justify-between py-1.5">
+              <Text className="text-body text-xs">
+                {m.day === 0 ? 'Baseline · Day 0' : `Day ${m.day}`}
+              </Text>
+              <Text className="text-ink text-xs font-semibold">{m.score}</Text>
+            </View>
+          ))}
+          {composureDelta !== null && composureDelta > 0 && (
+            <Text className="text-muted text-xs mt-2 leading-4">
+              {composureDelta} points above your Day-0 baseline — the same questions,
+              answered by a differently conditioned nervous system.
+            </Text>
+          )}
+        </View>
+      )}
 
       {/* Control trendline */}
       <View className="mt-4 bg-surface border border-line rounded-2xl p-5">

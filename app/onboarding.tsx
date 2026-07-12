@@ -26,6 +26,7 @@ import {
 } from '../content/onboarding/logic';
 import type { ResolvedScreen } from '../content/onboarding/types';
 import { LocalStore } from '../services/storage';
+import { recordComposure } from '../services/composureHistory';
 import {
   setTelemetryConsent,
   track,
@@ -33,7 +34,6 @@ import {
   type ScreenAction,
 } from '../services/analytics';
 import { seal } from '../services/haptics';
-import { recordComposure } from '../services/composureHistory';
 import { useProtocol } from '../context/ProtocolContext';
 import { useRevenueCat } from '../hooks/useRevenueCat';
 
@@ -385,7 +385,10 @@ export default function Onboarding() {
             headline={withName(screen.headline, answers)}
             onAdvance={() => {
               // The Day-0 baseline point of the outcome curve (§7): the
-              // score alone, never the inputs that produced it.
+              // score alone, never the inputs that produced it. The same
+              // reading is persisted locally as the fixed point every
+              // Day 14/40/75 re-measurement stands against.
+              recordComposure(0, composure.score);
               track('composure_measured', { score: composure.score, day: 0 });
               // Local record too (services/composureHistory) — the baseline
               // the Baseline tab and every future re-measurement compare
