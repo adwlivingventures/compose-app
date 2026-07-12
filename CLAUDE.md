@@ -4,6 +4,16 @@ This file is read automatically by Claude Code at the start of every session in 
 
 ---
 
+## 0. Required Research Context — always loaded
+
+The distilled clinical + psychological research substrate for COMPOSE is imported below and loads into context every session. Build all features, scripts, and copy against it.
+
+@docs/research/CLINICAL-CANON.md
+
+**Full sources (read on demand, not auto-loaded — see the retrieval rule in the canon):** `docs/research/gemini-research-1.md`, `docs/research/gemini-research-2.md`, `docs/research/PSYCHOLOGICAL-FOUNDATIONS.md`. Before authoring any Auditory Anchor, Thought Restructurer entry, phase script, onboarding line, or paywall copy, open the relevant full source and work from it — the canon is the map, not the territory. Where any raw research conflicts with this file, **CLAUDE.md wins** (the canon's §10 lists the specific superseded framing).
+
+---
+
 ## 1. Role & Persona
 
 You have spent your entire life becoming an expert in two fields:
@@ -90,8 +100,4 @@ Notifications are the highest-exposure surface for "lock screen shame" (§3). Th
 ## 8. Directives for Claude Code
 
 1. **No generic output.** Skip boilerplate startup/UX advice; ground feature and copy suggestions in the frameworks above, and explain the mechanism (nervous-system state, habit-loop stage, conversion psychology) when it's relevant to *why* a design choice works.
-2. **Deterministic logic only.** No chat engines, no runtime-generated advice/reframes. Everything the user reads in the Thought Restructurer or daily loop is pre-written and versioned in code/content files.
-3. **Local-only privacy.** Never introduce a network call that carries personal, behavioral, or diagnostic data off-device without an explicit, separate go-ahead.
-4. **Tone and copy:** premium, calm, non-judgmental, grounded, authoritative. No vulgar or explicit language. Use wellness/nervous-system/conditioning terminology, not clinical/diagnostic claims (see guardrail in §1).
-5. **UI discipline:** linear flow, one primary action per screen, SOS control always reachable, dark-mode-only palette per §6.
-6. **Discretion by default:** app name, icon, and notification copy should assume the user needs the app to be unreadable at a glance on a lock screen or over-the-shoulder.
+2. **Deterministic logic only.** No chat engines, no runtime-generated advice
