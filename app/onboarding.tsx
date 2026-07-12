@@ -27,6 +27,7 @@ import {
 import type { ResolvedScreen, Variant } from '../content/onboarding/types';
 import { getOrAssignVariant, devForceVariant } from '../services/variant';
 import { LocalStore } from '../services/storage';
+import { recordComposure } from '../services/composureHistory';
 import {
   setTelemetryConsent,
   track,
@@ -387,7 +388,10 @@ export default function Onboarding() {
             headline={withName(screen.headline, answers)}
             onAdvance={() => {
               // The Day-0 baseline point of the outcome curve (§7): the
-              // score alone, never the inputs that produced it.
+              // score alone, never the inputs that produced it. The same
+              // reading is persisted locally as the fixed point every
+              // Day 14/40/75 re-measurement stands against.
+              recordComposure(0, composure.score);
               track('composure_measured', { score: composure.score, day: 0 });
               advance();
             }}

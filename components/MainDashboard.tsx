@@ -1,10 +1,12 @@
-import React, { useState } from 'react';
+import React, { useCallback, useState } from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
 import Svg, { Circle } from 'react-native-svg';
 import { Check, Play } from 'lucide-react-native';
+import { useFocusEffect, useRouter } from 'expo-router';
 import { useProtocol, localDateString } from '../context/ProtocolContext';
 import { getProtocolDay } from '../content/ProtocolData';
 import { getTonightLine } from '../content/tonightLines';
+import { getComposureHistory, getDueMilestone } from '../services/composureHistory';
 import TriageCenter from './TriageCenter';
 
 /**
@@ -84,6 +86,23 @@ function ProgressRing({ day, completedToday }: { day: number; completedToday: bo
 export default function MainDashboard({ onStartSession }: { onStartSession: () => void }) {
   const { activeDay, streak, lastCompletedDate } = useProtocol();
   const [sosVisible, setSosVisible] = useState(false);
+  const router = useRouter();
+
+  // Composure re-measurement due? Re-checked on every focus so the card
+  // clears the moment a reading is taken and appears the day a milestone
+  // lands (Days 14/40/75 — canon §8's "measured, not promised" cadence).
+  const [dueMilestone, setDueMilestone] = useState<number | null>(null);
+  useFocusEffect(
+    useCallback(() => {
+      let alive = true;
+      getComposureHistory().then((history) => {
+        if (alive) setDueMilestone(getDueMilestone(activeDay, history));
+      });
+      return () => {
+        alive = false;
+      };
+    }, [activeDay]),
+  );
 
   const completedToday = lastCompletedDate === localDateString();
   // After today's completion the ring should show the day just finished,
@@ -139,6 +158,30 @@ export default function MainDashboard({ onStartSession }: { onStartSession: () =
       </View>
 
       <View className="pb-5">
+        {/* Re-measurement card — deliberately matte (the screen's sand budget
+            is spent: ring arc, phase eyebrow, CTA/Steady-me). Shown in the
+            completed state too: a scheduled evidence milestone is delivery
+            on an onboarding promise, not an engagement hook — and most men
+            reach Day 14 by finishing Day 14's session. */}
+        {dueMilestone !== null && (
+          <TouchableOpacity
+            onPress={() => router.push({ pathname: '/remeasure', params: { day: String(dueMilestone) } })}
+            activeOpacity={0.8}
+            accessibilityRole="button"
+            accessibilityLabel={`Day ${dueMilestone} composure re-measurement — begin now`}
+            className="bg-surface border border-line rounded-2xl px-[18px] py-4 mb-3"
+          >
+            <Text className="text-dim text-[10px] font-bold uppercase tracking-[0.2em]">
+              Day {dueMilestone} re-measurement
+            </Text>
+            <Text className="text-ink text-[15px] font-serif-regular mt-1">
+              Measure the loop again
+            </Text>
+            <Text className="text-muted text-xs mt-1 leading-4">
+              Same questions as Day 0 · about three minutes · evidence, not a promise
+            </Text>
+          </TouchableOpacity>
+        )}
         {completedToday ? (
           /* Tonight's line — the day's authored identity line read back as a
              quote (content/tonightLines.ts), focus string as the fallback.
