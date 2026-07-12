@@ -8,106 +8,87 @@ import {
   isScreenVisible,
   nextVisibleIndex,
   progressMeta,
-  resolveBranch,
   withName,
 } from '../logic';
 import { SCREENS } from '../screens';
 import { computeComposure } from '../composure';
 
-const flowB = buildFlow('B');
-const flowA = buildFlow('A');
-const at = (flow: typeof flowB, id: string) => flow.findIndex((s) => s.id === id);
+const flow = buildFlow();
+const at = (id: string) => flow.findIndex((s) => s.id === id);
 
-describe('escalation skip (B-18/A-20)', () => {
+describe('escalation skip (screen 18)', () => {
   test('skipped when adult-content frequency is "Rarely or never"', () => {
     const answers: Answers = { contentFrequency: 'rarely' };
-    const next = nextVisibleIndex(flowB, at(flowB, 'content-frequency'), answers);
-    expect(flowB[next].id).toBe('spectatoring');
+    const next = nextVisibleIndex(flow, at('content-frequency'), answers);
+    expect(flow[next].id).toBe('spectatoring');
   });
 
   test('shown for any other frequency', () => {
     for (const contentFrequency of ['1-2', '3-5', 'daily']) {
-      const next = nextVisibleIndex(flowB, at(flowB, 'content-frequency'), {
+      const next = nextVisibleIndex(flow, at('content-frequency'), {
         contentFrequency,
       });
-      expect(flowB[next].id).toBe('escalation');
+      expect(flow[next].id).toBe('escalation');
     }
-  });
-
-  test('variant A: skipping escalation still lands on the inline Novelty Loop card', () => {
-    const next = nextVisibleIndex(flowA, at(flowA, 'content-frequency'), {
-      contentFrequency: 'rarely',
-    });
-    expect(flowA[next].id).toBe('card-novelty-loop');
   });
 });
 
-describe('physician triage condition (B-12/A-13)', () => {
+describe('physician triage condition (screen 12)', () => {
   const note = SCREENS.find((s) => s.id === 'physician-note')!;
 
-  test('shows ONLY when morning arousal = rarely AND libido ≤ 3', () => {
-    expect(isScreenVisible(note, { morningArousal: 'rarely', libido: 3 })).toBe(true);
+  // Founder ruling 2026-07-10: threshold tightened to libido ≤ 2.
+  test('shows ONLY when morning arousal = rarely AND libido ≤ 2', () => {
+    expect(isScreenVisible(note, { morningArousal: 'rarely', libido: 2 })).toBe(true);
     expect(isScreenVisible(note, { morningArousal: 'rarely', libido: 1 })).toBe(true);
   });
 
   test('hidden when either half of the condition fails', () => {
-    expect(isScreenVisible(note, { morningArousal: 'rarely', libido: 4 })).toBe(false);
+    expect(isScreenVisible(note, { morningArousal: 'rarely', libido: 3 })).toBe(false);
     expect(isScreenVisible(note, { morningArousal: 'sometimes', libido: 2 })).toBe(false);
     expect(isScreenVisible(note, { morningArousal: 'most', libido: 10 })).toBe(false);
     expect(isScreenVisible(note, {})).toBe(false);
   });
 
   test('flow advance from libido lands past the note when hidden', () => {
-    const next = nextVisibleIndex(flowB, at(flowB, 'libido'), {
+    const next = nextVisibleIndex(flow, at('libido'), {
       morningArousal: 'most',
       libido: 8,
     });
-    expect(flowB[next].id).toBe('adrenaline-spike');
+    expect(flow[next].id).toBe('adrenaline-spike');
   });
 });
 
-describe('partner impact branch (B-20/A-23)', () => {
-  const branchOn = { key: 'relationship' as const, oneOf: ['committed', 'married'] };
-
-  test('P for committed/married', () => {
-    expect(resolveBranch(branchOn, { relationship: 'committed' })).toBe('P');
-    expect(resolveBranch(branchOn, { relationship: 'married' })).toBe('P');
-  });
-
-  test('S for single, casual, recently out — and when unanswered', () => {
-    expect(resolveBranch(branchOn, { relationship: 'single' })).toBe('S');
-    expect(resolveBranch(branchOn, { relationship: 'casual' })).toBe('S');
-    expect(resolveBranch(branchOn, { relationship: 'recently-out' })).toBe('S');
-    expect(resolveBranch(branchOn, {})).toBe('S');
+describe('partner impact (screen 20) — one question for everyone', () => {
+  // Founder ruling 2026-07-10: the single/casual branch is retired; the
+  // partnered phrasing runs unconditionally.
+  test('is a plain single-select with no display logic', () => {
+    const partner = SCREENS.find((s) => s.id === 'partner-impact')!;
+    expect(partner.archetype).toBe('single-select');
+    expect(partner.displayLogic).toBeUndefined();
   });
 });
 
 describe('testimonial gate + paywall-dismiss are never sequential', () => {
   test('testimonial slot skipped while the flag is off', () => {
-    const next = nextVisibleIndex(flowB, at(flowB, 'pelvic-check'), {});
-    expect(flowB[next].id).not.toBe('testimonial-somatic');
+    const next = nextVisibleIndex(flow, at('pelvic-check'), {});
+    expect(flow[next].id).not.toBe('testimonial-somatic');
   });
 
   test('advancing from paywall never lands on paywall-dismiss', () => {
-    const next = nextVisibleIndex(flowB, at(flowB, 'paywall'), {});
-    expect(flowB[next].id).toBe('day-zero');
+    const next = nextVisibleIndex(flow, at('paywall'), {});
+    expect(flow[next].id).toBe('day-zero');
   });
 });
 
-describe('progress header (MAPPING · X OF Y, layout truth: 3a B-10 = "10 OF 24")', () => {
-  test('B: morning arousal is 10 of 24', () => {
-    const meta = progressMeta(flowB, at(flowB, 'morning-arousal'));
+describe('progress header (MAPPING · X OF Y, layout truth: 3a frame 10 = "10 OF 24")', () => {
+  test('morning arousal is 10 of 24', () => {
+    const meta = progressMeta(flow, at('morning-arousal'));
     expect(meta).toMatchObject({ step: 10, total: 24 });
-  });
-
-  test('A: denominator includes the inline cards (spillover = 28)', () => {
-    const meta = progressMeta(flowA, at(flowA, 'morning-arousal'));
-    expect(meta).toMatchObject({ step: 11, total: 28 });
   });
 
   test('no header on welcomes, cards, map, paywall', () => {
     for (const id of ['welcome-opening', 'card-adrenaline-trap', 'map', 'paywall']) {
-      expect(progressMeta(flowB, at(flowB, id))).toBeNull();
+      expect(progressMeta(flow, at(id))).toBeNull();
     }
   });
 });
@@ -118,7 +99,7 @@ describe('composure score stays out of the calm zone', () => {
       adrenalineSpike: 'panic',
       breathEdge: 'shallow-hold',
       spectatoring: 'almost-every-time',
-      pelvicCheck: 'difficulty',
+      pelvicCheck: 1, // 1–10 release rating (limited)
       avoidance: 'stopped',
       aftermath: 'fear-next',
       spillover: 'everything',

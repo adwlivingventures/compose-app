@@ -1,5 +1,12 @@
 # COMPOSE — Onboarding vB "Twilight, bone light" — Handoff
 
+> **⛔ ONBOARDING A/B TEST RETIRED — founder ruling 2026-07-10.** The batched
+> flow (this folder's "Version B") is the app's ONLY onboarding. The
+> interleaved Version A spec (`spec/COMPOSE_Onboarding_-_Version_A__Interleaved___Hope_.docx`)
+> is archived design history — nothing may be built from it, and no variant
+> assignment, tag, or toggle exists in code. Screen numbering in code is now
+> plain `01`–`43` (the B-XX labels below map 1:1 by screen identity).
+
 > **⛔ COMMERCIAL COPY SUPERSEDED — Model V2 (2026-07-08).** The reference
 > renders and specs in this folder predate the membership migration: any
 > "$49.99 once" / "One payment. No subscription." strings in them are V1

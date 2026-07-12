@@ -52,25 +52,15 @@ export function nextVisibleIndex(
   return -1;
 }
 
-/** Partner Impact branch: P for committed/married, S for everyone else. */
-export function resolveBranch(
-  branchOn: { key: AnswerKey; oneOf: string[] },
-  answers: Answers,
-): 'P' | 'S' {
-  const value = answers[branchOn.key];
-  return typeof value === 'string' && branchOn.oneOf.includes(value) ? 'P' : 'S';
-}
-
 // ── Progress header ("MAPPING · X OF Y · ~N MIN") ─────────────────────────
-// Layout truth (3a B-10 shows "10 OF 24"): Y is the LAST ASSESSMENT SCREEN's
-// number — spillover (B-24 / A-28). X is the screen's static spec number;
+// Layout truth (3a reference frame shows "10 OF 24"): Y is the LAST ASSESSMENT
+// SCREEN's number — spillover (24). X is the screen's static spec number;
 // runtime-skipped conditionals keep their numbers (the bar simply advances
 // past them). Clinical cards are numbered but render full-bleed without the
 // header, per the reference.
 
 const HEADERED: Screen['archetype'][] = [
   'single-select',
-  'branched-select',
   'multi-select',
   'text-input',
   'wheel-input',
@@ -108,7 +98,7 @@ export function hasPrivacyFooter(screen: Screen): boolean {
 
 function specNumber(screen: ResolvedScreen | undefined): number | null {
   if (!screen?.specId) return null;
-  const n = Number(screen.specId.split('-')[1]);
+  const n = Number(screen.specId); // plain "01"–"43" since the A/B retirement
   return Number.isFinite(n) ? n : null;
 }
 

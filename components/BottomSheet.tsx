@@ -4,9 +4,11 @@ import {
   Easing,
   KeyboardAvoidingView,
   Modal,
+  PanResponder,
   Platform,
   Pressable,
   StyleSheet,
+  View,
 } from 'react-native';
 
 /**
@@ -24,18 +26,38 @@ import {
 interface BottomSheetProps {
   visible: boolean;
   onClose: () => void;
+  /**
+   * Renders a grab handle and makes it live: drag follows the finger,
+   * release past the threshold closes, otherwise springs back. Without it
+   * no handle is drawn — an affordance that doesn't work is a broken
+   * promise (founder review 2026-07-10).
+   */
+  draggable?: boolean;
+  /** Scrim styling — pass an opaque class to fully hide the screen behind
+   *  (e.g. the SOS sheet must never show the tab bar). */
+  scrimClass?: string;
   /** The sheet panel itself — bring your own background/radius/padding. */
   children: React.ReactNode;
 }
 
-export default function BottomSheet({ visible, onClose, children }: BottomSheetProps) {
+const CLOSE_DRAG_PX = 110;
+
+export default function BottomSheet({
+  visible,
+  onClose,
+  draggable = false,
+  scrimClass = 'bg-scrim/80',
+  children,
+}: BottomSheetProps) {
   // Stay mounted through the exit animation.
   const [mounted, setMounted] = useState(visible);
   const progress = useRef(new Animated.Value(0)).current;
+  const drag = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
     if (visible) {
       setMounted(true);
+      drag.setValue(0);
       Animated.timing(progress, {
         toValue: 1,
         duration: 260,
@@ -54,12 +76,36 @@ export default function BottomSheet({ visible, onClose, children }: BottomSheetP
     }
   }, [visible]);
 
+  const panResponder = useRef(
+    PanResponder.create({
+      onStartShouldSetPanResponder: () => true,
+      onMoveShouldSetPanResponder: (_e, g) => Math.abs(g.dy) > 4,
+      onPanResponderMove: (_e, g) => {
+        drag.setValue(Math.max(0, g.dy));
+      },
+      onPanResponderRelease: (_e, g) => {
+        if (g.dy > CLOSE_DRAG_PX || g.vy > 1.1) {
+          onClose();
+          // Reset after the exit animation so the next open starts seated.
+          setTimeout(() => drag.setValue(0), 260);
+        } else {
+          Animated.spring(drag, {
+            toValue: 0,
+            useNativeDriver: true,
+            speed: 16,
+            bounciness: 4,
+          }).start();
+        }
+      },
+    }),
+  ).current;
+
   if (!mounted) return null;
 
   return (
     <Modal visible transparent animationType="none" onRequestClose={onClose}>
       <Animated.View style={[StyleSheet.absoluteFill, { opacity: progress }]}>
-        <Pressable className="flex-1 bg-scrim/80" onPress={onClose} />
+        <Pressable className={`flex-1 ${scrimClass}`} onPress={onClose} />
       </Animated.View>
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
@@ -70,14 +116,32 @@ export default function BottomSheet({ visible, onClose, children }: BottomSheetP
           style={{
             transform: [
               {
-                translateY: progress.interpolate({
-                  inputRange: [0, 1],
-                  outputRange: [640, 0],
-                }),
+                translateY: Animated.add(
+                  progress.interpolate({
+                    inputRange: [0, 1],
+                    outputRange: [640, 0],
+                  }),
+                  drag,
+                ),
               },
             ],
           }}
         >
+          {draggable && (
+            <View
+              {...panResponder.panHandlers}
+              // Generous invisible grab area over the sheet's top edge; the
+              // visible handle is drawn by the sheet content underneath.
+              style={{
+                position: 'absolute',
+                top: 0,
+                left: 0,
+                right: 0,
+                height: 44,
+                zIndex: 10,
+              }}
+            />
+          )}
           {children}
         </Animated.View>
       </KeyboardAvoidingView>

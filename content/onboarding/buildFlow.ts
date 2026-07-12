@@ -1,62 +1,28 @@
-// buildFlow — pure resolver of the onboarding screen order for a variant.
-// The ONLY place variant A/B differences are resolved (BUILD_PROMPT §4.1):
-// clinical card placement, hope-tease lines, and card button labels.
-// Screen components never see the variant.
+// buildFlow — pure resolver of the onboarding screen order.
+// Single flow (founder ruling 2026-07-10): the interleaved variant and its
+// onboarding A/B test are retired. The four clinical cards are batched after
+// the Map — diagnosis reveal, then its four drivers, one tension arc that
+// resolves at the turn-welcome pivot. SCREENS is authored in final order;
+// this resolver only assigns numbering.
 
-import { BATCH_AFTER, BATCH_ORDER, SCREENS } from './screens';
-import type { ClinicalCardScreen, ResolvedScreen, Screen, Variant } from './types';
+import { SCREENS } from './screens';
+import type { ResolvedScreen } from './types';
 
-function isClinicalCard(s: Screen): s is ClinicalCardScreen {
-  return s.archetype === 'clinical-card';
-}
-
-export function buildFlow(variant: Variant): ResolvedScreen[] {
-  const cards = SCREENS.filter(isClinicalCard);
-  const spine = SCREENS.filter((s) => !isClinicalCard(s));
-
-  const ordered: Screen[] = [];
-  for (const screen of spine) {
-    ordered.push(screen);
-    if (variant === 'B' && screen.id === BATCH_AFTER) {
-      for (const id of BATCH_ORDER) {
-        const card = cards.find((c) => c.id === id);
-        if (!card) throw new Error(`BATCH_ORDER references unknown card "${id}"`);
-        ordered.push(card);
-      }
-    }
-    if (variant === 'A') {
-      for (const card of cards) {
-        if (card.placement.A.inlineAfter === screen.id) ordered.push(card);
-      }
-    }
-  }
-
-  if (ordered.length !== SCREENS.length) {
-    const missing = SCREENS.filter((s) => !ordered.includes(s)).map((s) => s.id);
-    throw new Error(`buildFlow(${variant}) dropped screens: ${missing.join(', ')}`);
-  }
-
+export function buildFlow(): ResolvedScreen[] {
   // Assign spec ids (position among numbered screens — section transitions
-  // are unnumbered in the specs, and the Model V2 telemetry-consent step is
-  // a later insertion that must not renumber the handoff's screens) and
-  // per-variant card strings.
+  // are unnumbered in the spec, and the Model V2 telemetry-consent step is
+  // a later insertion that must not renumber the handoff's screens).
   let specNumber = 0;
   let clinicalNumber = 0;
-  return ordered.map((screen): ResolvedScreen => {
+  return SCREENS.map((screen): ResolvedScreen => {
     if (screen.archetype === 'section-transition' || screen.archetype === 'consent') {
       return { ...screen, specId: null };
     }
     specNumber += 1;
-    const specId = `${variant}-${String(specNumber).padStart(2, '0')}`;
-    if (isClinicalCard(screen)) {
+    const specId = String(specNumber).padStart(2, '0');
+    if (screen.archetype === 'clinical-card') {
       clinicalNumber += 1;
-      return {
-        ...screen,
-        specId,
-        clinicalIndex: clinicalNumber,
-        resolvedTease: screen.tease[variant],
-        resolvedButton: screen.button[variant],
-      };
+      return { ...screen, specId, clinicalIndex: clinicalNumber };
     }
     return { ...screen, specId };
   });

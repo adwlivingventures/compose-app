@@ -29,15 +29,16 @@ import {
   type TelemetryEvent,
 } from '../analytics';
 import { LocalStore } from '../storage';
+import { DISTORTION_ORDER } from '../../content/restructure';
 
 const memory: Map<string, unknown> = (LocalStore as any).__memory;
 
 /** One valid example payload per whitelisted event. */
 const VALID_EXAMPLES: Record<string, Record<string, string | number>> = {
   onboarding_started: {},
-  onboarding_screen: { screen_id: 'paywall', variant: 'A', action: 'advance', elapsed_ms: 4200 },
+  onboarding_screen: { screen_id: 'paywall', action: 'advance', elapsed_ms: 4200 },
   composure_measured: { score: 41, day: 0 },
-  paywall_viewed: { variant: 'B' },
+  paywall_viewed: {},
   purchase: { term: 'annual' },
   day_completed: { day: 40 },
   control_score: { value: 4, day: 40 },
@@ -48,6 +49,16 @@ const VALID_EXAMPLES: Record<string, Record<string, string | number>> = {
 };
 
 describe('event schema whitelist', () => {
+  test('restructurer_used distortion set matches the content taxonomy exactly', () => {
+    // A distortion added to content/restructure.ts but not here would make
+    // every restructurer_used event for it drop silently; an extra slug here
+    // would widen the whitelist past the authored taxonomy. Exact match only.
+    const whitelisted = EVENT_SCHEMA.restructurer_used.distortion;
+    expect([...(whitelisted as readonly string[])].sort()).toEqual(
+      [...DISTORTION_ORDER].sort(),
+    );
+  });
+
   test('every declared event accepts its canonical payload', () => {
     for (const event of Object.keys(EVENT_SCHEMA)) {
       expect(VALID_EXAMPLES[event]).toBeDefined(); // examples stay in sync
@@ -75,12 +86,11 @@ describe('event schema whitelist', () => {
     expect(
       isWhitelisted('restructurer_used', { distortion: 'she thinks less of me now' }),
     ).toBe(false);
-    expect(isWhitelisted('paywall_viewed', { variant: 'C' })).toBe(false);
+    expect(isWhitelisted('paywall_viewed', { variant: 'B' })).toBe(false);
     // slug fields reject anything sentence-shaped
     expect(
       isWhitelisted('onboarding_screen', {
         screen_id: 'I was thinking about tonight',
-        variant: 'A',
         action: 'advance',
         elapsed_ms: 100,
       }),
@@ -138,9 +148,9 @@ describe('consent gate', () => {
     await getTelemetryConsent(); // settle hydration
 
     await setTelemetryConsent(true);
-    track('paywall_viewed', { variant: 'A' });
+    track('paywall_viewed');
     // Non-whitelisted attempts are dropped, not sent:
-    track('paywall_viewed' as any, { variant: 'A', userText: 'my goal is calm' });
+    track('paywall_viewed' as any, { userText: 'my goal is calm' });
     track('journal_saved' as any, {});
     await flushTelemetry();
 

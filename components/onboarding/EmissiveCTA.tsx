@@ -43,6 +43,11 @@ export default function EmissiveCTA({
   return (
     <Animated.View
       style={{
+        // Fill the row even under centering parents (chapter CTAs sit in
+        // items-center columns — without this the pill collapses to its
+        // label width), and round the wrapper so the bloom hugs the pill.
+        width: '100%',
+        borderRadius: 999,
         opacity: press.interpolate({
           inputRange: [0, 1],
           outputRange: [dimmed ? 0.45 : 1, CTA.pressDimOpacity],

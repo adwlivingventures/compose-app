@@ -8,7 +8,7 @@ import {
   getReminderTime,
   notificationsPresent,
 } from '../services/notifications';
-import { ChevronLeft, Plus, ArrowUp } from 'lucide-react-native';
+import { ChevronLeft } from 'lucide-react-native';
 import { useDiscreet } from '../context/DiscreetContext';
 
 /**
@@ -22,10 +22,14 @@ import { useDiscreet } from '../context/DiscreetContext';
  * privacy panic, and this screen is the antidote.
  *
  * Live now: Face ID gate + app-switcher cover + the daily-reminder toggle.
- * Alternate icons ship when the icon sets are produced. The notifications
- * row governs SCHEDULING only — neutrality itself is not a setting:
- * CLAUDE.md §6 makes the copy a binding rule, so the sub-copy states it as
- * a guarantee whether the reminder is on or off.
+ * The notifications row governs SCHEDULING only — neutrality itself is not a
+ * setting: CLAUDE.md §6 makes the copy a binding rule, so the sub-copy states
+ * it as a guarantee whether the reminder is on or off.
+ *
+ * Founder ruling 2026-07-10: alternate icons are NOT on the roadmap — the
+ * icon/name preview section was removed so this screen promises only what
+ * ships. The surfaces (notifications, Face ID, app switcher) are the whole
+ * pitch.
  */
 
 function SectionLabel({ children }: { children: string }) {
@@ -88,30 +92,6 @@ function SurfaceRow({
         <Text className="text-muted text-[11.5px] mt-0.5 leading-4">{subtitle}</Text>
       </View>
       <Toggle on={on} disabled={disabled} onPress={onToggle} />
-    </View>
-  );
-}
-
-function IconCard({
-  label,
-  selected,
-  dimmed,
-  children,
-}: {
-  label: string;
-  selected?: boolean;
-  dimmed?: boolean;
-  children: React.ReactNode;
-}) {
-  return (
-    <View
-      style={dimmed ? { opacity: 0.45 } : undefined}
-      className={`flex-1 bg-surface border rounded-2xl items-center gap-2 px-2.5 py-3.5 ${
-        selected ? 'border-accent/50' : 'border-line'
-      }`}
-    >
-      {children}
-      <Text className="text-body text-[11px]">{label}</Text>
     </View>
   );
 }
@@ -201,39 +181,6 @@ export default function DiscretionScreen() {
       </Text>
       <Text className="text-muted text-[13.5px] leading-5 mt-2">
         How Compose appears on your home screen, lock screen, and anywhere outside the app.
-      </Text>
-
-      <SectionLabel>App icon & name</SectionLabel>
-      <View className="flex-row gap-3">
-        <IconCard label="Compose" selected>
-          <View
-            style={{ width: 44, height: 44, borderRadius: 11, backgroundColor: '#1C1916', borderWidth: 1, borderColor: '#2E2A24' }}
-            className="items-center justify-center"
-          >
-            <View
-              style={{ width: 10, height: 10, borderRadius: 999, borderWidth: 1.5, borderColor: '#C89B6D' }}
-            />
-          </View>
-        </IconCard>
-        <IconCard label="Habits" dimmed>
-          <View
-            style={{ width: 44, height: 44, borderRadius: 11, backgroundColor: '#1A1D24' }}
-            className="items-center justify-center"
-          >
-            <Plus color="#8B93C7" size={20} />
-          </View>
-        </IconCard>
-        <IconCard label="Breathe" dimmed>
-          <View
-            style={{ width: 44, height: 44, borderRadius: 11, backgroundColor: '#151A17' }}
-            className="items-center justify-center"
-          >
-            <ArrowUp color="#7FA893" size={20} />
-          </View>
-        </IconCard>
-      </View>
-      <Text className="text-dim text-[11px] mt-2">
-        Alternate icons and names arrive in a coming update.
       </Text>
 
       <SectionLabel>Surfaces</SectionLabel>

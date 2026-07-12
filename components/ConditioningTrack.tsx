@@ -1,45 +1,71 @@
 import React, { useRef, useState } from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
+import { useRouter } from 'expo-router';
 import BreathingOrb, { CONDITIONING_PHASES } from './BreathingOrb';
+import { conditioningProtocolForDay } from '../content/conditioning';
 
 /**
- * Physical Conditioning Track (CLAUDE.md §5, item 2) — E10 orb variant.
+ * Physical Conditioning Track (CLAUDE.md §5, item 2) — E10 orb variant,
+ * phase-progressive since founder review 2026-07-12.
  *
- * Paced breath + pelvic-floor sequence: soften/release on the inhale, a
- * gentle engagement on the exhale. The breathing orb carries the pacing so
- * the user's attention stays somatic, not arithmetic — and it breathes from
- * the moment the screen mounts, so entrainment starts before any tap.
+ * The clinical base never changes: soften/drop on the inhale, recoil on the
+ * exhale, 4s/6s carried by the orb. What progresses is the work inside the
+ * rhythm (content/conditioning.ts): Phase 2 inserts held drops (the
+ * arousal-plateau rep — sustained openness under charge, the somatic
+ * skeleton of stop-start control); Phase 3 fades the text cues partway in
+ * (basal-ganglia handover made literal — by Day 75 the skill runs without
+ * instructions, because intimacy has none).
  *
- * The counted sequence begins on the first inhale *after* Begin is pressed:
- * the tap never jerks the animation, and the first counted breath always
- * starts from the top of a cycle rather than mid-exhale.
+ * Why progression matters commercially: an identical sequence 75 times
+ * invites hedonic adaptation — the reward-prediction error decays and the
+ * session starts reading as a treadmill. A protocol that visibly deepens by
+ * phase makes a flat control score legible as improvement (the thing being
+ * scored got harder) and gives the analytics a true story to tell.
  *
- * Phase 1 emphasis is reverse-kegel-style release work — hence the inhale cue
- * leads with "soften" and the exhale cue is deliberately worded as *gentle*
- * engagement: over-gripping is the existing pattern we're retraining, not the
- * goal. Copy stays in conditioning/nervous-system language per §1/§4 tone.
+ * Founder review 2026-07-10 (retained): correctness of the rep is
+ * everything — the pre-start state shows the two-cue technique recap + the
+ * most common error, with a one-tap path to the full Somatic Primer.
  */
 
-// 30 breath cycles × 10s = 5 minutes
-const TOTAL_REPS = 30;
-
 interface ConditioningTrackProps {
-  onComplete: (/* rep count is fixed; completion carries no data */) => void;
+  /** Protocol day — selects the phase protocol (content/conditioning.ts). */
+  day: number;
+  onComplete: (/* rep count is fixed per protocol; completion carries no data */) => void;
 }
 
-export default function ConditioningTrack({ onComplete }: ConditioningTrackProps) {
+type HoldState = { cue: string; cyclesLeft: number } | null;
+
+export default function ConditioningTrack({ day, onComplete }: ConditioningTrackProps) {
+  const router = useRouter();
+  const protocol = conditioningProtocolForDay(day);
+
   const runningRef = useRef(false);
   const completedRef = useRef(false);
   const repRef = useRef(0);
+  const holdRef = useRef<HoldState>(null);
   const [started, setStarted] = useState(false);
   const [phaseIndex, setPhaseIndex] = useState(0);
   const [rep, setRep] = useState(0);
+  const [hold, setHold] = useState<HoldState>(null);
+
+  const setHoldBoth = (h: HoldState) => {
+    holdRef.current = h;
+    setHold(h);
+  };
 
   const onPhaseStart = (index: number) => {
     setPhaseIndex(index);
-    // Counting advances only at the top of an inhale.
+    // Counting (and hold ticking) advances only at the top of an inhale.
     if (index !== 0 || !runningRef.current || completedRef.current) return;
-    if (repRef.current >= TOTAL_REPS) {
+
+    // Inside a held drop: the orb keeps breathing, the count waits.
+    if (holdRef.current) {
+      const cyclesLeft = holdRef.current.cyclesLeft - 1;
+      setHoldBoth(cyclesLeft > 0 ? { ...holdRef.current, cyclesLeft } : null);
+      return;
+    }
+
+    if (repRef.current >= protocol.totalReps) {
       completedRef.current = true;
       runningRef.current = false;
       onComplete();
@@ -47,6 +73,10 @@ export default function ConditioningTrack({ onComplete }: ConditioningTrackProps
     }
     repRef.current += 1;
     setRep(repRef.current);
+
+    // A hold scheduled after this rep begins on the next inhale.
+    const nextHold = protocol.holds.find((h) => h.afterRep === repRef.current);
+    if (nextHold) setHoldBoth({ cue: nextHold.cue, cyclesLeft: nextHold.cycles });
   };
 
   const begin = () => {
@@ -55,6 +85,19 @@ export default function ConditioningTrack({ onComplete }: ConditioningTrackProps
   };
 
   const inhaling = phaseIndex === 0;
+  const cuesFaded =
+    protocol.cueFadeAfterRep !== undefined && rep > protocol.cueFadeAfterRep && !hold;
+
+  // Running line priority: held drop > faded minimal cue > full breath cue.
+  const runningLine = hold
+    ? hold.cue
+    : cuesFaded
+    ? protocol.fadedCue ?? ''
+    : inhaling
+    ? protocol.cueInhale
+    : protocol.cueExhale;
+
+  const orbLabel = hold ? 'Hold' : cuesFaded ? '·' : inhaling ? 'Soften' : 'Engage';
 
   return (
     <View className="items-center w-full">
@@ -65,26 +108,24 @@ export default function ConditioningTrack({ onComplete }: ConditioningTrackProps
         innerSize={180}
         onPhaseStart={onPhaseStart}
         haptics={started}
-        announcements={['Inhale — soften', 'Exhale — gentle engagement']}
+        announcements={[protocol.cueInhale, protocol.cueExhale]}
       >
         <Text className="text-accent-soft text-[13px] font-bold uppercase tracking-[0.22em]">
-          {inhaling ? 'Soften' : 'Engage'}
+          {orbLabel}
         </Text>
       </BreathingOrb>
 
-      <Text className="text-ink text-[17px] font-semibold mt-4 h-6">
-        {!started
-          ? 'Conditioning Track'
-          : inhaling
-          ? 'Inhale — release, let go'
-          : 'Exhale — gentle engagement'}
+      <Text className="text-ink text-[16px] font-semibold mt-4 h-6 text-center">
+        {!started ? `Conditioning · ${protocol.name}` : runningLine}
       </Text>
       <Text className="text-muted text-[12.5px] mt-1 h-5">
         {!started
-          ? 'Five minutes. Follow the orb — nothing forced.'
+          ? protocol.intro
           : rep === 0
           ? 'Your count begins on the next inhale.'
-          : `breath ${rep} of ${TOTAL_REPS}`}
+          : hold
+          ? 'The count waits. The breath continues.'
+          : `breath ${rep} of ${protocol.totalReps}`}
       </Text>
 
       {started ? (
@@ -92,18 +133,55 @@ export default function ConditioningTrack({ onComplete }: ConditioningTrackProps
           <View className="h-[3px] bg-line-soft rounded-full overflow-hidden">
             <View
               className="h-full bg-accent rounded-full"
-              style={{ width: `${Math.min((rep / TOTAL_REPS) * 100, 100)}%` }}
+              style={{ width: `${Math.min((rep / protocol.totalReps) * 100, 100)}%` }}
             />
           </View>
         </View>
       ) : (
-        <TouchableOpacity
-          onPress={begin}
-          activeOpacity={0.85}
-          className="bg-accent rounded-xl py-3.5 px-10 mt-6"
-        >
-          <Text className="text-on-accent font-bold text-sm">Begin</Text>
-        </TouchableOpacity>
+        <>
+          {/* The technique, compressed to its two cues + the one common error. */}
+          <View className="w-full bg-surface border border-line rounded-2xl p-4 mt-5">
+            <View className="gap-2">
+              <View className="flex-row gap-2.5">
+                <Text className="text-accent text-xs font-bold mt-0.5">IN</Text>
+                <Text className="text-body text-[13px] leading-5 flex-1">
+                  Belly out. Push the pelvic floor down and away — like releasing your bladder.
+                </Text>
+              </View>
+              <View className="flex-row gap-2.5">
+                <Text className="text-accent text-xs font-bold mt-0.5">OUT</Text>
+                <Text className="text-body text-[13px] leading-5 flex-1">
+                  Let it recoil on its own. Don’t clench.
+                </Text>
+              </View>
+            </View>
+            <View className="border-l-2 border-l-accent/50 pl-3 mt-3">
+              <Text className="text-accent-soft text-xs leading-4">
+                If your abs brace or glutes squeeze, you clenched — soften and let the breath do
+                the pushing.
+              </Text>
+            </View>
+            <TouchableOpacity
+              onPress={() => router.push('/technique')}
+              activeOpacity={0.7}
+              className="mt-3 self-start"
+              accessibilityRole="button"
+              accessibilityLabel="Review the full technique with the diagram"
+            >
+              <Text className="text-accent text-xs font-bold">
+                Not sure you have it? Review the full technique →
+              </Text>
+            </TouchableOpacity>
+          </View>
+
+          <TouchableOpacity
+            onPress={begin}
+            activeOpacity={0.85}
+            className="bg-accent rounded-xl py-3.5 px-10 mt-5"
+          >
+            <Text className="text-on-accent font-bold text-sm">Begin</Text>
+          </TouchableOpacity>
+        </>
       )}
     </View>
   );

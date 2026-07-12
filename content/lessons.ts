@@ -190,8 +190,74 @@ const PARTNER_DEESCALATOR: Lesson = {
   ],
 };
 
+// Founder addition 2026-07-10: the Mastery Suite was missing the "become a
+// better partner" category — the aspirational half of the graduation unlock.
+// Grounded in Sensate Focus attunement research; premium register, never
+// explicit (§8.4).
+const PARTNER_ATTUNEMENT: Lesson = {
+  id: 'partner-attunement',
+  title: 'The Attunement Advantage',
+  steps: [
+    {
+      title: 'Attunement Beats Technique',
+      body:
+        'Ask women what separates a memorable partner from a forgettable one and the ' +
+        'research answer is consistent: responsiveness. Not moves — noticing. The partner ' +
+        'who reads the moment and adjusts outperforms the one running a routine, every ' +
+        'time. Good news: noticing is a trainable skill, and you have spent weeks training ' +
+        'its foundation — attention that stays in the room.',
+      buttonText: 'Train the noticing',
+    },
+    {
+      title: 'Her Curve Is Longer',
+      body:
+        'Arousal in most women builds on a slower curve than yours — and rushing that curve ' +
+        'is the most common technical mistake men make. The skill is pacing: hold each ' +
+        'stage longer than your own urgency suggests, and let her tempo — not yours — decide ' +
+        'when things escalate. Slow is not a delay. Slow is the technique.',
+      buttonText: 'Next',
+    },
+    {
+      title: 'Touch With Attention',
+      body:
+        'Sensate principle: touch to notice, not to achieve. Vary pressure and tempo, then ' +
+        'watch what her breath and body do in response — a deepening breath says continue, a ' +
+        'held one says slow down. Her nervous system broadcasts constantly. Most men never ' +
+        'tune in because they are performing instead of perceiving.',
+      buttonText: 'Next',
+    },
+    {
+      title: 'Ask Like It’s Confidence',
+      body:
+        'One well-placed question — "like this, or slower?" — reads as mastery, not ' +
+        'uncertainty. It says you are paying attention and unafraid of the answer. Ask ' +
+        'once, adjust visibly, and the adjustment itself becomes the most attractive thing ' +
+        'you do all night.',
+      buttonText: 'One more thing',
+    },
+    {
+      title: 'Somatic Checkpoint',
+      body:
+        'Mid-moment, you notice her breathing has gone shallow and still. What is the ' +
+        'attuned response?',
+      buttonText: 'Complete Module',
+      quiz: {
+        options: [
+          'Keep going — changing anything now would break the mood.',
+          'Slow down and soften — her breath just asked for less, not more.',
+        ],
+        correctIndex: 1,
+        nudge:
+          'A held breath is her system braking. Pushing through it is performing; ' +
+          'adjusting to it is attunement. Try again.',
+      },
+    },
+  ],
+};
+
 export const LESSONS: Record<string, Lesson> = {
   [SENSATE_MASTERY.id]: SENSATE_MASTERY,
   [REFRACTORY_WINDOW.id]: REFRACTORY_WINDOW,
   [PARTNER_DEESCALATOR.id]: PARTNER_DEESCALATOR,
+  [PARTNER_ATTUNEMENT.id]: PARTNER_ATTUNEMENT,
 };

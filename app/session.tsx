@@ -1,10 +1,22 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { View, Text, TouchableOpacity, ActivityIndicator } from 'react-native';
+import { View, Text, TouchableOpacity, ActivityIndicator, ScrollView } from 'react-native';
 import { useRouter } from 'expo-router';
 import { X, Check, Info } from 'lucide-react-native';
-import { useProtocol, HabitState } from '../context/ProtocolContext';
+import { useProtocol } from '../context/ProtocolContext';
 import { useDiscreet } from '../context/DiscreetContext';
 import { getAnchorForDay } from '../content/anchors';
+import {
+  LedgerState,
+  LedgerItem,
+  ledgerItemsForDay,
+  CLEAN_FOCUS_FALTER_LINE,
+  LEDGER_INTRO_LINES,
+} from '../content/ledger';
+import {
+  anchorIntroForDay,
+  checklistHeaderForDay,
+  checklistFooterForDay,
+} from '../content/sessionCopy';
 import { LocalStore } from '../services/storage';
 import { enableDailyReminder, notificationsPresent } from '../services/notifications';
 import AudioPlayer from '../components/AudioPlayer';
@@ -38,33 +50,29 @@ const STAGE_ORDER: Stage[] = ['anchor', 'conditioning', 'score', 'checklist'];
 
 const SCORE_LABELS = ['Very little', 'Slight', 'Moderate', 'Strong', 'Complete ease'];
 
-const CHECKLIST_ITEMS: { key: keyof HabitState; title: string; subtitle: string }[] = [
-  {
-    key: 'presence',
-    title: 'Presence Work',
-    subtitle: 'Did you spend conscious time in your body today?',
-  },
-  {
-    key: 'focus',
-    title: 'Clean Focus',
-    subtitle: 'Did you protect your focus from pornographic input today?',
-  },
-  {
-    key: 'vitality',
-    title: 'Vitality Habit',
-    subtitle: 'Did you protect your physical energy — sleep, light, movement?',
-  },
-];
+// The ledger stage groups items by where the behavior lived in the day —
+// reconciliation reads chronologically, which aids honest recall.
+const TIMING_LABELS: Record<LedgerItem['timing'], string> = {
+  morning: 'Morning',
+  day: 'Through the day',
+  evening: 'Tonight',
+};
+const TIMING_ORDER: LedgerItem['timing'][] = ['morning', 'day', 'evening'];
 
 export default function SessionScreen() {
   const router = useRouter();
-  const { activeDay, markDayComplete } = useProtocol();
+  const { activeDay, markDayComplete, completedDays } = useProtocol();
   // Pin the day at mount — completion advances activeDay while this screen
   // is still up; the UI shouldn't flicker to tomorrow's number.
   const dayRef = useRef(activeDay);
   const [stage, setStage] = useState<Stage>('anchor');
   const [pelvicRating, setPelvicRating] = useState(0);
-  const [habits, setHabits] = useState<HabitState>({ presence: false, focus: false, vitality: false });
+  // Seed from any check-anytime writes (the Today-tab ledger row): items
+  // checked when they happened arrive here already true — the session
+  // stage is reconciliation, not a memory test.
+  const [ledger, setLedger] = useState<LedgerState>(
+    () => ({ ...completedDays[dayRef.current]?.ledger }),
+  );
   const [finishing, setFinishing] = useState(false);
   const [sosVisible, setSosVisible] = useState(false);
   const [askReminder, setAskReminder] = useState(false);
@@ -74,6 +82,18 @@ export default function SessionScreen() {
   const day = dayRef.current;
   const anchor = getAnchorForDay(day);
   const stageIndex = STAGE_ORDER.indexOf(stage);
+
+  // Ledger derivations for the reconciliation stage.
+  const items = ledgerItemsForDay(day);
+  const checkedCount = items.filter((i) => ledger[i.key]).length;
+  // A new item's first day: Day 26 introduces training, Day 51 the unclench.
+  const introLine =
+    day === 26
+      ? LEDGER_INTRO_LINES.training
+      : day === 51
+      ? LEDGER_INTRO_LINES.tensionAudit
+      : null;
+  const showFalterLine = checkedCount >= 2 && !ledger.cleanFocus;
 
   // Day 1 gate: the Somatic Primer must be acknowledged before the first
   // session — the conditioning track's "soften" cue presumes the reverse-
@@ -89,13 +109,13 @@ export default function SessionScreen() {
     );
   }, []);
 
-  const handleComplete = async (finalHabits: HabitState) => {
+  const handleComplete = async (finalLedger: LedgerState) => {
     if (finishing) return;
     setFinishing(true);
     await markDayComplete(day, {
       completed: true,
       pelvicRating,
-      habits: finalHabits,
+      ledger: finalLedger,
     });
     // Day-1 only: the reminder opt-in rides the completion high (a
     // post-success ask converts far better than a cold-start permission
@@ -226,9 +246,10 @@ export default function SessionScreen() {
       <View className="flex-1 justify-center">
         {stage === 'anchor' && (
           <View>
+            {/* Rotating shell copy (content/sessionCopy.ts) — the ritual
+                skeleton is invariant; the wording stops being copy-paste. */}
             <Text className="text-muted text-sm text-center leading-5 px-4 mb-8">
-              Find a quiet place. Sit or lie down. You can lock your screen — the audio will
-              continue.
+              {anchorIntroForDay(day)}
             </Text>
             <AudioPlayer
               title={anchor.title}
@@ -239,7 +260,7 @@ export default function SessionScreen() {
           </View>
         )}
 
-        {stage === 'conditioning' && <ConditioningTrack onComplete={advance} />}
+        {stage === 'conditioning' && <ConditioningTrack day={day} onComplete={advance} />}
 
         {stage === 'score' && (
           <View className="items-center">
@@ -274,59 +295,103 @@ export default function SessionScreen() {
         )}
 
         {stage === 'checklist' && (
-          <View>
-            <Text className="text-ink text-2xl font-serif-regular text-center px-4 mb-6">
-              Before the day closes
+          <ScrollView
+            showsVerticalScrollIndicator={false}
+            contentContainerStyle={{ paddingVertical: 8 }}
+          >
+            <Text className="text-ink text-2xl font-serif-regular text-center px-4 mb-1">
+              {checklistHeaderForDay(day)}
             </Text>
-            <View className="gap-3">
-              {CHECKLIST_ITEMS.map((item) => {
-                const on = habits[item.key];
-                return (
-                  <TouchableOpacity
-                    key={item.key}
-                    onPress={() => setHabits((h) => ({ ...h, [item.key]: !h[item.key] }))}
-                    activeOpacity={0.8}
-                    accessibilityRole="checkbox"
-                    accessibilityState={{ checked: on }}
-                    accessibilityLabel={`${item.title}. ${item.subtitle}`}
-                    className={`rounded-2xl p-4 flex-row items-center gap-3 border ${
-                      on ? 'bg-accent/10 border-accent/40' : 'bg-surface border-line'
-                    }`}
-                  >
-                    <View
-                      className={`w-6 h-6 rounded-lg items-center justify-center border ${
-                        on ? 'bg-accent border-accent' : 'border-faint'
-                      }`}
-                    >
-                      {on && <Check color="#0C0B09" size={14} strokeWidth={3} />}
-                    </View>
-                    <View className="flex-1">
-                      <Text className="text-ink text-sm font-bold">{item.title}</Text>
-                      <Text className="text-muted text-xs mt-0.5 leading-4">{item.subtitle}</Text>
-                    </View>
-                    {/* The Vitality Baseline reference, at the moment it's
-                        relevant — tapping (i) must not toggle the habit. */}
-                    {item.key === 'vitality' && (
-                      <TouchableOpacity
-                        onPress={() => router.push('/vitality')}
-                        activeOpacity={0.7}
-                        hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
-                        accessibilityRole="button"
-                        accessibilityLabel="Open the Vitality Baseline reference"
-                        className="p-1"
-                      >
-                        <Info color="#4B5563" size={16} />
-                      </TouchableOpacity>
-                    )}
-                  </TouchableOpacity>
-                );
-              })}
-            </View>
+            <Text className="text-muted text-xs text-center mb-5">
+              {checkedCount} of {items.length} votes already cast today
+            </Text>
+
+            {/* Phase-entry introduction — shown on the day a new item joins
+                the ledger (progression the user can feel; content/ledger.ts). */}
+            {introLine && (
+              <View className="bg-surface-deep border border-line rounded-2xl px-4 py-3.5 mb-4">
+                <Text className="text-accent-soft text-xs leading-5">{introLine}</Text>
+              </View>
+            )}
+
+            {TIMING_ORDER.map((timing) => {
+              const group = items.filter((i) => i.timing === timing);
+              if (group.length === 0) return null;
+              return (
+                <View key={timing} className="mb-4">
+                  <Text className="text-dim text-[10px] font-bold uppercase tracking-[0.2em] mb-2 ml-1">
+                    {TIMING_LABELS[timing]}
+                  </Text>
+                  <View className="gap-2.5">
+                    {group.map((item) => {
+                      const on = !!ledger[item.key];
+                      return (
+                        <TouchableOpacity
+                          key={item.key}
+                          onPress={() =>
+                            setLedger(
+                              (l) => ({ ...l, [item.key]: !l[item.key] } as LedgerState),
+                            )
+                          }
+                          activeOpacity={0.8}
+                          accessibilityRole="checkbox"
+                          accessibilityState={{ checked: on }}
+                          accessibilityLabel={`${item.title}. ${item.question}`}
+                          className={`rounded-2xl p-4 flex-row items-center gap-3 border ${
+                            on ? 'bg-surface-deep border-line' : 'bg-surface border-line'
+                          }`}
+                        >
+                          {/* Checked = settled evidence, absorbs (accent
+                              scarcity, §6): sand on this screen belongs to
+                              the CTA and progress fill, not past votes. */}
+                          <View
+                            className={`w-6 h-6 rounded-lg items-center justify-center border ${
+                              on ? 'bg-line border-line' : 'border-faint'
+                            }`}
+                          >
+                            {on && <Check color="#E5E7EB" size={14} strokeWidth={3} />}
+                          </View>
+                          <View className="flex-1">
+                            <Text className="text-ink text-sm font-bold">{item.title}</Text>
+                            <Text className="text-muted text-xs mt-0.5 leading-4">
+                              {item.question}
+                            </Text>
+                          </View>
+                          {/* The Vitality Baseline reference, at the moment
+                              it's relevant — the (i) must not toggle. */}
+                          <TouchableOpacity
+                            onPress={() => router.push('/vitality')}
+                            activeOpacity={0.7}
+                            hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+                            accessibilityRole="button"
+                            accessibilityLabel={`Why ${item.title} matters — open the Vitality Baseline`}
+                            className="p-1"
+                          >
+                            <Info color="#4B5563" size={16} />
+                          </TouchableOpacity>
+                        </TouchableOpacity>
+                      );
+                    })}
+                  </View>
+                </View>
+              );
+            })}
+
+            {/* Relapse-normalization at the abstinence-violation moment: the
+                one slip that catastrophizes into deletion. Shown only once
+                he's engaged with the list (≥2 checks) and Clean Focus stays
+                unchecked — quiet, inline, next-vote-facing. */}
+            {showFalterLine && (
+              <Text className="text-muted text-xs leading-4 px-2 mb-4">
+                {CLEAN_FOCUS_FALTER_LINE}
+              </Text>
+            )}
+
             <TouchableOpacity
-              onPress={() => handleComplete(habits)}
+              onPress={() => handleComplete(ledger)}
               disabled={finishing}
               activeOpacity={0.85}
-              className="bg-accent rounded-2xl py-4 items-center mt-6"
+              className="bg-accent rounded-2xl py-4 items-center mt-2"
             >
               {finishing ? (
                 <ActivityIndicator color="#0C0B09" />
@@ -335,9 +400,9 @@ export default function SessionScreen() {
               )}
             </TouchableOpacity>
             <Text className="text-faint text-xs text-center mt-3 leading-4">
-              Answer honestly — an unchecked box is information, not failure.
+              {checklistFooterForDay(day)}
             </Text>
-          </View>
+          </ScrollView>
         )}
       </View>
 

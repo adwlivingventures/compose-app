@@ -6,13 +6,12 @@
 // "instrument" moment in onboarding).
 
 import { useEffect, useRef, useState } from 'react';
-import { ScrollView, Text, View } from 'react-native';
+import { Pressable, ScrollView, Text, View } from 'react-native';
 import type { InteractiveCheckScreen } from '../../content/onboarding/types';
 import { breatheOnset, breatheRelease } from '../../services/haptics';
 import EmissiveCTA from './EmissiveCTA';
 import { ScreenFade } from './archetypes';
 import { SecondaryLink } from './chrome';
-import { SingleSelectList } from './AnswerCards';
 
 type Phase = 'ready' | 0 | 1 | 'result';
 
@@ -35,17 +34,89 @@ function CountdownRing({
         borderWidth: 1.5,
         borderColor: active ? 'rgba(200,155,109,0.9)' : 'rgba(200,155,109,0.5)',
         backgroundColor: 'rgba(200,155,109,0.07)',
+        paddingHorizontal: 16,
       }}
     >
       <Text className="font-serif-light text-ink" style={{ fontSize: 34 }}>
         {numeral}
       </Text>
+      {/* Single-word labels + tighter tracking so the text sits inside the
+          ring (founder review 2026-07-10). */}
       <Text
-        className="text-muted"
-        style={{ fontSize: 10.5, letterSpacing: 2, marginTop: 2 }}
+        className="text-center text-muted"
+        style={{ fontSize: 10, letterSpacing: 1.2, marginTop: 2 }}
+        numberOfLines={1}
       >
         {label}
       </Text>
+    </View>
+  );
+}
+
+/** 1–10 release rating — same notch language as the libido scale, with the
+ *  anchors doing the explaining (what 1 means, what 10 means). */
+export function ReleaseScale({
+  scale,
+  onSubmit,
+}: {
+  scale: InteractiveCheckScreen['resultScale'];
+  onSubmit: (value: number) => void;
+}) {
+  const [value, setValue] = useState<number | null>(null);
+  const notches = Array.from({ length: scale.max - scale.min + 1 }, (_, i) => scale.min + i);
+  return (
+    <View>
+      <View className="flex-row" style={{ gap: 6 }}>
+        {notches.map((n) => {
+          const active = value !== null && n <= value;
+          const isValue = value === n;
+          return (
+            <Pressable
+              key={n}
+              accessibilityRole="button"
+              accessibilityLabel={`${n} of ${scale.max}`}
+              accessibilityState={{ selected: isValue }}
+              onPress={() => setValue(n)}
+              className="flex-1 items-center"
+              style={{ paddingVertical: 10 }}
+            >
+              <View
+                className={`w-full rounded-full ${active ? 'bg-accent' : 'bg-surface'}`}
+                style={{
+                  height: 24,
+                  borderWidth: isValue ? 0 : 1,
+                  borderColor: '#2E3B5E',
+                  opacity: active && !isValue ? 0.55 : 1,
+                }}
+              />
+              <Text
+                className={isValue ? 'font-serif-regular text-ink' : 'text-faint'}
+                style={{ fontSize: isValue ? 15 : 11, marginTop: 8 }}
+              >
+                {n}
+              </Text>
+            </Pressable>
+          );
+        })}
+      </View>
+      <View className="mt-3 flex-row justify-between" style={{ gap: 12 }}>
+        <Text className="text-muted" style={{ fontSize: 11, fontWeight: '300', flex: 1 }}>
+          {scale.anchorLow}
+        </Text>
+        <Text
+          className="text-right text-muted"
+          style={{ fontSize: 11, fontWeight: '300', flex: 1 }}
+        >
+          {scale.anchorHigh}
+        </Text>
+      </View>
+      <View style={{ marginTop: 20 }}>
+        <EmissiveCTA
+          label={scale.button}
+          disabled={value === null}
+          onPress={() => value !== null && onSubmit(value)}
+        />
+      </View>
     </View>
   );
 }
@@ -56,7 +127,8 @@ export default function PelvicCheck({
   onSkip,
 }: {
   screen: InteractiveCheckScreen;
-  onComplete: (value: string) => void;
+  /** 1–10 release rating (founder review 2026-07-10). */
+  onComplete: (value: number) => void;
   onSkip: () => void;
 }) {
   const [phase, setPhase] = useState<Phase>('ready');
@@ -174,7 +246,7 @@ export default function PelvicCheck({
             >
               {screen.resultQuestion}
             </Text>
-            <SingleSelectList options={screen.resultOptions} onAdvance={onComplete} />
+            <ReleaseScale scale={screen.resultScale} onSubmit={onComplete} />
           </View>
         )}
       </ScrollView>

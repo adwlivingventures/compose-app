@@ -1,8 +1,8 @@
 // Onboarding — data-driven flow runner (Ember Dusk v2 rebuild).
 //
-// One binary, both variants: buildFlow(variant) resolves the 42-screen order
-// (content/onboarding/) and this runner walks it. Variant differences live
-// entirely in the config; no screen component ever sees the variant.
+// Single flow (founder ruling 2026-07-10 — the interleaved variant and the
+// onboarding A/B test are retired): buildFlow() resolves the screen order
+// (content/onboarding/) and this runner walks it.
 // Answers live in local state + AsyncStorage only — nothing leaves the
 // device (§7). Purchase fires on Day Zero's "Sign & begin", never earlier.
 //
@@ -10,7 +10,8 @@
 // retry, haptic vocabulary, sound, demo mode, Reduce Motion fallbacks.
 
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { View } from 'react-native';
+import { Pressable, View } from 'react-native';
+import { ChevronLeft } from 'lucide-react-native';
 import { useRouter } from 'expo-router';
 import { buildFlow } from '../content/onboarding/buildFlow';
 import { computeComposure } from '../content/onboarding/composure';
@@ -21,11 +22,9 @@ import {
   hasPrivacyFooter,
   nextVisibleIndex,
   progressMeta,
-  resolveBranch,
   withName,
 } from '../content/onboarding/logic';
-import type { ResolvedScreen, Variant } from '../content/onboarding/types';
-import { getOrAssignVariant, devForceVariant } from '../services/variant';
+import type { ResolvedScreen } from '../content/onboarding/types';
 import { LocalStore } from '../services/storage';
 import {
   setTelemetryConsent,
@@ -34,9 +33,9 @@ import {
   type ScreenAction,
 } from '../services/analytics';
 import { seal } from '../services/haptics';
+import { recordComposure } from '../services/composureHistory';
 import { useProtocol } from '../context/ProtocolContext';
 import { useRevenueCat } from '../hooks/useRevenueCat';
-import Purchases from 'react-native-purchases';
 
 import { Chapter, ClinicalCard, NoteCard, Beat, Commit, SectionTransition } from '../components/onboarding/archetypes';
 import { ProgressHeader, PrivacyFooter } from '../components/onboarding/chrome';
@@ -66,13 +65,21 @@ interface PersistedState {
 const isStable = (s: ResolvedScreen) =>
   !['section-transition', 'beat', 'generating'].includes(s.archetype);
 
+/** Full-bleed archetypes that get the floating back chevron (founder review
+ *  2026-07-10: backwards navigation from any point). The paywall family owns
+ *  its back gesture (the dismiss intercept); momentum screens have nothing
+ *  to go back to. */
+const hasFloatingBack = (s: ResolvedScreen) =>
+  !['paywall', 'signature', 'paywall-dismiss', 'section-transition', 'beat', 'generating'].includes(
+    s.archetype,
+  );
+
 export default function Onboarding() {
   const router = useRouter();
   const { unlockProtocol } = useProtocol();
   const { getAnnualPackage, getMonthlyPackage, purchasePackage, restorePurchases, isProcessing } =
     useRevenueCat();
 
-  const [variant, setVariant] = useState<Variant | null>(null);
   const [answers, setAnswers] = useState<Answers>({});
   const [cursor, setCursor] = useState(0);
   const [hydrated, setHydrated] = useState(false);
@@ -85,23 +92,16 @@ export default function Onboarding() {
   const dismissedThisSession = useRef(false);
   const screenEnteredAt = useRef(Date.now());
 
-  const flow = useMemo(() => (variant ? buildFlow(variant) : null), [variant]);
+  const flow = useMemo(() => buildFlow(), []);
 
-  // ── Hydration: variant assignment + resume state ────────────────────────
+  // ── Hydration: resume state ─────────────────────────────────────────────
   useEffect(() => {
     (async () => {
-      const v = await getOrAssignVariant();
       const saved = await LocalStore.getItem<PersistedState>(STATE_KEY);
       const dismissed = await LocalStore.getItem<boolean>(DISMISSED_KEY);
       const savedTerm = await LocalStore.getItem<MembershipTerm>(TERM_KEY);
       if (savedTerm === 'monthly') setTerm('monthly');
-      const resolved = buildFlow(v);
-      setVariant(v);
-      // Variant tag on every RC conversion event (the experiment readout).
-      // Never carries answers — just the arm.
-      try {
-        Purchases.setAttributes({ onboarding_variant: v });
-      } catch {}
+      const resolved = flow;
       // Cohort telemetry starts at the very first screen of a fresh install
       // (§7 events are consent-buffered — nothing leaves the device unless
       // the consent step later grants it).
@@ -111,6 +111,21 @@ export default function Onboarding() {
         const index = resolved.findIndex((s) => s.id === saved.screenId);
         if (index > 0) {
           setCursor(index);
+          // Rebuild the back stack a live session would have accumulated by
+          // this screen (founder review 2026-07-10: an app reload landed on a
+          // question with no back chevron). Walk the same visible-screen path
+          // advance() takes, honoring the one-way barrier past Generating.
+          const savedAnswers = saved.answers ?? {};
+          const rebuilt: number[] = [];
+          let at = 0;
+          while (at < index) {
+            const next = nextVisibleIndex(resolved, at, savedAnswers, DEFAULT_FLAGS);
+            if (next === -1 || next > index) break;
+            if (isStable(resolved[at])) rebuilt.push(at);
+            if (resolved[next].id === 'map') rebuilt.length = 0;
+            at = next;
+          }
+          history.current = rebuilt;
           // The honest win-back: a returning user who backed out of the
           // paywall lands on the dismiss screen, score intact.
           const id = resolved[index].id;
@@ -122,38 +137,36 @@ export default function Onboarding() {
       }
       setHydrated(true);
     })();
-  }, []);
+  }, [flow]);
 
   const persist = useCallback((screenId: string, a: Answers) => {
     LocalStore.setItem(STATE_KEY, { screenId, answers: a } satisfies PersistedState);
   }, []);
 
-  // paywall_viewed = the top of the conversion funnel (§7): the variant tag
-  // only — this is the RC Experiment's denominator.
+  // paywall_viewed = the top of the conversion funnel (§7) — the RC pricing
+  // Experiment's denominator (the annual price test is server-side product
+  // swap; it needs no client tag).
   useEffect(() => {
-    if (!flow || !variant || showDismiss) return;
-    if (flow[cursor]?.id === 'paywall') track('paywall_viewed', { variant });
-  }, [flow, cursor, variant, showDismiss]);
+    if (showDismiss) return;
+    if (flow[cursor]?.id === 'paywall') track('paywall_viewed');
+  }, [flow, cursor, showDismiss]);
 
   // ── Navigation ──────────────────────────────────────────────────────────
-  // One anonymous event per screen leave: screen_id, variant, elapsed,
-  // action. Nothing about what was answered (§7).
+  // One anonymous event per screen leave: screen_id, elapsed, action.
+  // Nothing about what was answered (§7).
   const emit = useCallback(
     (action: ScreenAction, screenId?: string) => {
-      if (!flow || !variant) return;
       trackScreen(
         screenId ?? flow[cursor].id,
-        variant,
         Date.now() - screenEnteredAt.current,
         action,
       );
     },
-    [flow, variant, cursor],
+    [flow, cursor],
   );
 
   const moveTo = useCallback(
     (index: number, nextAnswers: Answers) => {
-      if (!flow) return;
       setCursor(index);
       screenEnteredAt.current = Date.now();
       persist(flow[index].id, nextAnswers);
@@ -163,7 +176,6 @@ export default function Onboarding() {
 
   const advance = useCallback(
     (patch?: Partial<Answers>, action: ScreenAction = 'advance') => {
-      if (!flow) return;
       const nextAnswers = patch ? { ...answers, ...patch } : answers;
       if (patch) setAnswers(nextAnswers);
       const next = nextVisibleIndex(flow, cursor, nextAnswers, DEFAULT_FLAGS);
@@ -182,7 +194,6 @@ export default function Onboarding() {
   );
 
   const goBack = useCallback(() => {
-    if (!flow) return;
     const prev = history.current.pop();
     if (prev === undefined) return;
     emit('back');
@@ -250,7 +261,7 @@ export default function Onboarding() {
   );
 
   // ── Render ──────────────────────────────────────────────────────────────
-  if (!hydrated || !flow || !variant) {
+  if (!hydrated) {
     return <View className="flex-1 bg-ground" />;
   }
 
@@ -309,19 +320,6 @@ export default function Onboarding() {
             />
           </QuestionShell>
         );
-      case 'branched-select': {
-        const branch = screen.variants[resolveBranch(screen.branchOn, answers)];
-        return (
-          <QuestionShell question={branch.question} subText={branch.subText}>
-            <SingleSelectList
-              key={screen.id}
-              options={branch.options}
-              initialValue={answers[screen.answerKey] as string | undefined}
-              onAdvance={(value) => advance({ [screen.answerKey]: value })}
-            />
-          </QuestionShell>
-        );
-      }
       case 'multi-select':
         return (
           <MultiSelect
@@ -389,6 +387,10 @@ export default function Onboarding() {
               // The Day-0 baseline point of the outcome curve (§7): the
               // score alone, never the inputs that produced it.
               track('composure_measured', { score: composure.score, day: 0 });
+              // Local record too (services/composureHistory) — the baseline
+              // the Baseline tab and every future re-measurement compare
+              // against. Fire-and-forget; the flow never waits on storage.
+              recordComposure(0, composure.score);
               advance();
             }}
           />
@@ -438,17 +440,6 @@ export default function Onboarding() {
               __DEV__ ? () => router.replace('/discretion?intro=1') : undefined
             }
             onDevEmberDemo={__DEV__ ? () => router.push('/ember-demo') : undefined}
-            onDevToggleVariant={
-              __DEV__
-                ? async () => {
-                    const other: Variant = variant === 'A' ? 'B' : 'A';
-                    await devForceVariant(other);
-                    history.current = [];
-                    setVariant(other);
-                    setCursor(0);
-                  }
-                : undefined
-            }
           />
         );
       case 'signature':
@@ -485,7 +476,23 @@ export default function Onboarding() {
       </View>
     );
   }
-  return <View className="flex-1 bg-ground">{body}</View>;
+  return (
+    <View className="flex-1 bg-ground">
+      {body}
+      {history.current.length > 0 && hasFloatingBack(screen) && (
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel="Back"
+          onPress={goBack}
+          hitSlop={14}
+          className="absolute"
+          style={{ top: 62, left: 22, opacity: 0.75 }}
+        >
+          <ChevronLeft size={20} color="#6B7280" strokeWidth={1.5} />
+        </Pressable>
+      )}
+    </View>
+  );
 }
 
 // ── Helpers ────────────────────────────────────────────────────────────────

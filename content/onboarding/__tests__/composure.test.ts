@@ -18,10 +18,9 @@ describe('weights config ↔ screen config integrity', () => {
         );
       }
       if (s.archetype === 'interactive-check') {
-        optionValues.set(
-          s.answerKey,
-          new Set([...s.resultOptions.map((o) => o.value), 'skipped']),
-        );
+        // Numeric 1–10 ratings are handled outside the deduction table; the
+        // only string value left is the skip sentinel.
+        optionValues.set(s.answerKey, new Set(['skipped']));
       }
     }
     for (const [answerKey, table] of Object.entries(COMPOSURE_WEIGHTS.deductions)) {
@@ -41,7 +40,7 @@ describe('score behavior', () => {
     adrenalineSpike: 'push-through',
     breathEdge: 'shallow-hold',
     spectatoring: 'almost-every-time',
-    pelvicCheck: 'partial',
+    pelvicCheck: 5, // 1–10 release rating (partial band)
     avoidance: 'sometimes',
     aftermath: 'fear-next',
     spillover: 'sometimes',
@@ -64,7 +63,7 @@ describe('score behavior', () => {
     const worse: Partial<Answers>[] = [
       { adrenalineSpike: 'panic' },
       { spectatoring: 'almost-every-time' },
-      { pelvicCheck: 'difficulty' },
+      { pelvicCheck: 2 },
       { avoidance: 'stopped' },
       { spillover: 'everything' },
       { contentFrequency: 'daily' },
@@ -82,7 +81,7 @@ describe('score behavior', () => {
       adrenalineSpike: 'panic',
       breathEdge: 'shallow-hold',
       spectatoring: 'almost-every-time',
-      pelvicCheck: 'difficulty',
+      pelvicCheck: 1,
       avoidance: 'stopped',
       aftermath: 'fear-next',
       spillover: 'everything',
@@ -96,7 +95,7 @@ describe('score behavior', () => {
       adrenalineSpike: 'calm',
       breathEdge: 'slow-deep',
       spectatoring: 'never',
-      pelvicCheck: 'complete',
+      pelvicCheck: 9,
       avoidance: 'rarely',
       spillover: 'bedroom-only',
       contentFrequency: 'rarely',
@@ -123,12 +122,12 @@ describe('severity bars trace to answers', () => {
     const result = computeComposure({
       adrenalineSpike: 'push-through',
       spectatoring: 'almost-every-time',
-      pelvicCheck: 'partial',
+      pelvicCheck: 5,
       avoidance: 'frequently',
       scripts: ['broken', 'never-fix'],
       escalation: 'somewhat',
     });
-    expect(result.bars).toEqual([
+    expect(result.bars.map(({ label, grade, tone }) => ({ label, grade, tone }))).toEqual([
       { label: 'Sympathetic override', grade: 'Moderate', tone: 'amber' },
       { label: 'Spectatoring loop', grade: 'High', tone: 'red' },
       { label: 'Pelvic release capacity', grade: 'Partial', tone: 'amber' },
@@ -136,6 +135,24 @@ describe('severity bars trace to answers', () => {
       { label: 'Cognitive scripts', grade: 'Active', tone: 'amber' },
       { label: 'Conditioning drift', grade: 'Present', tone: 'amber' },
     ]);
+    // Every bar carries its plain-English detail line (founder review
+    // 2026-07-10: no reading may need decoding).
+    for (const bar of result.bars) {
+      expect(bar.detail.length).toBeGreaterThan(20);
+    }
+  });
+
+  test('healthy reads go neutral — a good result must not look like a warning', () => {
+    const result = computeComposure({
+      adrenalineSpike: 'calm',
+      spectatoring: 'never',
+      pelvicCheck: 9,
+      avoidance: 'rarely',
+      scripts: [],
+    });
+    for (const bar of result.bars) {
+      expect(bar.tone).toBe('neutral');
+    }
   });
 
   test('skipped pelvic check reads Unmeasured — never invented', () => {
@@ -162,7 +179,7 @@ describe('mirror sentence', () => {
     const { mirror } = computeComposure({
       breathEdge: 'shallow-hold',
       spectatoring: 'almost-every-time',
-      pelvicCheck: 'partial',
+      pelvicCheck: 5,
       duration: 'always',
       age: 29,
     });

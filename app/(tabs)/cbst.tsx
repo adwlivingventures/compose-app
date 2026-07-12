@@ -1,31 +1,55 @@
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { useFocusEffect } from 'expo-router';
 import {
   View,
   Text,
   TextInput,
   TouchableOpacity,
+  Pressable,
   ScrollView,
-  Share,
   Platform,
   KeyboardAvoidingView,
   Alert,
+  Animated,
 } from 'react-native';
-import {
-  Brain,
-  MessageSquare,
-  Plus,
-  Copy,
-  ChevronRight,
-  Trash2,
-  CheckCircle2,
-} from 'lucide-react-native';
+import { ChevronRight, Trash2, CheckCircle2 } from 'lucide-react-native';
 import { LocalStore } from '../../services/storage';
+import { useProtocol } from '../../context/ProtocolContext';
 import { useDefusionLog, FALLACY_META, DefusionEntry } from '../../hooks/useDefusionLog';
+import { useSpikeLog, daysSince, SpikeEntry } from '../../hooks/useSpikeLog';
+import { rewireForDay } from '../../content/rewires';
+import {
+  Distortion,
+  DISTORTION_META,
+  DISTORTION_ORDER,
+  SPIKE_FLOW_COPY,
+  REWIRE_COPY,
+} from '../../content/restructure';
+import { track } from '../../services/analytics';
 
-// ─── Types ────────────────────────────────────────────────────────────────────
+/**
+ * Restructure tab v2 — "Rewire" (founder review 2026-07-12).
+ *
+ * Spec correction at the core: §5 promises an IMMEDIATE, PRE-WRITTEN
+ * reframe. v1 asked the user to author his own rational reframe — demanding
+ * prefrontal work at the exact moment sympathetic activation has taken the
+ * prefrontal offline. v2 asks him only to RECOGNIZE (tag the distortion);
+ * the authored counter is delivered (§7 deterministic). Optional one-line
+ * capture comes after, once down-regulated.
+ *
+ * Three instruments, one narrative:
+ *  1. Daily Rewire — now a motor act: press-and-hold crosses out the old
+ *     script (embodied defusion + commitment gesture; a tap is ignorable,
+ *     a 1.2s hold is a decision), then the truth is read at a paced line.
+ *  2. Spike flow — name it → counter it → close it with one long exhale
+ *     (the vagal brake paired with the cognitive counter: every use ends
+ *     calmer than it began, which is why he returns to it).
+ *  3. Evidence Locker — history as an asset: loops closed, days quiet,
+ *     the dominant pattern named (trait-level defusion: one known voice,
+ *     not many problems).
+ */
 
-type CBSTTab = 'log' | 'scripts';
+// ─── Legacy freeform entries (v1) — still displayed, never created ───────────
 
 interface CBSTEntry {
   id: string;
@@ -35,265 +59,432 @@ interface CBSTEntry {
   reframe: string;
 }
 
-type LogStep = 0 | 1 | 2 | 3; // 0-2 form, 3 = saved confirmation
-
-// ─── Partner Script Data ──────────────────────────────────────────────────────
-
-interface PartnerScript {
-  title: string;
-  category: string;
-  body: string;
-}
-
-const PARTNER_SCRIPTS: PartnerScript[] = [
-  {
-    title: 'Sensate Focus Introduction',
-    category: 'Opening the Conversation',
-    body: `I've been working on something personal — a somatic program to help me be more present during intimacy. Part of it involves a technique called sensate focus: touch that's purely about sensation and connection, with no pressure or goal attached. I'd love to try it together when you're open to it. It's helped a lot of couples slow down and reconnect.`,
-  },
-  {
-    title: 'Pacing & Slowing Down',
-    category: 'In-the-Moment',
-    body: `I want to pause for a second — not because anything is wrong, but because I'm practicing something. I'm learning to stay grounded by slowing down and breathing rather than rushing ahead. If I check in or ask to take a breath together, that's why. It's actually helping me feel more connected, not less.`,
-  },
-  {
-    title: 'Reassurance Request',
-    category: 'Vulnerability',
-    body: `I want to be honest with you: I sometimes get stuck in my head during intimacy — watching myself instead of just being with you. I'm actively working on it. The most helpful thing you can do is remind me you're here and that there's no pressure. Just being calm with me matters more than you might realise.`,
-  },
-  {
-    title: 'After a Difficult Moment',
-    category: 'Repair',
-    body: `I want to talk about what happened earlier — not to overthink it, but so we can stay close. Sometimes my body doesn't cooperate with what I want, and that's not about you or how attracted I am. I'm working through some nervous system stuff. Thank you for being patient. Can we just be close right now?`,
-  },
-  {
-    title: 'Sharing Your Progress',
-    category: 'Check-In',
-    body: `I wanted to let you know I've been consistent with my program and it's making a real difference — not just physically, but in how present I feel with you. I'm more aware of my body, less anxious, and I genuinely feel more connected. I appreciate your support while I've been working through this.`,
-  },
-];
-
-// ─── Storage Helpers ──────────────────────────────────────────────────────────
-
-const STORAGE_KEY = '@cbst_log_entries';
-
-async function loadEntries(): Promise<CBSTEntry[]> {
-  const data = await LocalStore.getItem<CBSTEntry[]>(STORAGE_KEY);
-  return data ?? [];
-}
-
-async function saveEntries(entries: CBSTEntry[]): Promise<void> {
-  await LocalStore.setItem(STORAGE_KEY, entries);
-}
-
-// ─── Clipboard / Share Helper ─────────────────────────────────────────────────
-
-async function shareText(text: string, title: string): Promise<void> {
-  if (Platform.OS === 'web') {
-    try {
-      await navigator.clipboard.writeText(text);
-      // web: silently succeeds
-    } catch {
-      // Fallback — nothing to do without a toast library
-    }
-    return;
-  }
-  await Share.share({ message: text, title });
-}
+const LEGACY_KEY = '@cbst_log_entries';
+const REWIRE_DONE_KEY = '@daily_rewire_done';
 
 // ─── Root Screen ──────────────────────────────────────────────────────────────
 
 export default function CBSTScreen() {
-  const [activeTab, setActiveTab] = useState<CBSTTab>('log');
-
   return (
     <View className="flex-1 bg-ground">
-      {/* Header */}
       <View className="px-6 pt-14 pb-4 border-b border-line/60">
-        <Text className="text-muted text-xs font-bold uppercase tracking-widest">
-          COMPOSE
-        </Text>
-        <Text className="text-ink text-2xl font-serif-regular mt-0.5">
-          Cognitive Restructuring
+        <Text className="text-muted text-xs font-bold uppercase tracking-widest">COMPOSE</Text>
+        <Text className="text-ink text-2xl font-serif-regular mt-0.5">Restructure</Text>
+        <Text className="text-muted text-[11.5px] mt-1">
+          Built on CBST — Cognitive Behavioral Sex Therapy.
         </Text>
       </View>
-
-      {/* Tab Bar */}
-      <View className="flex-row px-6 pt-4 pb-0 gap-3">
-        <TabChip
-          label="CBST Log"
-          icon={<Brain size={14} color={activeTab === 'log' ? '#0C0B09' : '#6B7280'} />}
-          active={activeTab === 'log'}
-          onPress={() => setActiveTab('log')}
-        />
-        <TabChip
-          label="Partner Scripts"
-          icon={
-            <MessageSquare
-              size={14}
-              color={activeTab === 'scripts' ? '#0C0B09' : '#6B7280'}
-            />
-          }
-          active={activeTab === 'scripts'}
-          onPress={() => setActiveTab('scripts')}
-        />
-      </View>
-
-      {/* Content */}
-      {activeTab === 'log' ? <CBSTLogTab /> : <PartnerScriptsTab />}
+      <RewireBody />
     </View>
   );
 }
 
-function TabChip({
-  label,
-  icon,
-  active,
-  onPress,
-}: {
-  label: string;
-  icon: React.ReactNode;
-  active: boolean;
-  onPress: () => void;
-}) {
+// ─── Daily Rewire v2 — hold to cross out ─────────────────────────────────────
+
+type RewireStage = 'hold' | 'read' | 'done';
+
+function DailyRewire() {
+  const { activeDay } = useProtocol();
+  const rewire = rewireForDay(activeDay);
+  const [doneDay, setDoneDay] = useState<number | null>(null);
+  const [stage, setStage] = useState<RewireStage>('hold');
+  const holdProgress = useRef(new Animated.Value(0)).current;
+  const readProgress = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    LocalStore.getItem<number>(REWIRE_DONE_KEY).then((d) => {
+      setDoneDay(d ?? null);
+      if (d === activeDay) setStage('done');
+    });
+  }, [activeDay]);
+
+  const doneToday = stage === 'done' || doneDay === activeDay;
+
+  const complete = useCallback(async () => {
+    setStage('done');
+    setDoneDay(activeDay);
+    await LocalStore.setItem(REWIRE_DONE_KEY, activeDay);
+  }, [activeDay]);
+
+  // The paced read: the truth is read at the speed of the line — repetition
+  // delivered feeling-paired (state before statement), never skimmed.
+  const beginRead = useCallback(() => {
+    setStage('read');
+    Animated.timing(readProgress, {
+      toValue: 1,
+      duration: 10000,
+      useNativeDriver: false,
+    }).start(({ finished }) => {
+      if (finished) complete();
+    });
+  }, [readProgress, complete]);
+
+  const onPressIn = () => {
+    if (stage !== 'hold') return;
+    Animated.timing(holdProgress, {
+      toValue: 1,
+      duration: 1200,
+      useNativeDriver: false,
+    }).start(({ finished }) => {
+      if (finished) beginRead();
+    });
+  };
+
+  const onPressOut = () => {
+    if (stage !== 'hold') return;
+    holdProgress.stopAnimation(() => {
+      Animated.timing(holdProgress, {
+        toValue: 0,
+        duration: 200,
+        useNativeDriver: false,
+      }).start();
+    });
+  };
+
+  const crossedOut = stage !== 'hold';
+
   return (
-    <TouchableOpacity
-      onPress={onPress}
-      activeOpacity={0.8}
-      className={`flex-row items-center gap-1.5 px-4 py-2 rounded-full border ${
-        active
-          ? 'bg-accent border-accent'
-          : 'bg-surface border-line'
-      }`}
-    >
-      {icon}
-      <Text
-        className={`text-xs font-bold ${active ? 'text-on-accent' : 'text-body'}`}
-      >
-        {label}
+    <View className="bg-surface border border-line rounded-2xl p-5 mb-6">
+      <View className="flex-row items-center justify-between">
+        <Text className="text-accent text-xs font-bold uppercase tracking-widest">
+          Daily Rewire
+        </Text>
+        {doneToday ? (
+          <CheckCircle2 color="#C89B6D" size={16} />
+        ) : (
+          <Text className="text-dim text-[10px] font-semibold tracking-[0.08em]">
+            Rep {activeDay} of 75
+          </Text>
+        )}
+      </View>
+
+      <Text className="text-muted text-xs mt-3 mb-1.5 font-bold uppercase tracking-wider">
+        The old script
       </Text>
-    </TouchableOpacity>
+      <Pressable onPressIn={onPressIn} onPressOut={onPressOut} disabled={crossedOut}>
+        <Text
+          className={`text-[15px] leading-6 font-serif-italic ${
+            crossedOut ? 'text-dim' : 'text-muted'
+          }`}
+          style={{ textDecorationLine: crossedOut ? 'line-through' : 'none' }}
+        >
+          “{rewire.oldScript}”
+        </Text>
+      </Pressable>
+
+      {stage === 'hold' && (
+        <>
+          <Text className="text-dim text-[11px] mt-3">{REWIRE_COPY.holdHint}</Text>
+          <View className="h-[2px] bg-line-soft rounded-full overflow-hidden mt-2">
+            {/* Animated fills use inline style — NativeWind className
+                interop on Animated components isn't guaranteed; the color
+                is the Ember accent token. */}
+            <Animated.View
+              style={{
+                height: '100%',
+                borderRadius: 9999,
+                backgroundColor: '#C89B6D',
+                width: holdProgress.interpolate({
+                  inputRange: [0, 1],
+                  outputRange: ['0%', '100%'],
+                }),
+              }}
+            />
+          </View>
+        </>
+      )}
+
+      {crossedOut && (
+        <>
+          <Text className="text-accent text-xs mt-4 mb-1.5 font-bold uppercase tracking-wider">
+            {REWIRE_COPY.truthLabel}
+          </Text>
+          <Text className="text-ink text-[15px] leading-6 font-serif-regular">
+            {rewire.truth}
+          </Text>
+
+          {stage === 'read' && (
+            <>
+              <Text className="text-muted text-xs mt-4">{REWIRE_COPY.readInstruction}</Text>
+              <View className="h-[2px] bg-line-soft rounded-full overflow-hidden mt-2">
+                <Animated.View
+                  style={{
+                    height: '100%',
+                    borderRadius: 9999,
+                    backgroundColor: '#C89B6D',
+                    width: readProgress.interpolate({
+                      inputRange: [0, 1],
+                      outputRange: ['0%', '100%'],
+                    }),
+                  }}
+                />
+              </View>
+            </>
+          )}
+
+          {stage === 'done' && (
+            <View className="border-t border-line-soft mt-4 pt-3">
+              <Text className="text-faint text-xs">{REWIRE_COPY.doneLine}</Text>
+              <Text className="text-accent-soft text-xs font-serif-italic mt-1">
+                {activeDay === 1
+                  ? 'The first deliberate rep against the old belief system.'
+                  : `${activeDay} deliberate reps against the old belief system.`}
+              </Text>
+            </View>
+          )}
+        </>
+      )}
+    </View>
   );
 }
 
-// ─── CBST Log Tab ─────────────────────────────────────────────────────────────
+// ─── Spike flow — name it, counter it, close it ───────────────────────────────
 
-const STEP_META = [
-  {
-    label: 'Step 1 of 3 — Identify the Trigger',
-    placeholder:
-      'Describe the moment or situation that triggered anxiety or disconnection...',
-    hint: 'Be specific: time, context, what was happening just before.',
-  },
-  {
-    label: 'Step 2 of 3 — Automatic Thought',
-    placeholder: 'What thought or belief showed up automatically? (e.g. "I\'m going to fail her")',
-    hint: 'Capture the raw, uncensored thought — not the rational version.',
-  },
-  {
-    label: 'Step 3 of 3 — Rational Reframe',
-    placeholder:
-      'What\'s a more balanced, evidence-based perspective on this situation?',
-    hint: 'What would you tell a close friend who had this same thought?',
-  },
-];
+type SpikeStage = 'home' | 'name' | 'counter' | 'close' | 'closed';
 
-// One chronological history across both restructuring tools: the freeform
-// 3-step log written here, and Spectator Disassembly entries written in the
-// Triage Center. Two storage keys, one reviewable timeline.
+function SpikeFlow({ onSaved }: { onSaved: (entry: SpikeEntry) => void }) {
+  const { addEntry } = useSpikeLog();
+  const [stage, setStage] = useState<SpikeStage>('home');
+  const [chosen, setChosen] = useState<Distortion | null>(null);
+  const [note, setNote] = useState('');
+  const exhaleProgress = useRef(new Animated.Value(0)).current;
+
+  const reset = () => {
+    setStage('home');
+    setChosen(null);
+    setNote('');
+    exhaleProgress.setValue(0);
+  };
+
+  // The exhale close: cognition + vagal brake, then save. The entry is
+  // written AFTER the exhale so the flow's last beat is regulation, not
+  // record-keeping.
+  const closeLoop = () => {
+    setStage('close');
+    Animated.timing(exhaleProgress, {
+      toValue: 1,
+      duration: 8000,
+      useNativeDriver: false,
+    }).start(async ({ finished }) => {
+      if (!finished || !chosen) return;
+      const entry = await addEntry({
+        distortion: chosen,
+        note: note.trim() || undefined,
+      });
+      // Whitelisted tag only — never the note (§7).
+      track('restructurer_used', { distortion: chosen });
+      onSaved(entry);
+      setStage('closed');
+    });
+  };
+
+  if (stage === 'home') {
+    return (
+      <View className="bg-surface border border-line rounded-2xl p-5 mb-6">
+        <TouchableOpacity
+          onPress={() => setStage('name')}
+          activeOpacity={0.85}
+          className="bg-surface-deep border border-line rounded-xl py-3.5 items-center"
+        >
+          <Text className="text-ink font-semibold text-sm">{SPIKE_FLOW_COPY.cta}</Text>
+        </TouchableOpacity>
+        <Text className="text-dim text-[11.5px] text-center leading-4 mt-2.5">
+          {SPIKE_FLOW_COPY.ctaSub}
+        </Text>
+      </View>
+    );
+  }
+
+  if (stage === 'name') {
+    return (
+      <View className="bg-surface border border-line rounded-2xl p-5 mb-6">
+        <Text className="text-accent text-xs font-bold uppercase tracking-widest mb-3">
+          {SPIKE_FLOW_COPY.step1Title}
+        </Text>
+        <View className="flex-row flex-wrap -mx-1">
+          {DISTORTION_ORDER.map((key) => (
+            <View key={key} className="w-1/2 px-1 mb-2">
+              <TouchableOpacity
+                onPress={() => {
+                  setChosen(key);
+                  setStage('counter');
+                }}
+                activeOpacity={0.8}
+                className="bg-surface-deep border border-line rounded-xl p-3 min-h-[86px]"
+              >
+                <Text className="text-ink text-[12.5px] font-bold">
+                  {DISTORTION_META[key].label}
+                </Text>
+                <Text className="text-muted text-[10.5px] leading-4 mt-1">
+                  {DISTORTION_META[key].definition}
+                </Text>
+              </TouchableOpacity>
+            </View>
+          ))}
+        </View>
+        <TouchableOpacity onPress={reset} activeOpacity={0.7} className="items-center py-2.5">
+          <Text className="text-muted text-xs font-semibold">Never mind — I'm steady</Text>
+        </TouchableOpacity>
+      </View>
+    );
+  }
+
+  if (stage === 'counter' && chosen) {
+    return (
+      <View className="bg-surface border border-line rounded-2xl p-5 mb-6">
+        <View className="self-start bg-surface-deep border border-accent/30 rounded-full px-3 py-1">
+          <Text className="text-accent-soft text-[10px] font-bold uppercase tracking-wider">
+            {DISTORTION_META[chosen].label}
+          </Text>
+        </View>
+        <Text className="text-muted text-xs mt-4 mb-1.5 font-bold uppercase tracking-wider">
+          {SPIKE_FLOW_COPY.counterLabel}
+        </Text>
+        <Text className="text-ink text-[15px] leading-6 font-serif-regular">
+          {DISTORTION_META[chosen].counter}
+        </Text>
+        <Text className="text-dim text-[11px] mt-2">{SPIKE_FLOW_COPY.counterInstruction}</Text>
+
+        <TextInput
+          className="bg-surface-deep border border-line rounded-xl p-3.5 text-ink text-sm leading-5 mt-4"
+          multiline
+          textAlignVertical="top"
+          placeholder={SPIKE_FLOW_COPY.captureaPlaceholder}
+          placeholderTextColor="#4B5563"
+          value={note}
+          onChangeText={setNote}
+        />
+
+        <TouchableOpacity
+          onPress={closeLoop}
+          activeOpacity={0.85}
+          className="bg-accent rounded-xl py-3.5 items-center mt-4"
+        >
+          <Text className="text-on-accent font-bold text-sm">{SPIKE_FLOW_COPY.closeCta}</Text>
+        </TouchableOpacity>
+        <TouchableOpacity onPress={() => setStage('name')} activeOpacity={0.7} className="items-center py-2.5">
+          <Text className="text-muted text-xs font-semibold">Back</Text>
+        </TouchableOpacity>
+      </View>
+    );
+  }
+
+  if (stage === 'close') {
+    return (
+      <View className="bg-surface border border-line rounded-2xl p-5 mb-6 items-center">
+        <Text className="text-ink text-[15px] font-serif-regular mt-2 text-center">
+          {SPIKE_FLOW_COPY.exhaleCue}
+        </Text>
+        <Text className="text-muted text-xs mt-1.5">{SPIKE_FLOW_COPY.exhaleSub}</Text>
+        <View className="h-[2px] w-full bg-line-soft rounded-full overflow-hidden mt-5 mb-2">
+          <Animated.View
+            style={{
+              height: '100%',
+              borderRadius: 9999,
+              backgroundColor: '#C89B6D',
+              width: exhaleProgress.interpolate({
+                inputRange: [0, 1],
+                outputRange: ['0%', '100%'],
+              }),
+            }}
+          />
+        </View>
+      </View>
+    );
+  }
+
+  // closed
+  return (
+    <View className="bg-accent/10 border border-accent/30 rounded-2xl p-5 mb-6 items-center">
+      <CheckCircle2 color="#C89B6D" size={28} />
+      <Text className="text-ink text-lg font-serif-regular mt-2">
+        {SPIKE_FLOW_COPY.closedTitle}
+      </Text>
+      <Text className="text-muted text-sm text-center mt-1 leading-5">
+        {SPIKE_FLOW_COPY.closedBody}
+      </Text>
+      <TouchableOpacity onPress={reset} activeOpacity={0.7} className="items-center py-2.5 mt-1">
+        <Text className="text-accent text-xs font-bold">Done</Text>
+      </TouchableOpacity>
+    </View>
+  );
+}
+
+// ─── Body: rewire → spike tool → evidence locker ─────────────────────────────
+
 type HistoryItem =
-  | { kind: 'cbst'; id: string; entry: CBSTEntry }
-  | { kind: 'defusion'; id: string; entry: DefusionEntry };
+  | { kind: 'legacy'; id: string; entry: CBSTEntry }
+  | { kind: 'defusion'; id: string; entry: DefusionEntry }
+  | { kind: 'spike'; id: string; entry: SpikeEntry };
 
-function CBSTLogTab() {
-  const [logStep, setLogStep] = useState<LogStep>(0);
-  const [trigger, setTrigger] = useState('');
-  const [automaticThought, setAutomaticThought] = useState('');
-  const [reframe, setReframe] = useState('');
-  const [entries, setEntries] = useState<CBSTEntry[]>([]);
-  const [loadingEntries, setLoadingEntries] = useState(true);
+function RewireBody() {
+  const [legacy, setLegacy] = useState<CBSTEntry[]>([]);
+  const [loadingLegacy, setLoadingLegacy] = useState(true);
   const {
     entries: defusionEntries,
-    deleteEntry: deleteDefusionEntry,
+    deleteEntry: deleteDefusion,
     reload: reloadDefusion,
   } = useDefusionLog();
+  const {
+    entries: spikeEntries,
+    deleteEntry: deleteSpike,
+    reload: reloadSpikes,
+  } = useSpikeLog();
 
-  // Defusion entries are written from the Triage Center while this tab stays
-  // mounted — refresh whenever the tab regains focus.
   useFocusEffect(
     useCallback(() => {
       reloadDefusion();
-    }, [reloadDefusion]),
+      reloadSpikes();
+    }, [reloadDefusion, reloadSpikes]),
   );
 
-  const currentValues = [trigger, automaticThought, reframe];
-  const currentSetters = [setTrigger, setAutomaticThought, setReframe];
-
   useEffect(() => {
-    loadEntries().then((data) => {
-      setEntries(data);
-      setLoadingEntries(false);
+    LocalStore.getItem<CBSTEntry[]>(LEGACY_KEY).then((data) => {
+      setLegacy(data ?? []);
+      setLoadingLegacy(false);
     });
   }, []);
 
-  const canAdvance = currentValues[logStep]?.trim().length > 0;
-
-  const handleNext = async () => {
-    if (logStep < 2) {
-      setLogStep(((logStep + 1) as LogStep));
-      return;
-    }
-    // Step 2 → save
-    const entry: CBSTEntry = {
-      id: Date.now().toString(),
-      date: new Date().toLocaleDateString('en-US', {
-        month: 'short',
-        day: 'numeric',
-        year: 'numeric',
-      }),
-      trigger: trigger.trim(),
-      automaticThought: automaticThought.trim(),
-      reframe: reframe.trim(),
-    };
-    const updated = [entry, ...entries];
-    setEntries(updated);
-    await saveEntries(updated);
-    setLogStep(3);
-  };
-
-  const resetForm = () => {
-    setTrigger('');
-    setAutomaticThought('');
-    setReframe('');
-    setLogStep(0);
-  };
-
-  const deleteEntry = useCallback(
+  const deleteLegacy = useCallback(
     async (id: string) => {
-      const updated = entries.filter((e) => e.id !== id);
-      setEntries(updated);
-      await saveEntries(updated);
+      const updated = legacy.filter((e) => e.id !== id);
+      setLegacy(updated);
+      await LocalStore.setItem(LEGACY_KEY, updated);
     },
-    [entries],
+    [legacy],
   );
 
-  const confirmDelete = (id: string, kind: 'cbst' | 'defusion') => {
+  const confirmDelete = (id: string, kind: HistoryItem['kind']) => {
     Alert.alert('Delete Entry', 'Remove this log entry permanently?', [
       { text: 'Cancel', style: 'cancel' },
       {
         text: 'Delete',
         style: 'destructive',
-        onPress: () => (kind === 'cbst' ? deleteEntry(id) : deleteDefusionEntry(id)),
+        onPress: () =>
+          kind === 'legacy' ? deleteLegacy(id) : kind === 'defusion' ? deleteDefusion(id) : deleteSpike(id),
       },
     ]);
   };
 
-  // Both tools stamp id = Date.now().toString(), so numeric id sorts the
+  // All three tools stamp id = Date.now().toString(); numeric id sorts the
   // merged timeline newest-first.
   const history: HistoryItem[] = [
-    ...entries.map((e): HistoryItem => ({ kind: 'cbst', id: e.id, entry: e })),
+    ...legacy.map((e): HistoryItem => ({ kind: 'legacy', id: e.id, entry: e })),
     ...defusionEntries.map((e): HistoryItem => ({ kind: 'defusion', id: e.id, entry: e })),
+    ...spikeEntries.map((e): HistoryItem => ({ kind: 'spike', id: e.id, entry: e })),
   ].sort((a, b) => Number(b.id) - Number(a.id));
+
+  // Evidence stats — the tab-local compact form (the Baseline tab carries
+  // the full extinction curve).
+  const loopsClosed = history.length;
+  const quietDays = daysSince([
+    ...spikeEntries.map((s) => s.date),
+    ...defusionEntries.map((d) => d.date),
+  ]);
+  const counts = new Map<Distortion, number>();
+  for (const s of spikeEntries) counts.set(s.distortion, (counts.get(s.distortion) ?? 0) + 1);
+  for (const d of defusionEntries) counts.set(d.fallacy, (counts.get(d.fallacy) ?? 0) + 1);
+  const dominant = [...counts.entries()].sort((a, b) => b[1] - a[1])[0] ?? null;
 
   return (
     <KeyboardAvoidingView
@@ -304,136 +495,148 @@ function CBSTLogTab() {
         contentContainerStyle={{ paddingHorizontal: 24, paddingTop: 20, paddingBottom: 48 }}
         keyboardShouldPersistTaps="handled"
       >
-        {/* Form Card */}
-        {logStep < 3 ? (
-          <View className="bg-surface border border-line rounded-2xl p-5 mb-6">
-            <View className="flex-row items-center justify-between mb-4">
-              <Text className="text-accent text-xs font-bold uppercase tracking-widest">
-                {STEP_META[logStep].label}
+        {/* The scheduled practice comes first: identity reps before incident work. */}
+        <DailyRewire />
+
+        <Text className="text-muted text-xs font-bold uppercase tracking-widest mb-3">
+          When a thought spikes
+        </Text>
+        <SpikeFlow onSaved={() => reloadSpikes()} />
+
+        {/* Evidence Locker */}
+        <Text className="text-muted text-xs font-bold uppercase tracking-widest mb-3">
+          The Evidence Locker
+        </Text>
+
+        {loopsClosed > 0 && (
+          <View className="flex-row gap-3 mb-3">
+            <View className="flex-1 bg-surface border border-line rounded-2xl p-4">
+              <Text className="text-ink text-2xl font-serif-light">{loopsClosed}</Text>
+              <Text className="text-muted text-xs mt-0.5">
+                {loopsClosed === 1 ? 'loop closed' : 'loops closed'}
               </Text>
-              {/* Step dots */}
-              <View className="flex-row gap-1.5">
-                {[0, 1, 2].map((i) => (
-                  <View
-                    key={i}
-                    className={`w-2 h-2 rounded-full ${
-                      i <= logStep ? 'bg-accent' : 'bg-line'
-                    }`}
-                  />
-                ))}
-              </View>
             </View>
-
-            <TextInput
-              className="bg-surface-deep border border-line rounded-xl p-4 text-ink text-sm leading-5 min-h-[100px]"
-              multiline
-              textAlignVertical="top"
-              placeholder={STEP_META[logStep].placeholder}
-              placeholderTextColor="#4B5563"
-              value={currentValues[logStep]}
-              onChangeText={currentSetters[logStep]}
-            />
-
-            <Text className="text-faint text-xs mt-2 leading-4">
-              {STEP_META[logStep].hint}
-            </Text>
-
-            <View className="flex-row gap-3 mt-4">
-              {logStep > 0 && (
-                <TouchableOpacity
-                  onPress={() => setLogStep(((logStep - 1) as LogStep))}
-                  activeOpacity={0.8}
-                  className="flex-1 bg-surface-deep border border-line rounded-xl py-3 items-center"
-                >
-                  <Text className="text-body font-bold text-sm">Back</Text>
-                </TouchableOpacity>
-              )}
-              <TouchableOpacity
-                onPress={handleNext}
-                disabled={!canAdvance}
-                activeOpacity={0.85}
-                className={`flex-1 rounded-xl py-3 items-center flex-row justify-center gap-2 ${
-                  canAdvance ? 'bg-accent' : 'bg-surface-deep'
-                }`}
-              >
-                <Text
-                  className={`font-bold text-sm ${
-                    canAdvance ? 'text-on-accent' : 'text-faint'
-                  }`}
-                >
-                  {logStep < 2 ? 'Continue' : 'Save Entry'}
+            {quietDays !== null && quietDays >= 1 && (
+              <View className="flex-1 bg-surface border border-line rounded-2xl p-4">
+                <Text className="text-ink text-2xl font-serif-light">{quietDays}</Text>
+                <Text className="text-muted text-xs mt-0.5">
+                  {quietDays === 1 ? 'day' : 'days'} since the last spike
                 </Text>
-                <ChevronRight
-                  size={16}
-                  color={canAdvance ? '#0C0B09' : '#4B5563'}
-                />
-              </TouchableOpacity>
-            </View>
-          </View>
-        ) : (
-          /* Saved confirmation */
-          <View className="bg-accent/10 border border-accent/30 rounded-2xl p-5 mb-6 items-center">
-            <CheckCircle2 color="#C89B6D" size={32} />
-            <Text className="text-accent font-bold text-base mt-3">Entry Saved</Text>
-            <Text className="text-muted text-sm text-center mt-1 leading-5">
-              Your reframe has been logged. Consistent restructuring rewires the
-              automatic thought pathway over time.
-            </Text>
-            <TouchableOpacity
-              onPress={resetForm}
-              activeOpacity={0.85}
-              className="mt-4 flex-row items-center gap-2 bg-surface-deep border border-line rounded-xl px-5 py-3"
-            >
-              <Plus size={16} color="#C89B6D" />
-              <Text className="text-accent font-bold text-sm">New Entry</Text>
-            </TouchableOpacity>
+              </View>
+            )}
           </View>
         )}
 
-        {/* Past Entries */}
-        <Text className="text-muted text-xs font-bold uppercase tracking-widest mb-3">
-          Past Entries
-        </Text>
+        {/* Trait-level defusion: fourteen spikes are not fourteen problems —
+            they are one known, nameable voice he can now see coming. */}
+        {dominant && dominant[1] >= 3 && loopsClosed >= 5 && (
+          <View className="bg-surface-deep border border-line rounded-2xl px-4 py-3.5 mb-3">
+            <Text className="text-body text-xs leading-5">
+              {dominant[1]} of your {loopsClosed} loops are one known voice —{' '}
+              <Text className="text-accent-soft font-serif-italic">
+                {DISTORTION_META[dominant[0]].label.toLowerCase()}
+              </Text>
+              . One pattern, named. It arrives; you counter it; it leaves.
+            </Text>
+          </View>
+        )}
 
-        {loadingEntries ? (
+        {loadingLegacy ? (
           <Text className="text-faint text-sm">Loading...</Text>
         ) : history.length === 0 ? (
           <View className="bg-surface border border-line rounded-2xl p-5 items-center">
             <Text className="text-muted text-sm text-center leading-5">
-              No entries yet. Complete your first restructuring log above.
+              Closed loops collect here — the record that the pattern is losing.
             </Text>
           </View>
         ) : (
           <View className="gap-3">
             {history.map((item) =>
-              item.kind === 'cbst' ? (
-                <CBSTEntryCard
+              item.kind === 'legacy' ? (
+                <LegacyEntryCard
                   key={item.id}
                   entry={item.entry}
-                  onDelete={() => confirmDelete(item.id, 'cbst')}
+                  onDelete={() => confirmDelete(item.id, 'legacy')}
                 />
-              ) : (
+              ) : item.kind === 'defusion' ? (
                 <DefusionEntryCard
                   key={item.id}
                   entry={item.entry}
                   onDelete={() => confirmDelete(item.id, 'defusion')}
                 />
+              ) : (
+                <SpikeEntryCard
+                  key={item.id}
+                  entry={item.entry}
+                  onDelete={() => confirmDelete(item.id, 'spike')}
+                />
               ),
             )}
           </View>
         )}
+
+        <Text className="text-faint text-xs text-center mt-6 leading-4">
+          Every word on this screen lives only on this device.
+        </Text>
       </ScrollView>
     </KeyboardAvoidingView>
   );
 }
 
-function CBSTEntryCard({
-  entry,
-  onDelete,
-}: {
-  entry: CBSTEntry;
-  onDelete: () => void;
-}) {
+// ─── Entry cards ──────────────────────────────────────────────────────────────
+
+function SpikeEntryCard({ entry, onDelete }: { entry: SpikeEntry; onDelete: () => void }) {
+  const [expanded, setExpanded] = useState(false);
+  const meta = DISTORTION_META[entry.distortion];
+  const dateLabel = new Date(entry.date).toLocaleDateString('en-US', {
+    month: 'short',
+    day: 'numeric',
+    year: 'numeric',
+  });
+
+  return (
+    <View className="bg-surface border border-line rounded-2xl overflow-hidden">
+      <TouchableOpacity
+        onPress={() => setExpanded((v) => !v)}
+        activeOpacity={0.8}
+        className="flex-row items-center justify-between p-4"
+      >
+        <View className="flex-1">
+          <View className="flex-row items-center gap-2">
+            <Text className="text-muted text-xs font-mono">{dateLabel}</Text>
+            <View className="bg-surface-deep rounded-full px-2 py-0.5">
+              <Text className="text-accent/80 text-[10px] font-bold uppercase tracking-wider">
+                {meta.label}
+              </Text>
+            </View>
+          </View>
+          <Text className="text-ink text-sm font-medium mt-0.5" numberOfLines={1}>
+            {entry.note || meta.definition}
+          </Text>
+        </View>
+        <View className="flex-row items-center gap-3">
+          <TouchableOpacity onPress={onDelete} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
+            <Trash2 size={16} color="#4B5563" />
+          </TouchableOpacity>
+          <ChevronRight
+            size={18}
+            color="#4B5563"
+            style={{ transform: [{ rotate: expanded ? '90deg' : '0deg' }] }}
+          />
+        </View>
+      </TouchableOpacity>
+
+      {expanded && (
+        <View className="px-4 pb-4 gap-3 border-t border-line">
+          {entry.note ? <EntryField label="The thought, named" value={entry.note} /> : null}
+          <EntryField label={`The counter — ${meta.label}`} value={meta.counter} highlight />
+        </View>
+      )}
+    </View>
+  );
+}
+
+function LegacyEntryCard({ entry, onDelete }: { entry: CBSTEntry; onDelete: () => void }) {
   const [expanded, setExpanded] = useState(false);
 
   return (
@@ -503,8 +706,10 @@ function DefusionEntryCard({
               </Text>
             </View>
           </View>
+          {/* Quick-flow SOS entries carry no somatic-reality text — the
+              tapped claim is the headline. */}
           <Text className="text-ink text-sm font-medium mt-0.5" numberOfLines={1}>
-            {entry.somaticReality}
+            {entry.somaticReality || entry.spectatorClaim}
           </Text>
         </View>
         <View className="flex-row items-center gap-3">
@@ -521,7 +726,9 @@ function DefusionEntryCard({
 
       {expanded && (
         <View className="px-4 pb-4 gap-3 border-t border-line">
-          <EntryField label="Somatic Reality" value={entry.somaticReality} />
+          {entry.somaticReality ? (
+            <EntryField label="Somatic Reality" value={entry.somaticReality} />
+          ) : null}
           <EntryField label="The Spectator's Claim" value={entry.spectatorClaim} />
           <EntryField label={`Reframe — ${meta.label}`} value={meta.reframe} />
           {entry.ventralAnchor ? (
@@ -547,128 +754,9 @@ function EntryField({
       <Text className="text-muted text-xs font-bold uppercase tracking-widest mb-1">
         {label}
       </Text>
-      <Text
-        className={`text-sm leading-5 ${highlight ? 'text-accent-soft' : 'text-body'}`}
-      >
+      <Text className={`text-sm leading-5 ${highlight ? 'text-accent-soft' : 'text-body'}`}>
         {value}
       </Text>
-    </View>
-  );
-}
-
-// ─── Partner Scripts Tab ──────────────────────────────────────────────────────
-
-function PartnerScriptsTab() {
-  const [copied, setCopied] = useState<string | null>(null);
-
-  const handleCopy = async (script: PartnerScript) => {
-    await shareText(script.body, script.title);
-    setCopied(script.title);
-    setTimeout(() => setCopied(null), 2500);
-  };
-
-  const grouped = PARTNER_SCRIPTS.reduce<Record<string, PartnerScript[]>>(
-    (acc, s) => {
-      if (!acc[s.category]) acc[s.category] = [];
-      acc[s.category].push(s);
-      return acc;
-    },
-    {},
-  );
-
-  return (
-    <ScrollView
-      contentContainerStyle={{ paddingHorizontal: 24, paddingTop: 20, paddingBottom: 48 }}
-    >
-      <Text className="text-muted text-sm leading-5 mb-5">
-        Scripts for opening conversations with your partner, adapted from Sensate Focus
-        and CBST communication frameworks.
-      </Text>
-
-      {Object.entries(grouped).map(([category, scripts]) => (
-        <View key={category} className="mb-6">
-          <Text className="text-muted text-xs font-bold uppercase tracking-widest mb-3">
-            {category}
-          </Text>
-          <View className="gap-3">
-            {scripts.map((script) => (
-              <PartnerScriptCard
-                key={script.title}
-                script={script}
-                isCopied={copied === script.title}
-                onCopy={() => handleCopy(script)}
-              />
-            ))}
-          </View>
-        </View>
-      ))}
-    </ScrollView>
-  );
-}
-
-function PartnerScriptCard({
-  script,
-  isCopied,
-  onCopy,
-}: {
-  script: PartnerScript;
-  isCopied: boolean;
-  onCopy: () => void;
-}) {
-  const [expanded, setExpanded] = useState(false);
-
-  return (
-    <View className="bg-surface border border-line rounded-2xl overflow-hidden">
-      {/* Header row */}
-      <TouchableOpacity
-        onPress={() => setExpanded((v) => !v)}
-        activeOpacity={0.8}
-        className="flex-row items-center justify-between p-4"
-      >
-        <View className="flex-1 pr-3">
-          <Text className="text-ink text-sm font-bold">{script.title}</Text>
-        </View>
-        <ChevronRight
-          size={18}
-          color="#6B7280"
-          style={{ transform: [{ rotate: expanded ? '90deg' : '0deg' }] }}
-        />
-      </TouchableOpacity>
-
-      {expanded && (
-        <View className="px-4 pb-4 border-t border-line">
-          <Text className="text-body text-sm leading-6 mt-3">{script.body}</Text>
-
-          <TouchableOpacity
-            onPress={onCopy}
-            activeOpacity={0.8}
-            className={`mt-4 flex-row items-center justify-center gap-2 rounded-xl py-3 border ${
-              isCopied
-                ? 'bg-accent/10 border-accent/40'
-                : 'bg-surface-deep border-line'
-            }`}
-          >
-            {isCopied ? (
-              <CheckCircle2 size={16} color="#C89B6D" />
-            ) : (
-              <Copy size={16} color="#9CA3AF" />
-            )}
-            <Text
-              className={`text-xs font-bold ${
-                isCopied ? 'text-accent' : 'text-body'
-              }`}
-            >
-              {isCopied
-                ? Platform.OS === 'web'
-                  ? 'Copied!'
-                  : 'Shared!'
-                : Platform.OS === 'web'
-                ? 'Copy Script'
-                : 'Share / Copy Script'}
-            </Text>
-          </TouchableOpacity>
-        </View>
-      )}
     </View>
   );
 }

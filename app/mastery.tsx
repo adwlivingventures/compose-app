@@ -29,35 +29,58 @@ interface MasteryModule {
   badge?: string;
 }
 
+// Founder review 2026-07-10: the suite lists its real categories, each locked
+// until graduation — the Somatic Copilot is one of them (previously it was
+// only implied by the preview card, so the suite looked smaller than it is),
+// and the partner-technique category was missing entirely. Plain words
+// everywhere: he must know exactly what he's getting.
 const MODULES: MasteryModule[] = [
   {
-    title: 'The Autonomic Sync',
+    title: 'The Somatic Copilot',
     description:
-      'Learn the 3-Second Vagus Sync for partner co-regulation, and test the ' +
-      'Somatic Copilot.',
-    route: '/autonomic-sync',
-    unlock: 'always',
-    badge: 'Unlocked Preview',
+      'Step-by-step help matched to the real moment — before, during, or after — so you ' +
+      'always know your next move.',
+    route: '/copilot',
+    unlock: 'maintenance',
   },
   {
     title: 'Sensate Mastery',
     description:
-      'Ride the arousal waveform — co-regulation, the dip, and the somatic checkpoint.',
+      'Stay calm and in control as excitement climbs — instead of rushing or pulling back.',
     route: '/lesson/sensate-mastery',
     unlock: 'maintenance',
   },
   {
+    title: 'The Attunement Advantage',
+    description:
+      'Become the partner she remembers: pacing, touch, and reading her responses in the ' +
+      'moment.',
+    route: '/lesson/partner-attunement',
+    unlock: 'maintenance',
+  },
+  {
     title: 'The Refractory Window Guide',
-    description: 'The neuro-mechanics of the recovery window — and what quietly holds it open.',
+    description:
+      'What happens in your body after you finish — and how to make round two possible.',
     route: '/lesson/refractory-window',
     unlock: 'maintenance',
   },
   {
     title: 'The Anxious Partner De-escalator',
-    description:
-      "Scripts to verbally down-regulate your partner's nervous system when intimacy stalls.",
+    description: 'The exact words that calm your partner when a moment stalls.',
     route: '/lesson/partner-deescalator',
     unlock: 'maintenance',
+  },
+  {
+    title: 'The Autonomic Sync',
+    // "Open now" — plan-neutral (founder note 2026-07-10: "free" reads wrong
+    // to an annual member who already paid for all of this).
+    description:
+      'A first taste of the Copilot: a 3-second breath trick that settles you and your ' +
+      'partner at the same time.',
+    route: '/autonomic-sync',
+    unlock: 'always',
+    badge: 'Open now',
   },
 ];
 // (Somatic Sandbox moved out of this suite: strategy ruling is a Day-26

@@ -14,7 +14,6 @@
 // point; the whitelist and consent gate do not change when one is adopted.
 
 import { LocalStore } from './storage';
-import type { Variant } from '../content/onboarding/types';
 
 // ─── Consent ────────────────────────────────────────────────────────────────
 
@@ -28,10 +27,17 @@ const CONSENT_KEY = '@telemetry_consent';
 // list of allowed string values. Anything else is rejected: an event that
 // COULD carry written content is a spec violation (§7).
 
-const VARIANTS = ['A', 'B'] as const;
 const TERMS = ['annual', 'monthly'] as const;
-// Mirrors the Fallacy union in hooks/useDefusionLog.ts — the tag, never the text.
-const DISTORTIONS = ['mind_reading', 'catastrophizing', 'all_or_nothing'] as const;
+// Mirrors the Distortion union in content/restructure.ts (superset of the
+// Fallacy union in hooks/useDefusionLog.ts) — the tag, never the text.
+const DISTORTIONS = [
+  'mind_reading',
+  'catastrophizing',
+  'all_or_nothing',
+  'fortune_telling',
+  'overgeneralization',
+  'spectatoring',
+] as const;
 const SCREEN_ACTIONS = [
   'advance',
   'back',
@@ -52,12 +58,11 @@ export const EVENT_SCHEMA: Record<string, Record<string, FieldSpec>> = {
   onboarding_started: {},
   onboarding_screen: {
     screen_id: 'slug',
-    variant: VARIANTS,
     action: SCREEN_ACTIONS,
     elapsed_ms: 'int',
   },
   composure_measured: { score: 'int', day: 'int' },
-  paywall_viewed: { variant: VARIANTS },
+  paywall_viewed: {},
   purchase: { term: TERMS },
   day_completed: { day: 'int' },
   control_score: { value: 'int', day: 'int' },
@@ -270,18 +275,16 @@ export function __resetTelemetryForTests(): void {
 }
 
 // ─── Onboarding screen events (compat wrapper) ─────────────────────────────
-// One anonymous event per screen leave: screen id, variant, elapsed time,
-// action taken — NEVER what was chosen or typed (§7).
+// One anonymous event per screen leave: screen id, elapsed time, action
+// taken — NEVER what was chosen or typed (§7).
 
 export function trackScreen(
   screen_id: string,
-  variant: Variant,
   elapsed_ms: number,
   action: ScreenAction,
 ): void {
   track('onboarding_screen', {
     screen_id,
-    variant,
     action,
     elapsed_ms: Math.max(0, Math.round(elapsed_ms)),
   });

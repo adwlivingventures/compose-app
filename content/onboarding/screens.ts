@@ -1,10 +1,8 @@
-// Onboarding screen config — copy VERBATIM from the specs (punctuation and
-// em-dashes included). Sources:
-//   Version A: spec/COMPOSE_Onboarding_-_Version_A__Interleaved___Hope_.docx
-//   Version B: spec/COMPOSE_Onboarding_-_Version_B__Batched__No_Hope_.pdf
-// The two variants share every string except the four clinical cards'
-// placement, hope-tease closing lines, and (one) button label — those live
-// declaratively on the card descriptors.
+// Onboarding screen config — copy VERBATIM from the spec (punctuation and
+// em-dashes included). Source:
+//   spec/COMPOSE_Onboarding_-_Version_B__Batched__No_Hope_.pdf
+// (Founder ruling 2026-07-10: the interleaved "Version A" flow and the
+// onboarding A/B test are retired; the batched spec is the flow.)
 //
 // {price} and {pricePerDay} tokens resolve from the RevenueCat offering at
 // render time. No purchasable price is ever hardcoded here ("$1,800+" is the
@@ -13,10 +11,9 @@
 import type { Screen } from './types';
 
 /**
- * The shared spine, in Version B order (which equals Version A order once the
- * four clinical cards are removed). Clinical cards appear here at their
- * BATCHED (B) positions; buildFlow relocates them for variant A via
- * `placement.A.inlineAfter`.
+ * The full flow, in final (batched) order: the four clinical cards follow the
+ * Map — diagnosis reveal, then its four drivers, one tension arc resolving at
+ * turn-welcome. buildFlow() assigns numbering only; it never reorders.
  *
  * Imagery reconciliation (BUILD_PROMPT §6 hard rule wins over design-rules.md
  * archetype table): renders appear ONLY on welcome-opening, the four clinical
@@ -30,24 +27,43 @@ export const SCREENS: Screen[] = [
     section: 'opening',
     archetype: 'chapter',
     eyebrow: 'COMPOSE',
-    headline: 'Your body isn’t failing you. It’s following orders.',
+    // Founder review 2026-07-10: hard break — first sentence one full line,
+    // second sentence directly below it.
+    headline: 'Your body isn’t failing you.\nIt’s following orders.',
+    // Founder review 2026-07-10: two short, balanced lines instead of one long
+    // paragraph — centered text only reads centered when the lines are even.
     bodyBlocks: [
-      'Over the next few minutes we’ll map where those orders come from. Every answer stays on this phone.',
+      'In the next few minutes, we’ll map exactly where those orders come from.',
+      'Every answer stays on this phone.',
     ],
-    hero: 'hero-welcome-drop.png',
+    hero: 'fig-hero-somatic.png',
+    heroMode: 'contain',
     privacyLine: 'Private by design — no account, no sync, no lock-screen tells',
-    microText: 'Takes about 4 minutes',
+    microText: 'Takes about 5 minutes',
     button: 'Find my baseline',
   },
   {
     id: 'welcome-roadmap',
     section: 'opening',
     archetype: 'chapter',
-    eyebrow: 'WELCOME',
-    headline: 'First, we understand. Then, we build.',
+    eyebrow: 'COMPOSE',
+    welcome: true,
+    headline: 'Welcome to Compose.',
+    // Founder review 2026-07-10: the "credit for" affirmation read as cheesy.
+    // Replaced with a direct legitimacy line — what this is and what it's
+    // built on — so the first impression is "structured and clinical," not
+    // "motivational." Names CBST specifically (it survives the skeptic's
+    // google search). "subconscious identity retraining" stays LOWERCASE by
+    // ruling: as a description it's a defensible mechanism claim (habituated
+    // patterns run below conscious willpower); Title-Cased it would read as
+    // an invented framework — a fake credential next to a real one poisons
+    // both, and pseudo-clinical branding is an App Store review liability.
     bodyBlocks: [
-      'Before we suggest anything, we need to understand what’s actually happening. Not just in your body — in your nervous system and in your head. Most fixes pick one. The problem lives in both.',
-      'First, the body. Then, the mind. Then we build your protocol around what we find.',
+      // "daily" (not "retraining") in the first clause: avoids the double
+      // word, seeds the daily-practice expectation from the first sentence,
+      // and counters the passive misread of "subconscious."
+      'Compose is a structured daily program built on Cognitive Behavioral Sex Therapy (CBST) and subconscious identity retraining.',
+      'Before we suggest anything, we listen — first to the body, then to the mind. Then we build your protocol around what we find.',
     ],
     button: 'Start with the body',
   },
@@ -58,7 +74,9 @@ export const SCREENS: Screen[] = [
     section: 'part1',
     archetype: 'section-transition',
     label: 'PART 1 OF 3 · YOUR SITUATION',
-    autoAdvanceMs: 1500,
+    // Founder review 2026-07-10: long enough to actually read; a tap anywhere
+    // advances early (no button — a decision point would break the breath).
+    autoAdvanceMs: 2200,
   },
   {
     id: 'relationship',
@@ -154,7 +172,7 @@ export const SCREENS: Screen[] = [
     section: 'part2',
     archetype: 'section-transition',
     label: 'PART 2 OF 3 · THE BODY',
-    autoAdvanceMs: 1500,
+    autoAdvanceMs: 2200,
   },
   {
     id: 'bandaid-history',
@@ -180,7 +198,7 @@ export const SCREENS: Screen[] = [
     question:
       'When you wake up in the morning, does your body show physical arousal on its own?',
     subText:
-      'This tells us whether the machinery works when nothing is being asked of it. If your body fires on its own, the problem isn’t the hardware — it’s the interference.',
+      'This tells us whether the problem is physical or mental. If your body responds on its own, the physical side works.',
     answerKey: 'morningArousal',
     options: [
       { value: 'most', label: 'Most mornings' },
@@ -205,18 +223,22 @@ export const SCREENS: Screen[] = [
     id: 'physician-note',
     section: 'part2',
     archetype: 'note-card',
+    // Founder ruling 2026-07-10: libido threshold tightened to ≤2 (a "3" is
+    // mid-low, not a flag), and the note must NAME the two answers that
+    // triggered it — an unexplained medical caution reads as alarm; an
+    // explained one reads as honesty.
     displayLogic: {
       showIf: {
         all: [
           { key: 'morningArousal', equals: 'rarely' },
-          { key: 'libido', lte: 3 },
+          { key: 'libido', lte: 2 },
         ],
       },
     },
     eyebrow: 'A QUICK NOTE',
     title: 'Worth a physician visit',
     body:
-      'Your last two answers can sometimes point to physical causes — hormonal or circulatory — that deserve a real exam. Compose retrains the nervous system; it doesn’t replace bloodwork. Keep going here, and book the check-up too.',
+      'This note is here because of two answers you just gave: your body rarely shows arousal on its own in the morning, and your desire has been low this past month. Together — and only together — those can sometimes point to physical causes, hormonal or circulatory, that deserve a real exam. We’d rather tell you that straight than pretend otherwise; honesty about what this program is and isn’t is the whole point. So book the check-up. And keep going here — the nervous-system retraining and the identity work in Compose still apply to you, and we believe they will help.',
     button: 'Understood — continue',
   },
   {
@@ -225,13 +247,12 @@ export const SCREENS: Screen[] = [
     archetype: 'single-select',
     question:
       'When you initiate intimacy, do you feel a sudden spike in your heart rate, or a rush of nervous adrenaline in your chest?',
-    subText: 'That surge is adrenaline — a nervous-system reflex, not a verdict on you.',
     answerKey: 'adrenalineSpike',
     options: [
       { value: 'panic', label: 'Yes — it feels close to panic' },
-      { value: 'push-through', label: 'A noticeable surge, but I push through' },
-      { value: 'occasionally', label: 'Occasionally' },
-      { value: 'calm', label: 'No, I stay calm' },
+      { value: 'push-through', label: 'Yes — a strong surge, but I push through it' },
+      { value: 'occasionally', label: 'Sometimes, depending on the night' },
+      { value: 'calm', label: 'No — I stay calm' },
     ],
   },
   {
@@ -244,9 +265,10 @@ export const SCREENS: Screen[] = [
       'Breath under arousal is the clearest window into your nervous system. Most men have never been asked.',
     answerKey: 'breathEdge',
     options: [
-      { value: 'shallow-hold', label: 'It gets shallow, or I hold it' },
-      { value: 'never-noticed', label: 'Honestly, I’ve never noticed' },
+      { value: 'shallow-hold', label: 'It gets shallow, or I hold it completely' },
+      { value: 'speeds-up', label: 'It speeds up — short, fast breaths' },
       { value: 'slow-deep', label: 'It stays slow and deep' },
+      { value: 'never-noticed', label: 'Honestly, I’ve never noticed' },
     ],
   },
   {
@@ -255,15 +277,16 @@ export const SCREENS: Screen[] = [
     archetype: 'interactive-check',
     answerKey: 'pelvicCheck',
     intro: {
-      headline: 'Let’s feel it, not describe it.',
+      headline: 'A 20-second tension check.',
+      // Founder review 2026-07-10: say WHAT we test and WHY it matters, plainly.
       subText:
-        'Chronic pelvic tension is the physical arm of the adrenaline trap. Twenty seconds gives us your baseline.',
+        'Men who carry performance anxiety often hold the pelvic floor chronically tight without knowing it — and a muscle that can’t fully relax works against both control and blood flow. This check measures one thing: how completely yours can let go.',
       reassurance:
         'Completely invisible — no movement, no sound, nothing anyone could notice. You can do this in a waiting room.',
       steps: [
         'Sit comfortably, feet flat on the floor.',
         'On Begin, clench your pelvic floor — as if stopping urine flow.',
-        'Hold five seconds, release fully on cue. Notice what release feels like.',
+        'Hold five seconds, then release fully on cue. Notice what the release feels like.',
       ],
       button: 'Begin the 20-second check',
       skipLink: 'Skip for now',
@@ -271,21 +294,23 @@ export const SCREENS: Screen[] = [
     phases: [
       {
         seconds: 5,
-        ringLabel: 'CLENCH & HOLD',
-        instruction: 'Squeeze your pelvic floor firmly upward and inward.',
+        ringLabel: 'CLENCH',
+        instruction: 'Squeeze your pelvic floor firmly upward and inward. Hold.',
       },
       {
         seconds: 10,
-        ringLabel: 'RELEASE & OBSERVE',
-        instruction: 'Let go completely. Notice how fully your muscles can relax.',
+        ringLabel: 'RELEASE',
+        instruction: 'Let go completely. Notice how fully the muscles relax.',
       },
     ],
-    resultQuestion: 'After releasing, what did you notice?',
-    resultOptions: [
-      { value: 'complete', label: 'Complete release — I felt clear relaxation' },
-      { value: 'partial', label: 'Partial release — some tension remained' },
-      { value: 'difficulty', label: 'Difficulty releasing — stayed contracted' },
-    ],
+    resultQuestion: 'When you released, how fully did the tension let go?',
+    resultScale: {
+      min: 1,
+      max: 10,
+      anchorLow: '1 = It wouldn’t release — stayed tight',
+      anchorHigh: '10 = Let go completely',
+      button: 'Continue',
+    },
   },
   {
     id: 'testimonial-somatic',
@@ -300,14 +325,13 @@ export const SCREENS: Screen[] = [
     section: 'part3',
     archetype: 'section-transition',
     label: 'PART 3 OF 3 · THE MIND',
-    autoAdvanceMs: 1500,
+    autoAdvanceMs: 2200,
   },
   {
     id: 'content-frequency',
     section: 'part3',
     archetype: 'single-select',
-    question:
-      'In an average week, how frequently do you rely on highly visual stimulation (adult content) during solo sessions?',
+    question: 'In an average week, how often do you watch porn?',
     subText:
       'No judgment in this question — it maps how your arousal system has been trained.',
     answerKey: 'contentFrequency',
@@ -325,7 +349,6 @@ export const SCREENS: Screen[] = [
     displayLogic: { skipIf: { key: 'contentFrequency', equals: 'rarely' } },
     question:
       'Over time, has it taken more extreme or more novel content to feel the same arousal?',
-    subText: 'That drift is tolerance — a trained response, not a character flaw.',
     answerKey: 'escalation',
     options: [
       { value: 'yes', label: 'Yes, noticeably' },
@@ -352,34 +375,20 @@ export const SCREENS: Screen[] = [
   {
     id: 'partner-impact',
     section: 'part3',
-    archetype: 'branched-select',
+    archetype: 'single-select',
+    // Founder ruling 2026-07-10: ONE question for everyone — the partnered
+    // phrasing is the more powerful one, and "your partner" reads fine for a
+    // single man (the partner of that night). The old single/casual branch
+    // is retired.
+    question:
+      'When things don’t go as planned in the bedroom, how does it affect the connection with your partner?',
     answerKey: 'partnerImpact',
-    branchOn: { key: 'relationship', oneOf: ['committed', 'married'] },
-    variants: {
-      P: {
-        question:
-          'When things don’t go as planned in the bedroom, how does it affect the connection with your partner?',
-        subText:
-          'Most men have never said this part out loud. Here, you’re just tapping a card.',
-        options: [
-          { value: 'partner-blames-self', label: 'My partner blames themselves' },
-          { value: 'unspoken-tension', label: 'There’s tension we don’t talk about' },
-          { value: 'less-intimacy', label: 'We’ve stopped being intimate as often' },
-          { value: 'working-together', label: 'We’re working through it together' },
-        ],
-      },
-      S: {
-        question: 'When things went wrong in past encounters, what did it leave you with?',
-        subText:
-          'Most men have never said this part out loud. Here, you’re just tapping a card.',
-        options: [
-          { value: 'stopped-pursuing', label: 'I stopped pursuing people' },
-          { value: 'dread', label: 'Dread before every new encounter' },
-          { value: 'avoid-physical', label: 'I keep things from getting physical' },
-          { value: 'why-single', label: 'It’s part of why I’m single now' },
-        ],
-      },
-    },
+    options: [
+      { value: 'partner-blames-self', label: 'My partner blames themselves' },
+      { value: 'unspoken-tension', label: 'There’s tension we don’t talk about' },
+      { value: 'less-intimacy', label: 'We’ve stopped being intimate as often' },
+      { value: 'working-together', label: 'We’re working through it together' },
+    ],
   },
   {
     id: 'aftermath',
@@ -414,7 +423,7 @@ export const SCREENS: Screen[] = [
     archetype: 'multi-select',
     question:
       'When a session ends prematurely or falters, which of these run through your mind? Tap every one that shows up.',
-    subText: 'These are scripts, not facts. Naming yours is the first step to interrupting it.',
+    subText: 'Scripts, not facts — and a script you’ve named is one you can interrupt.',
     answerKey: 'scripts',
     options: [
       { value: 'broken', label: '"I am broken"' },
@@ -429,57 +438,20 @@ export const SCREENS: Screen[] = [
     section: 'part3',
     archetype: 'single-select',
     question:
-      'Does it follow you out of the bedroom — into work, friendships, how you carry yourself?',
+      'Does this follow you out of the bedroom — into your work, your confidence, how you carry yourself?',
     answerKey: 'spillover',
     options: [
       { value: 'everything', label: 'Yes — it touches everything' },
-      { value: 'sometimes', label: 'Sometimes' },
+      { value: 'confidence', label: 'It shows in my confidence and mood' },
+      { value: 'sometimes', label: 'Sometimes, in waves' },
       { value: 'bedroom-only', label: 'No — it stays in the bedroom' },
     ],
   },
 
   // ── Analysis ───────────────────────────────────────────────────────────
-  {
-    id: 'generating',
-    section: 'analysis',
-    archetype: 'generating',
-    checklist: [
-      'Autonomic profile',
-      'Pelvic baseline',
-      'Arousal conditioning map',
-      'Cognitive script index',
-      'Sequencing your 75-day protocol…',
-    ],
-    durationMs: [4000, 6000],
-  },
-  {
-    id: 'map',
-    section: 'analysis',
-    archetype: 'map',
-    eyebrow: 'YOUR MAP',
-    headline: '{name}, here is what your answers show.',
-    scoreLabel: 'Your Composure Score — re-measured at Days 14, 40, and 75.',
-    gauge: {
-      calmZone: [80, 100],
-      calmLabel: 'Calm baseline — where the protocol trains you toward.',
-      caption: 'The gap is the work. 75 days is the route.',
-    },
-    bars: [
-      { label: 'Sympathetic override' },
-      { label: 'Spectatoring loop' },
-      { label: 'Pelvic release capacity' },
-      { label: 'Avoidance pattern' },
-      { label: 'Cognitive scripts' },
-      {
-        label: 'Conditioning drift',
-        showIf: { key: 'escalation', oneOf: ['yes', 'somewhat'] },
-      },
-    ],
-    body:
-      'This is a conditioned adrenaline response. Conditioned means learned — and learned means reversible. Your 75-day sequence is built.',
-    button: 'See my protocol',
-    footer: 'Stored on this device only',
-  },
+  // Founder ruling 2026-07-10: Symptoms moved BEFORE Generating — the whole-
+  // life cost inventory is an input to the analysis, not an afterthought to
+  // the reveal. (Supersedes the handoff's B-25→B-27 order.)
   {
     id: 'symptoms',
     section: 'analysis',
@@ -526,8 +498,53 @@ export const SCREENS: Screen[] = [
     ],
     button: 'Continue',
   },
+  {
+    id: 'generating',
+    section: 'analysis',
+    archetype: 'generating',
+    checklist: [
+      'Autonomic profile',
+      'Pelvic baseline',
+      'Arousal conditioning map',
+      'Cognitive script index',
+      'Sequencing your 75-day protocol…',
+    ],
+    durationMs: [4000, 6000],
+  },
+  // Founder review 2026-07-10: the Map's job is a clear, unflinching read of
+  // his problem — not a preview of the protocol. Verdict + explained bars;
+  // the "what's driving this" story continues into the four cards.
+  {
+    id: 'map',
+    section: 'analysis',
+    archetype: 'map',
+    eyebrow: 'YOUR RESULTS',
+    headline: '{name}, here is what your answers show.',
+    scoreLabel:
+      'Your Composure Score — how steady your body stays under intimate pressure.',
+    gauge: {
+      calmZone: [80, 100],
+      calmLabel: 'CALM ZONE · 80–100',
+      axisLow: '0 · adrenaline runs it',
+      axisHigh: '100 · calm & present',
+    },
+    barsHeading: 'Where it’s coming from',
+    bars: [
+      { label: 'Sympathetic override' },
+      { label: 'Spectatoring loop' },
+      { label: 'Pelvic release capacity' },
+      { label: 'Avoidance pattern' },
+      { label: 'Cognitive scripts' },
+      {
+        label: 'Conditioning drift',
+        showIf: { key: 'escalation', oneOf: ['yes', 'somewhat'] },
+      },
+    ],
+    button: 'Show me what’s driving this',
+    footer: 'Stored on this device only',
+  },
 
-  // ── Clinical Context cards (batched positions = variant B) ────────────
+  // ── Clinical Context cards (batched after the Map) ────────────────────
   {
     id: 'card-adrenaline-trap',
     section: 'analysis',
@@ -538,11 +555,9 @@ export const SCREENS: Screen[] = [
     // softened to population framing — the physician-triage card exists precisely
     // because a minority's cause IS physical.
     body:
-      'For most men in this pattern, this is not a physical defect — it is a sympathetic nervous system override. Your brain is mistakenly treating intimacy as a high-stress exam, flooding your body with adrenaline. Adrenaline constricts blood vessels and accelerates reflexes.',
+      'Your brain has learned to treat intimacy like a threat. The moment things turn intimate, it floods your body with adrenaline — and adrenaline does exactly two things here: it tightens blood vessels and speeds up reflexes. That’s the mechanics of losing an erection, or finishing before you chose to. For most men in this pattern, nothing is physically broken. The alarm is wired to the wrong moment.',
     render: 'fig-hero-somatic.png',
-    placement: { A: { inlineAfter: 'breath-edge' }, B: 'batched' },
-    tease: { A: 'A system that learned the alarm can unlearn it.', B: null },
-    button: { A: 'I understand', B: 'I understand' },
+    button: 'I understand',
   },
   {
     id: 'card-dmn',
@@ -550,11 +565,9 @@ export const SCREENS: Screen[] = [
     archetype: 'clinical-card',
     title: 'The Default Mode Network',
     body:
-      'That shame loop is generated by your Default Mode Network (DMN) — the brain’s self-referential replay circuit. It tags bedroom falters as threats, making the anxiety worse next time.',
+      'After a bad night, your brain replays it — over and over, in your own voice. That replay runs on a circuit called the Default Mode Network, and every replay tags the bedroom as more dangerous. Which means the alarm fires earlier next time. The replaying isn’t processing the problem. It’s training it.',
     render: 'fig-hero-validation.png',
-    placement: { A: { inlineAfter: 'scripts' }, B: 'batched' },
-    tease: { A: 'It can be interrupted. That’s Phase Two’s job.', B: null },
-    button: { A: 'Continue', B: 'Continue' },
+    button: 'Continue',
   },
   {
     id: 'card-novelty-loop',
@@ -562,7 +575,7 @@ export const SCREENS: Screen[] = [
     archetype: 'clinical-card',
     title: 'The Novelty Loop',
     body:
-      'Every session is a training rep. High-novelty stimulation compresses arousal into a sprint: spike, finish, close the tab. Run that loop a few hundred times and your nervous system masters exactly one tempo — fast, alone, on demand. Then you’re with a real person, and your body runs the only program it knows.',
+      'Every solo session is a training rep. Porn compresses arousal into a sprint — spike, finish, close the tab. Run that loop a few hundred times and your body masters exactly one tempo: fast, alone, on demand. Then you’re with a real person, and it runs the only program it knows.',
     render: 'fig-hero-philosophy.png',
     conditionalLines: [
       {
@@ -574,9 +587,7 @@ export const SCREENS: Screen[] = [
         showIf: { key: 'escalation', oneOf: ['yes', 'somewhat'] },
       },
     ],
-    placement: { A: { inlineAfter: 'escalation' }, B: 'batched' },
-    tease: { A: 'The loop took years to wire. Unwiring it is a 75-day job.', B: null },
-    button: { A: 'Makes sense', B: 'Makes sense' },
+    button: 'Makes sense',
   },
   {
     id: 'card-bandaids',
@@ -584,25 +595,44 @@ export const SCREENS: Screen[] = [
     archetype: 'clinical-card',
     title: 'Why Band-Aids Fail',
     body:
-      'Pills move blood. Creams numb skin. Neither reaches the amygdala — the alarm that started all of this. And there’s a quieter cost: every pill is a rehearsal of the same belief — that your body can’t do this without help. A fix that keeps you dependent isn’t a fix. It’s a subscription to the problem.',
+      'Pills move blood. Creams numb skin. Neither one touches the alarm in your brain that started all of this — so the anxiety stays, and now it has a chemical to depend on. Every pill also rehearses one quiet belief: my body can’t do this without help. A fix that keeps you dependent isn’t a fix.',
     render: 'hero-welcome-drop.png',
     renderMode: 'cover',
-    placement: { A: { inlineAfter: 'bandaid-history' }, B: 'batched' },
-    tease: { A: 'The alarm itself can be retrained. That’s the work ahead.', B: null },
-    button: { A: 'Show me how', B: 'I understand' },
+    button: 'I understand',
   },
 
   // ── The Turn — Hope and Desire ─────────────────────────────────────────
+  // Founder review 2026-07-10: the pivot from diagnosis to solution needs its
+  // own breath — hopeful, warm, and explicit that a different section is
+  // starting. Inserted between the four cards and the Blueprint.
+  {
+    id: 'turn-welcome',
+    section: 'turn',
+    archetype: 'chapter',
+    eyebrow: 'COMPOSE',
+    welcome: true,
+    headline: 'You’re in the right place.',
+    bodyBlocks: [
+      'Everything you just saw — the alarm, the replay, the trained tempo — is a learned pattern. Learned means reversible.',
+      'What comes next is how Compose reverses it, and what you get along the way.',
+    ],
+    closingLine: 'Welcome to Compose.',
+    button: 'Show me',
+  },
   {
     id: 'blueprint',
     section: 'turn',
     archetype: 'chapter',
-    eyebrow: 'CLINICAL CONTEXT',
+    eyebrow: 'THE METHOD',
     headline: 'The 75-Day Blueprint',
     bodyBlocks: [
-      'Your system learned this. It can learn something else. University College London researchers tracked how long a new behavior takes to become automatic: 66 days on average. Compose runs 75 — past the threshold, with margin. Not a trick to try tonight. A rewiring, sequenced daily: reset the alarm, retrain the body, consolidate the new default.',
+      'Your system learned this. It can learn something else. University College London researchers tracked how long a new behavior takes to become automatic: 66 days on average. Compose runs 75 — past the threshold, with margin. A rewiring, sequenced daily: reset the alarm, retrain the body, consolidate the new default.',
+      // Model V2: the Blueprint is Act I of a membership year, not the whole
+      // product — the annual buyer must see more than 75 days of value.
+      'And it’s Act One of your membership year — the SOS toolkit, your Baseline tracking, and the Mastery Suite at graduation carry it from there.',
     ],
     hero: 'fig-hero-protocol.png',
+    heroHeight: 210,
     closingLine: 'Ten minutes a day. That’s the entire ask.',
     button: 'Show me the journey',
   },
@@ -611,11 +641,14 @@ export const SCREENS: Screen[] = [
     section: 'turn',
     archetype: 'hopeful-arc',
     subScreens: [
+      // Founder review 2026-07-10: the "right place" beat moved to the
+      // turn-welcome screen; this slot now carries the measurement feature —
+      // the risk-reversal differentiator ("measured, not promised").
       {
         eyebrow: 'COMPOSE',
-        headline: 'You’re exactly where you should be.',
+        headline: 'Proof, not promises.',
         body:
-          'Everything you just mapped — the adrenaline, the spectatoring, the scripts — is precisely what Compose was built to reverse. From here, everything is forward.',
+          'The score you just saw is your baseline. You’ll re-measure it at Days 14, 40, and 75 — and watch the number move as your nervous system retrains. Evidence you can see beats reassurance you have to believe.',
         button: 'Continue',
       },
       {
@@ -627,7 +660,7 @@ export const SCREENS: Screen[] = [
       {
         headline: '75 days. Three phases. One button.',
         body:
-          'Autonomic Reset (Days 1–25) quiets the alarm. Somatic Exposure (Days 26–50) retrains the body. Identity Consolidation (Days 51–75) makes calm the new default. You never decide what to do next — the sequence decides. And your Composure Score is re-measured at Days 14, 40, and 75, so you watch it move.',
+          'Autonomic Reset (Days 1–25) quiets the alarm. Somatic Exposure (Days 26–50) retrains the body. Identity Consolidation (Days 51–75) makes calm the new default. You never decide what to do next — the sequence decides.',
         visual: 'phase-path',
         button: 'Continue',
       },
@@ -688,10 +721,13 @@ export const SCREENS: Screen[] = [
     id: 'diverging-graph',
     section: 'turn',
     archetype: 'diverging-graph',
-    headline: 'Two directions. No standing still.',
+    headline: 'From tonight, this only moves in one of two directions.',
     yAxisLabel: 'Composure',
+    startLabel: 'You · today',
+    upperLabel: 'With daily retraining',
+    lowerLabel: 'Without it',
     lowerAnnotation:
-      'Without retraining: avoidance compounds — every skipped attempt deepens the loop.',
+      'Avoidance compounds. Every skipped attempt teaches the alarm it was right.',
     upperAnnotations: [
       'Day 25 — the alarm quiets',
       'Day 50 — the body leads',
@@ -727,7 +763,7 @@ export const SCREENS: Screen[] = [
     archetype: 'commit',
     headline: 'Every day for 75 days: headphones on, ten minutes, your session.',
     body:
-      'Some days it will feel like nothing is happening. That’s what rewiring feels like from the inside.',
+      'Some days it will feel like nothing is happening. That’s what rewiring feels like from the inside. And the 75 days are the opening act, not the whole story — your membership carries the year that makes the change permanent.',
     question: 'Can you give it ten minutes a day?',
     button: 'Yes — I’m in',
     doubtLink: 'I have doubts',
@@ -855,14 +891,3 @@ export const SCREENS: Screen[] = [
     button: 'Begin Day 1',
   },
 ];
-
-/** Batched (variant B) encounter order of the four dark cards, per the B spec. */
-export const BATCH_ORDER = [
-  'card-adrenaline-trap',
-  'card-dmn',
-  'card-novelty-loop',
-  'card-bandaids',
-] as const;
-
-/** The batched block inserts directly after this screen in variant B. */
-export const BATCH_AFTER = 'symptoms';

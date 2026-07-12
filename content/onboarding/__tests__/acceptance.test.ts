@@ -36,7 +36,12 @@ describe('analytics privacy (CLAUDE.md §7)', () => {
     'pelvicCheck',
     'contentFrequency',
     'escalation',
-    'spectatoring',
+    // 'spectatoring' is deliberately absent: the same word is a cognitive-
+    // distortion slug in the restructurer_used whitelist (a categorical tag,
+    // not an onboarding answer — the §7 comment at the track callsites and the
+    // taxonomy-sync test in services/__tests__/analytics.test.ts guard it).
+    // The answer VALUE for the spectatoring question is still unsendable:
+    // no event schema carries it, and /\banswers?\b/ below bans the object.
     'partnerImpact',
     'aftermath',
     'avoidance',

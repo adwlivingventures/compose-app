@@ -36,14 +36,59 @@ interface TriageCenterProps {
 
 // Mirrors the Day 16 anchor ("Sensory Grounding") exactly — the SOS tool and
 // the audio train the same 3-2-1 sequence, so under pressure there is one
-// protocol to remember, not two.
-const GROUNDING_STEPS = [
-  'You don’t need to leave or explain. Do not fight the thoughts — override them with sensory data.',
-  'Find three things you can physically see — the shadow on the wall, the texture of the blanket.',
-  'Find two things you can physically feel — the weight of your partner, the temperature of the air.',
-  'Find one thing you can hear — her breathing, or the hum of the air conditioner.',
-  'Anxiety requires you to be in the future. Sensory data forces your brain back into the present second. See it. Feel it. Hear it. Ground yourself.',
+// protocol to remember, not two. Formatted as three large count-cards
+// (founder review 2026-07-10): a panicked reader scans numerals, he doesn't
+// read paragraphs.
+const GROUNDING_INTRO =
+  'You don’t need to leave or explain. Don’t fight the thoughts — override them with your senses.';
+const GROUNDING_COUNTS: { count: string; verb: string; line: string; examples: string }[] = [
+  {
+    count: '3',
+    verb: 'SEE',
+    line: 'Three things you can see.',
+    examples: 'The shadow on the wall. The texture of the blanket.',
+  },
+  {
+    count: '2',
+    verb: 'FEEL',
+    line: 'Two things you can feel.',
+    examples: 'The weight of your partner. The temperature of the air.',
+  },
+  {
+    count: '1',
+    verb: 'HEAR',
+    line: 'One thing you can hear.',
+    examples: 'Her breathing. The hum of the room.',
+  },
 ];
+const GROUNDING_CLOSE =
+  'Anxiety lives in the future. Your senses only work in the present. See it. Feel it. Hear it.';
+
+function GroundingGuide() {
+  return (
+    <View className="py-2">
+      <Text className="text-body text-sm leading-5">{GROUNDING_INTRO}</Text>
+      <View className="gap-3 mt-4">
+        {GROUNDING_COUNTS.map((step) => (
+          <View
+            key={step.verb}
+            className="bg-ground border border-line rounded-2xl p-4 flex-row items-center gap-4"
+          >
+            <Text className="text-accent font-serif-light" style={{ fontSize: 34, width: 30 }}>
+              {step.count}
+            </Text>
+            <View className="flex-1">
+              <Text className="text-ink text-sm font-bold tracking-widest">{step.verb}</Text>
+              <Text className="text-body text-[13px] mt-0.5">{step.line}</Text>
+              <Text className="text-muted text-xs mt-1 leading-4">{step.examples}</Text>
+            </View>
+          </View>
+        ))}
+      </View>
+      <Text className="text-muted text-[12.5px] leading-5 mt-4">{GROUNDING_CLOSE}</Text>
+    </View>
+  );
+}
 
 // ─── Branch: 4-7-8 Breathing ──────────────────────────────────────────────────
 
@@ -158,11 +203,26 @@ function BreathingGuide() {
 
 // ─── Branch: Spectator Disassembly (defusion log) ─────────────────────────────
 
+// Founder review 2026-07-10: the post-falter user gets a TAP-FIRST flow —
+// the old version opened with two required free-text fields, which is
+// homework for a man mid-rumination. The common Spectator claims are
+// pre-written (deterministic, §7) and each carries its fallacy tag, so one
+// tap names the distortion and surfaces the authored reframe. Writing his
+// own anchor is still offered (generation effect) but never required.
+const COMMON_CLAIMS: { text: string; fallacy: Fallacy }[] = [
+  { text: '“She thinks something is wrong with me.”', fallacy: 'mind_reading' },
+  { text: '“She’s disappointed — she just won’t say it.”', fallacy: 'mind_reading' },
+  { text: '“It’s always going to be like this now.”', fallacy: 'catastrophizing' },
+  { text: '“I’ve ruined how she sees me.”', fallacy: 'catastrophizing' },
+  { text: '“The whole night was a failure.”', fallacy: 'all_or_nothing' },
+  { text: '“If my body doesn’t cooperate, I’m useless.”', fallacy: 'all_or_nothing' },
+];
+
 function DefusionLogForm({ onDone }: { onDone: () => void }) {
   const { addEntry } = useDefusionLog();
-  const [step, setStep] = useState<0 | 1 | 2>(0);
-  const [somaticReality, setSomaticReality] = useState('');
   const [spectatorClaim, setSpectatorClaim] = useState('');
+  const [customClaim, setCustomClaim] = useState('');
+  const [writingOwn, setWritingOwn] = useState(false);
   const [chosenFallacy, setChosenFallacy] = useState<Fallacy | null>(null);
   const [ventralAnchor, setVentralAnchor] = useState('');
   const [saving, setSaving] = useState(false);
@@ -171,7 +231,7 @@ function DefusionLogForm({ onDone }: { onDone: () => void }) {
     if (!chosenFallacy || saving) return;
     setSaving(true);
     await addEntry({
-      somaticReality: somaticReality.trim(),
+      somaticReality: '',
       spectatorClaim: spectatorClaim.trim(),
       fallacy: chosenFallacy,
       ventralAnchor: ventralAnchor.trim(),
@@ -181,10 +241,9 @@ function DefusionLogForm({ onDone }: { onDone: () => void }) {
     onDone();
   };
 
-  // Step 4 — read the authored reframe, then write the truth in his own
-  // words. The saved entry is his statement, not just ours.
+  // Screen 2 — the fallacy named, the authored reframe, and an OPTIONAL
+  // anchor. "Done" saves with or without his own words: zero required typing.
   if (chosenFallacy) {
-    const canSave = ventralAnchor.trim().length > 0;
     return (
       <View className="py-2">
         <View className="flex-row items-center gap-2 mb-3">
@@ -197,14 +256,11 @@ function DefusionLogForm({ onDone }: { onDone: () => void }) {
           {FALLACY_META[chosenFallacy].reframe}
         </Text>
 
-        <Text className="text-accent text-xs font-bold uppercase tracking-widest mt-6">
-          Step 4 of 4 — Your Ventral Vagal Anchor
-        </Text>
-        <Text className="text-body text-sm mt-2 leading-5">
-          Now say it in your own words. What is the clinical truth of what happened?
+        <Text className="text-muted text-xs font-bold uppercase tracking-widest mt-6">
+          Optional — say it in your own words
         </Text>
         <TextInput
-          className="bg-surface-deep border border-line rounded-xl p-4 text-ink text-sm leading-5 min-h-[80px] mt-3"
+          className="bg-surface-deep border border-line rounded-xl p-4 text-ink text-sm leading-5 min-h-[70px] mt-3"
           multiline
           textAlignVertical="top"
           placeholder="e.g. “My body followed adrenaline. That's physiology, not a verdict on me.”"
@@ -214,59 +270,70 @@ function DefusionLogForm({ onDone }: { onDone: () => void }) {
         />
         <TouchableOpacity
           onPress={saveEntry}
-          disabled={!canSave || saving}
+          disabled={saving}
           activeOpacity={0.85}
-          className={`rounded-xl py-3.5 items-center mt-4 ${canSave ? 'bg-accent' : 'bg-surface-deep'}`}
+          className="rounded-xl py-3.5 items-center mt-4 bg-accent"
         >
-          <Text className={`font-bold text-sm ${canSave ? 'text-on-accent' : 'text-faint'}`}>
-            Save My Anchor
+          <Text className="font-bold text-sm text-on-accent">
+            {ventralAnchor.trim().length > 0 ? 'Save my anchor' : 'Done — filed and dismissed'}
           </Text>
         </TouchableOpacity>
       </View>
     );
   }
 
-  if (step < 2) {
-    const meta =
-      step === 0
-        ? {
-            label: 'Somatic Reality',
-            question: 'What actually happened, physically? Facts only — no interpretation.',
-            placeholder: 'e.g. “I lost my erection about ten minutes in.”',
-            value: somaticReality,
-            set: setSomaticReality,
-          }
-        : {
-            label: 'The Spectator’s Claim',
-            question: 'What is the voice saying it means?',
-            placeholder: 'e.g. “She thinks something is wrong with me.”',
-            value: spectatorClaim,
-            set: setSpectatorClaim,
-          };
-    const canAdvance = meta.value.trim().length > 0;
-
+  // Custom path: he writes the claim, then names its pattern himself.
+  if (writingOwn) {
+    if (spectatorClaim.trim().length > 0) {
+      return (
+        <View className="py-2">
+          <Text className="text-accent text-xs font-bold uppercase tracking-widest">
+            Which pattern is it running?
+          </Text>
+          <Text className="text-body text-sm mt-2 leading-5">
+            Read the claim again. It’s one of these three.
+          </Text>
+          <View className="gap-3 mt-4">
+            {(Object.keys(FALLACY_META) as Fallacy[]).map((f) => (
+              <TouchableOpacity
+                key={f}
+                onPress={() => setChosenFallacy(f)}
+                activeOpacity={0.8}
+                className="bg-surface-deep border border-line rounded-xl px-4 py-3.5 flex-row items-center justify-between"
+              >
+                <Text className="text-ink text-sm font-bold">{FALLACY_META[f].label}</Text>
+                <ChevronRight size={16} color="#6B7280" />
+              </TouchableOpacity>
+            ))}
+          </View>
+        </View>
+      );
+    }
     return (
       <View className="py-2">
         <Text className="text-accent text-xs font-bold uppercase tracking-widest">
-          Step {step + 1} of 4 — {meta.label}
+          What is the voice saying?
         </Text>
-        <Text className="text-body text-sm mt-2 leading-5">{meta.question}</Text>
         <TextInput
-          className="bg-surface-deep border border-line rounded-xl p-4 text-ink text-sm leading-5 min-h-[90px] mt-3"
+          className="bg-surface-deep border border-line rounded-xl p-4 text-ink text-sm leading-5 min-h-[80px] mt-3"
           multiline
           textAlignVertical="top"
-          placeholder={meta.placeholder}
+          placeholder="Write the claim, word for word."
           placeholderTextColor="#4B5563"
-          value={meta.value}
-          onChangeText={meta.set}
+          value={customClaim}
+          onChangeText={setCustomClaim}
         />
         <TouchableOpacity
-          onPress={() => setStep((s) => (s + 1) as 1 | 2)}
-          disabled={!canAdvance}
+          onPress={() => customClaim.trim() && setSpectatorClaim(customClaim)}
+          disabled={customClaim.trim().length === 0}
           activeOpacity={0.85}
-          className={`rounded-xl py-3.5 items-center mt-4 ${canAdvance ? 'bg-accent' : 'bg-surface-deep'}`}
+          className={`rounded-xl py-3.5 items-center mt-4 ${
+            customClaim.trim() ? 'bg-accent' : 'bg-surface-deep'
+          }`}
         >
-          <Text className={`font-bold text-sm ${canAdvance ? 'text-on-accent' : 'text-faint'}`}>
+          <Text
+            className={`font-bold text-sm ${customClaim.trim() ? 'text-on-accent' : 'text-faint'}`}
+          >
             Continue
           </Text>
         </TouchableOpacity>
@@ -274,27 +341,36 @@ function DefusionLogForm({ onDone }: { onDone: () => void }) {
     );
   }
 
-  // Step 3 — name the fallacy
+  // Screen 1 — tap the claim the replay is making. One tap does the naming.
   return (
     <View className="py-2">
       <Text className="text-accent text-xs font-bold uppercase tracking-widest">
-        Step 3 of 4 — Name the Fallacy
+        The replay has started
       </Text>
       <Text className="text-body text-sm mt-2 leading-5">
-        Read the Spectator’s claim again. Which pattern is it running?
+        What is it saying? Tap the line closest to yours.
       </Text>
-      <View className="gap-3 mt-4">
-        {(Object.keys(FALLACY_META) as Fallacy[]).map((f) => (
+      <View className="gap-2.5 mt-4">
+        {COMMON_CLAIMS.map((claim) => (
           <TouchableOpacity
-            key={f}
-            onPress={() => setChosenFallacy(f)}
+            key={claim.text}
+            onPress={() => {
+              setSpectatorClaim(claim.text);
+              setChosenFallacy(claim.fallacy);
+            }}
             activeOpacity={0.8}
-            className="bg-surface-deep border border-line rounded-xl px-4 py-3.5 flex-row items-center justify-between"
+            className="bg-surface-deep border border-line rounded-xl px-4 py-3.5"
           >
-            <Text className="text-ink text-sm font-bold">{FALLACY_META[f].label}</Text>
-            <ChevronRight size={16} color="#6B7280" />
+            <Text className="text-ink text-sm leading-5 font-serif-italic">{claim.text}</Text>
           </TouchableOpacity>
         ))}
+        <TouchableOpacity
+          onPress={() => setWritingOwn(true)}
+          activeOpacity={0.8}
+          className="px-4 py-3 items-center"
+        >
+          <Text className="text-muted text-[13px] font-semibold">It’s saying something else</Text>
+        </TouchableOpacity>
       </View>
     </View>
   );
@@ -339,7 +415,10 @@ export default function TriageCenter({ visible, onClose }: TriageCenterProps) {
   };
 
   return (
-    <BottomSheet visible={visible} onClose={close}>
+    // Opaque scrim (founder review 2026-07-10): the sheet is its own room —
+    // the tab bar and dashboard must not read through it. draggable makes
+    // the grab handle real: drag-down closes.
+    <BottomSheet visible={visible} onClose={close} draggable scrimClass="bg-ground">
       <View className="bg-tab border-t border-line-soft rounded-t-3xl px-6 pt-5 pb-10 max-h-[85%]">
           <View className="w-10 h-1 bg-line rounded-full self-center mb-4" />
 
@@ -400,16 +479,7 @@ export default function TriageCenter({ visible, onClose }: TriageCenterProps) {
 
               <ScrollView showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
                 {view === 'breath' && <BreathingGuide />}
-                {view === 'ground' && (
-                  <View className="py-2">
-                    {GROUNDING_STEPS.map((step, i) => (
-                      <View key={i} className="flex-row gap-3 mt-3">
-                        <Text className="text-accent text-xs font-bold mt-0.5">{i + 1}</Text>
-                        <Text className="text-body text-sm leading-5 flex-1">{step}</Text>
-                      </View>
-                    ))}
-                  </View>
-                )}
+                {view === 'ground' && <GroundingGuide />}
                 {view === 'defuse' && <DefusionLogForm onDone={close} />}
               </ScrollView>
             </>

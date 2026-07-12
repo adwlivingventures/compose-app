@@ -23,14 +23,14 @@ const ANSWERS = {
   age: 32,
   bandaidHistory: 'tried-none',
   morningArousal: 'rarely',
-  libido: 3,
+  libido: 2,
   adrenalineSpike: 'most',
-  breathEdge: 'chest',
-  pelvicCheck: 'trembled',
+  breathEdge: 'shallow-hold',
+  pelvicCheck: 5, // 1–10 release rating (partial band)
   contentFrequency: 'daily',
   escalation: 'somewhat',
   spectatoring: 4,
-  partnerImpact: 'pulling-away',
+  partnerImpact: 'unspoken-tension',
   aftermath: 'replay',
   avoidance: 'sometimes',
   scripts: 'often',
@@ -73,7 +73,7 @@ const protocolStorage = (activeDay, days, extra = {}) => ({
 });
 
 const SHOTS = [
-  // ── Onboarding, variant B flow order ──
+  // ── Onboarding flow order ──
   { name: '01-welcome-opening', ...onboard('welcome-opening') },
   { name: '02-welcome-roadmap', ...onboard('welcome-roadmap') },
   { name: '03-section-transition', ...onboard('transition-part1'), delay: 700 },
@@ -98,13 +98,18 @@ const SHOTS = [
   { name: '22-avoidance', ...onboard('avoidance') },
   { name: '23-scripts', ...onboard('scripts') },
   { name: '24-spillover', ...onboard('spillover') },
-  { name: '25-generating', ...onboard('spillover'), clicks: ['Continue'], delay: 2500 },
+  // Order note (founder ruling 2026-07-10): symptoms now precedes generating.
+  // Frame NAMES keep their numbers so the Figma comment threads stay anchored.
+  // Generating is reached by submitting the symptoms multi-select (the old
+  // spillover+Continue click hit nothing — that was the "repeat frame").
+  { name: '25-generating', ...onboard('symptoms'), clicks: ['Continue'], delay: 2500 },
   { name: '26-map', ...onboard('map'), delay: 3500 },
   { name: '27-symptoms', ...onboard('symptoms') },
   { name: '28-card-adrenaline-trap', ...onboard('card-adrenaline-trap') },
   { name: '29-card-dmn', ...onboard('card-dmn') },
   { name: '30-card-novelty-loop', ...onboard('card-novelty-loop') },
   { name: '31-card-bandaids', ...onboard('card-bandaids') },
+  { name: '31b-turn-welcome', ...onboard('turn-welcome') },
   { name: '32-blueprint', ...onboard('blueprint') },
   { name: '33-hopeful-arc-1', ...onboard('hopeful-arc') },
   { name: '34-hopeful-arc-privacy', ...onboard('hopeful-arc'), clicks: ['Continue', 'Continue', 'Continue', 'Continue'] },
@@ -160,7 +165,6 @@ const SHOTS = [
       // Seed storage (full reset each time), then fresh-load the target.
       await page.evaluate((storage) => {
         localStorage.clear();
-        localStorage.setItem('@onboarding_variant', JSON.stringify('B'));
         for (const [k, v] of Object.entries(storage)) {
           localStorage.setItem(k, JSON.stringify(v));
         }

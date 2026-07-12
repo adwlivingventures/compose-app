@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { View, Text, ScrollView, TouchableOpacity, Alert } from 'react-native';
+import { View, Text, ScrollView, TouchableOpacity, Alert, Platform } from 'react-native';
 import { useFocusEffect, useRouter } from 'expo-router';
 import {
   Lock,
@@ -13,6 +13,8 @@ import {
   RotateCcw,
   ChevronRight,
   Wind,
+  Activity,
+  MessageSquare,
   X,
 } from 'lucide-react-native';
 import { useProtocol } from '../../context/ProtocolContext';
@@ -169,6 +171,15 @@ export default function ProfileScreen() {
           title="The Somatic Drop"
           onPress={() => router.push('/technique')}
         />
+        {/* The onboarding tension test as a standing tool — a skipper (or
+            anyone) can re-measure whenever he wants (founder review
+            2026-07-10). */}
+        <NavRow
+          icon={<Activity color="#C89B6D" size={18} />}
+          title="Pelvic Release Check"
+          subtitle="The 20-second tension test — re-measure any time."
+          onPress={() => router.push('/pelvic-check')}
+        />
         <NavRow
           icon={<Sun color="#C89B6D" size={18} />}
           title="The Vitality Baseline"
@@ -178,6 +189,12 @@ export default function ProfileScreen() {
           icon={<BookOpen color="#C89B6D" size={18} />}
           title="The Success Vault"
           onPress={() => router.push('/success-vault')}
+        />
+        <NavRow
+          icon={<MessageSquare color="#C89B6D" size={18} />}
+          title="Partner Scripts"
+          subtitle="Word-for-word openers, check-ins, and repairs."
+          onPress={() => router.push('/partner-scripts')}
         />
         <NavRow
           icon={<Users color="#C89B6D" size={18} />}
@@ -297,10 +314,20 @@ export default function ProfileScreen() {
               <ChevronRight color="#4B5563" size={16} />
             </TouchableOpacity>
             <TouchableOpacity
-              onPress={() =>
+              onPress={() => {
+                const message = `Currently on Day ${activeDay}. Enter 1–75; the midnight lock is released so the day plays immediately.`;
+                // Alert.prompt is iOS-only — dev browsing on Expo web needs
+                // the DOM prompt instead.
+                if (Platform.OS === 'web') {
+                  // eslint-disable-next-line no-alert
+                  const value = window.prompt(message, String(activeDay));
+                  const day = parseInt(value ?? '', 10);
+                  if (!Number.isNaN(day)) devJumpToDay(day);
+                  return;
+                }
                 Alert.prompt(
                   'Jump to Day (dev only)',
-                  `Currently on Day ${activeDay}. Enter 1–75; the midnight lock is released so the day plays immediately.`,
+                  message,
                   (value) => {
                     const day = parseInt(value ?? '', 10);
                     if (!Number.isNaN(day)) devJumpToDay(day);
@@ -308,8 +335,8 @@ export default function ProfileScreen() {
                   'plain-text',
                   '',
                   'number-pad',
-                )
-              }
+                );
+              }}
               activeOpacity={0.7}
               className="p-4 flex-row items-center justify-between"
             >

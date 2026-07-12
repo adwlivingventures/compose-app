@@ -9,6 +9,18 @@ Authority Ruling below, which you will codify back into CLAUDE.md as part of the
 
 ---
 
+> **FOUNDER RULING 2026-07-10 — ONBOARDING A/B TEST RETIRED.** The interleaved
+> "Version A" flow and the A/B experiment described in §2 (item 4), §3, §4.1–4.3,
+> and §8 are **superseded**: the app ships the batched flow (formerly "Version B")
+> as its only onboarding. Rationale: post-quiz batching completes investment
+> escalation before confrontation and preserves the diagnostic frame — the findings
+> read as results of his answers, not marketing assertions — and one continuous
+> tension arc resolves at the turn-welcome pivot. Version A's spec docx remains in
+> `spec/` as design history only; nothing may be built from it. `buildFlow()` takes
+> no variant; there is no variant assignment, tag, or dev toggle anywhere in code.
+> Screen numbering is now plain `01`–`43`. The RC **pricing** experiment
+> ($99.99 vs $79.99 annual) is unrelated and remains live.
+
 ## 1. DESIGN AUTHORITY RULING — read first, state your understanding before coding
 
 The design handoff in this directory (`design/design_handoff_twilight_v1/`) was

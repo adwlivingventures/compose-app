@@ -1,23 +1,26 @@
 // B-25/A-29 — Generating: the Ember gathers behind the progress ring as the
-// staged checklist ticks (coherence ramps with progress), then — final beat —
-// the particles disperse and re-assemble into the gauge line with a cluster
-// at the user's actual score (Addendum §1 "Map assembly"). The diagnosis is
-// literally built from him. Tick cadence per spec: two fast, one slow, fast;
-// the final item takes longest. Soft haptic per tick.
+// staged checklist ticks (coherence ramps with progress). Tick cadence per
+// spec: two fast, one slow, fast; the final item takes longest. Soft haptic
+// per tick. Ending (founder review 2026-07-10): the old particle re-assembly
+// finale read as a rendering error on device — replaced with the ring
+// completing, a settled beat, and a clean whole-screen exhale into the
+// results. No state where anything looks broken.
 
 import { useEffect, useRef, useState } from 'react';
-import { Text, View } from 'react-native';
+import { Animated, Easing, Text, View } from 'react-native';
 import Svg, { Circle } from 'react-native-svg';
 import { Check } from 'lucide-react-native';
 import type { GeneratingScreen as GeneratingDescriptor } from '../../content/onboarding/types';
 import { acknowledge, seal } from '../../services/haptics';
+import { EASING } from '../../theme/emberDusk';
 import Ember from '../ember/Ember';
 import { ScreenFade } from './archetypes';
 
 // Varied cadence (ms from mount): two fast, one slow, fast, final longest.
 const TICK_AT = [700, 1300, 2700, 3300];
 const COMPLETE_AT = 5300;
-const ADVANCE_DELAY = 450;
+const SETTLE_MS = 700; // ring full + all ticks visible before the exhale
+const FADE_MS = 500;
 
 export default function Generating({
   screen,
@@ -25,20 +28,24 @@ export default function Generating({
   onComplete,
 }: {
   screen: GeneratingDescriptor;
-  /** Composure Score — the assembly's marker cluster forms at this position. */
+  /** Composure Score — drives the field's final coherence. */
   score: number;
   onComplete: () => void;
 }) {
   const [progress, setProgress] = useState(0);
   const [ticked, setTicked] = useState(0);
-  const [assembling, setAssembling] = useState(false);
   const done = useRef(false);
+  const exhale = useRef(new Animated.Value(1)).current;
 
   const finish = () => {
-    if (!done.current) {
-      done.current = true;
-      setTimeout(onComplete, ADVANCE_DELAY);
-    }
+    if (done.current) return;
+    done.current = true;
+    Animated.timing(exhale, {
+      toValue: 0,
+      duration: FADE_MS,
+      easing: Easing.bezier(...EASING.breathOut),
+      useNativeDriver: true,
+    }).start(() => onComplete());
   };
 
   useEffect(() => {
@@ -55,13 +62,9 @@ export default function Generating({
       setTimeout(() => {
         setTicked(screen.checklist.length);
         seal(); // phase completion — the map is sequenced
-        // Final beat: the field re-forms into the gauge before the Map.
-        setAssembling(true);
       }, COMPLETE_AT),
     );
-    // Safety net: on fallback builds (no Skia) onAssemblyComplete never
-    // fires — the flow must never stall behind a visual.
-    timers.push(setTimeout(finish, COMPLETE_AT + 1900));
+    timers.push(setTimeout(finish, COMPLETE_AT + SETTLE_MS));
     const interval = setInterval(() => {
       setProgress((p) => Math.min(p + 100 / (COMPLETE_AT / 50), 100));
     }, 50);
@@ -79,27 +82,25 @@ export default function Generating({
 
   return (
     <ScreenFade>
-      <View className="flex-1 items-center justify-center bg-ground px-8">
+      <Animated.View
+        className="flex-1 items-center justify-center bg-ground px-8"
+        style={{ opacity: exhale }}
+      >
         <View style={{ width: size, height: size }} className="items-center justify-center">
-          {/* The Ember gathers as the map computes; coherence follows progress. */}
+          {/* The Ember gathers as the map computes; coherence follows progress,
+              settling toward the score's own coherence at the end. */}
           <View pointerEvents="none" style={{ position: 'absolute', alignSelf: 'center' }}>
             <Ember
-              state={assembling ? 'assembly' : 'generating'}
-              coherence={0.25 + (progress / 100) * 0.45}
+              state="generating"
+              coherence={0.25 + (progress / 100) * (0.35 + (score / 100) * 0.2)}
               size={300}
-              opacity={assembling ? 0.9 : 0.55}
-              assemblyScore={score}
-              onAssemblyComplete={finish}
+              opacity={0.55}
             />
           </View>
           <Svg
             width={size}
             height={size}
-            style={{
-              position: 'absolute',
-              transform: [{ rotate: '-90deg' }],
-              opacity: assembling ? 0.2 : 1,
-            }}
+            style={{ position: 'absolute', transform: [{ rotate: '-90deg' }] }}
           >
             <Circle
               cx={size / 2}
@@ -121,10 +122,7 @@ export default function Generating({
               strokeLinecap="round"
             />
           </Svg>
-          <Text
-            className="font-serif-light text-ink"
-            style={{ fontSize: 38, opacity: assembling ? 0.2 : 1 }}
-          >
+          <Text className="font-serif-light text-ink" style={{ fontSize: 38 }}>
             {Math.round(progress)}%
           </Text>
         </View>
@@ -159,7 +157,7 @@ export default function Generating({
             );
           })}
         </View>
-      </View>
+      </Animated.View>
     </ScreenFade>
   );
 }

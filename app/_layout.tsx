@@ -1,5 +1,4 @@
 import '../global.css';
-import { useEffect } from 'react';
 import { Platform, View } from 'react-native';
 import { Stack } from 'expo-router';
 import { StatusBar } from 'expo-status-bar';
@@ -27,15 +26,15 @@ const RC_API_KEYS = {
   google: 'goog_your_google_api_key_here',
 };
 
-export default function RootLayout() {
-  const [fontsLoaded] = useFonts({
-    Newsreader_300Light,
-    Newsreader_400Regular,
-    Newsreader_400Regular_Italic,
-    Newsreader_500Medium,
-  });
-
-  useEffect(() => {
+// Configure at MODULE scope, not in a RootLayout effect. React runs child
+// effects before parent effects, so useRevenueCat's mount effect (getOfferings,
+// getCustomerInfo, addCustomerInfoUpdateListener) fires BEFORE a configure
+// placed in this layout's own useEffect. The native iOS SDK tolerates that
+// race (and the silent offerings retry heals it); the web SDK throws an
+// uncaught UninitializedPurchasesError. Module scope guarantees configure runs
+// before any screen renders, on every platform.
+function configurePurchases() {
+  try {
     // Verbose logging in dev, silent in production
     Purchases.setLogLevel(IS_DEV ? LOG_LEVEL.DEBUG : LOG_LEVEL.ERROR);
 
@@ -48,7 +47,27 @@ export default function RootLayout() {
     } else if (Platform.OS === 'android') {
       Purchases.configure({ apiKey: RC_API_KEYS.google });
     }
-  }, []);
+    // Web is a DEV PREVIEW surface only (product ships iOS-first) and gets
+    // NO configure call: purchases-js validates the key prefix and rejects
+    // the appl_ key outright ("Use your Web Billing API key"), logging its
+    // own console.error that Expo's dev overlay pins over the bottom CTA on
+    // every screen. Every Purchases call site is guarded (isConfigured
+    // checks / awaited try-catch), so the preview degrades to no-billing:
+    // every screen renders and navigates, the paywall just omits live prices.
+  } catch {
+    // Never let SDK init take down the tree (e.g. non-browser bundling pass).
+    // The offerings retry loop in useRevenueCat degrades gracefully without it.
+  }
+}
+configurePurchases();
+
+export default function RootLayout() {
+  const [fontsLoaded] = useFonts({
+    Newsreader_300Light,
+    Newsreader_400Regular,
+    Newsreader_400Regular_Italic,
+    Newsreader_500Medium,
+  });
 
   // Hold on a plain ground-colored view until the serif faces are ready —
   // a flash of fallback type undermines the composed first impression.

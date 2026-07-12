@@ -1,15 +1,14 @@
-// B-26/A-30 — "Your Map". Layout truth: 3a reference. Score + baseline gauge
-// (cool calm zone 80–100, WARM marker — the user is the ember moving toward
-// cool calm), severity chip rows (amber/red, matte, never glow), dynamic
-// mirror sentence, one emissive CTA. The gauge marker is a miniature ember
-// (Addendum §2) with a slow shimmer; the bars stagger in continuing the
-// assembly the Generating screen just performed.
+// "Your Results" (founder revamp 2026-07-10) — the unflinching read of his
+// problem. Score + one-sentence verdict, self-explanatory gauge (labeled
+// axis ends), severity rows that each carry a plain-English detail line
+// traced to his answer (amber/red matte; healthy reads neutral, never
+// warning-colored). No protocol preview here — the four driver cards follow.
 
 import { useEffect, useRef } from 'react';
 import { Animated, Easing, ScrollView, Text, View } from 'react-native';
 import { DURATION, EASING } from '../../theme/emberDusk';
 import type { MapScreen as MapDescriptor } from '../../content/onboarding/types';
-import type { ComposureResult } from '../../content/onboarding/composure';
+import { verdictFor, type ComposureResult } from '../../content/onboarding/composure';
 import { GAUGE, SEVERITY } from '../../theme/emberDusk';
 import EmissiveCTA from './EmissiveCTA';
 import { ScreenFade } from './archetypes';
@@ -184,65 +183,89 @@ export default function MapScreen({
             {screen.scoreLabel}
           </Text>
 
+          {/* The verdict: one sentence that says plainly whether this is bad. */}
+          <Text
+            className="mt-3 text-ink"
+            style={{ fontSize: 14, fontWeight: '300', lineHeight: 22 }}
+          >
+            {verdictFor(result.score)}
+          </Text>
+
           <View className="mt-4">
             <BaselineGauge score={result.score} calmZone={screen.gauge.calmZone} />
+            <View className="mt-6 flex-row justify-between">
+              <Text className="text-muted" style={{ fontSize: 10, fontWeight: '300' }}>
+                {screen.gauge.axisLow}
+              </Text>
+              <Text
+                className="text-right text-accent-deep"
+                style={{ fontSize: 10, fontWeight: '300' }}
+              >
+                {screen.gauge.axisHigh}
+              </Text>
+            </View>
             <Text
               className="text-right text-accent-deep"
-              style={{ fontSize: 10, fontWeight: '300', marginTop: 6 }}
+              style={{ fontSize: 9, fontWeight: '300', letterSpacing: 1, marginTop: 2 }}
             >
               {screen.gauge.calmLabel}
             </Text>
-            <Text className="text-muted" style={{ fontSize: 11, fontWeight: '300', marginTop: 2 }}>
-              {screen.gauge.caption}
-            </Text>
           </View>
 
-          <View className="mt-4" style={{ gap: 8 }}>
+          <Text
+            className="mt-5 text-body"
+            style={{ fontSize: 10, fontWeight: '300', letterSpacing: 2 }}
+          >
+            {screen.barsHeading.toUpperCase()}
+          </Text>
+          <View className="mt-2" style={{ gap: 8 }}>
             {result.bars.map((bar, index) => (
               <StaggeredRow key={bar.label} index={index}>
                 <View
-                  className="flex-row items-center justify-between rounded-xl bg-surface"
+                  className="rounded-xl bg-surface"
                   style={{ paddingVertical: 11, paddingHorizontal: 14 }}
                 >
-                  <Text className="text-ink" style={{ fontSize: 13, fontWeight: '300' }}>
-                    {bar.label}
-                  </Text>
-                  <View
-                    className="rounded-full"
-                    style={{
-                      paddingVertical: 3,
-                      paddingHorizontal: 9,
-                      backgroundColor: bar.tone === 'red' ? SEVERITY.redBg : SEVERITY.amberBg,
-                    }}
-                  >
-                    <Text
+                  <View className="flex-row items-center justify-between">
+                    <Text className="text-ink" style={{ fontSize: 13, fontWeight: '400' }}>
+                      {bar.label}
+                    </Text>
+                    <View
+                      className="rounded-full"
                       style={{
-                        fontSize: 10,
-                        fontWeight: '600',
-                        letterSpacing: 0.5,
-                        color: bar.tone === 'red' ? SEVERITY.red : SEVERITY.amber,
+                        paddingVertical: 3,
+                        paddingHorizontal: 9,
+                        backgroundColor:
+                          bar.tone === 'red' ? SEVERITY.redBg
+                          : bar.tone === 'amber' ? SEVERITY.amberBg
+                          : 'rgba(107,114,128,0.12)',
                       }}
                     >
-                      {bar.grade.toUpperCase()}
-                    </Text>
+                      <Text
+                        style={{
+                          fontSize: 10,
+                          fontWeight: '600',
+                          letterSpacing: 0.5,
+                          color:
+                            bar.tone === 'red' ? SEVERITY.red
+                            : bar.tone === 'amber' ? SEVERITY.amber
+                            : '#9CA3AF',
+                        }}
+                      >
+                        {bar.grade.toUpperCase()}
+                      </Text>
+                    </View>
                   </View>
+                  {/* Plain-English read of this bar, traced to his answer. */}
+                  <Text
+                    className="text-muted"
+                    style={{ fontSize: 11.5, fontWeight: '300', lineHeight: 16.5, marginTop: 5 }}
+                  >
+                    {bar.detail}
+                  </Text>
                 </View>
               </StaggeredRow>
             ))}
           </View>
-
-          <Text
-            className="mt-4 font-serif-italic text-body"
-            style={{ fontSize: 13, lineHeight: 20 }}
-          >
-            "{result.mirror}"
-          </Text>
-          <Text
-            className="mt-3 text-body"
-            style={{ fontSize: 13.5, fontWeight: '300', lineHeight: 21 }}
-          >
-            {screen.body}
-          </Text>
         </ScrollView>
 
         <View className="px-6 pb-11" style={{ paddingTop: 14 }}>

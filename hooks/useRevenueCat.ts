@@ -106,10 +106,18 @@ export const useRevenueCat = (): RevenueCatState => {
     fetchOfferings();
     fetchCustomer();
 
-    // Listen for CustomerInfo updates (e.g. subscription renewals, restores)
-    const customerInfoListener = Purchases.addCustomerInfoUpdateListener((info) => {
-      applyCustomerInfo(info);
-    });
+    // Listen for CustomerInfo updates (e.g. subscription renewals, restores).
+    // Wrapped: this was the one Purchases call on the mount path with no
+    // catch — if the SDK ever isn't configured (web preview edge cases), an
+    // uncaught UninitializedPurchasesError here takes down the whole tree.
+    let customerInfoListener: unknown;
+    try {
+      customerInfoListener = Purchases.addCustomerInfoUpdateListener((info) => {
+        applyCustomerInfo(info);
+      });
+    } catch {
+      // quiet — refreshCustomerInfo still covers manual refresh paths
+    }
 
     return () => {
       cancelled = true;

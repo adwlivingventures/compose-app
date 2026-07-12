@@ -72,7 +72,6 @@ export default function Paywall({
   restoring,
   onBack,
   onDevSkip,
-  onDevToggleVariant,
   onDevEmberDemo,
 }: {
   screen: PaywallDescriptor;
@@ -86,7 +85,6 @@ export default function Paywall({
   restoring: boolean;
   onBack?: () => void;
   onDevSkip?: () => void;
-  onDevToggleVariant?: () => void;
   onDevEmberDemo?: () => void;
 }) {
   const recapBars = result.bars.slice(0, 2);
@@ -312,12 +310,9 @@ export default function Paywall({
           )}
           <EmissiveCTA label={screen.button} onPress={onContinue} paddingVertical={18} />
           <PaywallFooter onRestore={onRestore} disabled={restoring} />
-          {__DEV__ && (onDevSkip || onDevToggleVariant || onDevEmberDemo) && (
+          {__DEV__ && (onDevSkip || onDevEmberDemo) && (
             <View className="flex-row justify-center" style={{ gap: 20 }}>
               {onDevSkip && <SecondaryLink label="Skip paywall (dev)" onPress={onDevSkip} />}
-              {onDevToggleVariant && (
-                <SecondaryLink label="View other variant (dev)" onPress={onDevToggleVariant} />
-              )}
               {onDevEmberDemo && (
                 <SecondaryLink label="Ember demo (dev)" onPress={onDevEmberDemo} />
               )}

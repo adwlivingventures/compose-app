@@ -1,10 +1,8 @@
 // Onboarding flow — typed screen descriptors.
-// Spec: design/design_handoff_twilight_v1/ (Version A docx + Version B pdf),
+// Spec: design/design_handoff_twilight_v1/ (batched spec, formerly "Version B"),
 // as amended by the Design Authority Ruling in BUILD_PROMPT.md (Ember Dusk v2).
-// One config drives BOTH variants; buildFlow(variant) resolves the order.
-// No variant conditionals belong in screen components.
-
-export type Variant = 'A' | 'B';
+// Single flow (founder ruling 2026-07-10): the interleaved variant and the
+// onboarding A/B test are retired. buildFlow() resolves order and numbering.
 
 export type SectionId =
   | 'opening'
@@ -63,11 +61,18 @@ interface ScreenBase {
 
 export interface ChapterScreen extends ScreenBase {
   archetype: 'chapter';
+  /** Warm-welcome treatment: stronger dusk radial + settled headline entrance
+   *  (welcome-roadmap, turn-welcome). */
+  welcome?: boolean;
   eyebrow?: string;
   headline: string;
   bodyBlocks?: string[];
   /** Filename in design/design_handoff_twilight_v1/assets/ — chapter moments only. */
   hero?: string;
+  /** contain for square luminous renders that would crop badly under cover. */
+  heroMode?: 'cover' | 'contain';
+  /** Override the 300px default when the copy below needs the room. */
+  heroHeight?: number;
   privacyLine?: string;
   microText?: string;
   statCards?: string[];
@@ -100,17 +105,6 @@ export interface SingleSelectScreen extends ScreenBase {
   subText?: string;
   answerKey: AnswerKey;
   options: Option[];
-}
-
-/** Partner impact — question/options branch on relationship status. */
-export interface BranchedSelectScreen extends ScreenBase {
-  archetype: 'branched-select';
-  answerKey: AnswerKey;
-  branchOn: { key: AnswerKey; oneOf: string[] }; // matches → variant P, else S
-  variants: Record<
-    'P' | 'S',
-    { question: string; subText?: string; options: Option[] }
-  >;
 }
 
 export interface MultiSelectScreen extends ScreenBase {
@@ -175,7 +169,15 @@ export interface InteractiveCheckScreen extends ScreenBase {
   };
   phases: { seconds: number; ringLabel: string; instruction: string }[];
   resultQuestion: string;
-  resultOptions: Option[];
+  /** 1–10 release rating (founder review 2026-07-10) — anchors must make the
+   *  scale self-explanatory. Stored as the number itself. */
+  resultScale: {
+    min: number;
+    max: number;
+    anchorLow: string;
+    anchorHigh: string;
+    button: string;
+  };
 }
 
 export interface TestimonialSlotScreen extends ScreenBase {
@@ -196,9 +198,10 @@ export interface MapScreen extends ScreenBase {
   eyebrow: string;
   headline: string; // {name} token
   scoreLabel: string;
-  gauge: { calmZone: [number, number]; calmLabel: string; caption: string };
+  /** Axis end labels make the gauge self-explanatory (founder review 2026-07-10). */
+  gauge: { calmZone: [number, number]; calmLabel: string; axisLow: string; axisHigh: string };
+  barsHeading: string;
   bars: { label: string; showIf?: Condition }[];
-  body: string;
   button: string;
   footer: string;
 }
@@ -211,16 +214,17 @@ export interface ClinicalCardScreen extends ScreenBase {
   render: string;
   renderMode?: 'contain' | 'cover';
   conditionalLines?: { text: string; showIf: Condition }[];
-  /** THE variant mechanism (BUILD_PROMPT §4.1). */
-  placement: { A: { inlineAfter: string }; B: 'batched' };
-  tease: { A: string; B: null };
-  button: { A: string; B: string };
+  /** Accessibility label for the arrow CTA (cards render an unlabeled arrow). */
+  button: string;
 }
 
 export interface DivergingGraphScreen extends ScreenBase {
   archetype: 'diverging-graph';
   headline: string;
   yAxisLabel: string;
+  startLabel: string;
+  upperLabel: string;
+  lowerLabel: string;
   lowerAnnotation: string;
   upperAnnotations: string[];
   caption: string;
@@ -328,7 +332,6 @@ export type Screen =
   | HopefulArcScreen
   | SectionTransitionScreen
   | SingleSelectScreen
-  | BranchedSelectScreen
   | MultiSelectScreen
   | TextInputScreen
   | WheelInputScreen
@@ -348,13 +351,10 @@ export type Screen =
   | ConsentScreen
   | DiscretionScreen;
 
-/** A screen with its variant-specific strings resolved and its spec position assigned. */
+/** A screen with its spec position assigned. */
 export type ResolvedScreen = Screen & {
-  /** "A-07" / "B-31" — 1-based position among numbered screens; transitions carry none. */
+  /** "07" / "31" — 1-based position among numbered screens; transitions carry none. */
   specId: string | null;
-  /** For the four dark cards: 1–4 in this variant's encounter order ("CLINICAL CONTEXT · N OF 4"). */
+  /** For the four dark cards: 1–4 in encounter order ("CLINICAL CONTEXT · N OF 4"). */
   clinicalIndex?: number;
-  /** Variant-resolved card strings (clinical cards only). */
-  resolvedTease?: string | null;
-  resolvedButton?: string;
 };

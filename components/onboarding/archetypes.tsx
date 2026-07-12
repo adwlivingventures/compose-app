@@ -1,11 +1,12 @@
 // Archetype scaffolds — Ember Dusk v2 onboarding.
 // Layout truth: the 3a reference screens; color/material: the ruling +
 // Craft Layer Addendum. Screen components receive resolved descriptors from
-// buildFlow — no variant conditionals live here.
+// buildFlow.
 
 import { useEffect, useRef, useState } from 'react';
-import { Animated, Easing, Image, Text, View } from 'react-native';
-import Svg, { Defs, LinearGradient, Rect, Stop } from 'react-native-svg';
+import { Animated, Easing, Image, Pressable, Text, View } from 'react-native';
+import { ArrowRight } from 'lucide-react-native';
+import Svg, { Defs, LinearGradient, RadialGradient, Rect, Stop } from 'react-native-svg';
 import type {
   ChapterScreen as ChapterDescriptor,
   ClinicalCardScreen as ClinicalCardDescriptor,
@@ -40,17 +41,26 @@ export function ScreenFade({ children }: { children: React.ReactNode }) {
   return <Animated.View style={{ flex: 1, opacity: t }}>{children}</Animated.View>;
 }
 
-/** Hero render with the reference's fade-to-ground bottom gradient. */
-function HeroImage({ asset, height = 300 }: { asset: string; height?: number }) {
+/** Hero render with the reference's fade-to-ground bottom gradient.
+ *  overflow-hidden is load-bearing: without it a large render bleeds across
+ *  the whole screen (visible once the luminous somatic asset landed on B-01). */
+function HeroImage({
+  asset,
+  height = 300,
+  mode = 'cover',
+}: {
+  asset: string;
+  height?: number;
+  mode?: 'cover' | 'contain';
+}) {
   const source = HERO_RENDERS[asset];
   if (!source) return null;
   return (
-    <View className="relative mx-10" style={{ height, marginTop: 18 }}>
+    <View className="relative mx-10 overflow-hidden" style={{ height, marginTop: 18 }}>
       <Image
         source={source}
-        resizeMode="cover"
-        className="h-full w-full"
-        style={{ opacity: 0.95 }}
+        resizeMode={mode}
+        style={{ width: '100%', height: '100%', opacity: 0.95 }}
       />
       {/* Fade the bottom half into ground so the render never has an edge. */}
       <View className="absolute inset-x-0 bottom-0 h-1/2">
@@ -80,21 +90,66 @@ export function Chapter({
   onAdvance: () => void;
 }) {
   const isWordmark = screen.eyebrow === 'COMPOSE';
+  // Warm-welcome effect (founder review 2026-07-10): the headline settles in
+  // on a longer breath under a stronger dusk radial — arrival, not a click.
+  const welcome = screen.welcome === true;
+  const reduceMotion = useReduceMotion();
+  const settle = useRef(new Animated.Value(welcome && !reduceMotion ? 0 : 1)).current;
+  useEffect(() => {
+    if (!welcome || reduceMotion) return;
+    Animated.timing(settle, {
+      toValue: 1,
+      duration: 1100,
+      easing: breathOut,
+      useNativeDriver: true,
+    }).start();
+  }, [welcome, reduceMotion, settle]);
   return (
     <ScreenFade>
       <View className="flex-1 bg-ground">
-        {!screen.hero && <DuskRadial />}
+        {!screen.hero && <DuskRadial intensity={welcome ? 0.16 : 0.12} />}
         <View style={{ paddingTop: 76 }}>
           {isWordmark ? <Wordmark /> : screen.eyebrow ? <Eyebrow center>{screen.eyebrow}</Eyebrow> : null}
         </View>
-        {screen.hero && <HeroImage asset={screen.hero} />}
-        <View className="flex-1 items-center px-10" style={{ paddingTop: screen.hero ? 10 : 40 }}>
-          <Text
-            className="text-center font-serif-regular text-ink"
-            style={{ fontSize: 31, lineHeight: 40 }}
+        {screen.hero && (
+          <HeroImage asset={screen.hero} mode={screen.heroMode} height={screen.heroHeight} />
+        )}
+        <View
+          className="flex-1 items-center px-10"
+          // No-hero chapters (welcome) center their text block in the field
+          // instead of stacking it under the wordmark over a blank lower half
+          // (founder review 2026-07-10).
+          style={{
+            paddingTop: screen.hero ? 10 : 0,
+            justifyContent: screen.hero ? 'flex-start' : 'center',
+          }}
+        >
+          {/* NativeWind classes don't reach Animated primitives — animate a
+              plain wrapper and keep the styled Text inside it. */}
+          <Animated.View
+            style={{
+              opacity: settle,
+              transform: [
+                { translateY: settle.interpolate({ inputRange: [0, 1], outputRange: [14, 0] }) },
+              ],
+            }}
           >
-            {screen.headline}
-          </Text>
+            {/* An explicit \n marks intentional line breaks: each segment is
+                its own no-wrap line, shrunk to fit narrow devices, so the
+                break lands exactly where the copy says — never mid-sentence. */}
+            {screen.headline.split('\n').map((line, i) => (
+              <Text
+                key={i}
+                numberOfLines={screen.headline.includes('\n') ? 1 : undefined}
+                adjustsFontSizeToFit={screen.headline.includes('\n')}
+                minimumFontScale={0.6}
+                className="text-center font-serif-regular text-ink"
+                style={{ fontSize: 31, lineHeight: 40 }}
+              >
+                {line}
+              </Text>
+            ))}
+          </Animated.View>
           {screen.bodyBlocks?.map((block, i) => (
             <Text
               key={i}
@@ -131,12 +186,22 @@ export function Chapter({
             </Text>
           )}
         </View>
-        <View className="items-center px-8 pb-[52px]" style={{ gap: 20 }}>
+        {/* px-6 (founder review 2026-07-10): the welcome CTAs read wider. */}
+        <View className="items-center px-6 pb-[52px]" style={{ gap: 20 }}>
           {screen.privacyLine && (
-            <View className="flex-row items-center" style={{ gap: 8, opacity: 0.45 }}>
-              <Text className="text-body" style={{ fontSize: 10, letterSpacing: 1 }}>
-                {screen.privacyLine.toUpperCase()}
-              </Text>
+            // Two centered lines (founder review 2026-07-10): the promise on
+            // its own line, the specifics beneath it — one long run wrapped
+            // arbitrarily on narrow screens.
+            <View className="items-center" style={{ gap: 4, opacity: 0.45 }}>
+              {screen.privacyLine.split(' — ').map((line, i) => (
+                <Text
+                  key={i}
+                  className="text-center text-body"
+                  style={{ fontSize: 10, letterSpacing: 1 }}
+                >
+                  {line.toUpperCase()}
+                </Text>
+              ))}
             </View>
           )}
           <EmissiveCTA label={screen.button} onPress={onAdvance} paddingVertical={20} />
@@ -152,8 +217,10 @@ export function Chapter({
 }
 
 /**
- * Section transition (before Parts 1/2/3): micro-type interstitial,
- * auto-advance 1.5s. Nothing tappable — a breath between sections.
+ * Section transition (before Parts 1/2/3): micro-type interstitial. Auto-
+ * advances (founder review 2026-07-10: 2.2s — long enough to read), and a tap
+ * anywhere advances early. No button: a visible control would turn the breath
+ * into a decision point.
  */
 export function SectionTransition({
   label,
@@ -165,29 +232,92 @@ export function SectionTransition({
   onAdvance: () => void;
 }) {
   const advanced = useRef(false);
+  const fire = () => {
+    if (!advanced.current) {
+      advanced.current = true;
+      onAdvance();
+    }
+  };
   useEffect(() => {
-    const id = setTimeout(() => {
-      if (!advanced.current) {
-        advanced.current = true;
-        onAdvance();
-      }
-    }, autoAdvanceMs);
+    const id = setTimeout(fire, autoAdvanceMs);
     return () => clearTimeout(id);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
   return (
     <ScreenFade>
-      <View className="flex-1 items-center justify-center bg-ground">
+      <Pressable
+        accessibilityRole="button"
+        accessibilityLabel={`${label} — continue`}
+        onPress={fire}
+        className="flex-1 items-center justify-center bg-ground"
+      >
         <Eyebrow center>{label}</Eyebrow>
-      </View>
+      </Pressable>
     </ScreenFade>
   );
 }
 
 /**
+ * Circular emissive arrow — the diagnosis cards' navigation (founder review
+ * 2026-07-10: a different affordance marks the reveal section as its own
+ * chapter; no text, one arrow). Counts as the screen's one sand emission.
+ */
+export function ArrowCTA({
+  onPress,
+  accessibilityLabel = 'Continue',
+}: {
+  onPress: () => void;
+  accessibilityLabel?: string;
+}) {
+  const press = useRef(new Animated.Value(0)).current;
+  const settle = (to: number, ms: number) =>
+    Animated.timing(press, { toValue: to, duration: ms, useNativeDriver: true });
+  return (
+    <Animated.View
+      // style, not className — NativeWind doesn't reach Animated views.
+      style={{
+        alignSelf: 'center',
+        borderRadius: 999,
+        shadowColor: '#C89B6D',
+        shadowOpacity: 0.35,
+        shadowRadius: 14,
+        shadowOffset: { width: 0, height: 0 },
+        opacity: press.interpolate({ inputRange: [0, 1], outputRange: [1, 0.85] }),
+        transform: [{ scale: press.interpolate({ inputRange: [0, 1], outputRange: [1, 0.96] }) }],
+      }}
+    >
+      <Pressable
+        accessibilityRole="button"
+        accessibilityLabel={accessibilityLabel}
+        onPressIn={() => settle(1, DURATION.microMin).start()}
+        onPressOut={() => settle(0, DURATION.microMax).start()}
+        onPress={onPress}
+        hitSlop={10}
+        className="items-center justify-center overflow-hidden rounded-full"
+        style={{ width: 58, height: 58, borderWidth: 1, borderColor: 'rgba(233,196,152,0.6)' }}
+      >
+        <View className="absolute inset-0">
+          <Svg width="100%" height="100%">
+            <Defs>
+              <RadialGradient id="arrowCore" cx="50%" cy="50%" rx="60%" ry="60%">
+                <Stop offset="0" stopColor="#D9B285" />
+                <Stop offset="1" stopColor="#C89B6D" />
+              </RadialGradient>
+            </Defs>
+            <Rect x="0" y="0" width="100%" height="100%" fill="url(#arrowCore)" />
+          </Svg>
+        </View>
+        <ArrowRight size={22} color="#0C0B09" strokeWidth={2} />
+      </Pressable>
+    </Animated.View>
+  );
+}
+
+/**
  * Clinical Context card (the four dark cards): centered render + dusk radial,
- * "CLINICAL CONTEXT · N OF 4" eyebrow, body, optional conditional lines and
- * (variant A only) the hope-tease closing line. Emissive CTA.
+ * "CLINICAL CONTEXT · N OF 4" eyebrow, body, optional conditional lines.
+ * No per-card hope line — the batched arc holds tension across all four
+ * cards and resolves at the turn-welcome pivot. Emissive CTA.
  */
 export function ClinicalCard({
   screen,
@@ -204,7 +334,7 @@ export function ClinicalCard({
       <View className="flex-1 bg-ground">
         <DuskRadial intensity={0.14} />
         <View className="flex-1 items-center justify-center px-9">
-          <Eyebrow center>{`CLINICAL CONTEXT · ${screen.clinicalIndex} OF 4`}</Eyebrow>
+          <Eyebrow center>{`WHAT YOUR ANSWERS SHOW · ${screen.clinicalIndex} OF 4`}</Eyebrow>
           <Image
             source={HERO_RENDERS[screen.render]}
             resizeMode={screen.renderMode === 'cover' ? 'cover' : 'contain'}
@@ -236,17 +366,14 @@ export function ClinicalCard({
               {line}
             </Text>
           ))}
-          {screen.resolvedTease ? (
-            <Text
-              className="text-center font-serif-italic text-accent-deep"
-              style={{ fontSize: 14, marginTop: 16 }}
-            >
-              {screen.resolvedTease}
-            </Text>
-          ) : null}
         </View>
-        <View className="px-8 pb-[52px]">
-          <EmissiveCTA label={screen.resolvedButton ?? 'Continue'} onPress={onAdvance} />
+        {/* Arrow, not a labeled pill (founder review 2026-07-10): the reveal
+            cards are their own section and should navigate like one. */}
+        <View className="pb-[52px]">
+          <ArrowCTA
+            onPress={onAdvance}
+            accessibilityLabel={screen.button}
+          />
         </View>
       </View>
     </ScreenFade>

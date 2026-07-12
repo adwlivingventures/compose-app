@@ -8,7 +8,7 @@ Read CLAUDE.md (§2 Commercial Model V2 and §7 telemetry exception are newly am
 
 ## Task 1 — RevenueCat layer (`hooks/useRevenueCat.ts`, `services/` as needed)
 - Replace the one-time product and the retired toolkit SKUs ($39.99/yr, $4.99/mo) with a single subscription group behind one entitlement id `membership`.
-- Products: `compose_annual_9999` (primary), `compose_annual_6999` (experiment variant), `compose_monthly_1799` (secondary). Read prices from the RC offering — never hardcode price strings; the active annual product must come from the current Offering so RC Experiments can swap it.
+- Products: `compose_annual_9999` (primary), `compose_annual_7999` (experiment variant), `compose_monthly_1799` (secondary). Read prices from the RC offering — never hardcode price strings; the active annual product must come from the current Offering so RC Experiments can swap it.
 - `hasPurchased` in `context/ProtocolContext.tsx` maps to the `membership` entitlement (active subscription). Preserve the existing restore-purchases path.
 - Grandfather clause: if a legacy one-time entitlement exists from testing, treat it as `membership`-equivalent forever.
 

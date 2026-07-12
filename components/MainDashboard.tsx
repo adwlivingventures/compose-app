@@ -1,10 +1,13 @@
 import React, { useState } from 'react';
 import { View, Text, TouchableOpacity } from 'react-native';
+import { useRouter } from 'expo-router';
 import Svg, { Circle } from 'react-native-svg';
-import { Check, Play } from 'lucide-react-native';
+import { Check, ChevronRight, Play } from 'lucide-react-native';
 import { useProtocol, localDateString } from '../context/ProtocolContext';
 import { getProtocolDay } from '../content/ProtocolData';
 import { getTonightLine } from '../content/tonightLines';
+import { fieldNoteForDay } from '../content/fieldNotes';
+import { ledgerItemsForDay } from '../content/ledger';
 import TriageCenter from './TriageCenter';
 
 /**
@@ -82,7 +85,8 @@ function ProgressRing({ day, completedToday }: { day: number; completedToday: bo
 // ─── Main Dashboard ───────────────────────────────────────────────────────────
 
 export default function MainDashboard({ onStartSession }: { onStartSession: () => void }) {
-  const { activeDay, streak, lastCompletedDate } = useProtocol();
+  const router = useRouter();
+  const { activeDay, streak, lastCompletedDate, completedDays } = useProtocol();
   const [sosVisible, setSosVisible] = useState(false);
 
   const completedToday = lastCompletedDate === localDateString();
@@ -91,6 +95,15 @@ export default function MainDashboard({ onStartSession }: { onStartSession: () =
   const displayDay = completedToday ? Math.max(activeDay - 1, 1) : activeDay;
   const todayMeta = getProtocolDay(displayDay);
   const focusLine = todayMeta.focus.replace(/\.$/, '');
+
+  // The check-anytime ledger row (content/ledger.ts): items get checked when
+  // they happen, so the app's cue lives inside the day, not just at night.
+  const ledgerItems = ledgerItemsForDay(displayDay);
+  const ledgerCount = ledgerItems.filter(
+    (i) => completedDays[displayDay]?.ledger?.[i.key],
+  ).length;
+  // Milestone field note — authored arc texture, only on keyed days.
+  const fieldNote = completedToday ? fieldNoteForDay(displayDay) : null;
 
   return (
     <View className="flex-1 bg-ground px-7 pt-[76px]">
@@ -140,17 +153,29 @@ export default function MainDashboard({ onStartSession }: { onStartSession: () =
 
       <View className="pb-5">
         {completedToday ? (
-          /* Tonight's line — the day's authored identity line read back as a
-             quote (content/tonightLines.ts), focus string as the fallback.
-             Closure, no next-action pressure. */
-          <View className="bg-surface border border-line rounded-2xl px-[18px] py-4">
-            <Text className="text-dim text-[10px] font-bold uppercase tracking-[0.2em]">
-              Tonight's line
-            </Text>
-            <Text className="text-body text-sm leading-[22px] font-serif-italic mt-1.5">
-              "{getTonightLine(displayDay) ?? todayMeta.focus}"
-            </Text>
-          </View>
+          <>
+            {/* Milestone field note — the arc made visible at authored
+                thresholds (anti-hedonic-adaptation; content/fieldNotes.ts). */}
+            {fieldNote && (
+              <View className="bg-surface-deep border border-line rounded-2xl px-[18px] py-4 mb-3">
+                <Text className="text-dim text-[10px] font-bold uppercase tracking-[0.2em]">
+                  Field note · Day {displayDay}
+                </Text>
+                <Text className="text-body text-[13px] leading-5 mt-1.5">{fieldNote}</Text>
+              </View>
+            )}
+            {/* Tonight's line — the day's authored identity line read back as
+                a quote (content/tonightLines.ts), focus string as the
+                fallback. Closure, no next-action pressure. */}
+            <View className="bg-surface border border-line rounded-2xl px-[18px] py-4">
+              <Text className="text-dim text-[10px] font-bold uppercase tracking-[0.2em]">
+                Tonight's line
+              </Text>
+              <Text className="text-body text-sm leading-[22px] font-serif-italic mt-1.5">
+                "{getTonightLine(displayDay) ?? todayMeta.focus}"
+              </Text>
+            </View>
+          </>
         ) : (
           <>
             <TouchableOpacity
@@ -168,6 +193,27 @@ export default function MainDashboard({ onStartSession }: { onStartSession: () =
             )}
           </>
         )}
+
+        {/* The ledger row — deliberately quiet (no accent: the one dominant
+            action stays the session CTA; Hick's Law). Open until midnight in
+            both states — Screen Sunset happens after most sessions do. */}
+        <TouchableOpacity
+          onPress={() => router.push('/ledger')}
+          activeOpacity={0.7}
+          accessibilityRole="button"
+          accessibilityLabel={`Open today's Vitality Ledger. ${ledgerCount} of ${ledgerItems.length} votes cast.`}
+          className="flex-row items-center justify-between bg-surface border border-line rounded-2xl px-[18px] py-3.5 mt-3"
+        >
+          <View>
+            <Text className="text-dim text-[10px] font-bold uppercase tracking-[0.2em]">
+              Today's ledger
+            </Text>
+            <Text className="text-body text-[13px] mt-0.5">
+              {ledgerCount} of {ledgerItems.length} votes cast
+            </Text>
+          </View>
+          <ChevronRight size={16} color="#4B5563" />
+        </TouchableOpacity>
       </View>
 
       <TriageCenter visible={sosVisible} onClose={() => setSosVisible(false)} />

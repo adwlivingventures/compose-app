@@ -5,6 +5,13 @@ module.exports = {
     './components/**/*.{js,jsx,ts,tsx}',
   ],
   presets: [require('nativewind/preset')],
+  // 'class' (not the default 'media') is required for the web dev preview:
+  // react-native-css-interop's web runtime observes <html> attribute mutations
+  // (which Expo's dev overlay and font injection trigger) and calls
+  // colorScheme.set() — which throws when darkMode is 'media'. The app is
+  // dark-only and uses no `dark:` variants, so this changes no rendered style
+  // on any platform.
+  darkMode: 'class',
   theme: {
     extend: {
       // Ember Dusk v2 design tokens — Design Authority Ruling,

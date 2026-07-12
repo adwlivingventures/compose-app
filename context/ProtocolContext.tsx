@@ -5,16 +5,15 @@ import { disableDailyReminder } from '../services/notifications';
 import { hasMembershipEntitlement } from '../hooks/useRevenueCat';
 import { track } from '../services/analytics';
 
-export interface HabitState {
-  presence: boolean;
-  focus: boolean;
-  vitality: boolean;
-}
+import { LedgerState } from '../content/ledger';
 
 export interface DayData {
   completed: boolean;
   pelvicRating: number;
-  habits: HabitState;
+  /** The Vitality Ledger — phase-gated, unbundled daily votes
+   *  (content/ledger.ts; supersedes the bundled 3-item HabitState —
+   *  clean break, founder ruling 2026-07-12). */
+  ledger: LedgerState;
 }
 
 export interface PhaseInfo {
@@ -57,7 +56,10 @@ interface ProtocolContextType {
   /** Local date (YYYY-MM-DD) of the last completed session — drives the midnight pacing lock. */
   lastCompletedDate: string | null;
   markDayComplete: (day: number, data: DayData) => Promise<void>;
-  updateDailyHabits: (day: number, habits: HabitState) => Promise<void>;
+  /** Check-anytime ledger writes: items can be marked when they HAPPEN
+   *  (morning light at 8am), not recalled at 9pm — the session checklist
+   *  becomes reconciliation, not a memory test. */
+  updateDailyLedger: (day: number, ledger: LedgerState) => Promise<void>;
   unlockProtocol: () => Promise<void>;
   /** Wipes protocol progress (day, streak, completions) back to Day 1.
    *  Deliberately does NOT touch the purchase entitlement flag. */
@@ -70,6 +72,13 @@ interface ProtocolContextType {
 }
 
 const ProtocolContext = createContext<ProtocolContextType | undefined>(undefined);
+
+/**
+ * Ledger-era day data (v2). Clean break from '@completed_days_data'
+ * (bundled 3-item HabitState): the old key is neither read nor migrated —
+ * approved 2026-07-12, pre-launch, no live users mid-protocol.
+ */
+const DAYS_KEY = '@completed_days_data_v2';
 
 /**
  * ProtocolProvider acts as the operational nervous system for COMPOSE.
@@ -100,7 +109,7 @@ export const ProtocolProvider: React.FC<{ children: React.ReactNode }> = ({ chil
         streak: number;
         lastCompletedDate?: string;
       }>('@user_protocol_state');
-      const savedDays = await LocalStore.getItem<Record<number, DayData>>('@completed_days_data');
+      const savedDays = await LocalStore.getItem<Record<number, DayData>>(DAYS_KEY);
 
       if (savedProgress) {
         setActiveDay(savedProgress.activeDay);
@@ -172,7 +181,7 @@ export const ProtocolProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       streak: 0,
       lastCompletedDate: null,
     });
-    await LocalStore.setItem('@completed_days_data', {});
+    await LocalStore.setItem(DAYS_KEY, {});
   };
 
   const devJumpToDay = async (day: number) => {
@@ -189,16 +198,22 @@ export const ProtocolProvider: React.FC<{ children: React.ReactNode }> = ({ chil
   };
 
   /**
-   * Real-time toggling for the daily presence, focus, and vitality checklist habits.
+   * Check-anytime writes for the day's Vitality Ledger. Works before the
+   * session completes (the Today-tab ledger row) and is merged — never
+   * replaced — so a morning check and an evening reconciliation coexist.
    */
-  const updateDailyHabits = async (day: number, updatedHabits: HabitState) => {
-    const currentDayData = completedDays[day] || { completed: false, pelvicRating: 0, habits: updatedHabits };
+  const updateDailyLedger = async (day: number, updatedLedger: LedgerState) => {
+    const currentDayData =
+      completedDays[day] || { completed: false, pelvicRating: 0, ledger: {} };
     const newDays = {
       ...completedDays,
-      [day]: { ...currentDayData, habits: updatedHabits }
+      [day]: {
+        ...currentDayData,
+        ledger: { ...currentDayData.ledger, ...updatedLedger },
+      },
     };
     setCompletedDays(newDays);
-    await LocalStore.setItem('@completed_days_data', newDays);
+    await LocalStore.setItem(DAYS_KEY, newDays);
   };
 
   /**
@@ -240,7 +255,7 @@ export const ProtocolProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       setActiveDay(prev => Math.min(prev + 1, 75));
     }
 
-    await LocalStore.setItem('@completed_days_data', newDays);
+    await LocalStore.setItem(DAYS_KEY, newDays);
     await LocalStore.setItem('@user_protocol_state', {
       activeDay: Math.min(day + 1, 75),
       streak: newStreak,
@@ -266,7 +281,7 @@ export const ProtocolProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       completedDays,
       lastCompletedDate,
       markDayComplete,
-      updateDailyHabits,
+      updateDailyLedger,
       unlockProtocol,
       resetProtocol,
       devJumpToDay,
