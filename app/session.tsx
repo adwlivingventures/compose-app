@@ -23,6 +23,8 @@ import AudioPlayer from '../components/AudioPlayer';
 import ConditioningTrack from '../components/ConditioningTrack';
 import TriageCenter from '../components/TriageCenter';
 import SomaticPrimer from '../components/SomaticPrimer';
+import CuePicker from '../components/CuePicker';
+import { ChosenCues, CHOSEN_CUES_KEY, cuePickerDoneKey } from '../content/cues';
 
 /**
  * Daily Session — the full loop (CLAUDE.md §5), one linear all-or-nothing flow:
@@ -60,6 +62,17 @@ const TIMING_LABELS: Record<LedgerItem['timing'], string> = {
 const TIMING_ORDER: LedgerItem['timing'][] = ['morning', 'day', 'evening'];
 
 export default function SessionScreen() {
+  // Hydration guard: the body pins the protocol day at mount, so it must
+  // never mount before ProtocolContext has loaded saved progress — a
+  // pre-hydration mount (deep link, future notification routing) would pin
+  // Day 1 regardless of real progress. Same blank-ground holding pattern
+  // the primer and cue gates use.
+  const { loading } = useProtocol();
+  if (loading) return <View className="flex-1 bg-ground" />;
+  return <SessionBody />;
+}
+
+function SessionBody() {
   const router = useRouter();
   const { activeDay, markDayComplete, completedDays } = useProtocol();
   // Pin the day at mount — completion advances activeDay while this screen
@@ -109,6 +122,36 @@ export default function SessionScreen() {
     );
   }, []);
 
+  // Phase-transition gate (Days 26 and 51): before the Phase 2 / Phase 3
+  // session plays, the man binds each ledger behavior to a moment of his
+  // own choosing (implementation intentions — content/cues.ts explains the
+  // mechanism). Keyed on `day >= boundary` rather than equality so a
+  // dev-jump past the boundary still gets the picker once. Same exit
+  // semantics as the primer: leaving via X keeps the gate armed.
+  const cuePhase: 2 | 3 | null = day >= 51 ? 3 : day >= 26 ? 2 : null;
+  const [cueState, setCueState] = useState<'loading' | 'show' | 'done'>(
+    cuePhase ? 'loading' : 'done',
+  );
+  const [chosenCues, setChosenCues] = useState<ChosenCues>({});
+  useEffect(() => {
+    LocalStore.getItem<ChosenCues>(CHOSEN_CUES_KEY).then((cues) => {
+      if (cues) setChosenCues(cues);
+    });
+    if (!cuePhase) return;
+    LocalStore.getItem<boolean>(cuePickerDoneKey(cuePhase)).then((done) =>
+      setCueState(done ? 'done' : 'show'),
+    );
+  }, []);
+
+  const handleCuesChosen = async (cues: ChosenCues) => {
+    // Local-only by design (CLAUDE.md §7) — cue text, including the
+    // optional self-written variant, is never telemetered.
+    await LocalStore.setItem(CHOSEN_CUES_KEY, cues);
+    if (cuePhase) await LocalStore.setItem(cuePickerDoneKey(cuePhase), true);
+    setChosenCues(cues);
+    setCueState('done');
+  };
+
   const handleComplete = async (finalLedger: LedgerState) => {
     if (finishing) return;
     setFinishing(true);
@@ -148,9 +191,11 @@ export default function SessionScreen() {
     if (next) setStage(next);
   };
 
-  // Hold ground while the primer flag loads (one AsyncStorage read) so a
-  // Day 1 user never sees a frame of session before the gate resolves.
-  if (primerState === 'loading') return <View className="flex-1 bg-ground" />;
+  // Hold ground while the gate flags load (one AsyncStorage read each) so
+  // the user never sees a frame of session before a gate resolves.
+  if (primerState === 'loading' || cueState === 'loading') {
+    return <View className="flex-1 bg-ground" />;
+  }
 
   if (primerState === 'show') {
     return (
@@ -159,6 +204,18 @@ export default function SessionScreen() {
           LocalStore.setItem('@somatic_primer_done', true);
           setPrimerState('done');
         }}
+        onExit={() => router.back()}
+      />
+    );
+  }
+
+  if (cueState === 'show' && cuePhase) {
+    return (
+      <CuePicker
+        phase={cuePhase}
+        items={items}
+        initial={chosenCues}
+        onComplete={handleCuesChosen}
         onExit={() => router.back()}
       />
     );

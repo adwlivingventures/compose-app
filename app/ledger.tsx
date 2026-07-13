@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Check, ChevronLeft, Info } from 'lucide-react-native';
@@ -9,6 +9,8 @@ import {
   ledgerItemsForDay,
   ledgerVotes,
 } from '../content/ledger';
+import { ChosenCues, CHOSEN_CUES_KEY, cueTextForItem } from '../content/cues';
+import { LocalStore } from '../services/storage';
 
 /**
  * The Vitality Ledger — check-anytime surface (founder review 2026-07-12).
@@ -65,6 +67,15 @@ export default function LedgerScreen() {
 
   const toggle = (key: LedgerItem['key']) =>
     updateDailyLedger(day, { [key]: !ledger[key] } as LedgerState);
+
+  // Cues chosen at the Day-26/51 picker (local-only). Until he has chosen,
+  // each item shows its authored second-person suggestion instead.
+  const [chosenCues, setChosenCues] = useState<ChosenCues>({});
+  useEffect(() => {
+    LocalStore.getItem<ChosenCues>(CHOSEN_CUES_KEY).then((cues) => {
+      if (cues) setChosenCues(cues);
+    });
+  }, []);
 
   return (
     <ScrollView
@@ -143,12 +154,23 @@ export default function LedgerScreen() {
                       </TouchableOpacity>
                     </View>
                     {/* The habit-stacking cue — the implementation intention
-                        that binds the behavior to an existing daily constant. */}
-                    {!on && (
-                      <Text className="text-dim text-[11px] leading-4 mt-2.5 ml-9">
-                        {item.cue}
-                      </Text>
-                    )}
+                        that binds the behavior to an existing daily constant.
+                        His own chosen cue (Day-26/51 picker) renders as a
+                        first-person goal echo (italic); until then, the
+                        authored second-person suggestion. */}
+                    {!on &&
+                      (() => {
+                        const cue = cueTextForItem(item.key, item.cue, chosenCues);
+                        return (
+                          <Text
+                            className={`text-dim text-[11px] leading-4 mt-2.5 ml-9 ${
+                              cue.isChosen ? 'font-serif-italic' : ''
+                            }`}
+                          >
+                            {cue.text}
+                          </Text>
+                        );
+                      })()}
                   </TouchableOpacity>
                 );
               })}
