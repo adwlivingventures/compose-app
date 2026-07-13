@@ -482,9 +482,28 @@ export default function Onboarding() {
       </View>
     );
   }
+  // Question-family screens beyond the numbered range (Symptoms sits past the
+  // progress bar's total) render without the ProgressHeader chrome — give them
+  // the same top breathing room so the question doesn't ride the status bar
+  // (founder review 2026-07-13).
+  const isHeaderlessQuestion = [
+    'single-select',
+    'multi-select',
+    'text-input',
+    'wheel-input',
+    'slider-input',
+    'interactive-check',
+    'note-card',
+  ].includes(screen.archetype);
   return (
     <View className="flex-1 bg-ground">
-      {body}
+      {isHeaderlessQuestion ? (
+        <View className="flex-1" style={{ paddingTop: 54 }}>
+          {body}
+        </View>
+      ) : (
+        body
+      )}
       {history.current.length > 0 && hasFloatingBack(screen) && (
         <Pressable
           accessibilityRole="button"

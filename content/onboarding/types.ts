@@ -111,6 +111,10 @@ export interface MultiSelectScreen extends ScreenBase {
   archetype: 'multi-select';
   question: string;
   subText?: string;
+  /** Standalone instruction line, rendered below the subtext with a gap and
+   *  more presence than the paragraph (e.g. Symptoms' "Tap anything you've
+   *  noticed lately"). Keeps the reason-for-asking and the do-this separate. */
+  tapPrompt?: string;
   answerKey: AnswerKey;
   options: Option[];
   /** Grouped checklist (Symptoms): group label → options. Order preserved. */

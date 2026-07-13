@@ -8,7 +8,7 @@ import { useEffect, useRef } from 'react';
 import { Animated, Easing, ScrollView, Text, View } from 'react-native';
 import { DURATION, EASING } from '../../theme/emberDusk';
 import type { MapScreen as MapDescriptor } from '../../content/onboarding/types';
-import { verdictFor, type ComposureResult } from '../../content/onboarding/composure';
+import { verdictFor, type ComposureResult, type SeverityBar } from '../../content/onboarding/composure';
 import { GAUGE, SEVERITY } from '../../theme/emberDusk';
 import EmissiveCTA from './EmissiveCTA';
 import { ScreenFade } from './archetypes';
@@ -111,6 +111,47 @@ export function BaselineGauge({
   );
 }
 
+/** Severity rank 0–3 per grade — drives both the meter and the most-serious-
+ *  first ordering. Palette-free ranking (founder review 2026-07-13): the reader
+ *  sees which areas are worse without leaving the amber/red severity language
+ *  (Ember Dusk bans a green "good" color; healthy already reads neutral). */
+const GRADE_SEVERITY: Record<string, number> = {
+  High: 3,
+  Elevated: 2,
+  Active: 2,
+  Moderate: 2,
+  Limited: 2,
+  Partial: 1,
+  Present: 1,
+  Low: 0,
+  Full: 0,
+  Quiet: 0,
+  Unmeasured: 0,
+};
+const severityOf = (grade: string): number => GRADE_SEVERITY[grade] ?? 1;
+
+/** Three-segment severity meter: filled segments = rank, in the row's own tone
+ *  (red for High, else amber); empties sit on the hairline color. A visible
+ *  ranking that introduces no new hue. */
+function SeverityMeter({ severity, tone }: { severity: number; tone: SeverityBar['tone'] }) {
+  const fill = tone === 'red' ? SEVERITY.red : SEVERITY.amber;
+  return (
+    <View className="flex-row" style={{ gap: 2 }}>
+      {[0, 1, 2].map((i) => (
+        <View
+          key={i}
+          style={{
+            width: 8,
+            height: 4,
+            borderRadius: 2,
+            backgroundColor: i < severity ? fill : '#232D42',
+          }}
+        />
+      ))}
+    </View>
+  );
+}
+
 /** Bars continue the assembly: staggered rise, breath-out easing. */
 function StaggeredRow({ index, children }: { index: number; children: React.ReactNode }) {
   const reduceMotion = useReduceMotion();
@@ -154,6 +195,11 @@ export default function MapScreen({
   headline: string;
   onAdvance: () => void;
 }) {
+  // Most-serious first, so the ranking reads top-down (founder review
+  // 2026-07-13). Hermes' sort is stable, so ties keep the clinical order.
+  const orderedBars = [...result.bars].sort(
+    (a, b) => severityOf(b.grade) - severityOf(a.grade),
+  );
   return (
     <ScreenFade>
       <View className="flex-1 bg-ground">
@@ -219,7 +265,7 @@ export default function MapScreen({
             {screen.barsHeading.toUpperCase()}
           </Text>
           <View className="mt-2" style={{ gap: 8 }}>
-            {result.bars.map((bar, index) => (
+            {orderedBars.map((bar, index) => (
               <StaggeredRow key={bar.label} index={index}>
                 <View
                   className="rounded-xl bg-surface"
@@ -229,30 +275,33 @@ export default function MapScreen({
                     <Text className="text-ink" style={{ fontSize: 13, fontWeight: '400' }}>
                       {bar.label}
                     </Text>
-                    <View
-                      className="rounded-full"
-                      style={{
-                        paddingVertical: 3,
-                        paddingHorizontal: 9,
-                        backgroundColor:
-                          bar.tone === 'red' ? SEVERITY.redBg
-                          : bar.tone === 'amber' ? SEVERITY.amberBg
-                          : 'rgba(107,114,128,0.12)',
-                      }}
-                    >
-                      <Text
+                    <View className="flex-row items-center" style={{ gap: 8 }}>
+                      <SeverityMeter severity={severityOf(bar.grade)} tone={bar.tone} />
+                      <View
+                        className="rounded-full"
                         style={{
-                          fontSize: 10,
-                          fontWeight: '600',
-                          letterSpacing: 0.5,
-                          color:
-                            bar.tone === 'red' ? SEVERITY.red
-                            : bar.tone === 'amber' ? SEVERITY.amber
-                            : '#9CA3AF',
+                          paddingVertical: 3,
+                          paddingHorizontal: 9,
+                          backgroundColor:
+                            bar.tone === 'red' ? SEVERITY.redBg
+                            : bar.tone === 'amber' ? SEVERITY.amberBg
+                            : 'rgba(107,114,128,0.12)',
                         }}
                       >
-                        {bar.grade.toUpperCase()}
-                      </Text>
+                        <Text
+                          style={{
+                            fontSize: 10,
+                            fontWeight: '600',
+                            letterSpacing: 0.5,
+                            color:
+                              bar.tone === 'red' ? SEVERITY.red
+                              : bar.tone === 'amber' ? SEVERITY.amber
+                              : '#9CA3AF',
+                          }}
+                        >
+                          {bar.grade.toUpperCase()}
+                        </Text>
+                      </View>
                     </View>
                   </View>
                   {/* Plain-English read of this bar, traced to his answer. */}

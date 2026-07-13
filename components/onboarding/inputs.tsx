@@ -237,6 +237,14 @@ export function MultiSelect({
         showsVerticalScrollIndicator={false}
       >
         <QuestionShell question={screen.question} subText={screen.subText}>
+          {screen.tapPrompt ? (
+            <Text
+              className="text-ink"
+              style={{ fontSize: 15, fontWeight: '300', marginBottom: 18 }}
+            >
+              {screen.tapPrompt}
+            </Text>
+          ) : null}
           <MultiSelectList
             options={screen.options}
             groups={screen.groups}

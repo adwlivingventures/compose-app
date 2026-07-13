@@ -60,11 +60,21 @@ describe('physician triage condition (screen 12)', () => {
 
 describe('partner impact (screen 20) — one question for everyone', () => {
   // Founder ruling 2026-07-10: the single/casual branch is retired; the
-  // partnered phrasing runs unconditionally.
-  test('is a plain single-select with no display logic', () => {
+  // partnered phrasing runs unconditionally. 2026-07-13: converted to
+  // multi-select (the relational and inward facets co-occur) with an inward
+  // option added — still one unconditional question for everyone.
+  test('is a multi-select for everyone, with no display logic', () => {
     const partner = SCREENS.find((s) => s.id === 'partner-impact')!;
-    expect(partner.archetype).toBe('single-select');
+    expect(partner.archetype).toBe('multi-select');
     expect(partner.displayLogic).toBeUndefined();
+  });
+
+  test('offers the inward option alongside the outward ones', () => {
+    const partner = SCREENS.find((s) => s.id === 'partner-impact')!;
+    expect(partner.archetype).toBe('multi-select');
+    if (partner.archetype === 'multi-select') {
+      expect(partner.options.map((o) => o.value)).toContain('i-get-distant');
+    }
   });
 });
 

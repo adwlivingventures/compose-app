@@ -65,7 +65,7 @@ export const SCREENS: Screen[] = [
       'Compose is a structured daily program built on Cognitive Behavioral Sex Therapy (CBST) and subconscious identity retraining.',
       'Before we suggest anything, we listen — first to the body, then to the mind. Then we build your protocol around what we find.',
     ],
-    button: 'Start with the body',
+    button: 'Let’s begin',
   },
 
   // ── Part 1 of 3 — Your Situation ───────────────────────────────────────
@@ -113,7 +113,7 @@ export const SCREENS: Screen[] = [
     archetype: 'single-select',
     question: 'How long has this been affecting your intimate life?',
     subText:
-      'However long it’s been: conditioned means learned, and learned means reversible.',
+      'Whatever the answer, the mechanism is the same: a conditioned response. Conditioning can be retrained.',
     answerKey: 'duration',
     options: [
       { value: 'under-6m', label: 'Less than 6 months' },
@@ -179,9 +179,9 @@ export const SCREENS: Screen[] = [
     section: 'part2',
     archetype: 'multi-select',
     question:
-      'Have you ever tried pills (Viagra/Cialis), sprays, or numbing creams to fix this?',
+      'Have you tried pills, sprays, creams, or supplements to fix this?',
     subText:
-      'Most men start here. Pills move blood. They don’t touch the signal telling your body it’s under threat.',
+      'Most men start here. Pills work on blood flow. Creams dull sensation. Neither reaches the signal underneath.',
     answerKey: 'bandaidHistory',
     options: [
       { value: 'pills', label: 'Pills (Viagra/Cialis)' },
@@ -195,10 +195,9 @@ export const SCREENS: Screen[] = [
     id: 'morning-arousal',
     section: 'part2',
     archetype: 'single-select',
-    question:
-      'When you wake up in the morning, does your body show physical arousal on its own?',
+    question: 'Do you wake up with morning erections?',
     subText:
-      'This tells us whether the problem is physical or mental. If your body responds on its own, the physical side works.',
+      'Clinicians screen this first. It separates the wiring from the signal.',
     answerKey: 'morningArousal',
     options: [
       { value: 'most', label: 'Most mornings' },
@@ -245,13 +244,12 @@ export const SCREENS: Screen[] = [
     id: 'adrenaline-spike',
     section: 'part2',
     archetype: 'single-select',
-    question:
-      'When you initiate intimacy, do you feel a sudden spike in your heart rate, or a rush of nervous adrenaline in your chest?',
+    question: 'When intimacy starts, do you feel a rush of adrenaline?',
     answerKey: 'adrenalineSpike',
     options: [
       { value: 'panic', label: 'Yes — it feels close to panic' },
-      { value: 'push-through', label: 'Yes — a strong surge, but I push through it' },
-      { value: 'occasionally', label: 'Sometimes, depending on the night' },
+      { value: 'push-through', label: 'Yes — a strong surge but I push through it' },
+      { value: 'occasionally', label: 'Sometimes — depending on the night' },
       { value: 'calm', label: 'No — I stay calm' },
     ],
   },
@@ -259,16 +257,15 @@ export const SCREENS: Screen[] = [
     id: 'breath-edge',
     section: 'part2',
     archetype: 'single-select',
-    question:
-      'In the final moments — right before you finish, or as you feel yourself fading — what happens to your breathing?',
+    question: 'At the peak of arousal, what happens to your breathing?',
     subText:
-      'Breath under arousal is the clearest window into your nervous system. Most men have never been asked.',
+      'Breath under arousal is the clearest window into your nervous system.',
     answerKey: 'breathEdge',
     options: [
-      { value: 'shallow-hold', label: 'It gets shallow, or I hold it completely' },
-      { value: 'speeds-up', label: 'It speeds up — short, fast breaths' },
+      { value: 'shallow-hold', label: 'It gets shallow, or I hold my breath' },
+      { value: 'speeds-up', label: 'It speeds up — short and fast' },
       { value: 'slow-deep', label: 'It stays slow and deep' },
-      { value: 'never-noticed', label: 'Honestly, I’ve never noticed' },
+      { value: 'never-noticed', label: 'I’ve never noticed' },
     ],
   },
   {
@@ -333,7 +330,7 @@ export const SCREENS: Screen[] = [
     archetype: 'single-select',
     question: 'In an average week, how often do you watch porn?',
     subText:
-      'No judgment in this question — it maps how your arousal system has been trained.',
+      'Our dopamine reward system calibrates to its most frequent inputs.',
     answerKey: 'contentFrequency',
     options: [
       { value: 'rarely', label: 'Rarely or never' },
@@ -362,7 +359,7 @@ export const SCREENS: Screen[] = [
     section: 'part3',
     archetype: 'single-select',
     question:
-      'During intimacy, do you ever feel like you’re watching yourself from the outside — evaluating instead of experiencing?',
+      'During intimacy, do you watch and grade yourself instead of being present?',
     subText: 'Clinicians call this "spectatoring." It has a name because it’s common.',
     answerKey: 'spectatoring',
     options: [
@@ -375,20 +372,28 @@ export const SCREENS: Screen[] = [
   {
     id: 'partner-impact',
     section: 'part3',
-    archetype: 'single-select',
+    archetype: 'multi-select',
     // Founder ruling 2026-07-10: ONE question for everyone — the partnered
     // phrasing is the more powerful one, and "your partner" reads fine for a
     // single man (the partner of that night). The old single/casual branch
     // is retired.
+    // 2026-07-13: multi-select — these facets co-occur (relational strain,
+    // reduced frequency, and his own withdrawal can all be true at once).
+    // Added the lone inward option ("I get distant") among the outward ones;
+    // it names his reaction's effect on closeness without stepping on the
+    // aftermath screen (which owns his private feelings: shame/anger/etc.).
     question:
       'When things don’t go as planned in the bedroom, how does it affect the connection with your partner?',
+    subText: 'Select all that apply.',
     answerKey: 'partnerImpact',
     options: [
       { value: 'partner-blames-self', label: 'My partner blames themselves' },
       { value: 'unspoken-tension', label: 'There’s tension we don’t talk about' },
+      { value: 'i-get-distant', label: 'I get distant' },
       { value: 'less-intimacy', label: 'We’ve stopped being intimate as often' },
       { value: 'working-together', label: 'We’re working through it together' },
     ],
+    button: 'Continue',
   },
   {
     id: 'aftermath',
@@ -422,12 +427,14 @@ export const SCREENS: Screen[] = [
     section: 'part3',
     archetype: 'multi-select',
     question:
-      'When a session ends prematurely or falters, which of these run through your mind? Tap every one that shows up.',
-    subText: 'Scripts, not facts — and a script you’ve named is one you can interrupt.',
+      'When a session doesn’t go as planned, which of these run through your mind?',
+    subText:
+      'Select all that apply. These are scripts, not facts. Your subconscious replays them after a setback.',
     answerKey: 'scripts',
     options: [
       { value: 'broken', label: '"I am broken"' },
       { value: 'disappointed', label: '"She is disappointed in me"' },
+      { value: 'she-leaves', label: '"She’ll leave me for someone else"' },
       { value: 'never-fix', label: '"I will never fix this"' },
       { value: 'less-of-a-man', label: '"I’m less of a man"' },
     ],
@@ -437,8 +444,8 @@ export const SCREENS: Screen[] = [
     id: 'spillover',
     section: 'part3',
     archetype: 'single-select',
-    question:
-      'Does this follow you out of the bedroom — into your work, your confidence, how you carry yourself?',
+    question: 'Does this follow you out of the bedroom?',
+    subText: 'Into your work, your confidence, how you carry yourself?',
     answerKey: 'spillover',
     options: [
       { value: 'everything', label: 'Yes — it touches everything' },
@@ -458,7 +465,8 @@ export const SCREENS: Screen[] = [
     archetype: 'multi-select',
     question: 'The cost isn’t only in the bedroom.',
     subText:
-      'When your nervous system treats intimacy as a threat, it pays a tax everywhere. Tap anything you’ve noticed lately:',
+      'These aren’t separate problems. They’re one stress response showing up in different places. We map each to see the full picture.',
+    tapPrompt: 'Tap anything you’ve noticed lately.',
     answerKey: 'symptoms',
     options: [],
     groups: [
@@ -466,9 +474,9 @@ export const SCREENS: Screen[] = [
         label: 'MIND',
         options: [
           { value: 'concentrate', label: 'Hard to concentrate' },
-          { value: 'brain-fog', label: 'Brain fog' },
+          { value: 'irritable', label: 'Irritability or a short fuse' },
           { value: 'anxiety-hum', label: 'A background hum of anxiety' },
-          { value: 'low-drive', label: 'Low drive to chase goals' },
+          { value: 'low-drive', label: 'Low drive to pursue goals' },
         ],
       },
       {
@@ -483,8 +491,8 @@ export const SCREENS: Screen[] = [
         label: 'CONNECTION',
         options: [
           { value: 'avoiding-partner', label: 'Avoiding intimacy with my partner' },
-          { value: 'pulling-away', label: 'Pulling away from people' },
-          { value: 'less-going-out', label: 'Less interest in going out' },
+          { value: 'avoiding-dating', label: 'Avoiding dating or new partners' },
+          { value: 'pulling-away', label: 'Pulling away from people and going out less' },
         ],
       },
       {
@@ -523,10 +531,15 @@ export const SCREENS: Screen[] = [
     scoreLabel:
       'Your Composure Score — how steady your body stays under intimate pressure.',
     gauge: {
+      // "Composed zone" (founder ruling 2026-07-13) ties the target band to
+      // the product name and the Composure Score. Only the destination band is
+      // named — the lower ranges stay unlabeled on purpose (a named low zone
+      // would stamp a shame label the moment he opens up). Field keys stay
+      // `calm*` internally; the user only ever sees the strings below.
       calmZone: [80, 100],
-      calmLabel: 'CALM ZONE · 80–100',
+      calmLabel: 'COMPOSED ZONE · 80–100',
       axisLow: '0 · adrenaline runs it',
-      axisHigh: '100 · calm & present',
+      axisHigh: '100 · composed & present',
     },
     barsHeading: 'Where it’s coming from',
     bars: [

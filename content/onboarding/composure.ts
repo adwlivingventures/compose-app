@@ -17,8 +17,9 @@ import type { Answers } from './logic';
 // adrenaline, breath-holding, spectatoring most sessions, partial release,
 // moderate everything else) must land near the reference's 41. With these
 // weights he scores 37; the full-severity floor is the clamp's 12 and the
-// all-calm ceiling is 70 — the score always leaves a visible gap to the
-// 80–100 calm zone, because the gap IS the honest premise.
+// all-calm ceiling is the clamp's 76 (best-possible answers compute to ~91
+// pre-clamp) — the score always leaves a visible gap to the 80–100 calm
+// zone, because the gap IS the honest premise.
 export const COMPOSURE_WEIGHTS: {
   base: number;
   clamp: [number, number];

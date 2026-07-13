@@ -65,9 +65,12 @@ export default function Generating({
       }, COMPLETE_AT),
     );
     timers.push(setTimeout(finish, COMPLETE_AT + SETTLE_MS));
+    // ~60fps so the ring glides rather than stepping (founder review
+    // 2026-07-13). Same total duration; smaller, more frequent increments.
+    const TICK_MS = 16;
     const interval = setInterval(() => {
-      setProgress((p) => Math.min(p + 100 / (COMPLETE_AT / 50), 100));
-    }, 50);
+      setProgress((p) => Math.min(p + 100 / (COMPLETE_AT / TICK_MS), 100));
+    }, TICK_MS);
     return () => {
       timers.forEach(clearTimeout);
       clearInterval(interval);
@@ -86,6 +89,15 @@ export default function Generating({
         className="flex-1 items-center justify-center bg-ground px-8"
         style={{ opacity: exhale }}
       >
+        {/* Status header (added 2026-07-13) — names what's happening while the
+            ring fills, so the screen reads as active analysis, not just a
+            number climbing. */}
+        <Text
+          className="font-serif-regular text-ink text-center"
+          style={{ fontSize: 20, marginBottom: 26 }}
+        >
+          Analyzing your responses
+        </Text>
         <View style={{ width: size, height: size }} className="items-center justify-center">
           {/* The Ember gathers as the map computes; coherence follows progress,
               settling toward the score's own coherence at the end. */}

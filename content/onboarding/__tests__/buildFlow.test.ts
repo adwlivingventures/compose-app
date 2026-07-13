@@ -151,6 +151,6 @@ describe('buildFlow', () => {
       ],
     });
     const partner = byId.get('partner-impact');
-    expect(partner?.archetype).toBe('single-select');
+    expect(partner?.archetype).toBe('multi-select');
   });
 });

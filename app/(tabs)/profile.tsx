@@ -306,11 +306,18 @@ export default function ProfileScreen() {
         {__DEV__ && (
           <>
             <TouchableOpacity
-              onPress={() => router.push('/onboarding')}
+              onPress={async () => {
+                // Clear the saved onboarding progress so replay starts at the
+                // very first screen — otherwise the flow resumes from wherever
+                // it was last left (its resume-state behavior). Dev-only.
+                await LocalStore.setItem('@onboarding_flow_v1', null);
+                await LocalStore.setItem('@paywall_dismissed', null);
+                router.push('/onboarding');
+              }}
               activeOpacity={0.7}
               className="p-4 flex-row items-center justify-between border-b border-line"
             >
-              <Text className="text-dim text-sm">Replay Onboarding (dev only)</Text>
+              <Text className="text-dim text-sm">Replay Onboarding from start (dev only)</Text>
               <ChevronRight color="#4B5563" size={16} />
             </TouchableOpacity>
             <TouchableOpacity
