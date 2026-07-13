@@ -690,7 +690,7 @@ export const SCREENS: Screen[] = [
     eyebrow: 'ONE QUESTION',
     headline: 'Help prove this method works?',
     body:
-      'Everything you answer and write stays on this phone — that does not change. To show the protocol works, we ask to count anonymous milestones across all users.',
+      'Everything you answer and write stays on this phone — that does not change. To show the protocol works, we ask to count anonymous milestones across all users. Each count carries one of four broad profile groups — never your answers — so results can be shown across different starting points.',
     bullets: [
       'Counts only — a session completed, a score measured',
       'Never your words, never who you are',

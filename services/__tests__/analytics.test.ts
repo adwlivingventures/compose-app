@@ -24,12 +24,15 @@ import {
   flushTelemetry,
   setTelemetryConsent,
   getTelemetryConsent,
+  setTelemetrySegment,
   setTelemetryTransport,
+  TELEMETRY_SEGMENTS,
   __resetTelemetryForTests,
   type TelemetryEvent,
 } from '../analytics';
 import { LocalStore } from '../storage';
 import { DISTORTION_ORDER } from '../../content/restructure';
+import { SEGMENT_SLUGS, deriveSegment } from '../../content/onboarding/segment';
 
 const memory: Map<string, unknown> = (LocalStore as any).__memory;
 
@@ -103,6 +106,49 @@ describe('event schema whitelist', () => {
   });
 });
 
+describe('presentation segment (founder-approved 2026-07-12)', () => {
+  test('segment taxonomy matches the content layer exactly', () => {
+    // Same guard as the distortion sync test: a slug added on one side but
+    // not the other would silently drop or silently widen. Exact match only.
+    expect([...TELEMETRY_SEGMENTS].sort()).toEqual([...SEGMENT_SLUGS].sort());
+  });
+
+  test('segment rides only the four lifecycle events', () => {
+    const carrying = Object.keys(EVENT_SCHEMA).filter((e) => 'segment' in EVENT_SCHEMA[e]);
+    expect(carrying.sort()).toEqual(
+      ['composure_measured', 'day_completed', 'graduated', 'purchase'].sort(),
+    );
+  });
+
+  test('valid segment values are accepted; invalid ones are rejected', () => {
+    for (const slug of SEGMENT_SLUGS) {
+      expect(isWhitelisted('day_completed', { day: 3, segment: slug })).toBe(true);
+    }
+    expect(isWhitelisted('day_completed', { day: 3, segment: 'pe-severe' })).toBe(false);
+    expect(
+      isWhitelisted('graduated', { segment: 'finishes fast when anxious' }),
+    ).toBe(false);
+  });
+
+  test('segment is optional — an untagged lifecycle event still counts', () => {
+    expect(isWhitelisted('day_completed', { day: 3 })).toBe(true);
+    expect(isWhitelisted('graduated', {})).toBe(true);
+  });
+
+  test('non-lifecycle events reject a segment field', () => {
+    expect(isWhitelisted('sos_opened', { segment: 'mixed' })).toBe(false);
+    expect(isWhitelisted('onboarding_started', { segment: 'mixed' })).toBe(false);
+  });
+
+  test('derivation is deterministic over the presentation axes', () => {
+    expect(deriveSegment({ reasons: ['finish-quickly'] })).toBe('pe-dominant');
+    expect(deriveSegment({ reasons: ['maintain', 'avoiding'] })).toBe('ed-dominant');
+    expect(deriveSegment({ reasons: ['finish-quickly', 'maintain'] })).toBe('mixed');
+    expect(deriveSegment({ reasons: ['in-my-head'] })).toBe('anxiety-primary');
+    expect(deriveSegment({})).toBe('anxiety-primary');
+  });
+});
+
 describe('consent gate', () => {
   let sent: TelemetryEvent[][];
 
@@ -161,6 +207,42 @@ describe('consent gate', () => {
       const allowed = new Set([...Object.keys(EVENT_SCHEMA[e.event]), 'event', 'ts']);
       for (const key of Object.keys(e)) expect(allowed.has(key)).toBe(true);
     }
+  });
+
+  test('lifecycle events auto-carry the segment once set; other events never do', async () => {
+    await setTelemetryConsent(true);
+    setTelemetrySegment('pe-dominant');
+    track('day_completed', { day: 12 });
+    track('sos_opened');
+    await flushTelemetry();
+
+    const byName = Object.fromEntries(sent.flat().map((e) => [e.event, e]));
+    expect(byName.day_completed.segment).toBe('pe-dominant');
+    expect('segment' in byName.sos_opened).toBe(false);
+  });
+
+  test('a segment persisted by onboarding is rehydrated after relaunch', async () => {
+    await setTelemetryConsent(true);
+    memory.set('@presentation_segment', 'mixed');
+    __resetTelemetryForTests(); // simulate app relaunch — storage survives
+
+    await getTelemetryConsent(); // settle hydration (as a real launch would)
+    track('day_completed', { day: 30 });
+    await flushTelemetry();
+
+    const event = sent.flat().find((e) => e.event === 'day_completed');
+    expect(event?.segment).toBe('mixed');
+  });
+
+  test('an invalid stored segment is ignored, never sent', async () => {
+    await setTelemetryConsent(true);
+    setTelemetrySegment('pe-severe-detailed-profile');
+    track('day_completed', { day: 5 });
+    await flushTelemetry();
+
+    const event = sent.flat().find((e) => e.event === 'day_completed');
+    expect(event).toBeDefined();
+    expect('segment' in event!).toBe(false);
   });
 
   test('transport failure requeues silently — nothing throws, nothing is lost', async () => {

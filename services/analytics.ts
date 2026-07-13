@@ -20,6 +20,20 @@ import { LocalStore } from './storage';
 export type TelemetryConsent = 'granted' | 'declined' | 'unset';
 
 const CONSENT_KEY = '@telemetry_consent';
+// Written by content/onboarding/segment.ts (the derivation side); read here
+// so a relaunch re-attaches the tag without the content layer's involvement.
+const SEGMENT_KEY = '@presentation_segment';
+
+/** The hydrated segment slug, or null before onboarding derives one. */
+let segment: TelemetrySegment | null = null;
+
+/** Content layer hands the derived slug over; invalid input is dropped —
+ *  this module trusts the closed list, not the caller. */
+export function setTelemetrySegment(slug: string): void {
+  if ((SEGMENTS as readonly string[]).includes(slug)) {
+    segment = slug as TelemetrySegment;
+  }
+}
 
 // ─── Event whitelist ────────────────────────────────────────────────────────
 // A field is either 'int' (finite number, rounded), 'slug' (a short
@@ -28,6 +42,15 @@ const CONSENT_KEY = '@telemetry_consent';
 // COULD carry written content is a spec violation (§7).
 
 const TERMS = ['annual', 'monthly'] as const;
+// Coarse presentation segment (founder-approved 2026-07-12) — exactly one
+// field, exactly four broad values; anything finer is a re-identification
+// surface. The derivation lives in content/onboarding/segment.ts (this
+// module never sees the inputs); a sync test keeps the two lists in
+// lockstep. Lifecycle events self-carry the tag because signals have no
+// per-user join key — segment-cut retention curves need it on every event.
+const SEGMENTS = ['pe-dominant', 'ed-dominant', 'mixed', 'anxiety-primary'] as const;
+export type TelemetrySegment = (typeof SEGMENTS)[number];
+export const TELEMETRY_SEGMENTS: readonly string[] = SEGMENTS;
 // Mirrors the Distortion union in content/restructure.ts (superset of the
 // Fallacy union in hooks/useDefusionLog.ts) — the tag, never the text.
 const DISTORTIONS = [
@@ -52,7 +75,16 @@ const SCREEN_ACTIONS = [
 
 export type ScreenAction = (typeof SCREEN_ACTIONS)[number];
 
-type FieldSpec = 'int' | 'slug' | readonly string[];
+type FieldSpec =
+  | 'int'
+  | 'slug'
+  | readonly string[]
+  | { oneOf: readonly string[]; optional: true };
+
+// The segment rides only on the four lifecycle events that draw the cohort
+// curves. Optional by design: an event that fires before the slug hydrates
+// (or on a pre-segment install) still counts — it just lands untagged.
+const SEGMENT_FIELD: FieldSpec = { oneOf: SEGMENTS, optional: true };
 
 export const EVENT_SCHEMA: Record<string, Record<string, FieldSpec>> = {
   onboarding_started: {},
@@ -61,14 +93,14 @@ export const EVENT_SCHEMA: Record<string, Record<string, FieldSpec>> = {
     action: SCREEN_ACTIONS,
     elapsed_ms: 'int',
   },
-  composure_measured: { score: 'int', day: 'int' },
+  composure_measured: { score: 'int', day: 'int', segment: SEGMENT_FIELD },
   paywall_viewed: {},
-  purchase: { term: TERMS },
-  day_completed: { day: 'int' },
+  purchase: { term: TERMS, segment: SEGMENT_FIELD },
+  day_completed: { day: 'int', segment: SEGMENT_FIELD },
   control_score: { value: 'int', day: 'int' },
   sos_opened: {},
   restructurer_used: { distortion: DISTORTIONS },
-  graduated: {},
+  graduated: { segment: SEGMENT_FIELD },
   export_used: {},
 };
 
@@ -83,7 +115,15 @@ export interface TelemetryEvent {
 
 const SLUG_PATTERN = /^[a-z0-9][a-z0-9-]{0,39}$/;
 
-/** Exact-shape check: every declared field present and valid, no extras. */
+// TS can't narrow readonly arrays through Array.isArray — explicit guard.
+function isOptionalSpec(
+  spec: FieldSpec,
+): spec is { oneOf: readonly string[]; optional: true } {
+  return typeof spec === 'object' && !Array.isArray(spec);
+}
+
+/** Exact-shape check: every required field present and valid, no extras;
+ *  optional fields, when present, must match their closed list. */
 export function isWhitelisted(
   event: string,
   payload: Record<string, unknown>,
@@ -91,12 +131,18 @@ export function isWhitelisted(
   const schema = EVENT_SCHEMA[event];
   if (!schema) return false;
   const schemaKeys = Object.keys(schema);
-  const payloadKeys = Object.keys(payload);
-  if (payloadKeys.length !== schemaKeys.length) return false;
+  for (const key of Object.keys(payload)) {
+    if (!schemaKeys.includes(key)) return false;
+  }
   for (const key of schemaKeys) {
     const spec = schema[key];
     const value = payload[key];
-    if (spec === 'int') {
+    if (isOptionalSpec(spec)) {
+      if (value === undefined) continue; // optional field absent — fine
+      if (typeof value !== 'string' || !spec.oneOf.includes(value)) return false;
+    } else if (value === undefined) {
+      return false; // required field missing
+    } else if (spec === 'int') {
       if (typeof value !== 'number' || !Number.isFinite(value)) return false;
     } else if (spec === 'slug') {
       if (typeof value !== 'string' || !SLUG_PATTERN.test(value)) return false;
@@ -166,10 +212,16 @@ let flushTimer: ReturnType<typeof setTimeout> | null = null;
 
 function hydrateConsent(): Promise<void> {
   if (!hydrating) {
-    hydrating = LocalStore.getItem<TelemetryConsent>(CONSENT_KEY).then((stored) => {
+    hydrating = Promise.all([
+      LocalStore.getItem<TelemetryConsent>(CONSENT_KEY),
+      LocalStore.getItem<string>(SEGMENT_KEY),
+    ]).then(([stored, storedSegment]) => {
       // A decision made in a previous session wins; otherwise stay unset and
       // keep buffering until the onboarding consent step resolves it.
       if (consent === null) consent = stored ?? 'unset';
+      if (segment === null && typeof storedSegment === 'string') {
+        setTelemetrySegment(storedSegment);
+      }
       if (consent === 'granted') {
         queue.push(...pending);
         pending = [];
@@ -219,6 +271,12 @@ export function track(
   payload: Record<string, string | number> = {},
 ): void {
   if (consent === 'declined') return;
+  // Lifecycle events self-carry the segment tag when it's known. Callsites
+  // never pass it — one attach point means one place the closed list is
+  // enforced, and an event that fires before hydration simply goes untagged.
+  if (segment !== null && 'segment' in (EVENT_SCHEMA[event] ?? {}) && payload.segment === undefined) {
+    payload = { ...payload, segment };
+  }
   if (!isWhitelisted(event, payload)) {
     if (typeof __DEV__ !== 'undefined' && __DEV__) {
       // eslint-disable-next-line no-console
@@ -266,6 +324,7 @@ export async function getTelemetryConsent(): Promise<TelemetryConsent> {
 export function __resetTelemetryForTests(): void {
   consent = null;
   hydrating = null;
+  segment = null;
   pending = [];
   queue = [];
   if (flushTimer !== null) {

@@ -34,6 +34,7 @@ import {
   type ScreenAction,
 } from '../services/analytics';
 import { seal } from '../services/haptics';
+import { persistSegment } from '../content/onboarding/segment';
 import { useProtocol } from '../context/ProtocolContext';
 import { useRevenueCat } from '../hooks/useRevenueCat';
 
@@ -384,16 +385,18 @@ export default function Onboarding() {
             result={composure}
             headline={withName(screen.headline, answers)}
             onAdvance={() => {
+              // The coarse presentation segment is derived and stored the
+              // moment the diagnostic is complete — before the first
+              // lifecycle event fires, so the Day-0 baseline already
+              // carries the tag. Slug only; the answers stay on-device.
+              persistSegment(answers);
               // The Day-0 baseline point of the outcome curve (§7): the
               // score alone, never the inputs that produced it. The same
-              // reading is persisted locally as the fixed point every
-              // Day 14/40/75 re-measurement stands against.
+              // reading is persisted locally (services/composureHistory)
+              // as the fixed point every Day 14/40/75 re-measurement
+              // stands against. Fire-and-forget; the flow never waits.
               recordComposure(0, composure.score);
               track('composure_measured', { score: composure.score, day: 0 });
-              // Local record too (services/composureHistory) — the baseline
-              // the Baseline tab and every future re-measurement compare
-              // against. Fire-and-forget; the flow never waits on storage.
-              recordComposure(0, composure.score);
               advance();
             }}
           />
