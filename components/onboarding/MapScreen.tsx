@@ -8,7 +8,7 @@ import { useEffect, useRef } from 'react';
 import { Animated, Easing, ScrollView, Text, View } from 'react-native';
 import { DURATION, EASING } from '../../theme/emberDusk';
 import type { MapScreen as MapDescriptor } from '../../content/onboarding/types';
-import { verdictFor, type ComposureResult, type SeverityBar } from '../../content/onboarding/composure';
+import { type ComposureResult, type SeverityBar } from '../../content/onboarding/composure';
 import { GAUGE, SEVERITY } from '../../theme/emberDusk';
 import EmissiveCTA from './EmissiveCTA';
 import { ScreenFade } from './archetypes';
@@ -130,11 +130,22 @@ const GRADE_SEVERITY: Record<string, number> = {
 };
 const severityOf = (grade: string): number => GRADE_SEVERITY[grade] ?? 1;
 
-/** Three-segment severity meter: filled segments = rank, in the row's own tone
- *  (red for High, else amber); empties sit on the hairline color. A visible
- *  ranking that introduces no new hue. */
-function SeverityMeter({ severity, tone }: { severity: number; tone: SeverityBar['tone'] }) {
-  const fill = tone === 'red' ? SEVERITY.red : SEVERITY.amber;
+// Severity colour ramp (founder ruling 2026-07-13): 1 tick = gold, 2 = orange
+// (the midpoint blend of gold and red), 3 = red. Orange is the only added hue —
+// a blend of the two existing severity colours, not a new green/traffic light.
+const SEVERITY_ORANGE = '#DD915B';
+function severityColors(severity: number): { fill: string; bg: string; text: string } {
+  if (severity >= 3) return { fill: SEVERITY.red, bg: SEVERITY.redBg, text: SEVERITY.red };
+  if (severity === 2)
+    return { fill: SEVERITY_ORANGE, bg: 'rgba(221,145,91,0.15)', text: SEVERITY_ORANGE };
+  if (severity === 1) return { fill: SEVERITY.amber, bg: SEVERITY.amberBg, text: SEVERITY.amber };
+  return { fill: '#232D42', bg: 'rgba(107,114,128,0.12)', text: '#9CA3AF' };
+}
+
+/** Three-segment severity meter: filled segments = rank, coloured by that rank
+ *  (gold / orange / red); empties sit on the hairline colour. */
+function SeverityMeter({ severity }: { severity: number }) {
+  const fill = severityColors(severity).fill;
   return (
     <View className="flex-row" style={{ gap: 2 }}>
       {[0, 1, 2].map((i) => (
@@ -200,6 +211,15 @@ export default function MapScreen({
   const orderedBars = [...result.bars].sort(
     (a, b) => severityOf(b.grade) - severityOf(a.grade),
   );
+  // Guarantee at least one red: if his worst area is a genuine problem
+  // (moderate) but nothing hit High naturally, his single worst driver reads
+  // red — honest ranking of his real answers, framed as his primary driver
+  // (founder ruling 2026-07-13). Guarded to severity 2 so a genuinely mild
+  // profile (near-impossible in this funnel) is never given a fabricated red.
+  const topRaw = orderedBars.length ? severityOf(orderedBars[0].grade) : 0;
+  const promoteTop = topRaw === 2;
+  const displayedSeverity = (bar: SeverityBar, i: number) =>
+    i === 0 && promoteTop ? 3 : severityOf(bar.grade);
   return (
     <ScreenFade>
       <View className="flex-1 bg-ground">
@@ -229,15 +249,7 @@ export default function MapScreen({
             {screen.scoreLabel}
           </Text>
 
-          {/* The verdict: one sentence that says plainly whether this is bad. */}
-          <Text
-            className="mt-3 text-ink"
-            style={{ fontSize: 14, fontWeight: '300', lineHeight: 22 }}
-          >
-            {verdictFor(result.score)}
-          </Text>
-
-          <View className="mt-4">
+          <View className="mt-5">
             <BaselineGauge score={result.score} calmZone={screen.gauge.calmZone} />
             <View className="mt-6 flex-row justify-between">
               <Text className="text-muted" style={{ fontSize: 10, fontWeight: '300' }}>
@@ -265,7 +277,10 @@ export default function MapScreen({
             {screen.barsHeading.toUpperCase()}
           </Text>
           <View className="mt-2" style={{ gap: 8 }}>
-            {orderedBars.map((bar, index) => (
+            {orderedBars.map((bar, index) => {
+              const sev = displayedSeverity(bar, index);
+              const c = severityColors(sev);
+              return (
               <StaggeredRow key={bar.label} index={index}>
                 <View
                   className="rounded-xl bg-surface"
@@ -276,16 +291,13 @@ export default function MapScreen({
                       {bar.label}
                     </Text>
                     <View className="flex-row items-center" style={{ gap: 8 }}>
-                      <SeverityMeter severity={severityOf(bar.grade)} tone={bar.tone} />
+                      <SeverityMeter severity={sev} />
                       <View
                         className="rounded-full"
                         style={{
                           paddingVertical: 3,
                           paddingHorizontal: 9,
-                          backgroundColor:
-                            bar.tone === 'red' ? SEVERITY.redBg
-                            : bar.tone === 'amber' ? SEVERITY.amberBg
-                            : 'rgba(107,114,128,0.12)',
+                          backgroundColor: c.bg,
                         }}
                       >
                         <Text
@@ -293,10 +305,7 @@ export default function MapScreen({
                             fontSize: 10,
                             fontWeight: '600',
                             letterSpacing: 0.5,
-                            color:
-                              bar.tone === 'red' ? SEVERITY.red
-                              : bar.tone === 'amber' ? SEVERITY.amber
-                              : '#9CA3AF',
+                            color: c.text,
                           }}
                         >
                           {bar.grade.toUpperCase()}
@@ -313,7 +322,8 @@ export default function MapScreen({
                   </Text>
                 </View>
               </StaggeredRow>
-            ))}
+              );
+            })}
           </View>
         </ScrollView>
 

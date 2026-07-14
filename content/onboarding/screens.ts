@@ -539,9 +539,9 @@ export const SCREENS: Screen[] = [
       calmZone: [80, 100],
       calmLabel: 'COMPOSED ZONE · 80–100',
       axisLow: '0 · adrenaline runs it',
-      axisHigh: '100 · composed & present',
+      axisHigh: '100 · calm & present',
     },
-    barsHeading: 'Where it’s coming from',
+    barsHeading: 'Your biggest drivers',
     bars: [
       { label: 'Sympathetic override' },
       { label: 'Spectatoring loop' },
