@@ -43,6 +43,9 @@ export type Condition =
   | { key: AnswerKey; equals: string }
   | { key: AnswerKey; oneOf: string[] }
   | { key: AnswerKey; lte: number }
+  /** For multi-select answers (string[]): true if the answer contains any of
+   *  these values. Used to gate the band-aids card on prior pill/cream use. */
+  | { key: AnswerKey; includesAny: string[] }
   | { all: Condition[] };
 
 export interface Option {
@@ -158,6 +161,12 @@ export interface NoteCardScreen extends ScreenBase {
   title: string;
   body: string;
   button: string;
+  /** The exact answers that triggered this card, shown as labelled rows so the
+   *  "why am I seeing this" is legible in a glance. Deterministic: the card only
+   *  renders for one fixed answer combination, so the values can be hardcoded. */
+  triggers?: { label: string; value: string }[];
+  /** Optional secondary link (e.g. "change an answer") — wired to go back. */
+  secondaryLabel?: string;
 }
 
 export interface InteractiveCheckScreen extends ScreenBase {
@@ -210,12 +219,25 @@ export interface MapScreen extends ScreenBase {
   footer: string;
 }
 
+/** Bespoke SVG hero motifs for the four reveal cards (founder ruling
+ *  2026-07-14: the generic PNG renders are replaced with per-concept emissive
+ *  line motifs — code, not raster assets, so they sidestep the 5-render cap in
+ *  heroes.ts and stay inside Ember Dusk instead of importing playful art). */
+export type ClinicalMotif = 'adrenaline' | 'replay' | 'spectator' | 'novelty' | 'bandaid';
+
 export interface ClinicalCardScreen extends ScreenBase {
   archetype: 'clinical-card';
   title: string;
+  /** Body copy; `**word**` spans render as ink-weight emphasis. */
   body: string;
-  /** Render asset per design-rules.md "Clinical card visual" — never a line-icon. */
-  render: string;
+  /** Legacy PNG render (heroes.ts). Optional now that `motif` supersedes it. */
+  render?: string;
+  /** Bespoke SVG hero — takes precedence over `render` when present. */
+  motif?: ClinicalMotif;
+  /** The "scary data" callout: one large Newsreader figure + a plain caption.
+   *  Every figure is a real, citable prevalence stat — audited in the claims
+   *  gate before launch, never a fabricated number. */
+  stat?: { figure: string; caption: string };
   renderMode?: 'contain' | 'cover';
   conditionalLines?: { text: string; showIf: Condition }[];
   /** Accessibility label for the arrow CTA (cards render an unlabeled arrow). */

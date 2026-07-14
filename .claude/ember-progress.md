@@ -188,3 +188,12 @@ All in `app/onboarding.tsx`. Old generic CheckoutScreen (crown/features/price ca
 - User has an Apple Developer account; Paid Applications Agreement / banking / tax was deferred by user choice — real sandbox purchases are blocked until that's done. Dev builds use `hasProAccess`-driven dev-only "Skip paywall" link + production RC key (not test key) to work around empty Test Store offerings.
 - Standing user instructions (also in Claude's cross-session memory, `~/.claude/projects/.../memory/`): (a) audit any pasted blueprint against actual repo state before executing — several past prompts were stale; (b) proactively surface expert product/clinical recommendations while building, grounded in mechanism, per CLAUDE.md's dual DTC-architect/clinical-sexologist persona directives.
 - CLAUDE.md in repo root is the binding spec (persona, brand, 75-day protocol architecture, daily loop, notification copy rules, tech constraints) — read automatically every session, don't duplicate its content here, just know it governs every decision.
+
+## CLAIMS GATE — prevalence stats added to the reveal cards (2026-07-14, verify before launch)
+
+The QUITTR-inspired clinical-card revamp introduces hard "scary data" figures (`stat` field on ClinicalCardScreen). Each MUST be sourced/verified in the claims pass — no fabricated numbers (honest-data doctrine, Canon §10 "Ghost Data" ban):
+Cards restructured 2026-07-14 (second pass, then copy-trimmed). Every user sees exactly FOUR: 3 always-on + one of a complementary Crutch/Spectator pair. Founder removed the stat callouts from cards 1 and 2 — **only ONE prevalence stat still ships:**
+- **4a. The Crutch (conditional: pill/cream/supplement use) — "50% of men quit ED pills within a year — even when they work."** VERIFY against PDE5i discontinuation literature (varies by study/window). This is the ONLY number to source now.
+- Cards 1 (Adrenaline Trap) and 2 (The Dopamine Loop) — stats REMOVED (the 1-in-4 and Age-12 figures are gone; body copy only).
+- Card 3 (The Default Mode Network, always) — NO stat. The intense fears ("I'm less of a man / she'll leave") ship as the QUOTED rumination script (first person, externalized old-script), then framed as a fear being trained — cognitive defusion, not our assertion. Highest shame-risk card; re-read for tone before launch.
+- Card 4b (The Spectator) — NO stat.

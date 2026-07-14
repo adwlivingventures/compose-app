@@ -67,7 +67,9 @@ export interface SeverityBar {
   /** red = High; amber = active problem; neutral = healthy/unmeasured reads
    *  (founder review 2026-07-10: a good reading must not look like a warning). */
   tone: 'amber' | 'red' | 'neutral';
-  /** One plain-English line: what this bar means, traced to his answer. */
+  /** One plain-English line: what this bar means, traced to his answer.
+   *  (No longer rendered on the Map — founder review 2026-07-14, the bars
+   *  stand on label + grade alone; retained for future surfaces.) */
   detail: string;
 }
 

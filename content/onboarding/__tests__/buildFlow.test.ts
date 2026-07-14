@@ -1,8 +1,10 @@
 // Acceptance (BUILD_PROMPT §8, as amended by the founder rulings of
-// 2026-07-10): single flow — the interleaved variant and the onboarding A/B
-// test are retired. The four clinical cards are batched after the Map;
-// Symptoms precedes Generating; turn-welcome sits before Blueprint —
-// 43 numbered screens.
+// 2026-07-10 and 2026-07-14): single flow — the interleaved variant and the
+// onboarding A/B test are retired. Symptoms follows the Map (the reveal widens
+// into the whole-life cost inventory); FIVE reveal cards are batched after
+// Symptoms (3 always-on + a complementary Crutch/Spectator pair — every user
+// sees exactly four at runtime); turn-welcome sits before Blueprint —
+// 44 numbered screens.
 
 import { buildFlow } from '../buildFlow';
 import { SCREENS } from '../screens';
@@ -33,41 +35,42 @@ const ORDER = [
   'avoidance', // 22
   'scripts', // 23
   'spillover', // 24
-  'symptoms', // 25 (moved before Generating, 2026-07-10)
-  'generating', // 26
-  'map', // 27
-  'card-adrenaline-trap', // 28 (batched after Map)
-  'card-dmn', // 29
-  'card-novelty-loop', // 30
-  'card-bandaids', // 31
-  'turn-welcome', // 32 (inserted 2026-07-10)
-  'blueprint', // 33
-  'hopeful-arc', // 34
-  'foundations', // 35
-  'diverging-graph', // 36
-  'goals', // 37
-  'commit', // 38
-  'building-plan', // 39
-  'paywall', // 40
-  'paywall-dismiss', // 41
-  'day-zero', // 42
-  'discretion-setup', // 43
+  'generating', // 25
+  'map', // 26
+  'symptoms', // 27 (moved after the Map, 2026-07-14)
+  'card-adrenaline-trap', // 28 (always · enemy)
+  'card-novelty-loop', // 29 (always · enemy · "The Dopamine Loop")
+  'card-dmn', // 30 (always · you · restored 2026-07-14)
+  'card-bandaids', // 31 (4th-card option A: shown after pill/cream/supplement use)
+  'card-spectatoring', // 32 (4th-card option B: shown only when no such use — complement of 31)
+  'turn-welcome', // 33 (inserted 2026-07-10)
+  'blueprint', // 34
+  'hopeful-arc', // 35
+  'foundations', // 36
+  'diverging-graph', // 37
+  'goals', // 38
+  'commit', // 39
+  'building-plan', // 40
+  'paywall', // 41
+  'paywall-dismiss', // 42
+  'day-zero', // 43
+  'discretion-setup', // 44
 ];
 
 const numbered = () => buildFlow().filter((s) => s.specId !== null);
 
 describe('buildFlow', () => {
-  test('resolves to the amended order, 43 numbered screens', () => {
+  test('resolves to the amended order, 44 numbered screens', () => {
     const ids = numbered().map((s) => s.id);
     expect(ids).toEqual(ORDER);
-    expect(ids).toHaveLength(43);
+    expect(ids).toHaveLength(44);
   });
 
   test('spec ids match the amended numbering', () => {
     const flow = numbered();
     expect(flow[11]).toMatchObject({ id: 'physician-note', specId: '12' });
     expect(flow[27]).toMatchObject({ id: 'card-adrenaline-trap', specId: '28' });
-    expect(flow[39]).toMatchObject({ id: 'paywall', specId: '40' });
+    expect(flow[40]).toMatchObject({ id: 'paywall', specId: '41' });
   });
 
   test('section transitions are present but unnumbered', () => {
@@ -100,31 +103,35 @@ describe('buildFlow', () => {
     expect(ids.indexOf('telemetry-consent')).toBeLessThan(ids.indexOf('paywall'));
   });
 
-  test('the four cards are batched directly after the Map, in spec order, with no hope-tease lines', () => {
+  test('the five reveal cards are batched directly after Symptoms, in spec order, with no hope-tease lines', () => {
     const flow = numbered();
     const ids = flow.map((s) => s.id);
-    expect(ids.slice(ids.indexOf('map') + 1, ids.indexOf('map') + 5)).toEqual([
+    expect(ids.slice(ids.indexOf('symptoms') + 1, ids.indexOf('symptoms') + 6)).toEqual([
       'card-adrenaline-trap',
-      'card-dmn',
       'card-novelty-loop',
+      'card-dmn',
       'card-bandaids',
+      'card-spectatoring',
     ]);
-    // The batched arc holds tension across all four cards and resolves at the
+    // The batched arc holds tension across the cards and resolves at the
     // turn-welcome pivot — no per-card resolution copy exists in the config.
     const cards = flow.filter((s) => s.archetype === 'clinical-card');
     expect(cards.every((c) => !('tease' in c) && !('resolvedTease' in c))).toBe(true);
-    expect(ids[ids.indexOf('card-bandaids') + 1]).toBe('turn-welcome');
+    // Spectator is the last card in the static flow (the complementary pair's
+    // second half); turn-welcome follows it.
+    expect(ids[ids.indexOf('card-spectatoring') + 1]).toBe('turn-welcome');
   });
 
-  test('clinicalIndex follows encounter order (CLINICAL CONTEXT · N OF 4)', () => {
+  test('clinicalIndex follows static encounter order (runtime display recomputes to N OF 4)', () => {
     const seq = numbered()
       .filter((s) => s.archetype === 'clinical-card')
       .map((s) => [s.id, s.clinicalIndex]);
     expect(seq).toEqual([
       ['card-adrenaline-trap', 1],
-      ['card-dmn', 2],
-      ['card-novelty-loop', 3],
+      ['card-novelty-loop', 2],
+      ['card-dmn', 3],
       ['card-bandaids', 4],
+      ['card-spectatoring', 5],
     ]);
   });
 

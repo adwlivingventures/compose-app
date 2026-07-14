@@ -15,10 +15,30 @@ import type {
   ResolvedScreen,
 } from '../../content/onboarding/types';
 import { HERO_RENDERS } from '../../content/onboarding/heroes';
-import { DURATION, EASING } from '../../theme/emberDusk';
+import { COPPER_ARROW, DIAGNOSTIC, DURATION, EASING, type ArrowAccent } from '../../theme/emberDusk';
 import { useReduceMotion } from '../../hooks/useReduceMotion';
 import EmissiveCTA from './EmissiveCTA';
+import ClinicalHero from './ClinicalHero';
 import { DuskRadial, Eyebrow, SecondaryLink, Wordmark } from './chrome';
+
+/** Render `**word**` spans in body copy as ink-weight emphasis (QUITTR-style
+ *  keyword bolding) inside an otherwise weight-300 line. */
+function EmphasizedText({ text, ...rest }: { text: string } & React.ComponentProps<typeof Text>) {
+  const parts = text.split(/(\*\*[^*]+\*\*)/g);
+  return (
+    <Text {...rest}>
+      {parts.map((part, i) =>
+        part.startsWith('**') && part.endsWith('**') ? (
+          <Text key={i} className="text-ink" style={{ fontWeight: '500' }}>
+            {part.slice(2, -2)}
+          </Text>
+        ) : (
+          part
+        ),
+      )}
+    </Text>
+  );
+}
 
 const breathOut = Easing.bezier(...EASING.breathOut);
 
@@ -265,98 +285,172 @@ export function SectionTransition({
 export function ArrowCTA({
   onPress,
   accessibilityLabel = 'Continue',
+  accent = COPPER_ARROW,
 }: {
   onPress: () => void;
   accessibilityLabel?: string;
+  accent?: ArrowAccent;
 }) {
+  const reduceMotion = useReduceMotion();
   const press = useRef(new Animated.Value(0)).current;
+  // Idle exhale — a slow, low-amplitude halo pulse (~2.6s each way). Paced to
+  // a breath, not a notification blink: it invites the tap without stimulating
+  // the sympathetic response the whole app exists to quiet. Off under
+  // reduce-motion.
+  const pulse = useRef(new Animated.Value(0)).current;
+  useEffect(() => {
+    if (reduceMotion) return;
+    const loop = Animated.loop(
+      Animated.sequence([
+        Animated.timing(pulse, { toValue: 1, duration: 2600, easing: breathOut, useNativeDriver: true }),
+        Animated.timing(pulse, { toValue: 0, duration: 2600, easing: breathOut, useNativeDriver: true }),
+      ]),
+    );
+    loop.start();
+    return () => loop.stop();
+  }, [pulse, reduceMotion]);
+
   const settle = (to: number, ms: number) =>
     Animated.timing(press, { toValue: to, duration: ms, useNativeDriver: true });
+
   return (
-    <Animated.View
-      // style, not className — NativeWind doesn't reach Animated views.
-      style={{
-        alignSelf: 'center',
-        borderRadius: 999,
-        shadowColor: '#C89B6D',
-        shadowOpacity: 0.35,
-        shadowRadius: 14,
-        shadowOffset: { width: 0, height: 0 },
-        opacity: press.interpolate({ inputRange: [0, 1], outputRange: [1, 0.85] }),
-        transform: [{ scale: press.interpolate({ inputRange: [0, 1], outputRange: [1, 0.96] }) }],
-      }}
-    >
-      <Pressable
-        accessibilityRole="button"
-        accessibilityLabel={accessibilityLabel}
-        onPressIn={() => settle(1, DURATION.microMin).start()}
-        onPressOut={() => settle(0, DURATION.microMax).start()}
-        onPress={onPress}
-        hitSlop={10}
-        className="items-center justify-center overflow-hidden rounded-full"
-        style={{ width: 58, height: 58, borderWidth: 1, borderColor: 'rgba(233,196,152,0.6)' }}
+    <View style={{ alignSelf: 'center', width: 92, height: 92, alignItems: 'center', justifyContent: 'center' }}>
+      {/* Breathing halo ring — the emission that makes the control a focal
+          object without a label. Behind the button; non-interactive. */}
+      <Animated.View
+        pointerEvents="none"
+        style={{
+          position: 'absolute',
+          width: 92,
+          height: 92,
+          borderRadius: 999,
+          borderWidth: 1,
+          borderColor: accent.halo,
+          opacity: pulse.interpolate({ inputRange: [0, 1], outputRange: [0.2, 0.55] }),
+          transform: [{ scale: pulse.interpolate({ inputRange: [0, 1], outputRange: [0.86, 1] }) }],
+        }}
+      />
+      <Animated.View
+        // style, not className — NativeWind doesn't reach Animated views.
+        style={{
+          borderRadius: 999,
+          shadowColor: accent.glow,
+          shadowOpacity: 0.45,
+          shadowRadius: 18,
+          shadowOffset: { width: 0, height: 0 },
+          opacity: press.interpolate({ inputRange: [0, 1], outputRange: [1, 0.85] }),
+          transform: [{ scale: press.interpolate({ inputRange: [0, 1], outputRange: [1, 0.95] }) }],
+        }}
       >
-        <View className="absolute inset-0">
-          <Svg width="100%" height="100%">
-            <Defs>
-              <RadialGradient id="arrowCore" cx="50%" cy="50%" rx="60%" ry="60%">
-                <Stop offset="0" stopColor="#D9B285" />
-                <Stop offset="1" stopColor="#C89B6D" />
-              </RadialGradient>
-            </Defs>
-            <Rect x="0" y="0" width="100%" height="100%" fill="url(#arrowCore)" />
-          </Svg>
-        </View>
-        <ArrowRight size={22} color="#0C0B09" strokeWidth={2} />
-      </Pressable>
-    </Animated.View>
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel={accessibilityLabel}
+          onPressIn={() => settle(1, DURATION.microMin).start()}
+          onPressOut={() => settle(0, DURATION.microMax).start()}
+          onPress={onPress}
+          hitSlop={12}
+          className="items-center justify-center overflow-hidden rounded-full"
+          style={{ width: 66, height: 66, borderWidth: 1, borderColor: accent.border }}
+        >
+          <View className="absolute inset-0">
+            <Svg width="100%" height="100%">
+              <Defs>
+                <RadialGradient id="arrowCore" cx="42%" cy="38%" rx="72%" ry="72%">
+                  <Stop offset="0" stopColor={accent.coreLight} />
+                  <Stop offset="0.55" stopColor={accent.core} />
+                  <Stop offset="1" stopColor={accent.coreDeep} />
+                </RadialGradient>
+              </Defs>
+              <Rect x="0" y="0" width="100%" height="100%" fill="url(#arrowCore)" />
+            </Svg>
+          </View>
+          <ArrowRight size={25} color="#0C0B09" strokeWidth={2.25} />
+        </Pressable>
+      </Animated.View>
+    </View>
   );
 }
 
 /**
- * Clinical Context card (the four dark cards): centered render + dusk radial,
- * "CLINICAL CONTEXT · N OF 4" eyebrow, body, optional conditional lines.
- * No per-card hope line — the batched arc holds tension across all four
- * cards and resolves at the turn-welcome pivot. Emissive CTA.
+ * Clinical Context card (the reveal cards): centered motif + dusk radial,
+ * "WHAT YOUR ANSWERS SHOW · N OF total" eyebrow, optional data stat, body,
+ * optional conditional lines. The section runs the hotter ember-rust
+ * DIAGNOSTIC accent (founder ruling 2026-07-14) — distinct colour temperature
+ * from the copper rest of onboarding. index/total are runtime values: cards
+ * are conditionally shown (novelty/crutch), so the count reflects THIS user's
+ * visible cards, not the static four. No per-card hope line — the batched arc
+ * resolves at the turn-welcome pivot.
  */
 export function ClinicalCard({
   screen,
+  index,
+  total,
   visibleConditionalLines,
   onAdvance,
 }: {
   screen: ResolvedScreen & ClinicalCardDescriptor;
+  /** 1-based position among the cards THIS user actually sees. */
+  index: number;
+  /** Count of cards THIS user actually sees. */
+  total: number;
   /** Conditional lines already filtered against answers by the flow runner. */
   visibleConditionalLines: string[];
   onAdvance: () => void;
 }) {
+  const accent = DIAGNOSTIC.accent;
   return (
     <ScreenFade>
       <View className="flex-1 bg-ground">
-        <DuskRadial intensity={0.14} />
+        <DuskRadial intensity={0.14} tint={accent} />
         <View className="flex-1 items-center justify-center px-9">
-          <Eyebrow center>{`WHAT YOUR ANSWERS SHOW · ${screen.clinicalIndex} OF 4`}</Eyebrow>
-          <Image
-            source={HERO_RENDERS[screen.render]}
-            resizeMode={screen.renderMode === 'cover' ? 'cover' : 'contain'}
-            style={{
-              width: 190,
-              height: 190,
-              marginTop: 22,
-              ...(screen.renderMode === 'cover' ? { borderRadius: 14, opacity: 0.9 } : null),
-            }}
-          />
+          <Eyebrow center tint={accent}>{`WHAT YOUR ANSWERS SHOW · ${index} OF ${total}`}</Eyebrow>
+          {/* Bespoke SVG motif when present; legacy PNG render otherwise. */}
+          {screen.motif ? (
+            <View style={{ marginTop: 22 }}>
+              <ClinicalHero motif={screen.motif} accent={accent} />
+            </View>
+          ) : screen.render ? (
+            <Image
+              source={HERO_RENDERS[screen.render]}
+              resizeMode={screen.renderMode === 'cover' ? 'cover' : 'contain'}
+              style={{
+                width: 190,
+                height: 190,
+                marginTop: 22,
+                ...(screen.renderMode === 'cover' ? { borderRadius: 14, opacity: 0.9 } : null),
+              }}
+            />
+          ) : null}
           <Text
             className="text-center font-serif-regular text-ink"
             style={{ fontSize: 29, lineHeight: 37, marginTop: 14 }}
           >
             {screen.title}
           </Text>
-          <Text
+          {/* The "scary data" callout: a large Newsreader figure (§6 reserves
+              weight-300 for 40px+ numerals) + a plain caption. Honest, citable
+              prevalence — recognition, not fabricated alarm. */}
+          {screen.stat ? (
+            <View className="items-center" style={{ marginTop: 16 }}>
+              <Text
+                className="font-serif-light"
+                style={{ fontSize: 46, lineHeight: 50, color: accent }}
+              >
+                {screen.stat.figure}
+              </Text>
+              <Text
+                className="text-center text-body"
+                style={{ fontSize: 13.5, fontWeight: '300', lineHeight: 21, marginTop: 6 }}
+              >
+                {screen.stat.caption}
+              </Text>
+            </View>
+          ) : null}
+          <EmphasizedText
+            text={screen.body}
             className="text-center text-body"
             style={{ fontSize: 14, fontWeight: '300', lineHeight: 23, marginTop: 16 }}
-          >
-            {screen.body}
-          </Text>
+          />
           {visibleConditionalLines.map((line) => (
             <Text
               key={line}
@@ -368,11 +462,12 @@ export function ClinicalCard({
           ))}
         </View>
         {/* Arrow, not a labeled pill (founder review 2026-07-10): the reveal
-            cards are their own section and should navigate like one. */}
+            cards are their own section and navigate like one. Ember accent. */}
         <View className="pb-[52px]">
           <ArrowCTA
             onPress={onAdvance}
             accessibilityLabel={screen.button}
+            accent={DIAGNOSTIC.arrow}
           />
         </View>
       </View>
@@ -380,13 +475,17 @@ export function ClinicalCard({
   );
 }
 
-/** Conditional note card (B-12 physician triage): calm, zero alarm styling. */
+/** Conditional note card (B-12 physician triage): calm, zero alarm styling.
+ *  Leads with the answers that triggered it (labelled rows) so the reason is
+ *  legible at a glance; optional secondary link goes back to revise an answer. */
 export function NoteCard({
   screen,
   onAdvance,
+  onBack,
 }: {
   screen: NoteCardDescriptor;
   onAdvance: () => void;
+  onBack?: () => void;
 }) {
   return (
     <ScreenFade>
@@ -399,15 +498,36 @@ export function NoteCard({
           >
             {screen.title}
           </Text>
+          {screen.triggers ? (
+            <View style={{ marginTop: 22, gap: 8 }}>
+              {screen.triggers.map((t) => (
+                <View
+                  key={t.label}
+                  className="flex-row items-center justify-between rounded-xl bg-surface"
+                  style={{ paddingVertical: 13, paddingHorizontal: 15 }}
+                >
+                  <Text className="text-body" style={{ fontSize: 13, fontWeight: '300' }}>
+                    {t.label}
+                  </Text>
+                  <Text className="text-ink" style={{ fontSize: 13, fontWeight: '500' }}>
+                    {t.value}
+                  </Text>
+                </View>
+              ))}
+            </View>
+          ) : null}
           <Text
             className="text-body"
-            style={{ fontSize: 14.5, fontWeight: '300', lineHeight: 23.5, marginTop: 16 }}
+            style={{ fontSize: 14.5, fontWeight: '300', lineHeight: 23.5, marginTop: 20 }}
           >
             {screen.body}
           </Text>
         </View>
         <View className="px-8 pb-[52px]">
           <EmissiveCTA label={screen.button} onPress={onAdvance} />
+          {screen.secondaryLabel && onBack ? (
+            <SecondaryLink label={screen.secondaryLabel} onPress={onBack} />
+          ) : null}
         </View>
       </View>
     </ScreenFade>

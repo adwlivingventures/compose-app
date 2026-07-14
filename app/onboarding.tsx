@@ -20,6 +20,7 @@ import {
   DEFAULT_FLAGS,
   evalCondition,
   hasPrivacyFooter,
+  isScreenVisible,
   nextVisibleIndex,
   progressMeta,
   withName,
@@ -365,7 +366,13 @@ export default function Onboarding() {
           />
         );
       case 'note-card':
-        return <NoteCard screen={screen} onAdvance={() => advance()} />;
+        return (
+          <NoteCard
+            screen={screen}
+            onAdvance={() => advance()}
+            onBack={history.current.length > 0 ? goBack : undefined}
+          />
+        );
       case 'interactive-check':
         return (
           <PelvicCheck
@@ -401,16 +408,24 @@ export default function Onboarding() {
             }}
           />
         );
-      case 'clinical-card':
+      case 'clinical-card': {
+        // Cards are conditionally shown (novelty/crutch), so index + total are
+        // computed against THIS user's visible cards, not the static four.
+        const visibleCards = flow.filter(
+          (s) => s.archetype === 'clinical-card' && isScreenVisible(s, answers),
+        );
         return (
           <ClinicalCard
             screen={screen}
+            index={visibleCards.findIndex((s) => s.id === screen.id) + 1}
+            total={visibleCards.length}
             visibleConditionalLines={(screen.conditionalLines ?? [])
               .filter((line) => evalCondition(line.showIf, answers))
               .map((line) => line.text)}
             onAdvance={() => advance()}
           />
         );
+      }
       case 'diverging-graph':
         return <DivergingGraphScreen screen={screen} onAdvance={() => advance()} />;
       case 'commit':

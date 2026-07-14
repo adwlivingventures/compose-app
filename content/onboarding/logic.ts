@@ -20,6 +20,8 @@ export function evalCondition(cond: Condition, answers: Answers): boolean {
   if ('equals' in cond) return value === cond.equals;
   if ('oneOf' in cond) return typeof value === 'string' && cond.oneOf.includes(value);
   if ('lte' in cond) return typeof value === 'number' && value <= cond.lte;
+  if ('includesAny' in cond)
+    return Array.isArray(value) && cond.includesAny.some((v) => value.includes(v));
   return false;
 }
 

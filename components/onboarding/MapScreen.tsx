@@ -1,8 +1,9 @@
 // "Your Results" (founder revamp 2026-07-10) — the unflinching read of his
 // problem. Score + one-sentence verdict, self-explanatory gauge (labeled
-// axis ends), severity rows that each carry a plain-English detail line
-// traced to his answer (amber/red matte; healthy reads neutral, never
-// warning-colored). No protocol preview here — the four driver cards follow.
+// axis ends), severity rows of label + grade only (amber/red matte; healthy
+// reads neutral, never warning-colored; detail lines dropped 2026-07-14).
+// No protocol preview here — the symptoms cost inventory follows, then the
+// four driver cards.
 
 import { useEffect, useRef } from 'react';
 import { Animated, Easing, ScrollView, Text, View } from 'react-native';
@@ -313,13 +314,6 @@ export default function MapScreen({
                       </View>
                     </View>
                   </View>
-                  {/* Plain-English read of this bar, traced to his answer. */}
-                  <Text
-                    className="text-muted"
-                    style={{ fontSize: 11.5, fontWeight: '300', lineHeight: 16.5, marginTop: 5 }}
-                  >
-                    {bar.detail}
-                  </Text>
                 </View>
               </StaggeredRow>
               );

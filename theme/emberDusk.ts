@@ -29,6 +29,45 @@ export const CTA = {
   pressDimOpacity: 0.88,
 } as const;
 
+/** Diagnostic accent — the four "What your answers show" cards run in a hotter
+ *  ember-rust instead of copper (founder ruling 2026-07-14). The diagnosis
+ *  section gets its own colour temperature: noticeably warmer and more urgent
+ *  than the rest of onboarding, still unmistakably Ember Dusk (same warm
+ *  family, not a new hue). Applied to the card arrow, hero emission, stat
+ *  figure and eyebrow. Deliberate deviation flagged to founder: severity
+ *  amber/red stay matte; THIS accent is allowed to emit because it is the
+ *  section's primary action colour, not a severity signal. */
+export const DIAGNOSTIC = {
+  accent: '#CE7A50', // ember-rust — the section's copper substitute
+  arrow: {
+    coreLight: '#F0A876',
+    core: '#E4986A',
+    coreDeep: '#C56A3D',
+    glow: '#CE7A50',
+    border: 'rgba(240,168,118,0.70)',
+    halo: 'rgba(206,122,80,0.40)',
+  },
+} as const;
+
+export type ArrowAccent = {
+  coreLight: string;
+  core: string;
+  coreDeep: string;
+  glow: string;
+  border: string;
+  halo: string;
+};
+
+/** The default copper arrow accent (rest-of-onboarding tone). */
+export const COPPER_ARROW: ArrowAccent = {
+  coreLight: '#E4C193',
+  core: '#D9B285',
+  coreDeep: '#C08C57',
+  glow: '#C89B6D',
+  border: 'rgba(233,196,152,0.70)',
+  halo: 'rgba(200,155,109,0.35)',
+};
+
 /** Selected answer cards: warm 1px border + interior glow rising from the bottom edge. */
 export const SELECTION = {
   border: '#C89B6D',

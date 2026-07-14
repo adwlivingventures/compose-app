@@ -13,14 +13,18 @@ import { useReduceMotion } from '../../hooks/useReduceMotion';
 export function Eyebrow({
   children,
   center = false,
+  tint,
 }: {
   children: string;
   center?: boolean;
+  /** Overrides the muted body colour — used to tint the diagnosis-card
+   *  eyebrow in the section's ember accent. */
+  tint?: string;
 }) {
   return (
     <Text
-      className={`text-body ${center ? 'text-center' : ''}`}
-      style={{ fontSize: 10, fontWeight: '300', letterSpacing: 2 }}
+      className={`${tint ? '' : 'text-body'} ${center ? 'text-center' : ''}`}
+      style={{ fontSize: 10, fontWeight: '300', letterSpacing: 2, ...(tint ? { color: tint } : null) }}
     >
       {children}
     </Text>
@@ -80,7 +84,14 @@ export function SecondaryLink({
  * Warm dusk radial bleeding off the top of chapter/card screens.
  * rgba(200,155,109, 0.10–0.14) → transparent 65% per the ruling.
  */
-export function DuskRadial({ intensity = 0.12 }: { intensity?: number }) {
+export function DuskRadial({
+  intensity = 0.12,
+  tint = '#C89B6D',
+}: {
+  intensity?: number;
+  /** Overrides the copper dusk glow — the diagnosis cards run it ember. */
+  tint?: string;
+}) {
   return (
     <View
       pointerEvents="none"
@@ -90,9 +101,9 @@ export function DuskRadial({ intensity = 0.12 }: { intensity?: number }) {
       <Svg width="100%" height="100%">
         <Defs>
           <RadialGradient id="dusk" cx="50%" cy="50%" rx="50%" ry="50%">
-            <Stop offset="0" stopColor="#C89B6D" stopOpacity={intensity} />
-            <Stop offset={String(DUSK_RADIAL.fadeStop)} stopColor="#C89B6D" stopOpacity="0" />
-            <Stop offset="1" stopColor="#C89B6D" stopOpacity="0" />
+            <Stop offset="0" stopColor={tint} stopOpacity={intensity} />
+            <Stop offset={String(DUSK_RADIAL.fadeStop)} stopColor={tint} stopOpacity="0" />
+            <Stop offset="1" stopColor={tint} stopOpacity="0" />
           </RadialGradient>
         </Defs>
         <Rect x="0" y="0" width="100%" height="100%" fill="url(#dusk)" />

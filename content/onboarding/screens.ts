@@ -222,23 +222,29 @@ export const SCREENS: Screen[] = [
     id: 'physician-note',
     section: 'part2',
     archetype: 'note-card',
-    // Founder ruling 2026-07-10: libido threshold tightened to ≤2 (a "3" is
-    // mid-low, not a flag), and the note must NAME the two answers that
-    // triggered it — an unexplained medical caution reads as alarm; an
-    // explained one reads as honesty.
+    // Founder ruling 2026-07-14: threshold tightened to the extreme corner only
+    // — "Rarely or never" morning arousal AND libido at the floor (1/10). The
+    // card leads with the two triggering answers (shown as rows) so the "why am
+    // I seeing this" reads in a glance; the secondary link lets a man who was
+    // being dramatic revise his answer instead of taking the flag.
     displayLogic: {
       showIf: {
         all: [
           { key: 'morningArousal', equals: 'rarely' },
-          { key: 'libido', lte: 2 },
+          { key: 'libido', lte: 1 },
         ],
       },
     },
-    eyebrow: 'A QUICK NOTE',
-    title: 'Worth a physician visit',
+    eyebrow: 'WHY YOU’RE SEEING THIS',
+    title: 'Worth checking with a doctor.',
+    triggers: [
+      { label: 'Morning erections', value: 'Rarely or never' },
+      { label: 'Libido', value: '1 / 10' },
+    ],
     body:
-      'This note is here because of two answers you just gave: your body rarely shows arousal on its own in the morning, and your desire has been low this past month. Together — and only together — those can sometimes point to physical causes, hormonal or circulatory, that deserve a real exam. We’d rather tell you that straight than pretend otherwise; honesty about what this program is and isn’t is the whole point. So book the check-up. And keep going here — the nervous-system retraining and the identity work in Compose still apply to you, and we believe they will help.',
-    button: 'Understood — continue',
+      'Together, these two can point to a physical cause — not just a mental one — worth ruling out first.',
+    button: 'Understood',
+    secondaryLabel: 'Let me change an answer',
   },
   {
     id: 'adrenaline-spike',
@@ -277,13 +283,13 @@ export const SCREENS: Screen[] = [
       headline: 'A 20-second tension check.',
       // Founder review 2026-07-10: say WHAT we test and WHY it matters, plainly.
       subText:
-        'Men who carry performance anxiety often hold the pelvic floor chronically tight without knowing it — and a muscle that can’t fully relax works against both control and blood flow. This check measures one thing: how completely yours can let go.',
+        'Men who carry performance anxiety often hold the pelvic floor chronically tight without knowing it.',
       reassurance:
         'Completely invisible — no movement, no sound, nothing anyone could notice. You can do this in a waiting room.',
       steps: [
         'Sit comfortably, feet flat on the floor.',
         'On Begin, clench your pelvic floor — as if stopping urine flow.',
-        'Hold five seconds, then release fully on cue. Notice what the release feels like.',
+        'Hold five seconds, then release fully. Notice what the release feels like.',
       ],
       button: 'Begin the 20-second check',
       skipLink: 'Skip for now',
@@ -456,16 +462,71 @@ export const SCREENS: Screen[] = [
   },
 
   // ── Analysis ───────────────────────────────────────────────────────────
-  // Founder ruling 2026-07-10: Symptoms moved BEFORE Generating — the whole-
-  // life cost inventory is an input to the analysis, not an afterthought to
-  // the reveal. (Supersedes the handoff's B-25→B-27 order.)
+  {
+    id: 'generating',
+    section: 'analysis',
+    archetype: 'generating',
+    checklist: [
+      'Autonomic profile',
+      'Pelvic baseline',
+      'Arousal conditioning map',
+      'Cognitive script index',
+      'Sequencing your 75-day protocol…',
+    ],
+    durationMs: [4000, 6000],
+  },
+  // Founder review 2026-07-10: the Map's job is a clear, unflinching read of
+  // his problem — not a preview of the protocol. Verdict + graded bars
+  // (label + grade only since 2026-07-14); the CTA widens into the whole-
+  // life cost inventory, then the four cards explain the mechanism.
+  {
+    id: 'map',
+    section: 'analysis',
+    archetype: 'map',
+    eyebrow: 'YOUR RESULTS',
+    headline: '{name}, here is what your answers show.',
+    scoreLabel:
+      'Your Composure Score — how steady your body stays under intimate pressure.',
+    gauge: {
+      // "Composed zone" (founder ruling 2026-07-13) ties the target band to
+      // the product name and the Composure Score. Only the destination band is
+      // named — the lower ranges stay unlabeled on purpose (a named low zone
+      // would stamp a shame label the moment he opens up). Field keys stay
+      // `calm*` internally; the user only ever sees the strings below.
+      calmZone: [80, 100],
+      calmLabel: 'COMPOSED ZONE · 80–100',
+      axisLow: '0 · adrenaline runs it',
+      axisHigh: '100 · calm & present',
+    },
+    barsHeading: 'Your biggest drivers',
+    bars: [
+      { label: 'Sympathetic override' },
+      { label: 'Spectatoring loop' },
+      { label: 'Pelvic release capacity' },
+      { label: 'Avoidance pattern' },
+      { label: 'Cognitive scripts' },
+      {
+        label: 'Conditioning drift',
+        showIf: { key: 'escalation', oneOf: ['yes', 'somewhat'] },
+      },
+    ],
+    button: 'Where else is this showing up?',
+    footer: 'Stored on this device only',
+  },
+
+  // Founder ruling 2026-07-14: Symptoms moved AFTER the Map (supersedes the
+  // 2026-07-10 before-Generating placement). The whole-life cost inventory is
+  // now the Map's widening step — the reveal names the pattern, then "Where
+  // else is this showing up?" lets him tag its reach before the four cards
+  // explain the mechanism. (Symptoms never fed the Composure weights, so the
+  // analysis loses no input.)
   {
     id: 'symptoms',
     section: 'analysis',
     archetype: 'multi-select',
     question: 'The cost isn’t only in the bedroom.',
     subText:
-      'These aren’t separate problems. They’re one stress response showing up in different places. We map each to see the full picture.',
+      'These are not separate problems. They are one stress response showing up in different places. We map each to see the full picture.',
     tapPrompt: 'Tap anything you’ve noticed lately.',
     answerKey: 'symptoms',
     options: [],
@@ -504,73 +565,59 @@ export const SCREENS: Screen[] = [
         ],
       },
     ],
-    button: 'Continue',
-  },
-  {
-    id: 'generating',
-    section: 'analysis',
-    archetype: 'generating',
-    checklist: [
-      'Autonomic profile',
-      'Pelvic baseline',
-      'Arousal conditioning map',
-      'Cognitive script index',
-      'Sequencing your 75-day protocol…',
-    ],
-    durationMs: [4000, 6000],
-  },
-  // Founder review 2026-07-10: the Map's job is a clear, unflinching read of
-  // his problem — not a preview of the protocol. Verdict + explained bars;
-  // the "what's driving this" story continues into the four cards.
-  {
-    id: 'map',
-    section: 'analysis',
-    archetype: 'map',
-    eyebrow: 'YOUR RESULTS',
-    headline: '{name}, here is what your answers show.',
-    scoreLabel:
-      'Your Composure Score — how steady your body stays under intimate pressure.',
-    gauge: {
-      // "Composed zone" (founder ruling 2026-07-13) ties the target band to
-      // the product name and the Composure Score. Only the destination band is
-      // named — the lower ranges stay unlabeled on purpose (a named low zone
-      // would stamp a shame label the moment he opens up). Field keys stay
-      // `calm*` internally; the user only ever sees the strings below.
-      calmZone: [80, 100],
-      calmLabel: 'COMPOSED ZONE · 80–100',
-      axisLow: '0 · adrenaline runs it',
-      axisHigh: '100 · calm & present',
-    },
-    barsHeading: 'Your biggest drivers',
-    bars: [
-      { label: 'Sympathetic override' },
-      { label: 'Spectatoring loop' },
-      { label: 'Pelvic release capacity' },
-      { label: 'Avoidance pattern' },
-      { label: 'Cognitive scripts' },
-      {
-        label: 'Conditioning drift',
-        showIf: { key: 'escalation', oneOf: ['yes', 'somewhat'] },
-      },
-    ],
-    button: 'Show me what’s driving this',
-    footer: 'Stored on this device only',
+    button: 'Rewire my brain',
   },
 
-  // ── Clinical Context cards (batched after the Map) ────────────────────
+  // ── The reveal cards (batched after the Map) ──────────────────────────
+  // Revamp 2026-07-14 (QUITTR-inspired punch; Ember Dusk spine). Structure
+  // (founder ruling, second pass): every man sees exactly FOUR cards —
+  //   1. The Adrenaline Trap   (always · enemy)
+  //   2. The Dopamine Loop     (always · enemy)
+  //   3. The Default Mode Network (always · you · the shame tape)
+  //   4. The Crutch OR The Spectator (conditional · you)
+  // The 4th card is The Crutch if he's reached for a pill/cream/supplement;
+  // otherwise The Spectator. The two are complementary (showIf vs skipIf on
+  // bandaidHistory), so exactly one renders — always four cards total. index/
+  // total ("N OF 4") are computed at runtime from HIS visible cards.
+  //
+  // Rulings folded in:
+  //  • ≤35 words body per card (target ~25). Stat figure + motif carry weight.
+  //  • The DMN card carries the intense fears (less-of-a-man, she'll-leave) —
+  //    but as the QUOTED script the rumination loop REPLAYS (the oldScript
+  //    externalization, Canon §7 rule 4), then framed as a FEAR being trained,
+  //    never asserted by us. That is cognitive defusion, not character attack:
+  //    it names his 2am fear (the "this app gets me" jolt) the clinically sound
+  //    way, and stays out of the shame→sympathetic→symptom spiral.
+  //  • Novelty card is now ALWAYS shown and broadened to digital novelty (porn
+  //    AND social scrolling) — founder's call: ~95% of men here struggle with
+  //    digital lust in some form, and the "rarely or never" option still leaves
+  //    the porn framing defensible.
+  //  • The whole section runs the hotter ember-rust DIAGNOSTIC accent.
+  //  • Per-card reassurance is trimmed; the entire reversibility turn now rests
+  //    on turn-welcome ("learned means reversible") — keep that screen strong.
+  // CLAIMS GATE (see .claude/ember-progress.md) — verify before launch, no
+  // fabricated numbers. Only ONE stat remains after the 2026-07-14 copy trim:
+  //  • "50% quit ED pills within a year" (The Crutch) — PDE5i discontinuation
+  //    literature. (The 1-in-4 and Age-12 figures were removed.)
   {
     id: 'card-adrenaline-trap',
     section: 'analysis',
     archetype: 'clinical-card',
     title: 'The Adrenaline Trap',
-    // Claims-gate deviation from spec (founder-approved 2026-07-08): spec's flat
-    // individual diagnosis "What you are experiencing is not a physical defect. It is…"
-    // softened to population framing — the physician-triage card exists precisely
-    // because a minority's cause IS physical.
     body:
-      'Your brain has learned to treat intimacy like a threat. The moment things turn intimate, it floods your body with adrenaline — and adrenaline does exactly two things here: it tightens blood vessels and speeds up reflexes. That’s the mechanics of losing an erection, or finishing before you chose to. For most men in this pattern, nothing is physically broken. The alarm is wired to the wrong moment.',
-    render: 'fig-hero-somatic.png',
+      'The moment intimacy begins, your brain trips a **threat alarm**. Adrenaline floods in — **cutting blood flow**, **firing the reflex early**.',
+    motif: 'adrenaline',
     button: 'I understand',
+  },
+  {
+    id: 'card-novelty-loop',
+    section: 'analysis',
+    archetype: 'clinical-card',
+    title: 'The Dopamine Loop',
+    body:
+      'Porn and endless scrolling train your brain on **infinite novelty**. Then one real partner has to compete with thousands — and your body **goes quiet**.',
+    motif: 'novelty',
+    button: 'Makes sense',
   },
   {
     id: 'card-dmn',
@@ -578,40 +625,44 @@ export const SCREENS: Screen[] = [
     archetype: 'clinical-card',
     title: 'The Default Mode Network',
     body:
-      'After a bad night, your brain replays it — over and over, in your own voice. That replay runs on a circuit called the Default Mode Network, and every replay tags the bedroom as more dangerous. Which means the alarm fires earlier next time. The replaying isn’t processing the problem. It’s training it.',
-    render: 'fig-hero-validation.png',
+      'After a bad night, your mind runs the same tape: “I’m less of a man — she’ll get bored and leave.” This loop is called the **Default Mode Network**… and every replay wires the fear **deeper**.',
+    motif: 'replay',
     button: 'Continue',
-  },
-  {
-    id: 'card-novelty-loop',
-    section: 'analysis',
-    archetype: 'clinical-card',
-    title: 'The Novelty Loop',
-    body:
-      'Every solo session is a training rep. Porn compresses arousal into a sprint — spike, finish, close the tab. Run that loop a few hundred times and your body masters exactly one tempo: fast, alone, on demand. Then you’re with a real person, and it runs the only program it knows.',
-    render: 'fig-hero-philosophy.png',
-    conditionalLines: [
-      {
-        text: 'At daily frequency, this is likely the strongest single input shaping your arousal system right now.',
-        showIf: { key: 'contentFrequency', equals: 'daily' },
-      },
-      {
-        text: 'You’ve already felt the drift — needing more to feel the same. That’s the loop deepening. It runs in reverse, too.',
-        showIf: { key: 'escalation', oneOf: ['yes', 'somewhat'] },
-      },
-    ],
-    button: 'Makes sense',
   },
   {
     id: 'card-bandaids',
     section: 'analysis',
     archetype: 'clinical-card',
-    title: 'Why Band-Aids Fail',
+    // 4th card (option A): shown to a man who's reached for a pharmacological/
+    // topical fix. Supplements count — the card is about the crutch pattern,
+    // not the molecule. Complementary to card-spectatoring below.
+    displayLogic: {
+      showIf: { key: 'bandaidHistory', includesAny: ['pills', 'sprays-creams', 'supplements'] },
+    },
+    title: 'The Crutch',
+    stat: {
+      figure: '50%',
+      caption: 'of men quit ED pills within a year — even when they work.',
+    },
     body:
-      'Pills move blood. Creams numb skin. Neither one touches the alarm in your brain that started all of this — so the anxiety stays, and now it has a chemical to depend on. Every pill also rehearses one quiet belief: my body can’t do this without help. A fix that keeps you dependent isn’t a fix.',
-    render: 'hero-welcome-drop.png',
-    renderMode: 'cover',
+      'Are we really going to pretend supplements are the answer? Every pill and cream teaches you the same **lie** — that you can’t do this without them — while quietly eating away at your **self-esteem**.',
+    motif: 'bandaid',
     button: 'I understand',
+  },
+  {
+    id: 'card-spectatoring',
+    section: 'analysis',
+    archetype: 'clinical-card',
+    // 4th card (option B): shown only to a man who's NEVER reached for a pill/
+    // cream/supplement — the complement of card-bandaids' showIf.
+    displayLogic: {
+      skipIf: { key: 'bandaidHistory', includesAny: ['pills', 'sprays-creams', 'supplements'] },
+    },
+    title: 'The Spectator',
+    body:
+      'You’ve turned intimacy into an **exam** you’re terrified to fail — watching yourself, grading every second. Your partner is right there, and you’re too **in your head** to feel it.',
+    motif: 'spectator',
+    button: 'Continue',
   },
 
   // ── The Turn — Hope and Desire ─────────────────────────────────────────

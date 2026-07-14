@@ -36,15 +36,16 @@ describe('escalation skip (screen 18)', () => {
 describe('physician triage condition (screen 12)', () => {
   const note = SCREENS.find((s) => s.id === 'physician-note')!;
 
-  // Founder ruling 2026-07-10: threshold tightened to libido ≤ 2.
-  test('shows ONLY when morning arousal = rarely AND libido ≤ 2', () => {
-    expect(isScreenVisible(note, { morningArousal: 'rarely', libido: 2 })).toBe(true);
+  // Founder ruling 2026-07-14: threshold tightened to the extreme corner —
+  // "Rarely or never" morning arousal AND libido at the floor (1/10).
+  test('shows ONLY when morning arousal = rarely AND libido = 1', () => {
     expect(isScreenVisible(note, { morningArousal: 'rarely', libido: 1 })).toBe(true);
   });
 
   test('hidden when either half of the condition fails', () => {
+    expect(isScreenVisible(note, { morningArousal: 'rarely', libido: 2 })).toBe(false);
     expect(isScreenVisible(note, { morningArousal: 'rarely', libido: 3 })).toBe(false);
-    expect(isScreenVisible(note, { morningArousal: 'sometimes', libido: 2 })).toBe(false);
+    expect(isScreenVisible(note, { morningArousal: 'sometimes', libido: 1 })).toBe(false);
     expect(isScreenVisible(note, { morningArousal: 'most', libido: 10 })).toBe(false);
     expect(isScreenVisible(note, {})).toBe(false);
   });
@@ -55,6 +56,57 @@ describe('physician triage condition (screen 12)', () => {
       libido: 8,
     });
     expect(flow[next].id).toBe('adrenaline-spike');
+  });
+});
+
+describe('reveal cards (founder ruling 2026-07-14, second pass)', () => {
+  const crutch = SCREENS.find((s) => s.id === 'card-bandaids')!;
+  const spectator = SCREENS.find((s) => s.id === 'card-spectatoring')!;
+  const alwaysOn = ['card-adrenaline-trap', 'card-novelty-loop', 'card-dmn'];
+
+  test('the three always-on cards carry no display logic', () => {
+    for (const id of alwaysOn) {
+      expect(SCREENS.find((s) => s.id === id)!.displayLogic).toBeUndefined();
+    }
+  });
+
+  test('Crutch and Spectator are complementary on bandaidHistory', () => {
+    // Used a substance → Crutch, not Spectator.
+    expect(isScreenVisible(crutch, { bandaidHistory: ['pills'] })).toBe(true);
+    expect(isScreenVisible(spectator, { bandaidHistory: ['pills'] })).toBe(false);
+    expect(isScreenVisible(crutch, { bandaidHistory: ['supplements', 'none'] })).toBe(true);
+    // Never used → Spectator, not Crutch.
+    expect(isScreenVisible(crutch, { bandaidHistory: ['none'] })).toBe(false);
+    expect(isScreenVisible(spectator, { bandaidHistory: ['none'] })).toBe(true);
+    // Unanswered → still exactly one (Spectator).
+    expect(isScreenVisible(crutch, {})).toBe(false);
+    expect(isScreenVisible(spectator, {})).toBe(true);
+  });
+
+  test('every user sees exactly four reveal cards', () => {
+    const visibleCards = (answers: Answers) =>
+      buildFlow().filter((s) => s.archetype === 'clinical-card' && isScreenVisible(s, answers));
+    expect(visibleCards({ bandaidHistory: ['pills'] }).map((s) => s.id)).toEqual([
+      'card-adrenaline-trap',
+      'card-novelty-loop',
+      'card-dmn',
+      'card-bandaids',
+    ]);
+    expect(visibleCards({ bandaidHistory: ['none'] }).map((s) => s.id)).toEqual([
+      'card-adrenaline-trap',
+      'card-novelty-loop',
+      'card-dmn',
+      'card-spectatoring',
+    ]);
+    // No porn + no substances → still four (the digital-novelty card is always on).
+    expect(visibleCards({ contentFrequency: 'rarely' }).length).toBe(4);
+  });
+
+  test('includesAny is false for non-array / absent answers', () => {
+    expect(evalCondition({ key: 'bandaidHistory', includesAny: ['pills'] }, {})).toBe(false);
+    expect(
+      evalCondition({ key: 'bandaidHistory', includesAny: ['pills'] }, { bandaidHistory: 'pills' as never }),
+    ).toBe(false);
   });
 });
 
