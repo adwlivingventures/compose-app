@@ -54,12 +54,14 @@ export function nextVisibleIndex(
   return -1;
 }
 
-// ── Progress header ("MAPPING · X OF Y · ~N MIN") ─────────────────────────
-// Layout truth (3a reference frame shows "10 OF 24"): Y is the LAST ASSESSMENT
-// SCREEN's number — spillover (24). X is the screen's static spec number;
-// runtime-skipped conditionals keep their numbers (the bar simply advances
-// past them). Clinical cards are numbered but render full-bleed without the
-// header, per the reference.
+// ── Progress header (section name · ~N MIN, over the fill bar) ────────────
+// The eyebrow shows the SECTION NAME ("Your Situation" / "Your Body" /
+// "Your Mind"), never "X OF Y" (founder ruling 2026-07-15): a user who
+// skips a runtime conditional (physician-note 12, escalation 18) would see
+// the visible count jump and worry he missed a page. step/total still feed
+// the fill bar — spillover (24) is the denominator; runtime-skipped
+// conditionals keep their numbers (the bar simply advances past them).
+// Clinical cards are numbered but render full-bleed without the header.
 
 const HEADERED: Screen['archetype'][] = [
   'single-select',
@@ -75,7 +77,17 @@ export interface ProgressMeta {
   step: number;
   total: number;
   minutesLeft: number;
+  /** Header eyebrow text. Section names, not numbers — a user who skips a
+   *  runtime conditional (physician-note, escalation) must never see a gap
+   *  in a visible count and wonder what he missed. */
+  sectionLabel: string;
 }
+
+const SECTION_LABELS: Partial<Record<Screen['section'], string>> = {
+  part1: 'Your Situation',
+  part2: 'Your Body',
+  part3: 'Your Mind',
+};
 
 /** ≈9s per remaining screen (calibrated to the reference: 14 remaining → ~2 min). */
 const SECONDS_PER_SCREEN = 9;
@@ -89,8 +101,10 @@ export function progressMeta(
   const total = specNumber(flow.find((s) => s.id === 'spillover'));
   const step = specNumber(screen);
   if (!total || !step || step < 3 || step > total) return null;
+  const sectionLabel = SECTION_LABELS[screen.section];
+  if (!sectionLabel) return null;
   const minutesLeft = Math.max(1, Math.ceil(((total - step) * SECONDS_PER_SCREEN) / 60));
-  return { step, total, minutesLeft };
+  return { step, total, minutesLeft, sectionLabel };
 }
 
 /** Question-family screens carry the privacy footer; Map has its own. */

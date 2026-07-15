@@ -47,7 +47,7 @@ export default function OathScreen() {
         The program is yours. Now it needs your word.
       </Text>
       <Text className="text-muted text-[13px] leading-5 mt-3">
-        Seventy-five days, ten minutes a day. The men who finish are the ones who signed on
+        Seventy-five days, fifteen minutes a day. The men who finish are the ones who signed on
         before Day 1 asked anything of them.
       </Text>
 

@@ -127,6 +127,118 @@ function Crutch({ accent }: { accent: string }) {
   );
 }
 
+/** Growth (the turn) — a sprout rising from a ground line, the new leaf lit:
+ *  recovery as something that grows, not something you win. */
+function Growth({ accent }: { accent: string }) {
+  return (
+    <Svg width={SIZE} height={SIZE} viewBox={`0 0 ${SIZE} ${SIZE}`}>
+      <Glow cx={95} cy={62} r={46} accent={accent} />
+      <Ring />
+      {/* Ground line. */}
+      <Path d="M58 132 L132 132" stroke={INK} strokeWidth={2} {...stroke} />
+      {/* Stem — one continuous rise. */}
+      <Path d="M95 132 C95 110 95 92 95 74" stroke={INK} strokeWidth={2.4} {...stroke} />
+      {/* Lower leaf pair (ink — the past growth, absorbed). */}
+      <Path d="M95 112 C84 110 74 102 72 90 C84 92 93 100 95 112" fill="none" stroke={INK} strokeWidth={2} strokeLinejoin="round" />
+      <Path d="M95 104 C106 102 116 94 118 82 C106 84 97 92 95 104" fill="none" stroke={INK} strokeWidth={2} strokeLinejoin="round" />
+      {/* The new leaf at the tip — the one copper emission. */}
+      <Path d="M95 74 C93 60 98 48 110 42 C112 56 106 68 95 74" fill="none" stroke={accent} strokeWidth={2.4} strokeLinejoin="round" />
+      <Circle cx={95} cy={74} r={3.6} fill={accent} />
+    </Svg>
+  );
+}
+
+// ── Hopeful-arc motifs (founder ruling 2026-07-14: the arc went image-forward,
+// QUITTR-style). Same line-work language, but the emission marks the GOAL —
+// these five encourage; they never diagnose. Copper accent (base palette).
+
+/** Ascent — a path climbing to a lit summit: 75 days, sequenced upward. */
+function Ascent({ accent }: { accent: string }) {
+  return (
+    <Svg width={SIZE} height={SIZE} viewBox={`0 0 ${SIZE} ${SIZE}`}>
+      <Glow cx={134} cy={64} r={46} accent={accent} />
+      <Ring />
+      <Path d="M50 130 L82 112 L108 90 L128 70" stroke={INK} strokeWidth={2.4} {...stroke} />
+      <Circle cx={50} cy={130} r={3.5} fill={INK} />
+      <Circle cx={82} cy={112} r={3.5} fill={INK} />
+      <Circle cx={108} cy={90} r={3.5} fill={INK} />
+      {/* The summit — lit. */}
+      <Circle cx={134} cy={64} r={5.5} fill={accent} />
+    </Svg>
+  );
+}
+
+/** Measure — bars rising to a lit final reading: the score you watch move. */
+function Measure({ accent }: { accent: string }) {
+  return (
+    <Svg width={SIZE} height={SIZE} viewBox={`0 0 ${SIZE} ${SIZE}`}>
+      <Glow cx={124} cy={72} r={46} accent={accent} />
+      <Ring />
+      <Path d="M56 134 L134 134" stroke={INK} strokeWidth={2} {...stroke} />
+      <Path d="M66 134 L66 112" stroke={INK} strokeWidth={5} {...stroke} />
+      <Path d="M95 134 L95 94" stroke={INK} strokeWidth={5} {...stroke} />
+      <Path d="M124 134 L124 66" stroke={accent} strokeWidth={5} {...stroke} />
+      <Circle cx={124} cy={62} r={4} fill={accent} />
+    </Svg>
+  );
+}
+
+/** Headphones — the daily anchor: band + cups, the audio itself lit. */
+function Headphones({ accent }: { accent: string }) {
+  return (
+    <Svg width={SIZE} height={SIZE} viewBox={`0 0 ${SIZE} ${SIZE}`}>
+      <Glow cx={95} cy={104} r={40} accent={accent} />
+      <Ring />
+      {/* Band. */}
+      <Path d="M60 104 L60 92 C60 70 76 56 95 56 C114 56 130 70 130 92 L130 104" stroke={INK} strokeWidth={2.4} {...stroke} />
+      {/* Cups. */}
+      <Path d="M60 100 L66 100 C69 100 71 102 71 105 L71 121 C71 124 69 126 66 126 L60 126 Z" fill="none" stroke={INK} strokeWidth={2} strokeLinejoin="round" />
+      <Path d="M130 100 L124 100 C121 100 119 102 119 105 L119 121 C119 124 121 126 124 126 L130 126 Z" fill="none" stroke={INK} strokeWidth={2} strokeLinejoin="round" />
+      {/* The audio between the cups — lit. */}
+      <Path d="M87 106 L87 120" stroke={accent} strokeWidth={2.4} {...stroke} />
+      <Path d="M95 100 L95 126" stroke={accent} strokeWidth={2.4} {...stroke} />
+      <Path d="M103 106 L103 120" stroke={accent} strokeWidth={2.4} {...stroke} />
+    </Svg>
+  );
+}
+
+/** Shield — the SOS guarantee: steady ground in the hard moment. */
+function Shield({ accent }: { accent: string }) {
+  return (
+    <Svg width={SIZE} height={SIZE} viewBox={`0 0 ${SIZE} ${SIZE}`}>
+      <Glow cx={95} cy={94} r={42} accent={accent} />
+      <Ring />
+      <Path
+        d="M95 52 L128 63 C128 96 116 121 95 136 C74 121 62 96 62 63 Z"
+        fill="none"
+        stroke={INK}
+        strokeWidth={2.4}
+        strokeLinejoin="round"
+      />
+      {/* The steady core — lit. */}
+      <Circle cx={95} cy={92} r={9} fill="none" stroke={accent} strokeWidth={2.4} />
+      <Circle cx={95} cy={92} r={3.2} fill={accent} />
+    </Svg>
+  );
+}
+
+/** Lock — private by architecture: sealed body, the keyhole lit (yours). */
+function Lock({ accent }: { accent: string }) {
+  return (
+    <Svg width={SIZE} height={SIZE} viewBox={`0 0 ${SIZE} ${SIZE}`}>
+      <Glow cx={95} cy={106} r={40} accent={accent} />
+      <Ring />
+      {/* Shackle. */}
+      <Path d="M77 86 L77 74 C77 62 85 54 95 54 C105 54 113 62 113 74 L113 86" stroke={INK} strokeWidth={2.4} {...stroke} />
+      {/* Body. */}
+      <Rect x="66" y="86" width="58" height="46" rx="10" fill="none" stroke={INK} strokeWidth={2.4} />
+      {/* Keyhole — lit. */}
+      <Circle cx={95} cy={104} r={5} fill="none" stroke={accent} strokeWidth={2.4} />
+      <Path d="M95 109 L95 120" stroke={accent} strokeWidth={2.4} {...stroke} />
+    </Svg>
+  );
+}
+
 export default function ClinicalHero({
   motif,
   accent = DEFAULT_ACCENT,
@@ -145,6 +257,18 @@ export default function ClinicalHero({
       return <Novelty accent={accent} />;
     case 'bandaid':
       return <Crutch accent={accent} />;
+    case 'growth':
+      return <Growth accent={accent} />;
+    case 'ascent':
+      return <Ascent accent={accent} />;
+    case 'measure':
+      return <Measure accent={accent} />;
+    case 'headphones':
+      return <Headphones accent={accent} />;
+    case 'shield':
+      return <Shield accent={accent} />;
+    case 'lock':
+      return <Lock accent={accent} />;
     default:
       return (
         <Svg width={SIZE} height={SIZE} viewBox={`0 0 ${SIZE} ${SIZE}`}>

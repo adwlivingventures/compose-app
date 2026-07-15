@@ -1,14 +1,17 @@
-// B-33/A-33 — the Hopeful Arc: five chapter-register sub-screens under one
-// screen id. Sub-screen 3 carries the three-stage path graphic with the
-// user's start date marked. Typographic per the imagery hard rule (renders
-// only at B-01, cards, B-32).
+// B-33/A-33 — the Hopeful Arc: five encouraging sub-screens under one screen
+// id, tapped through quickly to rebuild hope before the close. Image-forward
+// per founder ruling 2026-07-14 (supersedes the earlier typographic-only
+// imagery rule): each slide carries a bespoke SVG motif (copper — base
+// palette) + a short imperative headline + 1–2 sentences, with the wordmark
+// up top and pagination dots — the QUITTR quick-tap register in Ember Dusk.
 
 import { useState } from 'react';
 import { Text, View } from 'react-native';
 import Svg, { Circle, Line, Text as SvgText } from 'react-native-svg';
 import type { HopefulArcScreen } from '../../content/onboarding/types';
 import EmissiveCTA from './EmissiveCTA';
-import { ScreenFade } from './archetypes';
+import ClinicalHero from './ClinicalHero';
+import { EmphasizedText, ScreenFade } from './archetypes';
 import { DuskRadial, Eyebrow, Wordmark } from './chrome';
 
 const PHASES = ['Reset', 'Exposure', 'Consolidation'] as const;
@@ -89,20 +92,39 @@ export default function HopefulArc({
             <Eyebrow center>{sub.eyebrow}</Eyebrow>
           ) : null}
         </View>
-        <View className="flex-1 justify-center px-9">
+        <View className="flex-1 items-center justify-center px-9">
+          {sub.motif ? (
+            <View style={{ marginBottom: 16 }}>
+              <ClinicalHero motif={sub.motif} />
+            </View>
+          ) : null}
           <Text
             className="text-center font-serif-regular text-ink"
             style={{ fontSize: 28, lineHeight: 37 }}
           >
             {sub.headline}
           </Text>
-          <Text
+          <EmphasizedText
+            text={sub.body}
             className="text-center text-body"
             style={{ fontSize: 14.5, fontWeight: '300', lineHeight: 23.5, marginTop: 18 }}
-          >
-            {sub.body}
-          </Text>
+          />
           {sub.visual === 'phase-path' && <PhasePath />}
+        </View>
+        {/* Pagination dots — the "quick section, almost there" cue. The active
+            dot is a progress marker, so copper is legal here (§6). */}
+        <View className="flex-row justify-center" style={{ gap: 8, marginBottom: 20 }}>
+          {screen.subScreens.map((_, i) => (
+            <View
+              key={i}
+              className="rounded-full"
+              style={{
+                width: 6,
+                height: 6,
+                backgroundColor: i === index ? '#C89B6D' : '#232D42',
+              }}
+            />
+          ))}
         </View>
         <View className="px-8 pb-[52px]">
           <EmissiveCTA label={sub.button} onPress={advance} />

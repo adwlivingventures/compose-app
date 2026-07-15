@@ -113,18 +113,21 @@ export function DuskRadial({
 }
 
 /**
- * Progress header: back chevron · "MAPPING · X OF Y" · "~N MIN", over a 2px
+ * Progress header: back chevron · section name · "~N MIN", over a 2px
  * track with sand fill (one of the screen's 4 permitted emissions).
+ * No "X OF Y" — see the ruling in logic.ts progressMeta.
  */
 export function ProgressHeader({
   step,
   total,
   minutesLeft,
+  sectionLabel,
   onBack,
 }: {
   step: number;
   total: number;
   minutesLeft: number;
+  sectionLabel: string;
   onBack?: () => void;
 }) {
   const fill = useRef(new Animated.Value(step / total)).current;
@@ -168,7 +171,7 @@ export function ProgressHeader({
         >
           <ChevronLeft size={17} color="#6B7280" strokeWidth={1.5} />
         </Pressable>
-        <Eyebrow>{`MAPPING · ${step} OF ${total}`}</Eyebrow>
+        <Eyebrow>{sectionLabel.toUpperCase()}</Eyebrow>
         <Text
           className="text-muted"
           style={{ fontSize: 10, fontWeight: '300', width: 44, textAlign: 'right' }}

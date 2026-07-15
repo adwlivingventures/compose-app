@@ -28,12 +28,7 @@ import {
 import type { ResolvedScreen } from '../content/onboarding/types';
 import { LocalStore } from '../services/storage';
 import { recordComposure } from '../services/composureHistory';
-import {
-  setTelemetryConsent,
-  track,
-  trackScreen,
-  type ScreenAction,
-} from '../services/analytics';
+import { track, trackScreen, type ScreenAction } from '../services/analytics';
 import { seal } from '../services/haptics';
 import { persistSegment } from '../content/onboarding/segment';
 import { useProtocol } from '../context/ProtocolContext';
@@ -46,13 +41,14 @@ import QuestionShell from '../components/onboarding/QuestionShell';
 import { AgeWheel, MultiSelect, NameInput, ScaleSlider } from '../components/onboarding/inputs';
 import PelvicCheck from '../components/onboarding/PelvicCheck';
 import HopefulArc from '../components/onboarding/HopefulArc';
+import ValueStack from '../components/onboarding/ValueStack';
+import { shouldAskPostPurchase } from '../services/rating';
 import DivergingGraphScreen from '../components/onboarding/DivergingGraphScreen';
 import Generating from '../components/onboarding/Generating';
 import MapScreen from '../components/onboarding/MapScreen';
 import Paywall, { MembershipTerm, PriceStrings } from '../components/onboarding/Paywall';
 import PaywallDismiss from '../components/onboarding/PaywallDismiss';
 import DayZero from '../components/onboarding/DayZero';
-import ConsentScreen from '../components/onboarding/ConsentScreen';
 
 const STATE_KEY = '@onboarding_flow_v1';
 const DISMISSED_KEY = '@paywall_dismissed';
@@ -256,7 +252,9 @@ export default function Onboarding() {
         // Conversion event carries the term only — the funnel's bottom line.
         track('purchase', { term });
         await unlockProtocol();
-        router.replace('/discretion?intro=1');
+        // Post-purchase chain (founder rulings 2026-07-14/15): rating ask
+        // (when the native module is available) → consent → Discreet Mode.
+        router.replace((await shouldAskPostPurchase()) ? '/rate' : '/consent');
       }
     },
     [term, getAnnualPackage, getMonthlyPackage, purchasePackage, unlockProtocol, router, emit],
@@ -301,6 +299,8 @@ export default function Onboarding() {
     switch (screen.archetype) {
       case 'chapter':
         return <Chapter screen={screen} onAdvance={() => advance()} />;
+      case 'value-stack':
+        return <ValueStack screen={screen} onAdvance={() => advance()} />;
       case 'hopeful-arc':
         return <HopefulArc screen={screen} onComplete={() => advance()} />;
       case 'section-transition':
@@ -430,18 +430,8 @@ export default function Onboarding() {
         return <DivergingGraphScreen screen={screen} onAdvance={() => advance()} />;
       case 'commit':
         return <Commit screen={screen} onAdvance={() => advance()} />;
-      case 'consent':
-        return (
-          <ConsentScreen
-            screen={screen}
-            onDecision={(granted) => {
-              // Decline is final and total: zero events, including the ones
-              // already buffered this session. The flow continues identically.
-              setTelemetryConsent(granted);
-              advance();
-            }}
-          />
-        );
+      // 'consent' no longer appears in the flow — it's the post-purchase
+      // /consent route (founder ruling 2026-07-14).
       case 'beat':
         return <Beat text={screen.text} maxMs={screen.maxMs} onAdvance={() => advance()} />;
       case 'paywall':
@@ -490,6 +480,7 @@ export default function Onboarding() {
           step={meta.step}
           total={meta.total}
           minutesLeft={meta.minutesLeft}
+          sectionLabel={meta.sectionLabel}
           onBack={history.current.length > 0 ? goBack : undefined}
         />
         <View className="flex-1">{body}</View>

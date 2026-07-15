@@ -18,7 +18,13 @@ import {
   checklistFooterForDay,
 } from '../content/sessionCopy';
 import { LocalStore } from '../services/storage';
-import { enableDailyReminder, notificationsPresent } from '../services/notifications';
+import {
+  enableDailyReminder,
+  notificationsPresent,
+  ReminderTime,
+} from '../services/notifications';
+import { markAsked, shouldAskForDay } from '../services/rating';
+import RatingAsk from '../components/RatingAsk';
 import AudioPlayer from '../components/AudioPlayer';
 import ConditioningTrack from '../components/ConditioningTrack';
 import TriageCenter from '../components/TriageCenter';
@@ -90,6 +96,13 @@ function SessionBody() {
   const [sosVisible, setSosVisible] = useState(false);
   const [askReminder, setAskReminder] = useState(false);
   const [enablingReminder, setEnablingReminder] = useState(false);
+  // Reminder time chips (founder ruling 2026-07-15): he chooses when the
+  // line arrives, one time or several. Seeded with the hour he finished
+  // at — the completion hour is still the best default cue.
+  const [reminderHours, setReminderHours] = useState<number[]>(
+    () => [new Date().getHours()],
+  );
+  const [askRating, setAskRating] = useState(false);
   const { setNotifications } = useDiscreet();
 
   const day = dayRef.current;
@@ -168,22 +181,34 @@ function SessionBody() {
       setAskReminder(true);
       return;
     }
+    // Rating asks ride the completion high on the scheduled days only
+    // (services/rating.ts: Days 2/14/30/40/75, retired once he engages).
+    if (await shouldAskForDay(day)) {
+      await markAsked(day);
+      setAskRating(true);
+      return;
+    }
     // Land back on the dashboard so the ring's advance is the closing image.
     router.back();
   };
 
   const handleEnableReminder = async () => {
-    if (enablingReminder) return;
+    if (enablingReminder || reminderHours.length === 0) return;
     setEnablingReminder(true);
-    const now = new Date();
-    const result = await enableDailyReminder({
-      hour: now.getHours(),
-      minute: now.getMinutes(),
-    });
+    const times: ReminderTime[] = [...reminderHours]
+      .sort((a, b) => a - b)
+      .map((hour) => ({ hour, minute: 0 }));
+    const result = await enableDailyReminder(times);
     // A denied system prompt is a decision, not an error — no nagging,
     // the E18 row remains the way back in.
     setNotifications(result === 'scheduled');
     router.back();
+  };
+
+  const toggleReminderHour = (hour: number) => {
+    setReminderHours((prev) =>
+      prev.includes(hour) ? prev.filter((h) => h !== hour) : [...prev, hour],
+    );
   };
 
   const advance = () => {
@@ -221,42 +246,85 @@ function SessionBody() {
     );
   }
 
+  // Rating ask (Days 2/14/30/40/75, post-success) — quiet exit either way.
+  if (askRating) {
+    return <RatingAsk eyebrow={`Day ${day} complete`} onDone={() => router.back()} />;
+  }
+
   // Day-1 reminder opt-in (post-success ask). One decision, quiet exit —
   // the notification preview is shown verbatim so consent is informed: he
   // sees exactly what a stranger's glance at his lock screen would see.
+  // He picks the time(s); the chips are deterministic hours, multi-select,
+  // seeded with the hour he just finished at.
   if (askReminder) {
+    const chipHours = Array.from(
+      new Set([6, 7, 8, 9, 12, 15, 17, 18, 19, 20, 21, 22, ...reminderHours]),
+    ).sort((a, b) => a - b);
+    const hourLabel = (h: number) =>
+      h === 0 ? '12 AM' : h < 12 ? `${h} AM` : h === 12 ? '12 PM' : `${h - 12} PM`;
     return (
-      <View className="flex-1 bg-ground px-7 justify-center">
+      <ScrollView
+        className="flex-1 bg-ground"
+        contentContainerStyle={{ paddingHorizontal: 28, paddingTop: 72, paddingBottom: 40 }}
+      >
         <Text className="text-muted text-[11px] font-semibold uppercase tracking-[0.28em]">
           Day one complete
         </Text>
         <Text className="text-ink text-[26px] font-serif-regular leading-9 mt-2.5">
-          Same time tomorrow?
+          When should tomorrow's line arrive?
         </Text>
         <Text className="text-muted text-[13.5px] leading-5 mt-3">
-          One quiet line at this hour each day. This is the whole notification — nothing a
-          glance at your lock screen could read into:
+          One quiet line each day. Pick one time, or several. This is the whole
+          notification, nothing a glance at your lock screen could read into:
         </Text>
 
         <View className="bg-surface border border-line rounded-[14px] px-4 py-3.5 mt-5">
           <Text className="text-ink text-[13px] font-bold">Compose</Text>
           <Text className="text-body text-[13px] mt-0.5">Today's session is ready.</Text>
         </View>
-        <Text className="text-faint text-[11.5px] leading-4 mt-2.5">
-          Never a streak warning. Never a word about the work. Turn it off any time under
-          Discretion.
+
+        <View className="flex-row flex-wrap gap-2 mt-6">
+          {chipHours.map((h) => {
+            const on = reminderHours.includes(h);
+            return (
+              <TouchableOpacity
+                key={h}
+                onPress={() => toggleReminderHour(h)}
+                activeOpacity={0.8}
+                className={`px-4 py-[9px] rounded-full border ${
+                  on ? 'bg-accent border-accent' : 'bg-surface border-line'
+                }`}
+              >
+                <Text
+                  className={`text-[13px] font-semibold ${on ? 'text-on-accent' : 'text-muted'}`}
+                >
+                  {hourLabel(h)}
+                </Text>
+              </TouchableOpacity>
+            );
+          })}
+        </View>
+        <Text className="text-faint text-[11.5px] leading-4 mt-3">
+          Never a streak warning. Never a word about the work. Change or turn off any time
+          under Discretion.
         </Text>
 
         <TouchableOpacity
           onPress={handleEnableReminder}
-          disabled={enablingReminder}
+          disabled={enablingReminder || reminderHours.length === 0}
           activeOpacity={0.85}
-          className="bg-accent rounded-2xl py-[17px] items-center mt-8"
+          className={`rounded-2xl py-[17px] items-center mt-7 ${
+            reminderHours.length === 0 ? 'bg-line' : 'bg-accent'
+          }`}
         >
           {enablingReminder ? (
             <ActivityIndicator color="#0C0B09" />
           ) : (
-            <Text className="text-on-accent font-bold text-base">Remind me at this hour</Text>
+            <Text className="text-on-accent font-bold text-base">
+              {reminderHours.length > 1
+                ? `Remind me at ${reminderHours.length} times`
+                : 'Remind me'}
+            </Text>
           )}
         </TouchableOpacity>
         <TouchableOpacity
@@ -267,7 +335,7 @@ function SessionBody() {
         >
           <Text className="text-muted text-[13px] font-semibold">Not now</Text>
         </TouchableOpacity>
-      </View>
+      </ScrollView>
     );
   }
 

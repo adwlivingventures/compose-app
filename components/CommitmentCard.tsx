@@ -12,7 +12,7 @@ import { Text, TextInput, View } from 'react-native';
  */
 
 export const OATH_TEXT =
-  '"For the next 75 days I will give this ten minutes a day. Not to perform better — to stop performing at all."';
+  '"For the next 75 days I will give this fifteen minutes a day. Not to perform better — to stop performing at all."';
 
 export default function CommitmentCard({
   value,

@@ -142,10 +142,16 @@ describe('testimonial gate + paywall-dismiss are never sequential', () => {
   });
 });
 
-describe('progress header (MAPPING · X OF Y, layout truth: 3a frame 10 = "10 OF 24")', () => {
-  test('morning arousal is 10 of 24', () => {
+describe('progress header (section name eyebrow; step/total feed the fill bar only)', () => {
+  test('morning arousal is 10 of 24 under a "Your Body" label', () => {
     const meta = progressMeta(flow, at('morning-arousal'));
-    expect(meta).toMatchObject({ step: 10, total: 24 });
+    expect(meta).toMatchObject({ step: 10, total: 24, sectionLabel: 'Your Body' });
+  });
+
+  test('each part carries its section label, never a page count', () => {
+    expect(progressMeta(flow, at('relationship'))?.sectionLabel).toBe('Your Situation');
+    expect(progressMeta(flow, at('physician-note'))?.sectionLabel).toBe('Your Body');
+    expect(progressMeta(flow, at('spillover'))?.sectionLabel).toBe('Your Mind');
   });
 
   test('no header on welcomes, cards, map, paywall', () => {

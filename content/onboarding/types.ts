@@ -76,6 +76,9 @@ export interface ChapterScreen extends ScreenBase {
   heroMode?: 'cover' | 'contain';
   /** Override the 300px default when the copy below needs the room. */
   heroHeight?: number;
+  /** Bespoke SVG motif (ClinicalHero) rendered above the headline — the
+   *  QUITTR-style image-forward chapter (turn-welcome's growth sprout). */
+  motif?: ClinicalMotif;
   privacyLine?: string;
   microText?: string;
   statCards?: string[];
@@ -85,12 +88,27 @@ export interface ChapterScreen extends ScreenBase {
   button: string;
 }
 
+/** Pre-paywall value stack (founder ruling 2026-07-15, QUITTR-inspired):
+ *  grouped check rows that make the invisible product concrete before the
+ *  price appears. High-level only — every item stays under ~12 words. */
+export interface ValueStackScreen extends ScreenBase {
+  archetype: 'value-stack';
+  eyebrow?: string;
+  headline: string;
+  subhead?: string;
+  groups: { label: string; items: string[] }[];
+  button: string;
+}
+
 export interface HopefulArcScreen extends ScreenBase {
   archetype: 'hopeful-arc';
   subScreens: {
     eyebrow?: string;
     headline: string;
     body: string;
+    /** Bespoke SVG motif above the headline (copper — the arc runs the base
+     *  palette, not the diagnostic ember). */
+    motif?: ClinicalMotif;
     visual?: 'phase-path';
     button: string;
   }[];
@@ -223,7 +241,21 @@ export interface MapScreen extends ScreenBase {
  *  2026-07-14: the generic PNG renders are replaced with per-concept emissive
  *  line motifs — code, not raster assets, so they sidestep the 5-render cap in
  *  heroes.ts and stay inside Ember Dusk instead of importing playful art). */
-export type ClinicalMotif = 'adrenaline' | 'replay' | 'spectator' | 'novelty' | 'bandaid';
+export type ClinicalMotif =
+  | 'adrenaline'
+  | 'replay'
+  | 'spectator'
+  | 'novelty'
+  | 'bandaid'
+  /** The turn's recovery screen — growth, not diagnosis. */
+  | 'growth'
+  /** Hopeful-arc slides (founder ruling 2026-07-14: the arc went image-forward,
+   *  QUITTR-style — five encouraging motifs, copper accent). */
+  | 'ascent'
+  | 'measure'
+  | 'headphones'
+  | 'shield'
+  | 'lock';
 
 export interface ClinicalCardScreen extends ScreenBase {
   archetype: 'clinical-card';
@@ -263,8 +295,10 @@ export interface CommitScreen extends ScreenBase {
   body: string;
   question: string;
   button: string;
-  doubtLink: string;
-  doubt: { body: string; button: string };
+  /** Optional doubt interstitial (removed from the live commit screen,
+   *  founder ruling 2026-07-14 — machinery retained). */
+  doubtLink?: string;
+  doubt?: { body: string; button: string };
 }
 
 export interface BeatScreen extends ScreenBase {
@@ -355,6 +389,7 @@ export interface DiscretionScreen extends ScreenBase {
 
 export type Screen =
   | ChapterScreen
+  | ValueStackScreen
   | HopefulArcScreen
   | SectionTransitionScreen
   | SingleSelectScreen

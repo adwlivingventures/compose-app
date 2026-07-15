@@ -5,7 +5,7 @@ import { authenticate, biometricsEnrolled, biometricsPresent } from '../services
 import {
   disableDailyReminder,
   enableDailyReminder,
-  getReminderTime,
+  getReminderTimes,
   notificationsPresent,
 } from '../services/notifications';
 import { ChevronLeft } from 'lucide-react-native';
@@ -116,11 +116,13 @@ export default function DiscretionScreen() {
       );
       return;
     }
-    // Re-enabling reuses the hour Day 1 set; a user who never opted in
+    // Re-enabling reuses the time(s) Day 1 set; a user who never opted in
     // gets the current hour — the moment he's in the app is his hour.
     const now = new Date();
-    const time = (await getReminderTime()) ?? { hour: now.getHours(), minute: now.getMinutes() };
-    const result = await enableDailyReminder(time);
+    const times = (await getReminderTimes()) ?? [
+      { hour: now.getHours(), minute: now.getMinutes() },
+    ];
+    const result = await enableDailyReminder(times);
     if (result === 'scheduled') {
       setNotifications(true);
     } else if (result === 'denied') {

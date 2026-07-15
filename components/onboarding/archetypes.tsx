@@ -23,7 +23,7 @@ import { DuskRadial, Eyebrow, SecondaryLink, Wordmark } from './chrome';
 
 /** Render `**word**` spans in body copy as ink-weight emphasis (QUITTR-style
  *  keyword bolding) inside an otherwise weight-300 line. */
-function EmphasizedText({ text, ...rest }: { text: string } & React.ComponentProps<typeof Text>) {
+export function EmphasizedText({ text, ...rest }: { text: string } & React.ComponentProps<typeof Text>) {
   const parts = text.split(/(\*\*[^*]+\*\*)/g);
   return (
     <Text {...rest}>
@@ -144,6 +144,14 @@ export function Chapter({
             justifyContent: screen.hero ? 'flex-start' : 'center',
           }}
         >
+          {/* Bespoke SVG motif (QUITTR-style image-forward chapter) — sits
+              above the headline; copper accent, since the turn is back on the
+              onboarding's base palette. */}
+          {screen.motif ? (
+            <View style={{ marginBottom: 18 }}>
+              <ClinicalHero motif={screen.motif} />
+            </View>
+          ) : null}
           {/* NativeWind classes don't reach Animated primitives — animate a
               plain wrapper and keep the styled Text inside it. */}
           <Animated.View
@@ -171,13 +179,12 @@ export function Chapter({
             ))}
           </Animated.View>
           {screen.bodyBlocks?.map((block, i) => (
-            <Text
+            <EmphasizedText
               key={i}
+              text={block}
               className="text-center text-body"
               style={{ fontSize: 14.5, fontWeight: '300', lineHeight: 23.5, marginTop: 18 }}
-            >
-              {block}
-            </Text>
+            />
           ))}
           {screen.statCards?.map((stat, i) => (
             <View key={i} className="mt-3 w-full rounded-2xl bg-surface px-4 py-4">
@@ -576,7 +583,7 @@ export function Commit({
     <ScreenFade>
       <View className="flex-1 bg-ground">
         <View className="flex-1 justify-center px-7">
-          {doubting ? (
+          {doubting && screen.doubt ? (
             <Text
               className="text-center font-serif-regular text-ink"
               style={{ fontSize: 24, lineHeight: 34 }}
@@ -608,10 +615,10 @@ export function Commit({
         </View>
         <View className="px-8 pb-[52px]" style={{ gap: 6 }}>
           <EmissiveCTA
-            label={doubting ? screen.doubt.button : screen.button}
+            label={doubting && screen.doubt ? screen.doubt.button : screen.button}
             onPress={onAdvance}
           />
-          {!doubting && (
+          {!doubting && screen.doubtLink && (
             <SecondaryLink label={screen.doubtLink} onPress={() => setDoubting(true)} />
           )}
         </View>

@@ -8,7 +8,7 @@
 // render time. No purchasable price is ever hardcoded here ("$1,800+" is the
 // therapy comparator, not our price).
 
-import type { Screen } from './types';
+import type { ConsentScreen, Screen } from './types';
 
 /**
  * The full flow, in final (batched) order: the four clinical cards follow the
@@ -38,7 +38,7 @@ export const SCREENS: Screen[] = [
     ],
     hero: 'fig-hero-somatic.png',
     heroMode: 'contain',
-    privacyLine: 'Private by design — no account, no sync, no lock-screen tells',
+    privacyLine: 'Private by design. No account, no sync, no lock-screen tells',
     microText: 'Takes about 5 minutes',
     button: 'Find my baseline',
   },
@@ -63,7 +63,7 @@ export const SCREENS: Screen[] = [
       // word, seeds the daily-practice expectation from the first sentence,
       // and counters the passive misread of "subconscious."
       'Compose is a structured daily program built on Cognitive Behavioral Sex Therapy (CBST) and subconscious identity retraining.',
-      'Before we suggest anything, we listen — first to the body, then to the mind. Then we build your protocol around what we find.',
+      'Before we suggest anything, we listen: first to the body, then to the mind. Then we build your protocol around what we find.',
     ],
     button: 'Let’s begin',
   },
@@ -203,7 +203,7 @@ export const SCREENS: Screen[] = [
       { value: 'most', label: 'Most mornings' },
       { value: 'sometimes', label: 'Sometimes' },
       { value: 'rarely', label: 'Rarely or never' },
-      { value: 'unsure', label: 'Not sure — I’ve never paid attention' },
+      { value: 'unsure', label: 'Not sure, I’ve never paid attention' },
     ],
   },
   {
@@ -242,7 +242,7 @@ export const SCREENS: Screen[] = [
       { label: 'Libido', value: '1 / 10' },
     ],
     body:
-      'Together, these two can point to a physical cause — not just a mental one — worth ruling out first.',
+      'Together, these two can point to a physical cause, not just a mental one. Worth ruling out first.',
     button: 'Understood',
     secondaryLabel: 'Let me change an answer',
   },
@@ -253,10 +253,10 @@ export const SCREENS: Screen[] = [
     question: 'When intimacy starts, do you feel a rush of adrenaline?',
     answerKey: 'adrenalineSpike',
     options: [
-      { value: 'panic', label: 'Yes — it feels close to panic' },
-      { value: 'push-through', label: 'Yes — a strong surge but I push through it' },
-      { value: 'occasionally', label: 'Sometimes — depending on the night' },
-      { value: 'calm', label: 'No — I stay calm' },
+      { value: 'panic', label: 'Yes, it feels close to panic' },
+      { value: 'push-through', label: 'Yes, a strong surge I push through' },
+      { value: 'occasionally', label: 'Sometimes, depending on the night' },
+      { value: 'calm', label: 'No, I stay calm' },
     ],
   },
   {
@@ -269,7 +269,7 @@ export const SCREENS: Screen[] = [
     answerKey: 'breathEdge',
     options: [
       { value: 'shallow-hold', label: 'It gets shallow, or I hold my breath' },
-      { value: 'speeds-up', label: 'It speeds up — short and fast' },
+      { value: 'speeds-up', label: 'It speeds up, short and fast' },
       { value: 'slow-deep', label: 'It stays slow and deep' },
       { value: 'never-noticed', label: 'I’ve never noticed' },
     ],
@@ -285,10 +285,10 @@ export const SCREENS: Screen[] = [
       subText:
         'Men who carry performance anxiety often hold the pelvic floor chronically tight without knowing it.',
       reassurance:
-        'Completely invisible — no movement, no sound, nothing anyone could notice. You can do this in a waiting room.',
+        'Completely invisible. No movement, no sound, nothing anyone could notice. You can do this in a waiting room.',
       steps: [
         'Sit comfortably, feet flat on the floor.',
-        'On Begin, clench your pelvic floor — as if stopping urine flow.',
+        'On Begin, clench your pelvic floor, as if stopping urine flow.',
         'Hold five seconds, then release fully. Notice what the release feels like.',
       ],
       button: 'Begin the 20-second check',
@@ -310,7 +310,7 @@ export const SCREENS: Screen[] = [
     resultScale: {
       min: 1,
       max: 10,
-      anchorLow: '1 = It wouldn’t release — stayed tight',
+      anchorLow: '1 = It wouldn’t release, stayed tight',
       anchorHigh: '10 = Let go completely',
       button: 'Continue',
     },
@@ -369,7 +369,7 @@ export const SCREENS: Screen[] = [
     subText: 'Clinicians call this "spectatoring." It has a name because it’s common.',
     answerKey: 'spectatoring',
     options: [
-      { value: 'almost-every-time', label: 'Yes — almost every time' },
+      { value: 'almost-every-time', label: 'Yes, almost every time' },
       { value: 'sometimes', label: 'Sometimes' },
       { value: 'rarely', label: 'Rarely' },
       { value: 'never', label: 'Never' },
@@ -454,10 +454,10 @@ export const SCREENS: Screen[] = [
     subText: 'Into your work, your confidence, how you carry yourself?',
     answerKey: 'spillover',
     options: [
-      { value: 'everything', label: 'Yes — it touches everything' },
+      { value: 'everything', label: 'Yes, it touches everything' },
       { value: 'confidence', label: 'It shows in my confidence and mood' },
       { value: 'sometimes', label: 'Sometimes, in waves' },
-      { value: 'bedroom-only', label: 'No — it stays in the bedroom' },
+      { value: 'bedroom-only', label: 'No, it stays in the bedroom' },
     ],
   },
 
@@ -486,7 +486,7 @@ export const SCREENS: Screen[] = [
     eyebrow: 'YOUR RESULTS',
     headline: '{name}, here is what your answers show.',
     scoreLabel:
-      'Your Composure Score — how steady your body stays under intimate pressure.',
+      'Your Composure Score: how steady your body stays under intimate pressure.',
     gauge: {
       // "Composed zone" (founder ruling 2026-07-13) ties the target band to
       // the product name and the Composure Score. Only the destination band is
@@ -605,7 +605,7 @@ export const SCREENS: Screen[] = [
     archetype: 'clinical-card',
     title: 'The Adrenaline Trap',
     body:
-      'The moment intimacy begins, your brain trips a **threat alarm**. Adrenaline floods in — **cutting blood flow**, **firing the reflex early**.',
+      'The moment intimacy begins, your brain trips a **threat alarm**. Adrenaline floods in, **cutting blood flow** and **firing the reflex early**.',
     motif: 'adrenaline',
     button: 'I understand',
   },
@@ -615,7 +615,7 @@ export const SCREENS: Screen[] = [
     archetype: 'clinical-card',
     title: 'The Dopamine Loop',
     body:
-      'Porn and endless scrolling train your brain on **infinite novelty**. Then one real partner has to compete with thousands — and your body **goes quiet**.',
+      'Porn and endless scrolling train your brain on **infinite novelty**. Then one real partner has to compete with thousands, and your body **goes quiet**.',
     motif: 'novelty',
     button: 'Makes sense',
   },
@@ -625,7 +625,7 @@ export const SCREENS: Screen[] = [
     archetype: 'clinical-card',
     title: 'The Default Mode Network',
     body:
-      'After a bad night, your mind runs the same tape: “I’m less of a man — she’ll get bored and leave.” This loop is called the **Default Mode Network**… and every replay wires the fear **deeper**.',
+      'After a bad night, your mind runs the same tape: “I’m less of a man. She’ll get bored and leave.” This loop is called the **Default Mode Network**… and every replay wires the fear **deeper**.',
     motif: 'replay',
     button: 'Continue',
   },
@@ -642,10 +642,10 @@ export const SCREENS: Screen[] = [
     title: 'The Crutch',
     stat: {
       figure: '50%',
-      caption: 'of men quit ED pills within a year — even when they work.',
+      caption: 'of men quit ED pills within a year, even when they work.',
     },
     body:
-      'Are we really going to pretend supplements are the answer? Every pill and cream teaches you the same **lie** — that you can’t do this without them — while quietly eating away at your **self-esteem**.',
+      'Are we really going to pretend supplements are the answer? Every pill and cream teaches you the same **lie**: that you can’t do this without them. And it quietly eats away at your **self-esteem**.',
     motif: 'bandaid',
     button: 'I understand',
   },
@@ -660,164 +660,140 @@ export const SCREENS: Screen[] = [
     },
     title: 'The Spectator',
     body:
-      'You’ve turned intimacy into an **exam** you’re terrified to fail — watching yourself, grading every second. Your partner is right there, and you’re too **in your head** to feel it.',
+      'You’ve turned intimacy into an **exam** you’re terrified to fail. Watching yourself, grading every second. Your partner is right there, and you’re too **in your head** to feel it.',
     motif: 'spectator',
     button: 'Continue',
   },
 
   // ── The Turn — Hope and Desire ─────────────────────────────────────────
-  // Founder review 2026-07-10: the pivot from diagnosis to solution needs its
-  // own breath — hopeful, warm, and explicit that a different section is
-  // starting. Inserted between the four cards and the Blueprint.
+  // Revamped 2026-07-14 (founder batch; QUITTR-inspired). New arc:
+  //   turn-welcome ("Recovery is possible" — the METHODS heal, no Compose yet)
+  //   → compose-welcome (the brand moment; clinical lineage as the authority —
+  //     the Ghost Data ban forbids invented user counts/press logos, so fifty
+  //     years of clinical method IS our "2,000,000 users" slide)
+  //   → hopeful-arc (five 1–2 sentence benefit beats; Blueprint + three-phases
+  //     merged into beat 1).
+  // Retired this pass: the standalone `blueprint` chapter (folded into arc
+  // beat 1) and the `foundations` chapter (folded into compose-welcome; its
+  // two stat cards are gone — fewer unsourced claims). Telemetry consent moved
+  // OUT of the flow entirely — it's now the post-purchase /consent route
+  // (founder ruling: ask after payment).
   {
     id: 'turn-welcome',
     section: 'turn',
     archetype: 'chapter',
-    eyebrow: 'COMPOSE',
-    welcome: true,
-    headline: 'You’re in the right place.',
+    eyebrow: 'THE TURN',
+    headline: 'Recovery is possible.',
+    motif: 'growth',
     bodyBlocks: [
-      'Everything you just saw — the alarm, the replay, the trained tempo — is a learned pattern. Learned means reversible.',
-      'What comes next is how Compose reverses it, and what you get along the way.',
+      'Everything you just saw is **learned**. And learned can be unlearned. Cognitive retraining, **pelvic floor down-training**, and subconscious **identity work** reverse it at the root.',
     ],
-    closingLine: 'Welcome to Compose.',
-    button: 'Show me',
+    button: 'Show me how',
   },
   {
-    id: 'blueprint',
+    id: 'compose-welcome',
     section: 'turn',
     archetype: 'chapter',
-    eyebrow: 'THE METHOD',
-    headline: 'The 75-Day Blueprint',
+    eyebrow: 'COMPOSE',
+    welcome: true,
+    headline: 'Welcome to Compose.',
     bodyBlocks: [
-      'Your system learned this. It can learn something else. University College London researchers tracked how long a new behavior takes to become automatic: 66 days on average. Compose runs 75 — past the threshold, with margin. A rewiring, sequenced daily: reset the alarm, retrain the body, consolidate the new default.',
-      // Model V2: the Blueprint is Act I of a membership year, not the whole
-      // product — the annual buyer must see more than 75 days of value.
-      'And it’s Act One of your membership year — the SOS toolkit, your Baseline tracking, and the Mastery Suite at graduation carry it from there.',
+      'One program built on **fifty years of clinical method**: Sensate Focus, Cognitive Behavioral Sex Therapy, and polyvagal breathwork, sequenced into fifteen minutes a day.',
     ],
-    hero: 'fig-hero-protocol.png',
-    heroHeight: 210,
-    closingLine: 'Ten minutes a day. That’s the entire ask.',
-    button: 'Show me the journey',
+    button: 'Show me',
   },
   {
     id: 'hopeful-arc',
     section: 'turn',
     archetype: 'hopeful-arc',
+    // Five encouraging quick-tap slides (founder ruling 2026-07-14, QUITTR
+    // register): wordmark up top, bespoke motif, short imperative headline,
+    // 1–2 sentences naming the solution — hope and momentum before the close.
     subScreens: [
-      // Founder review 2026-07-10: the "right place" beat moved to the
-      // turn-welcome screen; this slot now carries the measurement feature —
-      // the risk-reversal differentiator ("measured, not promised").
       {
         eyebrow: 'COMPOSE',
-        headline: 'Proof, not promises.',
+        headline: 'Retrain the response.',
+        motif: 'ascent',
         body:
-          'The score you just saw is your baseline. You’ll re-measure it at Days 14, 40, and 75 — and watch the number move as your nervous system retrains. Evidence you can see beats reassurance you have to believe.',
+          'New automatic responses take about **66 days** to set. You get 75, sequenced daily. Calm becomes the **default**, not the exception.',
         button: 'Continue',
       },
       {
-        headline: 'Ten minutes. Headphones on. Eyes closed.',
+        eyebrow: 'COMPOSE',
+        headline: 'Watch yourself change.',
+        motif: 'measure',
         body:
-          'One guided audio session a day. No screens to watch, nothing to read, nothing to perform — because the work happens in your body, not on a display.',
+          'Your Composure Score is re-measured at Days **14, 40, and 75**. Evidence you can see, not reassurance you have to believe.',
         button: 'Continue',
       },
       {
-        headline: '75 days. Three phases. One button.',
+        eyebrow: 'COMPOSE',
+        headline: 'Fifteen minutes a day.',
+        motif: 'headphones',
         body:
-          'Autonomic Reset (Days 1–25) quiets the alarm. Somatic Exposure (Days 26–50) retrains the body. Identity Consolidation (Days 51–75) makes calm the new default. You never decide what to do next — the sequence decides.',
-        visual: 'phase-path',
+          'Headphones on, eyes closed. That’s the entire ask. The work happens in your **body**, not on a screen.',
         button: 'Continue',
       },
       {
-        headline: 'For the moments that count.',
+        eyebrow: 'COMPOSE',
+        headline: 'Steady when it matters.',
+        motif: 'shield',
         body:
-          'SOS: one tap, sixty seconds. 4-7-8 breathing and sensory grounding that intercept panic in real time — built for the bedroom doorway, usable anywhere. Yours from Day 1.',
+          'One tap starts **sixty seconds** of guided breathing that settles panic in real time. Yours from Day 1.',
         button: 'Continue',
       },
       {
-        headline: 'Private by architecture.',
+        eyebrow: 'COMPOSE',
+        headline: 'Invisible by design.',
+        motif: 'lock',
         body:
-          'No account. Your answers never leave this phone. Neutral notifications, Face ID lock, hidden app switcher — and your card statement reads Apple, never this app’s name.',
+          'No account. Nothing you enter ever leaves this phone. Your card statement reads **Apple**, never this app’s name.',
         button: 'Continue',
       },
     ],
   },
-  // Telemetry consent (§7 exception) — placed directly after the "Private by
-  // architecture" beat that closes the hopeful arc: a consent ask lands best
-  // immediately after a trust proof, and this position leaves the
-  // commit → building-plan → paywall close chain unbroken. Unnumbered
-  // (Model V2 insertion; the handoff's 42-screen numbering is untouched).
-  {
-    id: 'telemetry-consent',
-    section: 'turn',
-    archetype: 'consent',
-    eyebrow: 'ONE QUESTION',
-    headline: 'Help prove this method works?',
-    body:
-      'Everything you answer and write stays on this phone — that does not change. To show the protocol works, we ask to count anonymous milestones across all users. Each count carries one of four broad profile groups — never your answers — so results can be shown across different starting points.',
-    bullets: [
-      'Counts only — a session completed, a score measured',
-      'Never your words, never who you are',
-      'Decline, and the app works exactly the same',
-    ],
-    acceptButton: 'Count my milestones',
-    declineLink: 'No thanks',
-  },
-  {
-    id: 'foundations',
-    section: 'turn',
-    archetype: 'chapter',
-    eyebrow: 'THE FOUNDATIONS',
-    headline: 'Built on fifty years of clinical method.',
-    bodyBlocks: [
-      'Compose is built on Sensate Focus (developed by Masters & Johnson, 1970), Cognitive Behavioral Sex Therapy, and Polyvagal-informed breathwork — the same frameworks used in clinical sex therapy.',
-    ],
-    statCards: [
-      'In younger men, most erectile difficulty is psychological, not physical. The machinery works — the signal misfires.',
-      'Performance anxiety is the most common thread across ED and PE — and conditioned responses respond to retraining.',
-    ],
-    // "Protocol reviewed by [Name], [Credentials]" — renders ONLY when a
-    // signed, permissioned advisor exists. Null = the line does not exist.
-    advisorLine: null,
-    button: 'Continue',
-  },
+  // Founder batch 2026-07-14: graph rebuilt — labels kept SHORT so nothing
+  // crosses the curves (the old long annotations collided with the paths);
+  // filled upper curve + lit endpoint for impact.
   {
     id: 'diverging-graph',
     section: 'turn',
     archetype: 'diverging-graph',
-    headline: 'From tonight, this only moves in one of two directions.',
+    headline: 'From tonight, this moves in one of two directions.',
     yAxisLabel: 'Composure',
-    startLabel: 'You · today',
-    upperLabel: 'With daily retraining',
-    lowerLabel: 'Without it',
-    lowerAnnotation:
-      'Avoidance compounds. Every skipped attempt teaches the alarm it was right.',
-    upperAnnotations: [
-      'Day 25 — the alarm quiets',
-      'Day 50 — the body leads',
-      'Day 75 — the new default',
-    ],
-    caption: 'Illustrative — conditioning deepens with repetition, in either direction.',
+    startLabel: 'You · tonight',
+    upperLabel: 'Daily retraining',
+    lowerLabel: 'Avoidance',
+    lowerAnnotation: 'Every avoided attempt teaches the alarm it was right.',
+    upperAnnotations: ['Day 25 · alarm quiets', 'Day 50 · body leads', 'Day 75 · new default'],
+    caption: 'Illustrative: conditioning deepens with repetition, in either direction.',
     button: 'I want the upper path',
   },
+  // Founder batch 2026-07-14: the goals slide went deeper — reasons, not
+  // feature-outcomes. The question names the three things the journey costs;
+  // the options are what he'd be giving up ON if he quit. These labels are
+  // echoed verbatim on the paywall ("Your goal: …"), so each must read
+  // complete after that prefix.
   {
     id: 'goals',
     section: 'turn',
     archetype: 'multi-select',
-    question: 'What are you taking back? Tap all that apply.',
+    question: 'Consistency. Discipline. Belief. This journey is simple — but it takes all three.',
+    subText:
+      'A hard night will come. When it does, what reminds you why you started instead of giving up?',
+    tapPrompt: 'Tap everything that’s yours.',
     answerKey: 'goals',
     options: [
-      { value: 'calm-present', label: 'Feel calm and present during sex — instead of watching myself' },
-      { value: 'stop-rehearsing', label: 'Stop rehearsing failure before anything has happened' },
-      { value: 'initiate', label: 'Initiate again — without the dread' },
-      { value: 'all-of-me', label: 'Give my partner all of me, not the anxious version' },
-      { value: 'date-freely', label: 'Date without a countdown running in my head' },
-      { value: 'trust-body', label: 'Trust my body again' },
-      { value: 'confidence-outside', label: 'Carry the confidence outside the bedroom too' },
-      { value: 'handled', label: 'Finish this program knowing it’s handled — for good' },
+      { value: 'find-wife', label: 'To find my wife' },
+      { value: 'future-family', label: 'To build a family of my own one day' },
+      { value: 'respect-myself', label: 'To respect myself again' },
+      { value: 'self-esteem', label: 'To rebuild my self-esteem' },
+      { value: 'all-of-me', label: 'To give my partner all of me, not the anxious version' },
+      { value: 'confidence-life', label: 'To carry confidence into every room, not just the bedroom' },
+      { value: 'new-energy', label: 'To become a man she trusts, respects, and desires' },
     ],
-    freeText: { answerKey: 'goalFreeText', prompt: 'In your own words — what changes?' },
-    button: 'Lock in my goals',
+    freeText: { answerKey: 'goalFreeText', prompt: 'In your own words: why?' },
+    button: 'These are my reasons',
   },
 
   // ── Commitment and Close ───────────────────────────────────────────────
@@ -825,17 +801,11 @@ export const SCREENS: Screen[] = [
     id: 'commit',
     section: 'close',
     archetype: 'commit',
-    headline: 'Every day for 75 days: headphones on, ten minutes, your session.',
+    headline: 'Every day for 75 days: headphones on, fifteen minutes, your session.',
     body:
-      'Some days it will feel like nothing is happening. That’s what rewiring feels like from the inside. And the 75 days are the opening act, not the whole story — your membership carries the year that makes the change permanent.',
-    question: 'Can you give it ten minutes a day?',
-    button: 'Yes — I’m in',
-    doubtLink: 'I have doubts',
-    doubt: {
-      body:
-        'Doubt is fine. The protocol doesn’t need your confidence — it needs your ten minutes.',
-      button: 'Yes — I’m in',
-    },
+      'Some days it will feel like nothing is happening. That’s what rewiring feels like from the inside. And the 75 days are the opening act, not the whole story. Your membership carries the year that makes the change permanent.',
+    question: 'Can you give it fifteen minutes a day?',
+    button: 'Yes, I’m in',
   },
   {
     id: 'building-plan',
@@ -843,6 +813,89 @@ export const SCREENS: Screen[] = [
     archetype: 'beat',
     text: 'Based on your answers, we’ve built your plan.',
     maxMs: 2000,
+  },
+  // Two paywall-lead-in screens (founder batch 2026-07-14): the plan's promise,
+  // then the investment frame. Behavioral "end the loop" language only — never
+  // a cure claim (§1 guardrail).
+  {
+    id: 'plan-promise',
+    section: 'close',
+    archetype: 'chapter',
+    eyebrow: 'YOUR PLAN',
+    headline: 'Built to end this,\nnot manage it.',
+    bodyBlocks: [
+      'Every session retrains the response underneath the symptom. Pills rent you a night. **Retraining is yours for good.**',
+    ],
+    button: 'Continue',
+  },
+  // Value stack (founder ruling 2026-07-15, QUITTR-inspired, split across
+  // two screens): make the invisible product concrete BEFORE the price —
+  // what the 75 days are, what to expect, everything included. Sits between
+  // the plan's promise and the investment ask so "I'm ready" lands on a
+  // buyer who knows exactly what he's saying yes to. Every item ≤ ~12 words;
+  // behavioral framing only, no cure claims (§1 guardrail).
+  {
+    id: 'your-plan',
+    section: 'close',
+    archetype: 'value-stack',
+    eyebrow: 'THE PROTOCOL',
+    headline: 'What your 75 days look like.',
+    groups: [
+      {
+        label: 'The daily work',
+        items: [
+          'Fifteen minutes a day. Headphones on. That’s the ask.',
+          'Days 1–25: retrain the body’s threat response.',
+          'Days 26–50: build control under high arousal.',
+          'Days 51–75: make the calm your default.',
+        ],
+      },
+      {
+        label: 'Proof, not promises',
+        items: [
+          'Your Composure Score, re-measured at Days 14, 40, and 75.',
+          'Some weeks will feel like nothing is moving. That’s rewiring.',
+        ],
+      },
+    ],
+    button: 'What else is included?',
+  },
+  {
+    id: 'all-included',
+    section: 'close',
+    archetype: 'value-stack',
+    eyebrow: 'THE MEMBERSHIP',
+    headline: 'Everything that comes with it.',
+    subhead: 'One payment. The full protocol, and the year that locks it in.',
+    groups: [
+      {
+        label: 'With you the whole way',
+        items: [
+          'SOS grounding, one tap away, anywhere in the app.',
+          'The Thought Restructurer for the moments anxiety spikes.',
+          'Every method drawn from published clinical research.',
+        ],
+      },
+      {
+        label: 'After Day 75',
+        items: [
+          'Graduation unlocks the Mastery Suite. Included.',
+          'A year of light maintenance and quarterly re-measurement.',
+        ],
+      },
+    ],
+    button: 'Continue',
+  },
+  {
+    id: 'invest-yourself',
+    section: 'close',
+    archetype: 'chapter',
+    eyebrow: 'THE DECISION',
+    headline: 'Now it’s time to invest in yourself.',
+    bodyBlocks: [
+      'You’ve given years to this problem. Give **75 days** to the man on the other side of it.',
+    ],
+    button: 'I’m ready',
   },
   {
     id: 'paywall',
@@ -856,8 +909,8 @@ export const SCREENS: Screen[] = [
     // Model V2 headline: sells the transformation (the 75-Day Protocol plus
     // the year that consolidates it), never "a subscription" — the membership
     // is the delivery vehicle, not the promise.
-    headline: 'The 75-Day Reset, built for this profile — and the year that locks it in',
-    priceAnchor: { label: 'Sex therapy, 12 weeks — $1,800+', struck: true },
+    headline: 'The 75-Day Reset, built for this profile, and the year that locks it in',
+    priceAnchor: { label: 'Sex therapy, 12 weeks: $1,800+', struck: true },
     offer: {
       annual: {
         eyebrow: 'COMPOSE · ONE YEAR',
@@ -876,9 +929,9 @@ export const SCREENS: Screen[] = [
     // requires it more.
     autoRenew: {
       annual:
-        'Renews yearly at {price} unless cancelled — manage anytime in your Apple ID settings.',
+        'Renews yearly at {price} unless cancelled. Manage anytime in your Apple ID settings.',
       monthly:
-        'Renews monthly at {price} unless cancelled — manage anytime in your Apple ID settings.',
+        'Renews monthly at {price} unless cancelled. Manage anytime in your Apple ID settings.',
     },
     riskReversal: {
       // Founder ruling (2026-07): no refund promises on any surface, ever.
@@ -887,12 +940,12 @@ export const SCREENS: Screen[] = [
       // process and are never referenced.
       title: 'The Day-14 baseline check',
       body:
-        'Your Composure Score is re-measured on Day 14 — you watch the change, or see exactly what to adjust. Measured, not promised.',
+        'Your Composure Score is re-measured on Day 14. You watch the change, or see exactly what to adjust. Measured, not promised.',
     },
     lockedBlock: {
       heading: 'PHASE IV · LOCKED UNTIL DAY 76',
       body:
-        'The work of the next 75 days is getting out of your head. Mid-moment troubleshooting — analyzing, adjusting, managing — is the adrenaline loop with better vocabulary. So the advanced tools stay sealed until the reset they would interrupt is complete.',
+        'The work of the next 75 days is getting out of your head. Analyzing, adjusting, and managing mid-moment is the adrenaline loop with better vocabulary. So the advanced tools stay sealed until the reset they would interrupt is complete.',
       features: [
         { title: 'Somatic Copilot', description: 'scenario-matched interventions for real moments' },
         { title: 'Sensate Mastery', description: 'ride high arousal without leaving your body' },
@@ -901,11 +954,11 @@ export const SCREENS: Screen[] = [
       ],
       // Act II future-pacing: the Mastery Suite is included membership
       // content earned at graduation — never a second purchase decision.
-      footer: 'Included in your membership — it unlocks at graduation, Day 76.',
+      footer: 'Included in your membership. It unlocks at graduation, Day 76.',
     },
     positioningLine: 'Pills and creams manage tonight. This retrains the system.',
     trustCard:
-      'Your card statement shows Apple — never this app’s name. Notifications stay neutral. Everything you enter stays on this phone.',
+      'Your card statement shows Apple, never this app’s name. Notifications stay neutral. Everything you enter stays on this phone.',
     button: 'Continue to Day Zero',
     links: ['Restore', 'Privacy', 'Terms'],
   },
@@ -925,11 +978,11 @@ export const SCREENS: Screen[] = [
     eyebrow: 'DAY ZERO',
     headline: 'This only works if you show up. So we start with your word.',
     oath:
-      'For the next 75 days I will give this ten minutes a day. Not to perform better — to stop performing at all.',
+      'For the next 75 days I will give this fifteen minutes a day. Not to perform better. To stop performing at all.',
     signaturePrompt: 'Sign your first name',
     signatureCaption: 'Signed on this device · seen by no one',
-    chips: ['75 days', '10 min a day', '{pricePerDay} a day'],
-    button: 'Sign & begin — {price}',
+    chips: ['75 days', '15 min a day', '{pricePerDay} a day'],
+    button: 'Sign & begin · {price}',
     // The purchase fires on this screen, so the plain auto-renew disclosure
     // sits directly under the button (App Review + honest billing).
     autoRenew: {
@@ -951,7 +1004,30 @@ export const SCREENS: Screen[] = [
       { title: 'Hide from app switcher', description: 'covers the preview card when you switch apps.' },
     ],
     footer:
-      'Billing is handled by Apple. Your card statement shows Apple — never this app’s name.',
+      'Billing is handled by Apple. Your card statement shows Apple, never this app’s name.',
     button: 'Begin Day 1',
   },
 ];
+
+// Telemetry consent (§7 exception) — moved OUT of the pre-paywall flow
+// (founder ruling 2026-07-14): asked once, post-purchase, on the /consent
+// route between Day Zero and Discreet Mode setup. A member who has paid has
+// maximum standing to be asked a favor, and the ask no longer interrupts the
+// close chain. Copy cut to the minimum; decline stays equal-dignity and
+// drops all buffered events.
+export const CONSENT_SCREEN: ConsentScreen = {
+  id: 'telemetry-consent',
+  section: 'close',
+  archetype: 'consent',
+  eyebrow: 'ONE QUESTION',
+  headline: 'Help prove this method works.',
+  body:
+    'May we count your anonymous milestones, like “Day 40 complete”, as part of everyone’s results?',
+  bullets: [
+    'Counts only, never your words',
+    'Anonymous. No name, no account',
+    'Decline, and nothing changes',
+  ],
+  acceptButton: 'Count my milestones',
+  declineLink: 'No thanks',
+};

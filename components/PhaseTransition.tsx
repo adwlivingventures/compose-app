@@ -37,7 +37,7 @@ const COPY: Record<2 | 3, { eyebrow: string; headline: string; body: string; not
     headline: 'Phase II is complete. Presence under intensity is holding.',
     body:
       'The last twenty-five days are consolidation — this stops being a program you follow ' +
-      'and becomes how you operate. The ten minutes stay the same; what they anchor now is ' +
+      'and becomes how you operate. The fifteen minutes stay the same; what they anchor now is ' +
       'who you are.',
   },
 };
