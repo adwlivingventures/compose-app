@@ -139,22 +139,68 @@ export const CUE_OPTIONS: Record<LedgerKey, CueOption[]> = {
       text: 'When I get home from work, I move first and sit down after.',
     },
   ],
-  tensionAudit: [
+  hydrate: [
     {
-      id: 'tension_red_light',
-      text: 'At every red light, I scan — jaw, shoulders, floor — and release.',
+      id: 'hydrate_desk_bottle',
+      text: 'A full bottle sits on my desk before the day starts.',
     },
     {
-      id: 'tension_elevator',
-      text: 'Every elevator wait, I find the clench and let it go.',
+      id: 'hydrate_coffee_chaser',
+      text: 'I chase every coffee with a glass of water.',
     },
     {
-      id: 'tension_send',
-      text: 'Each time I hit send on an email, I drop my shoulders and unclench.',
+      id: 'hydrate_stand_refill',
+      text: 'Each time I stand up from my desk, the bottle gets refilled.',
     },
     {
-      id: 'tension_sit_down',
-      text: 'When I sit down in a chair, the jaw and the floor let go first.',
+      id: 'hydrate_first_glass',
+      text: 'The first thing I drink each morning is a full glass of water.',
+    },
+  ],
+  breathwork: [
+    {
+      id: 'breath_parked_car',
+      text: 'Ten slow minutes in the parked car before I go inside.',
+    },
+    {
+      id: 'breath_lunch_close',
+      text: 'My lunch break ends with ten minutes of breath.',
+    },
+    {
+      id: 'breath_after_alarm',
+      text: 'The first thing after my alarm is ten quiet minutes.',
+    },
+    {
+      id: 'breath_desk_close',
+      text: 'When I close the laptop for the day, I sit and breathe before I move.',
+    },
+  ],
+  autonomicPreservation: [
+    {
+      id: 'preserve_last_coffee',
+      text: 'My last coffee of the day lands before 2 PM.',
+    },
+    {
+      id: 'preserve_evening_water',
+      text: 'My evenings run on water and quiet.',
+    },
+    {
+      id: 'preserve_order_first',
+      text: 'When the table orders drinks, my order is already decided: sparkling water.',
+    },
+  ],
+  supplements: [
+    {
+      id: 'supp_toothbrush',
+      text: 'My supplements live next to my toothbrush.',
+    },
+    {
+      id: 'supp_breakfast',
+      text: 'Breakfast and my supplements arrive together.',
+    },
+    {
+      id: 'supp_sunday_case',
+      text: 'I load the pill case every Sunday night.',
     },
   ],
 };

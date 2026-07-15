@@ -17,13 +17,11 @@ import { LocalStore } from '../../services/storage';
 import { useProtocol } from '../../context/ProtocolContext';
 import { useDefusionLog, FALLACY_META, DefusionEntry } from '../../hooks/useDefusionLog';
 import { useSpikeLog, daysSince, SpikeEntry } from '../../hooks/useSpikeLog';
-import { rewireForDay } from '../../content/rewires';
 import {
   Distortion,
   DISTORTION_META,
   DISTORTION_ORDER,
   SPIKE_FLOW_COPY,
-  REWIRE_COPY,
 } from '../../content/restructure';
 import { track } from '../../services/analytics';
 
@@ -60,7 +58,6 @@ interface CBSTEntry {
 }
 
 const LEGACY_KEY = '@cbst_log_entries';
-const REWIRE_DONE_KEY = '@daily_rewire_done';
 
 // ─── Root Screen ──────────────────────────────────────────────────────────────
 
@@ -75,165 +72,6 @@ export default function CBSTScreen() {
         </Text>
       </View>
       <RewireBody />
-    </View>
-  );
-}
-
-// ─── Daily Rewire v2 — hold to cross out ─────────────────────────────────────
-
-type RewireStage = 'hold' | 'read' | 'done';
-
-function DailyRewire() {
-  const { activeDay } = useProtocol();
-  const rewire = rewireForDay(activeDay);
-  const [doneDay, setDoneDay] = useState<number | null>(null);
-  const [stage, setStage] = useState<RewireStage>('hold');
-  const holdProgress = useRef(new Animated.Value(0)).current;
-  const readProgress = useRef(new Animated.Value(0)).current;
-
-  useEffect(() => {
-    LocalStore.getItem<number>(REWIRE_DONE_KEY).then((d) => {
-      setDoneDay(d ?? null);
-      if (d === activeDay) setStage('done');
-    });
-  }, [activeDay]);
-
-  const doneToday = stage === 'done' || doneDay === activeDay;
-
-  const complete = useCallback(async () => {
-    setStage('done');
-    setDoneDay(activeDay);
-    await LocalStore.setItem(REWIRE_DONE_KEY, activeDay);
-  }, [activeDay]);
-
-  // The paced read: the truth is read at the speed of the line — repetition
-  // delivered feeling-paired (state before statement), never skimmed.
-  const beginRead = useCallback(() => {
-    setStage('read');
-    Animated.timing(readProgress, {
-      toValue: 1,
-      duration: 10000,
-      useNativeDriver: false,
-    }).start(({ finished }) => {
-      if (finished) complete();
-    });
-  }, [readProgress, complete]);
-
-  const onPressIn = () => {
-    if (stage !== 'hold') return;
-    Animated.timing(holdProgress, {
-      toValue: 1,
-      duration: 1200,
-      useNativeDriver: false,
-    }).start(({ finished }) => {
-      if (finished) beginRead();
-    });
-  };
-
-  const onPressOut = () => {
-    if (stage !== 'hold') return;
-    holdProgress.stopAnimation(() => {
-      Animated.timing(holdProgress, {
-        toValue: 0,
-        duration: 200,
-        useNativeDriver: false,
-      }).start();
-    });
-  };
-
-  const crossedOut = stage !== 'hold';
-
-  return (
-    <View className="bg-surface border border-line rounded-2xl p-5 mb-6">
-      <View className="flex-row items-center justify-between">
-        <Text className="text-accent text-xs font-bold uppercase tracking-widest">
-          Daily Rewire
-        </Text>
-        {doneToday ? (
-          <CheckCircle2 color="#C89B6D" size={16} />
-        ) : (
-          <Text className="text-dim text-[10px] font-semibold tracking-[0.08em]">
-            Rep {activeDay} of 75
-          </Text>
-        )}
-      </View>
-
-      <Text className="text-muted text-xs mt-3 mb-1.5 font-bold uppercase tracking-wider">
-        The old script
-      </Text>
-      <Pressable onPressIn={onPressIn} onPressOut={onPressOut} disabled={crossedOut}>
-        <Text
-          className={`text-[15px] leading-6 font-serif-italic ${
-            crossedOut ? 'text-dim' : 'text-muted'
-          }`}
-          style={{ textDecorationLine: crossedOut ? 'line-through' : 'none' }}
-        >
-          “{rewire.oldScript}”
-        </Text>
-      </Pressable>
-
-      {stage === 'hold' && (
-        <>
-          <Text className="text-dim text-[11px] mt-3">{REWIRE_COPY.holdHint}</Text>
-          <View className="h-[2px] bg-line-soft rounded-full overflow-hidden mt-2">
-            {/* Animated fills use inline style — NativeWind className
-                interop on Animated components isn't guaranteed; the color
-                is the Ember accent token. */}
-            <Animated.View
-              style={{
-                height: '100%',
-                borderRadius: 9999,
-                backgroundColor: '#C89B6D',
-                width: holdProgress.interpolate({
-                  inputRange: [0, 1],
-                  outputRange: ['0%', '100%'],
-                }),
-              }}
-            />
-          </View>
-        </>
-      )}
-
-      {crossedOut && (
-        <>
-          <Text className="text-accent text-xs mt-4 mb-1.5 font-bold uppercase tracking-wider">
-            {REWIRE_COPY.truthLabel}
-          </Text>
-          <Text className="text-ink text-[15px] leading-6 font-serif-regular">
-            {rewire.truth}
-          </Text>
-
-          {stage === 'read' && (
-            <>
-              <Text className="text-muted text-xs mt-4">{REWIRE_COPY.readInstruction}</Text>
-              <View className="h-[2px] bg-line-soft rounded-full overflow-hidden mt-2">
-                <Animated.View
-                  style={{
-                    height: '100%',
-                    borderRadius: 9999,
-                    backgroundColor: '#C89B6D',
-                    width: readProgress.interpolate({
-                      inputRange: [0, 1],
-                      outputRange: ['0%', '100%'],
-                    }),
-                  }}
-                />
-              </View>
-            </>
-          )}
-
-          {stage === 'done' && (
-            <View className="border-t border-line-soft mt-4 pt-3">
-              <Text className="text-faint text-xs">{REWIRE_COPY.doneLine}</Text>
-              <Text className="text-accent-soft text-xs font-serif-italic mt-1">
-                {activeDay === 1
-                  ? 'The first deliberate rep against the old belief system.'
-                  : `${activeDay} deliberate reps against the old belief system.`}
-              </Text>
-            </View>
-          )}
-        </>
-      )}
     </View>
   );
 }
@@ -495,9 +333,8 @@ function RewireBody() {
         contentContainerStyle={{ paddingHorizontal: 24, paddingTop: 20, paddingBottom: 48 }}
         keyboardShouldPersistTaps="handled"
       >
-        {/* The scheduled practice comes first: identity reps before incident work. */}
-        <DailyRewire />
-
+        {/* Daily Rewire moved into the session's own stages (founder ruling
+            2026-07-15) — this tab is now purely incident work + history. */}
         <Text className="text-muted text-xs font-bold uppercase tracking-widest mb-3">
           When a thought spikes
         </Text>

@@ -235,19 +235,20 @@ export default function MainDashboard({ onStartSession }: { onStartSession: () =
           </>
         )}
 
-        {/* The ledger row — deliberately quiet (no accent: the one dominant
-            action stays the session CTA; Hick's Law). Open until midnight in
-            both states — Screen Sunset happens after most sessions do. */}
+        {/* The Daily Check-In row (unified surface, 2026-07-15) —
+            deliberately quiet (no accent: the one dominant action stays the
+            session CTA; Hick's Law). Open until midnight in both states —
+            Sleep and evening items happen after most sessions do. */}
         <TouchableOpacity
           onPress={() => router.push('/ledger')}
           activeOpacity={0.7}
           accessibilityRole="button"
-          accessibilityLabel={`Open today's Vitality Ledger. ${ledgerCount} of ${ledgerItems.length} votes cast.`}
+          accessibilityLabel={`Open today's Daily Check-In. ${ledgerCount} of ${ledgerItems.length} votes cast.`}
           className="flex-row items-center justify-between bg-surface border border-line rounded-2xl px-[18px] py-3.5 mt-3"
         >
           <View>
             <Text className="text-dim text-[10px] font-bold uppercase tracking-[0.2em]">
-              Today's ledger
+              Daily Check-In
             </Text>
             <Text className="text-body text-[13px] mt-0.5">
               {ledgerCount} of {ledgerItems.length} votes cast

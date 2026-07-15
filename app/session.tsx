@@ -1,22 +1,13 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { View, Text, TouchableOpacity, ActivityIndicator, ScrollView } from 'react-native';
 import { useRouter } from 'expo-router';
-import { X, Check, Info } from 'lucide-react-native';
+import { X, ChevronLeft, ChevronRight } from 'lucide-react-native';
 import { useProtocol } from '../context/ProtocolContext';
 import { useDiscreet } from '../context/DiscreetContext';
 import { getAnchorForDay } from '../content/anchors';
-import {
-  LedgerState,
-  LedgerItem,
-  ledgerItemsForDay,
-  CLEAN_FOCUS_FALTER_LINE,
-  LEDGER_INTRO_LINES,
-} from '../content/ledger';
-import {
-  anchorIntroForDay,
-  checklistHeaderForDay,
-  checklistFooterForDay,
-} from '../content/sessionCopy';
+import { TrainingKey } from '../content/training';
+import { ledgerItemsForDay } from '../content/ledger';
+import { anchorIntroForDay } from '../content/sessionCopy';
 import { LocalStore } from '../services/storage';
 import {
   enableDailyReminder,
@@ -27,45 +18,63 @@ import { markAsked, shouldAskForDay } from '../services/rating';
 import RatingAsk from '../components/RatingAsk';
 import AudioPlayer from '../components/AudioPlayer';
 import ConditioningTrack from '../components/ConditioningTrack';
+import SomaticRelease from '../components/SomaticRelease';
+import DailyRewire from '../components/DailyRewire';
+import DailyCheckIn from '../components/DailyCheckIn';
 import TriageCenter from '../components/TriageCenter';
 import SomaticPrimer from '../components/SomaticPrimer';
 import CuePicker from '../components/CuePicker';
 import { ChosenCues, CHOSEN_CUES_KEY, cuePickerDoneKey } from '../content/cues';
 
 /**
- * Daily Session — the full loop (CLAUDE.md §5), one linear all-or-nothing flow:
+ * Daily Session — the full loop (CLAUDE.md §5; founder batch 2026-07-15):
  *
- *   1. Auditory Anchor      → audio finishing advances the stage
- *   2. Conditioning Track   → paced breath + pelvic-floor sequence
- *   3. Control Score        → 1–5 self-rating
- *   4. Vitality Checklist   → three binary check-ins
+ *   1. Auditory Anchor        → audio finishing marks the step
+ *   2. Conditioning Track     → paced breath + pelvic-floor sequence
+ *   3. Control Score          → 1–10 self-rating of the release
+ *   4. Somatic Release        → 90s pelvic-hip stretch
+ *   5. Daily Rewire           → cross out the old script, read the truth
+ *   6. Daily Check-In         → Today's Training + Vitality Check-In (unified)
  *
- * The day is marked complete only after all four stages — the ring's advance
- * is dispensed for the whole behavior, not a fraction of it. Each stage shows
- * exactly one task; there is no way to jump ahead.
+ * Navigation is free (founder ruling 2026-07-15): the man can move back to
+ * replay the anchor or jump ahead to the check-in; each stage that
+ * completes auto-marks its Today's-Training item via ProtocolContext, and
+ * the check-in reflects it live. The day still closes all-or-nothing — the
+ * Complete CTA arms only when all five training items are checked (auto or
+ * manual; manual is trust-based by design).
  */
 
-type Stage = 'anchor' | 'conditioning' | 'score' | 'checklist';
+type Stage = 'anchor' | 'conditioning' | 'score' | 'release' | 'rewire' | 'checkin';
 
 const STAGE_LABELS: Record<Stage, string> = {
   anchor: 'The Anchor',
   conditioning: 'Conditioning',
   score: 'Control',
-  checklist: 'Check-In',
+  release: 'Release',
+  rewire: 'Rewire',
+  checkin: 'Check-In',
 };
 
-const STAGE_ORDER: Stage[] = ['anchor', 'conditioning', 'score', 'checklist'];
+const STAGE_ORDER: Stage[] = [
+  'anchor',
+  'conditioning',
+  'score',
+  'release',
+  'rewire',
+  'checkin',
+];
 
-const SCORE_LABELS = ['Very little', 'Slight', 'Moderate', 'Strong', 'Complete ease'];
-
-// The ledger stage groups items by where the behavior lived in the day —
-// reconciliation reads chronologically, which aids honest recall.
-const TIMING_LABELS: Record<LedgerItem['timing'], string> = {
-  morning: 'Morning',
-  day: 'Through the day',
-  evening: 'Tonight',
+/** The training item each stage marks when it completes. */
+const STAGE_TRAINING_KEY: Partial<Record<Stage, TrainingKey>> = {
+  anchor: 'anchor',
+  conditioning: 'conditioning',
+  score: 'control',
+  release: 'release',
+  rewire: 'rewire',
 };
-const TIMING_ORDER: LedgerItem['timing'][] = ['morning', 'day', 'evening'];
+
+const SCORE_MIN_LABEL = 'Stayed tight';
+const SCORE_MAX_LABEL = 'Released completely';
 
 export default function SessionScreen() {
   // Hydration guard: the body pins the protocol day at mount, so it must
@@ -80,18 +89,12 @@ export default function SessionScreen() {
 
 function SessionBody() {
   const router = useRouter();
-  const { activeDay, markDayComplete, completedDays } = useProtocol();
+  const { activeDay, markDayComplete, completedDays, updateDailyTraining } = useProtocol();
   // Pin the day at mount — completion advances activeDay while this screen
   // is still up; the UI shouldn't flicker to tomorrow's number.
   const dayRef = useRef(activeDay);
   const [stage, setStage] = useState<Stage>('anchor');
   const [pelvicRating, setPelvicRating] = useState(0);
-  // Seed from any check-anytime writes (the Today-tab ledger row): items
-  // checked when they happened arrive here already true — the session
-  // stage is reconciliation, not a memory test.
-  const [ledger, setLedger] = useState<LedgerState>(
-    () => ({ ...completedDays[dayRef.current]?.ledger }),
-  );
   const [finishing, setFinishing] = useState(false);
   const [sosVisible, setSosVisible] = useState(false);
   const [askReminder, setAskReminder] = useState(false);
@@ -108,18 +111,6 @@ function SessionBody() {
   const day = dayRef.current;
   const anchor = getAnchorForDay(day);
   const stageIndex = STAGE_ORDER.indexOf(stage);
-
-  // Ledger derivations for the reconciliation stage.
-  const items = ledgerItemsForDay(day);
-  const checkedCount = items.filter((i) => ledger[i.key]).length;
-  // A new item's first day: Day 26 introduces training, Day 51 the unclench.
-  const introLine =
-    day === 26
-      ? LEDGER_INTRO_LINES.training
-      : day === 51
-      ? LEDGER_INTRO_LINES.tensionAudit
-      : null;
-  const showFalterLine = checkedCount >= 2 && !ledger.cleanFocus;
 
   // Day 1 gate: the Somatic Primer must be acknowledged before the first
   // session — the conditioning track's "soften" cue presumes the reverse-
@@ -165,13 +156,17 @@ function SessionBody() {
     setCueState('done');
   };
 
-  const handleComplete = async (finalLedger: LedgerState) => {
+  const handleComplete = async () => {
     if (finishing) return;
     setFinishing(true);
+    // The unified check-in writes ledger + training straight into context;
+    // completion seals whatever is there.
+    const dayData = completedDays[day];
     await markDayComplete(day, {
       completed: true,
-      pelvicRating,
-      ledger: finalLedger,
+      pelvicRating: pelvicRating || dayData?.pelvicRating || 0,
+      ledger: { ...dayData?.ledger },
+      training: { ...dayData?.training },
     });
     // Day-1 only: the reminder opt-in rides the completion high (a
     // post-success ask converts far better than a cold-start permission
@@ -211,9 +206,19 @@ function SessionBody() {
     );
   };
 
-  const advance = () => {
-    const next = STAGE_ORDER[stageIndex + 1];
+  // Free navigation (founder ruling 2026-07-15): chevrons + tappable dots.
+  // Completing a stage's work auto-marks its training item; walking past a
+  // stage without doing the work marks nothing — the check-in shows the gap.
+  const goTo = (index: number) => {
+    const next = STAGE_ORDER[index];
     if (next) setStage(next);
+  };
+
+  /** A stage's work finished: mark its training item, then move forward. */
+  const completeStage = (s: Stage) => {
+    const key = STAGE_TRAINING_KEY[s];
+    if (key) updateDailyTraining(day, { [key]: true });
+    goTo(STAGE_ORDER.indexOf(s) + 1);
   };
 
   // Hold ground while the gate flags load (one AsyncStorage read each) so
@@ -238,7 +243,7 @@ function SessionBody() {
     return (
       <CuePicker
         phase={cuePhase}
-        items={items}
+        items={ledgerItemsForDay(day)}
         initial={chosenCues}
         onComplete={handleCuesChosen}
         onExit={() => router.back()}
@@ -342,15 +347,23 @@ function SessionBody() {
   return (
     <View className="flex-1 bg-ground px-6 pt-16">
       <View className="flex-row items-center justify-between">
-        {/* Stage dots — orientation without navigation; they are not tappable */}
+        {/* Stage dots — tappable since the free-navigation ruling
+            (2026-07-15): move anywhere; work done is already marked. */}
         <View className="flex-row items-center gap-1.5">
           {STAGE_ORDER.map((s, i) => (
-            <View
+            <TouchableOpacity
               key={s}
-              className={`h-1.5 rounded-full ${
-                i < stageIndex ? 'bg-accent w-4' : i === stageIndex ? 'bg-accent w-8' : 'bg-surface-deep w-4'
-              }`}
-            />
+              onPress={() => goTo(i)}
+              hitSlop={{ top: 12, bottom: 12, left: 2, right: 2 }}
+              accessibilityRole="button"
+              accessibilityLabel={`Go to ${STAGE_LABELS[s]}`}
+            >
+              <View
+                className={`h-1.5 rounded-full ${
+                  i < stageIndex ? 'bg-accent w-4' : i === stageIndex ? 'bg-accent w-8' : 'bg-surface-deep w-4'
+                }`}
+              />
+            </TouchableOpacity>
           ))}
         </View>
         <TouchableOpacity
@@ -362,10 +375,30 @@ function SessionBody() {
         </TouchableOpacity>
       </View>
 
-      <View className="items-center mt-4">
+      <View className="flex-row items-center justify-center gap-4 mt-4">
+        <TouchableOpacity
+          onPress={() => goTo(stageIndex - 1)}
+          disabled={stageIndex === 0}
+          hitSlop={10}
+          accessibilityRole="button"
+          accessibilityLabel="Previous step"
+          style={{ opacity: stageIndex === 0 ? 0 : 1 }}
+        >
+          <ChevronLeft color="#6B7280" size={16} />
+        </TouchableOpacity>
         <Text className="text-dim text-[11px] font-semibold uppercase tracking-[0.2em]">
           Day {day} · {STAGE_LABELS[stage]}
         </Text>
+        <TouchableOpacity
+          onPress={() => goTo(stageIndex + 1)}
+          disabled={stageIndex === STAGE_ORDER.length - 1}
+          hitSlop={10}
+          accessibilityRole="button"
+          accessibilityLabel="Next step"
+          style={{ opacity: stageIndex === STAGE_ORDER.length - 1 ? 0 : 1 }}
+        >
+          <ChevronRight color="#6B7280" size={16} />
+        </TouchableOpacity>
       </View>
 
       <View className="flex-1 justify-center">
@@ -380,154 +413,62 @@ function SessionBody() {
               title={anchor.title}
               focus={anchor.focus}
               source={anchor.source}
-              onComplete={advance}
+              onComplete={() => completeStage('anchor')}
             />
           </View>
         )}
 
-        {stage === 'conditioning' && <ConditioningTrack day={day} onComplete={advance} />}
+        {stage === 'conditioning' && (
+          <ConditioningTrack day={day} onComplete={() => completeStage('conditioning')} />
+        )}
 
         {stage === 'score' && (
           <View className="items-center">
+            {/* Founder ruling 2026-07-15: the question names exactly what is
+                being rated — how fully the pelvic floor let go on the
+                release breaths — on a 1–10 scale. */}
             <Text className="text-ink text-2xl font-serif-regular text-center px-4">
-              How much ease did you feel through the sequence?
+              On the release breaths, how fully did your pelvic floor let go?
             </Text>
             <Text className="text-muted text-xs text-center mt-2 leading-4 px-8">
-              There is no good or bad answer — this is a signal you're learning to read, not a grade.
+              1 means it stayed tight no matter what. 10 means it dropped completely, with no
+              effort. There is no good or bad answer — this is a signal you're learning to
+              read, not a grade.
             </Text>
-            <View className="flex-row gap-3 mt-8">
-              {[1, 2, 3, 4, 5].map((n) => (
+            <View className="flex-row flex-wrap justify-center gap-2.5 mt-8 px-2">
+              {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((n) => (
                 <TouchableOpacity
                   key={n}
                   onPress={() => {
                     setPelvicRating(n);
-                    advance();
+                    completeStage('score');
                   }}
                   activeOpacity={0.8}
                   accessibilityRole="button"
-                  accessibilityLabel={`${n} of 5 — ${SCORE_LABELS[n - 1]}`}
-                  className="w-14 h-14 rounded-2xl bg-surface border border-line items-center justify-center"
+                  accessibilityLabel={`${n} of 10`}
+                  className="w-[52px] h-[52px] rounded-2xl bg-surface border border-line items-center justify-center"
                 >
-                  <Text className="text-ink text-2xl font-serif-light">{n}</Text>
+                  <Text className="text-ink text-xl font-serif-regular">{n}</Text>
                 </TouchableOpacity>
               ))}
             </View>
-            <View className="flex-row justify-between w-full px-2 mt-3">
-              <Text className="text-faint text-xs">{SCORE_LABELS[0]}</Text>
-              <Text className="text-faint text-xs">{SCORE_LABELS[4]}</Text>
+            <View className="flex-row justify-between w-full px-4 mt-3">
+              <Text className="text-faint text-xs">{SCORE_MIN_LABEL}</Text>
+              <Text className="text-faint text-xs">{SCORE_MAX_LABEL}</Text>
             </View>
           </View>
         )}
 
-        {stage === 'checklist' && (
-          <ScrollView
-            showsVerticalScrollIndicator={false}
-            contentContainerStyle={{ paddingVertical: 8 }}
-          >
-            <Text className="text-ink text-2xl font-serif-regular text-center px-4 mb-1">
-              {checklistHeaderForDay(day)}
-            </Text>
-            <Text className="text-muted text-xs text-center mb-5">
-              {checkedCount} of {items.length} votes already cast today
-            </Text>
+        {stage === 'release' && <SomaticRelease onComplete={() => completeStage('release')} />}
 
-            {/* Phase-entry introduction — shown on the day a new item joins
-                the ledger (progression the user can feel; content/ledger.ts). */}
-            {introLine && (
-              <View className="bg-surface-deep border border-line rounded-2xl px-4 py-3.5 mb-4">
-                <Text className="text-accent-soft text-xs leading-5">{introLine}</Text>
-              </View>
-            )}
+        {stage === 'rewire' && (
+          <View>
+            <DailyRewire day={day} onComplete={() => completeStage('rewire')} />
+          </View>
+        )}
 
-            {TIMING_ORDER.map((timing) => {
-              const group = items.filter((i) => i.timing === timing);
-              if (group.length === 0) return null;
-              return (
-                <View key={timing} className="mb-4">
-                  <Text className="text-dim text-[10px] font-bold uppercase tracking-[0.2em] mb-2 ml-1">
-                    {TIMING_LABELS[timing]}
-                  </Text>
-                  <View className="gap-2.5">
-                    {group.map((item) => {
-                      const on = !!ledger[item.key];
-                      return (
-                        <TouchableOpacity
-                          key={item.key}
-                          onPress={() =>
-                            setLedger(
-                              (l) => ({ ...l, [item.key]: !l[item.key] } as LedgerState),
-                            )
-                          }
-                          activeOpacity={0.8}
-                          accessibilityRole="checkbox"
-                          accessibilityState={{ checked: on }}
-                          accessibilityLabel={`${item.title}. ${item.question}`}
-                          className={`rounded-2xl p-4 flex-row items-center gap-3 border ${
-                            on ? 'bg-surface-deep border-line' : 'bg-surface border-line'
-                          }`}
-                        >
-                          {/* Checked = settled evidence, absorbs (accent
-                              scarcity, §6): sand on this screen belongs to
-                              the CTA and progress fill, not past votes. */}
-                          <View
-                            className={`w-6 h-6 rounded-lg items-center justify-center border ${
-                              on ? 'bg-line border-line' : 'border-faint'
-                            }`}
-                          >
-                            {on && <Check color="#E5E7EB" size={14} strokeWidth={3} />}
-                          </View>
-                          <View className="flex-1">
-                            <Text className="text-ink text-sm font-bold">{item.title}</Text>
-                            <Text className="text-muted text-xs mt-0.5 leading-4">
-                              {item.question}
-                            </Text>
-                          </View>
-                          {/* The Vitality Baseline reference, at the moment
-                              it's relevant — the (i) must not toggle. */}
-                          <TouchableOpacity
-                            onPress={() => router.push('/vitality')}
-                            activeOpacity={0.7}
-                            hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
-                            accessibilityRole="button"
-                            accessibilityLabel={`Why ${item.title} matters — open the Vitality Baseline`}
-                            className="p-1"
-                          >
-                            <Info color="#4B5563" size={16} />
-                          </TouchableOpacity>
-                        </TouchableOpacity>
-                      );
-                    })}
-                  </View>
-                </View>
-              );
-            })}
-
-            {/* Relapse-normalization at the abstinence-violation moment: the
-                one slip that catastrophizes into deletion. Shown only once
-                he's engaged with the list (≥2 checks) and Clean Focus stays
-                unchecked — quiet, inline, next-vote-facing. */}
-            {showFalterLine && (
-              <Text className="text-muted text-xs leading-4 px-2 mb-4">
-                {CLEAN_FOCUS_FALTER_LINE}
-              </Text>
-            )}
-
-            <TouchableOpacity
-              onPress={() => handleComplete(ledger)}
-              disabled={finishing}
-              activeOpacity={0.85}
-              className="bg-accent rounded-2xl py-4 items-center mt-2"
-            >
-              {finishing ? (
-                <ActivityIndicator color="#0C0B09" />
-              ) : (
-                <Text className="text-on-accent font-bold text-base">Complete Day {day}</Text>
-              )}
-            </TouchableOpacity>
-            <Text className="text-faint text-xs text-center mt-3 leading-4">
-              {checklistFooterForDay(day)}
-            </Text>
-          </ScrollView>
+        {stage === 'checkin' && (
+          <DailyCheckIn day={day} onCompleteDay={handleComplete} finishing={finishing} />
         )}
       </View>
 
@@ -544,8 +485,12 @@ function SessionBody() {
         <Text className="text-muted text-[13px] font-semibold">Steady me — right now</Text>
       </TouchableOpacity>
 
-      {__DEV__ && stage !== 'checklist' && (
-        <TouchableOpacity onPress={advance} activeOpacity={0.7} className="items-center pb-10">
+      {__DEV__ && stage !== 'checkin' && (
+        <TouchableOpacity
+          onPress={() => completeStage(stage)}
+          activeOpacity={0.7}
+          className="items-center pb-10"
+        >
           <Text className="text-dim text-xs">Skip stage (dev only)</Text>
         </TouchableOpacity>
       )}

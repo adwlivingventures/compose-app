@@ -142,16 +142,22 @@ export default function ConditioningTrack({ day, onComplete }: ConditioningTrack
           {/* The technique, compressed to its two cues + the one common error. */}
           <View className="w-full bg-surface border border-line rounded-2xl p-4 mt-5">
             <View className="gap-2">
+              {/* Founder batch 2026-07-15: the breath given a route to
+                  follow — imagery makes the drop findable for a man who
+                  can't yet feel his floor. His "energy" framing rendered
+                  as warmth/charge (premium-calm tone, §8.4). */}
               <View className="flex-row gap-2.5">
                 <Text className="text-accent text-xs font-bold mt-0.5">IN</Text>
                 <Text className="text-body text-[13px] leading-5 flex-1">
-                  Belly out. Push the pelvic floor down and away — like releasing your bladder.
+                  Through the nose. Follow the breath down: chest, stomach, pelvis. It softens
+                  everything it passes and opens the floor, like releasing your bladder.
                 </Text>
               </View>
               <View className="flex-row gap-2.5">
                 <Text className="text-accent text-xs font-bold mt-0.5">OUT</Text>
                 <Text className="text-body text-[13px] leading-5 flex-1">
-                  Let it recoil on its own. Don’t clench.
+                  Through the mouth. Let the floor recoil on its own while the warmth travels
+                  back up your spine, over the crown of your head. Nothing clenches.
                 </Text>
               </View>
             </View>

@@ -6,14 +6,17 @@ import { hasMembershipEntitlement } from '../hooks/useRevenueCat';
 import { track } from '../services/analytics';
 
 import { LedgerState } from '../content/ledger';
+import { TrainingState } from '../content/training';
 
 export interface DayData {
   completed: boolean;
   pelvicRating: number;
-  /** The Vitality Ledger — phase-gated, unbundled daily votes
-   *  (content/ledger.ts; supersedes the bundled 3-item HabitState —
-   *  clean break, founder ruling 2026-07-12). */
+  /** The Vitality Check-In — unbundled daily votes (content/ledger.ts v3). */
   ledger: LedgerState;
+  /** Today's Training — the five in-app session steps (content/training.ts).
+   *  Auto-marked as session stages complete; manually toggleable on the
+   *  unified Daily Check-In (founder batch 2026-07-15). */
+  training?: TrainingState;
 }
 
 export interface PhaseInfo {
@@ -60,6 +63,9 @@ interface ProtocolContextType {
    *  (morning light at 8am), not recalled at 9pm — the session checklist
    *  becomes reconciliation, not a memory test. */
   updateDailyLedger: (day: number, ledger: LedgerState) => Promise<void>;
+  /** Merge-writes for Today's Training — the session auto-marks stages as
+   *  they complete; the Daily Check-In toggles them manually. */
+  updateDailyTraining: (day: number, training: TrainingState) => Promise<void>;
   unlockProtocol: () => Promise<void>;
   /** Wipes protocol progress (day, streak, completions) back to Day 1.
    *  Deliberately does NOT touch the purchase entitlement flag. */
@@ -216,6 +222,20 @@ export const ProtocolProvider: React.FC<{ children: React.ReactNode }> = ({ chil
     await LocalStore.setItem(DAYS_KEY, newDays);
   };
 
+  const updateDailyTraining = async (day: number, updatedTraining: TrainingState) => {
+    const currentDayData =
+      completedDays[day] || { completed: false, pelvicRating: 0, ledger: {} };
+    const newDays = {
+      ...completedDays,
+      [day]: {
+        ...currentDayData,
+        training: { ...currentDayData.training, ...updatedTraining },
+      },
+    };
+    setCompletedDays(newDays);
+    await LocalStore.setItem(DAYS_KEY, newDays);
+  };
+
   /**
    * Commits the absolute completion of a single day�s somatic workout tracks.
    * Increments the user's active progress day and recalculates completion streaks.
@@ -282,6 +302,7 @@ export const ProtocolProvider: React.FC<{ children: React.ReactNode }> = ({ chil
       lastCompletedDate,
       markDayComplete,
       updateDailyLedger,
+      updateDailyTraining,
       unlockProtocol,
       resetProtocol,
       devJumpToDay,

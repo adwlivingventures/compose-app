@@ -78,8 +78,9 @@ function ControlChart({ points }: { points: { day: number; score: number }[] }) 
   if (points.length < 2) return null;
 
   const xFor = (i: number) => PAD_X + (i / (points.length - 1)) * (CHART_W - PAD_X * 2);
+  // Control score runs 1–10 (founder batch 2026-07-15; was 1–5).
   const yFor = (score: number) =>
-    CHART_H - PAD_Y - ((score - 1) / 4) * (CHART_H - PAD_Y * 2);
+    CHART_H - PAD_Y - ((score - 1) / 9) * (CHART_H - PAD_Y * 2);
 
   const poly = points.map((p, i) => `${xFor(i)},${yFor(p.score)}`).join(' ');
 
@@ -99,7 +100,7 @@ function ControlChart({ points }: { points: { day: number; score: number }[] }) 
 
   return (
     <Svg width="100%" height={CHART_H} viewBox={`0 0 ${CHART_W} ${CHART_H}`}>
-      {[1, 2, 3, 4, 5].map((s) => (
+      {[1, 4, 7, 10].map((s) => (
         <Line
           key={s}
           x1={PAD_X}
@@ -413,7 +414,7 @@ export default function ProgressScreen() {
       <View className="mt-4 bg-surface border border-line rounded-2xl p-5">
         <Text className="text-body text-sm font-bold">Control Score</Text>
         <Text className="text-faint text-xs mt-0.5 mb-3">
-          Daily 1–5 self-rating (faint) and the 7-day trend (solid). P2/P3 mark phase starts.
+          Daily 1–10 self-rating (faint) and the 7-day trend (solid). P2/P3 mark phase starts.
         </Text>
         {scores.length >= 2 ? (
           <ControlChart points={scores} />
