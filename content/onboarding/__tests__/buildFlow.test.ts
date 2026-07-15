@@ -48,34 +48,36 @@ const ORDER = [
   'turn-welcome', // 33 ("Recovery is possible" — methods, not Compose)
   'compose-welcome', // 34 (brand moment, inserted 2026-07-14)
   'hopeful-arc', // 35 (five 1–2 sentence beats; blueprint + foundations folded in/retired)
-  'diverging-graph', // 36
-  'goals', // 37
-  'commit', // 38
-  'building-plan', // 39
-  'plan-promise', // 40 (paywall lead-in, inserted 2026-07-14)
-  'your-plan', // 41 (value stack A, inserted 2026-07-15)
-  'all-included', // 42 (value stack B, inserted 2026-07-15)
-  'invest-yourself', // 43 (paywall lead-in, inserted 2026-07-14)
-  'paywall', // 44
-  'paywall-dismiss', // 45
-  'day-zero', // 46
-  'discretion-setup', // 47
+  'expert-consensus', // 36 (seven sourced clinician quotes, inserted 2026-07-15)
+  'field-reports', // 37 (consented tester stories, inserted 2026-07-15)
+  'diverging-graph', // 38
+  'goals', // 39
+  'commit', // 40
+  'building-plan', // 41
+  'plan-promise', // 42 (paywall lead-in, inserted 2026-07-14)
+  'your-plan', // 43 (value stack A, inserted 2026-07-15)
+  'all-included', // 44 (value stack B, inserted 2026-07-15)
+  'invest-yourself', // 45 (paywall lead-in, inserted 2026-07-14)
+  'paywall', // 46
+  'paywall-dismiss', // 47
+  'day-zero', // 48
+  'discretion-setup', // 49
 ];
 
 const numbered = () => buildFlow().filter((s) => s.specId !== null);
 
 describe('buildFlow', () => {
-  test('resolves to the amended order, 47 numbered screens', () => {
+  test('resolves to the amended order, 49 numbered screens', () => {
     const ids = numbered().map((s) => s.id);
     expect(ids).toEqual(ORDER);
-    expect(ids).toHaveLength(47);
+    expect(ids).toHaveLength(49);
   });
 
   test('spec ids match the amended numbering', () => {
     const flow = numbered();
     expect(flow[11]).toMatchObject({ id: 'physician-note', specId: '12' });
     expect(flow[27]).toMatchObject({ id: 'card-adrenaline-trap', specId: '28' });
-    expect(flow[43]).toMatchObject({ id: 'paywall', specId: '44' });
+    expect(flow[45]).toMatchObject({ id: 'paywall', specId: '46' });
   });
 
   test('section transitions are present but unnumbered', () => {

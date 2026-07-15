@@ -598,12 +598,14 @@ export function Commit({
               >
                 {screen.headline}
               </Text>
-              <Text
-                className="text-body"
-                style={{ fontSize: 14.5, fontWeight: '300', lineHeight: 23.5, marginTop: 16 }}
-              >
-                {screen.body}
-              </Text>
+              {screen.body ? (
+                <Text
+                  className="text-body"
+                  style={{ fontSize: 14.5, fontWeight: '300', lineHeight: 23.5, marginTop: 16 }}
+                >
+                  {screen.body}
+                </Text>
+              ) : null}
               <Text
                 className="font-serif-regular text-ink"
                 style={{ fontSize: 21, lineHeight: 29, marginTop: 26 }}

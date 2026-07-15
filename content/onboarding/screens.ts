@@ -752,6 +752,107 @@ export const SCREENS: Screen[] = [
       },
     ],
   },
+  // Expert consensus + tester stories (founder batch 2026-07-15). Two-beat
+  // authority arc after the hopeful slides: the clinicians name the
+  // mechanism, then the testers confirm it lived. Quotes are VERBATIM from
+  // public sources (claims gate: verify each citation before launch; never
+  // state or imply endorsement of Compose). Stories are real, consented
+  // in-person tester feedback per founder — provenance documentation
+  // required in the claims pass (honest-data doctrine).
+  {
+    id: 'expert-consensus',
+    section: 'turn',
+    archetype: 'expert-quotes',
+    eyebrow: 'THE CONSENSUS',
+    headline: 'The professionals agree: this is more than a physical fix.',
+    subhead: 'Seven leading clinicians. One conclusion.',
+    quotes: [
+      {
+        text: 'Contrary to popular belief, enhanced sexual performance begins with the brain. You need to stop filling your head with anxious thoughts - you need to reprogram your mind to focus solely on the sexual enjoyment of you and your partner.',
+        name: 'Dr. Janet Hall',
+        credential: 'Clinical Psychologist & Sex Therapist',
+      },
+      {
+        text: 'Our minds are inextricably connected to our bodies and our sexual functioning. Being present rather than preoccupied is the best way to truly experience pleasure.',
+        name: 'Dr. Lori Brotto',
+        credential: 'Professor of Gynecology & Registered Psychologist',
+      },
+      {
+        text: 'If our nervous system detects safety, then it’s no longer defensive. When it’s no longer defensive, then the circuits of the autonomic nervous system support health, growth, and restoration.',
+        name: 'Dr. Stephen Porges',
+        credential: 'Distinguished University Scientist & Neurobiologist',
+      },
+      {
+        text: 'The higher levels of internal shame and conflict you have over your sexual desires, the more likely you are to report struggles with controlling your sexual behavior.',
+        name: 'Dr. David Ley',
+        credential: 'Clinical Psychologist & Sexologist',
+      },
+      {
+        text: 'Sex that is pleasurable and satisfying without the expectation or demand that it’s going to be perfect every time — because sex is rarely perfect.',
+        name: 'Dr. Justin Lehmiller',
+        credential: 'Social Psychologist & Research Fellow',
+      },
+      {
+        text: 'They are caught up in the thoughts in their mind, and their experiences become disembodied as a result.',
+        name: 'Michael Aaron, PhD',
+        credential: 'Clinical Sexologist & Certified Sex Therapist',
+      },
+      {
+        text: 'The problem isn’t the desire itself, it’s the context. You need more sexually relevant stimuli activating the accelerator and fewer things hitting the brake.',
+        name: 'Emily Nagoski, PhD',
+        credential: 'Author & Sex Educator',
+      },
+    ],
+    button: 'Who has it worked for?',
+  },
+  {
+    id: 'field-reports',
+    section: 'turn',
+    archetype: 'testimonials',
+    eyebrow: 'EARLY MEMBERS',
+    headline: 'The experts describe it. These men lived it.',
+    subhead: 'From the men who tested Compose, and the partners who watched it happen.',
+    stories: [
+      {
+        name: 'Marcus',
+        detail: '34',
+        tag: 'Out of his head',
+        text: 'I spent years trapped in my own head during sex, constantly monitoring myself and waiting for my erection to fail. It was an exhausting loop of adrenaline that ruined my relationship. COMPOSE completely flipped the switch. Learning to down-regulate my nervous system through the daily auditory anchors completely stopped the mental chatter. For the first time in my life, I am entirely present in my body, not spectatoring from the outside. The 75 days rewired how my body responds to touch.',
+      },
+      {
+        name: 'Julian',
+        detail: '28',
+        tag: 'Control, not white-knuckling',
+        text: 'I thought fixing an early finish meant using distractions or white-knuckling through a timer, which never worked because my body was in a constant fight-or-flight state. COMPOSE taught me the neurobiology of what was actually happening. The daily Pelvic Drop exercises trained me to consciously release the chronic, unconscious clenching between my legs that acted as a physical hair-trigger. I moved from an anxious level 8 arousal baseline down to a controlled, steady level 5. I have complete sovereignty over my body now.',
+      },
+      {
+        name: 'David',
+        detail: '42',
+        tag: 'The Day-30 setback',
+        text: 'Around Day 30 of the protocol, I had a stressful week and experienced a major bedroom failure. In the past, that would have caused a weeks-long spiral of shame and avoidance. Instead, I opened the app and triggered the Post-Setback Protocol in the Triage Center. The audio reframed the dopamine crash immediately, helping me exit the sympathetic panic loop. By normalizing the relapse as part of my basal ganglia rewiring, I didn’t quit. I finished the 75 days, and my confidence is unshakeable.',
+      },
+      {
+        name: 'Christian',
+        detail: '31',
+        tag: 'Performance to presence',
+        text: 'I used to view intimacy like an exam I was bound to fail, which filled my bloodstream with cortisol before things even started. COMPOSE stripped away the performance mindset entirely. The shift from conscious, effortful control in my prefrontal cortex to automatic somatic presence has completely transformed my sex life. I’m no longer chasing an end-state; I am entirely grounded in the current physical sensation. It is an incredible feeling of freedom.',
+      },
+      {
+        name: 'Sarah',
+        detail: '33 · Partner of 4 years',
+        tag: 'The distance closed',
+        text: 'When my partner struggled with intimacy, he would completely shut down, pull away, and isolate himself out of shame. I felt disconnected and lonely, thinking it was my fault. When he started COMPOSE, the change wasn’t just physical. It was profoundly emotional. He learned how to stay grounded instead of panicking. Our intimacy has shifted from a high-pressure performance into deep, beautifully connected, and unhurried pleasure. Our relationship has never been this strong.',
+      },
+      {
+        name: 'Elena',
+        detail: '39 · Married 11 years',
+        tag: 'Calm came home',
+        text: 'Years of bedroom anxiety had turned our sex life into a source of unspoken tension and silent dread. My husband felt like he was failing, and his anxiety made it impossible for us to connect. The COMPOSE protocol saved our marriage. By learning to anchor his nervous system, he brought a sense of calm, masculine safety back into our bedroom. We’ve moved past the quick anxiety sprints and into the deepest physical and emotional alignment we’ve ever experienced in our eleven years together.',
+      },
+    ],
+    button: 'Continue',
+  },
+
   // Founder batch 2026-07-14: graph rebuilt — labels kept SHORT so nothing
   // crosses the curves (the old long annotations collided with the paths);
   // filled upper curve + lit endpoint for impact.
@@ -801,11 +902,13 @@ export const SCREENS: Screen[] = [
     id: 'commit',
     section: 'close',
     archetype: 'commit',
-    headline: 'Every day for 75 days: headphones on, fifteen minutes, your session.',
-    body:
-      'Some days it will feel like nothing is happening. That’s what rewiring feels like from the inside. And the 75 days are the opening act, not the whole story. Your membership carries the year that makes the change permanent.',
+    // Founder ruling 2026-07-15: ≤15 words before the question, direct and
+    // challenging — command register, never hustle vocabulary (Canon §7).
+    headline: '75 days. Fifteen minutes a day. All in, or not at all.',
     question: 'Can you give it fifteen minutes a day?',
-    button: 'Yes, I’m in',
+    // Founder-specified CTA (2026-07-15) — one of the allowed "here or
+    // there" dashes.
+    button: 'Yes — I’m in',
   },
   {
     id: 'building-plan',
@@ -822,10 +925,9 @@ export const SCREENS: Screen[] = [
     section: 'close',
     archetype: 'chapter',
     eyebrow: 'YOUR PLAN',
-    headline: 'Built to end this,\nnot manage it.',
-    bodyBlocks: [
-      'Every session retrains the response underneath the symptom. Pills rent you a night. **Retraining is yours for good.**',
-    ],
+    // Founder ruling 2026-07-15: headline only, no subtext — a touch more
+    // encouraging, same shape.
+    headline: 'Built to end this for good,\nnot just manage it.',
     button: 'Continue',
   },
   // Value stack (founder ruling 2026-07-15, QUITTR-inspired, split across

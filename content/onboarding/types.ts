@@ -218,6 +218,33 @@ export interface TestimonialSlotScreen extends ScreenBase {
   // consented quotes exist. While empty/off the screen is skipped entirely.
 }
 
+/** Expert-consensus slide (founder batch 2026-07-15): verbatim, sourced
+ *  quotes from named clinicians. Quotes ship EXACTLY as sourced (claims
+ *  gate: verify each against its public source before launch) and the
+ *  screen never states or implies the experts endorse Compose — they are
+ *  quoted describing the mechanism, nothing more. */
+export interface ExpertQuotesScreen extends ScreenBase {
+  archetype: 'expert-quotes';
+  eyebrow?: string;
+  headline: string;
+  subhead?: string;
+  quotes: { text: string; name: string; credential: string }[];
+  button: string;
+}
+
+/** Tester stories (founder batch 2026-07-15): real, consented feedback
+ *  from in-person testers — honest-data doctrine requires provenance
+ *  documentation for every entry (claims gate). Content is versioned
+ *  here, not gated config, by founder ruling. */
+export interface TestimonialsScreen extends ScreenBase {
+  archetype: 'testimonials';
+  eyebrow?: string;
+  headline: string;
+  subhead?: string;
+  stories: { name: string; detail: string; tag: string; text: string }[];
+  button: string;
+}
+
 export interface GeneratingScreen extends ScreenBase {
   archetype: 'generating';
   checklist: string[];
@@ -292,7 +319,9 @@ export interface DivergingGraphScreen extends ScreenBase {
 export interface CommitScreen extends ScreenBase {
   archetype: 'commit';
   headline: string;
-  body: string;
+  /** Optional — founder ruling 2026-07-15: the live commit screen carries
+   *  ≤15 words before the question; no body paragraph. */
+  body?: string;
   question: string;
   button: string;
   /** Optional doubt interstitial (removed from the live commit screen,
@@ -400,6 +429,8 @@ export type Screen =
   | NoteCardScreen
   | InteractiveCheckScreen
   | TestimonialSlotScreen
+  | ExpertQuotesScreen
+  | TestimonialsScreen
   | GeneratingScreen
   | MapScreen
   | ClinicalCardScreen

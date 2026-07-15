@@ -42,6 +42,8 @@ import { AgeWheel, MultiSelect, NameInput, ScaleSlider } from '../components/onb
 import PelvicCheck from '../components/onboarding/PelvicCheck';
 import HopefulArc from '../components/onboarding/HopefulArc';
 import ValueStack from '../components/onboarding/ValueStack';
+import ExpertQuotes from '../components/onboarding/ExpertQuotes';
+import Testimonials from '../components/onboarding/Testimonials';
 import { shouldAskPostPurchase } from '../services/rating';
 import DivergingGraphScreen from '../components/onboarding/DivergingGraphScreen';
 import Generating from '../components/onboarding/Generating';
@@ -301,6 +303,10 @@ export default function Onboarding() {
         return <Chapter screen={screen} onAdvance={() => advance()} />;
       case 'value-stack':
         return <ValueStack screen={screen} onAdvance={() => advance()} />;
+      case 'expert-quotes':
+        return <ExpertQuotes screen={screen} onAdvance={() => advance()} />;
+      case 'testimonials':
+        return <Testimonials screen={screen} onAdvance={() => advance()} />;
       case 'hopeful-arc':
         return <HopefulArc screen={screen} onComplete={() => advance()} />;
       case 'section-transition':

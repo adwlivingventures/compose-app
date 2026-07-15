@@ -26,7 +26,7 @@ export default function ValueStack({
           {screen.eyebrow}
         </Text>
       )}
-      <Text className="text-ink text-[26px] font-serif-light mt-1.5">{screen.headline}</Text>
+      <Text className="text-ink text-[26px] font-serif-regular mt-1.5">{screen.headline}</Text>
       {screen.subhead && (
         <Text className="text-muted text-[13.5px] leading-5 mt-2">{screen.subhead}</Text>
       )}
