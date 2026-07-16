@@ -161,24 +161,25 @@ describe('progress header (section name eyebrow; step/total feed the fill bar on
   });
 });
 
-describe('composure score stays out of the calm zone', () => {
-  test('worst-case and best-case answers clamp to [12, 76]', () => {
+describe('composure score scale', () => {
+  test('clamps to [12, 100]; the calm zone is reachable only when earned', () => {
     const worst = computeComposure({
       adrenalineSpike: 'panic',
       breathEdge: 'shallow-hold',
       spectatoring: 'almost-every-time',
       pelvicCheck: 1, // 1–10 release rating (limited)
       avoidance: 'stopped',
-      aftermath: 'fear-next',
+      aftermath: 'spirals',
       spillover: 'everything',
       contentFrequency: 'daily',
       escalation: 'yes',
       morningArousal: 'rarely',
       scripts: ['broken', 'disappointed', 'never-fix', 'less-of-a-man'],
     });
-    expect(worst.score).toBeGreaterThanOrEqual(12);
-    const best = computeComposure({ adrenalineSpike: 'calm', spectatoring: 'never' });
-    expect(best.score).toBeLessThanOrEqual(76);
+    expect(worst.score).toBe(12);
+    // Early-movers calm but the trait cluster untouched → gated below the zone.
+    const partial = computeComposure({ adrenalineSpike: 'calm', spectatoring: 'never', avoidance: 'stopped' });
+    expect(partial.score).toBeLessThan(80);
   });
 
   test('conditioning-drift bar appears only with escalation yes/somewhat', () => {

@@ -33,29 +33,31 @@ describe('weights config ↔ screen config integrity', () => {
   });
 });
 
-describe('score behavior', () => {
-  const REFERENCE_PERSONA: Answers = {
-    // The B-26 example: breath-holding, spectatoring most sessions, partial
-    // release, push-through adrenaline, moderate everything else → ref "41".
-    adrenalineSpike: 'push-through',
-    breathEdge: 'shallow-hold',
-    spectatoring: 'almost-every-time',
-    pelvicCheck: 5, // 1–10 release rating (partial band)
-    avoidance: 'sometimes',
-    aftermath: 'fear-next',
-    spillover: 'sometimes',
-    contentFrequency: '3-5',
-    escalation: 'somewhat',
-    morningArousal: 'sometimes',
-    scripts: ['broken', 'never-fix'],
-    duration: 'always',
-    age: 29,
-  };
+// A moderately-struggling Day-0 profile (B-26 example: breath-holding,
+// spectatoring most sessions, partial release, push-through adrenaline,
+// moderate traits). Module-scoped so the gate suite below can reuse it.
+const REFERENCE_PERSONA: Answers = {
+  adrenalineSpike: 'push-through',
+  breathEdge: 'shallow-hold',
+  spectatoring: 'almost-every-time',
+  pelvicCheck: 5, // 1–10 release rating (partial band)
+  avoidance: 'sometimes',
+  aftermath: 'lingers',
+  spillover: 'sometimes',
+  contentFrequency: '3-5',
+  escalation: 'somewhat',
+  morningArousal: 'sometimes',
+  scripts: ['broken', 'never-fix'],
+  duration: 'always',
+  age: 29,
+};
 
-  test('anchors near the reference persona (41 ± 8)', () => {
+describe('score behavior', () => {
+  test('reference persona lands mid-low with a clear gap to the calm zone', () => {
+    // v2 weights: this moderately-struggling Day-0 profile scores ~33.
     const { score } = computeComposure(REFERENCE_PERSONA);
-    expect(score).toBeGreaterThanOrEqual(33);
-    expect(score).toBeLessThanOrEqual(49);
+    expect(score).toBeGreaterThanOrEqual(28);
+    expect(score).toBeLessThanOrEqual(40);
   });
 
   test('is monotonic: any single worse answer never raises the score', () => {
@@ -76,14 +78,14 @@ describe('score behavior', () => {
     }
   });
 
-  test('clamps: full severity floors at 12; all-calm stays below the calm zone', () => {
+  test('full severity floors at 12', () => {
     const worst = computeComposure({
       adrenalineSpike: 'panic',
       breathEdge: 'shallow-hold',
       spectatoring: 'almost-every-time',
       pelvicCheck: 1,
       avoidance: 'stopped',
-      aftermath: 'fear-next',
+      aftermath: 'spirals',
       spillover: 'everything',
       contentFrequency: 'daily',
       escalation: 'yes',
@@ -91,23 +93,57 @@ describe('score behavior', () => {
       scripts: ['broken', 'disappointed', 'never-fix', 'less-of-a-man'],
     });
     expect(worst.score).toBe(12);
-    const calm = computeComposure({
-      adrenalineSpike: 'calm',
-      breathEdge: 'slow-deep',
-      spectatoring: 'never',
-      pelvicCheck: 9,
-      avoidance: 'rarely',
-      spillover: 'bedroom-only',
-      contentFrequency: 'rarely',
-      morningArousal: 'most',
-      scripts: [],
-    });
-    expect(calm.score).toBeLessThan(80); // never inside the calm zone
-    expect(calm.score).toBeGreaterThan(60); // and not insultingly low
   });
 
   test('unanswered questions deduct nothing', () => {
-    expect(computeComposure({}).score).toBe(76); // base clamped to ceiling
+    expect(computeComposure({}).score).toBe(100);
+  });
+});
+
+// The founder's guarantees (2026-07-15): trained calm (80+) is reachable but
+// only when the trait cluster is genuinely resolved — which realistically means
+// Day 40/75 — and a compliant man's early physiological gains lift his score
+// well above baseline by Day 14 without letting him into the calm zone yet.
+describe('calm-zone gate + honest early progress', () => {
+  // A single struggling man, measured three times with the SAME instrument.
+  const DAY0 = REFERENCE_PERSONA; // ~33
+
+  // Day 14: early-movers resolved (real autonomic gains), traits unchanged.
+  const DAY14: Answers = {
+    ...REFERENCE_PERSONA,
+    adrenalineSpike: 'calm',
+    breathEdge: 'slow-deep',
+    spectatoring: 'never',
+    pelvicCheck: 9,
+    morningArousal: 'most',
+  };
+
+  // Day 40/75: the trait cluster has also resolved.
+  const DAY75: Answers = {
+    ...DAY14,
+    avoidance: 'rarely',
+    aftermath: 'recover-fast',
+    spillover: 'bedroom-only',
+    contentFrequency: 'rarely',
+    escalation: 'no',
+    scripts: [],
+  };
+
+  test('Day 14 beats the Day 0 baseline (early-mover gains register)', () => {
+    expect(computeComposure(DAY14).score).toBeGreaterThan(computeComposure(DAY0).score);
+  });
+
+  test('Day 14 stays below the calm zone while any trait is still active', () => {
+    expect(computeComposure(DAY14).score).toBeLessThan(80);
+  });
+
+  test('the calm zone opens only when the trait cluster is resolved', () => {
+    expect(computeComposure(DAY75).score).toBeGreaterThanOrEqual(80);
+  });
+
+  test('a single lingering trait (one script) holds an otherwise-perfect read at 79', () => {
+    const oneScript = computeComposure({ ...DAY75, scripts: ['broken'] });
+    expect(oneScript.score).toBe(79);
   });
 });
 

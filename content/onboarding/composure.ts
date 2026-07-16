@@ -1,25 +1,44 @@
-// Composure Score v1 — pure function over the answer set; every weight lives
+// Composure Score v2 — pure function over the answer set; every weight lives
 // in COMPOSURE_WEIGHTS so tuning never touches code (BUILD_PROMPT §4.5).
 //
-// STEP-5 NOTE: this is the working v1 pulled forward so Your Map can render
-// in step 4. Step 5 adds the unit-test suite and any weight tuning, plus the
-// Ember particle assembly that builds these bars.
+// The instrument is IDENTICAL at Day 0 and every re-measurement (Days 14/40/75
+// and the quarterly Act III reads). Same questions, same weights, same gate —
+// that comparability is the whole "measured, not promised" claim (remeasure.ts).
 //
-// Hard rules (spec design note, B-26): severity labels only — no invented
-// percentiles or population averages; every bar traces to a question the
-// user answered; the gauge compares the user to the trained calm baseline
-// (80–100), never to a fabricated "average man". The score is clamped BELOW
-// the calm zone: the gap is the product's honest premise.
+// v2 design (founder ruling 2026-07-15) — three coupled changes:
+//  1. The 80–100 "trained calm" zone is now REACHABLE (ceiling raised 76→100).
+//     v1 clamped every reading below 80, which made the promise the product
+//     sells — "you can reach trained calm" — impossible to fulfil at any day,
+//     including graduation. That was the bug.
+//  2. The calm zone is GATED ON ANSWERS, not the calendar (calmZoneUnlocked):
+//     80+ is only reachable when the trait cluster — avoidance, aftermath,
+//     scripts, spillover — is at its resolved best. Those patterns realistically
+//     only quiet in Phase 2–3, so 80–100 lands at Day 40/75 *because the answers
+//     earned it*, not via a day-gate. Same answers always yield the same score,
+//     so comparability holds. A man whose physical reflexes improved but whose
+//     avoidance/scripts persist tops out at 79 ("steadier, not yet trained calm").
+//  3. Early-mover items (adrenaline, breath, spectatoring, pelvic release) carry
+//     MORE of the deduction budget, so the real physiological gains a compliant
+//     man makes by Day 14 register as a clear score increase over his baseline.
+//
+// The Day-0 gap is preserved automatically: a real customer's honest onboarding
+// answers (active problem) land well below 80. No clamp forces it — his answers do.
+//
+// Honesty rules (unchanged): severity labels only, no invented percentiles or
+// population averages, every bar traces to a question he answered.
 
 import type { Answers } from './logic';
 
-// Tuning anchor (step 5): the spec's example persona (B-26 — push-through
-// adrenaline, breath-holding, spectatoring most sessions, partial release,
-// moderate everything else) must land near the reference's 41. With these
-// weights he scores 37; the full-severity floor is the clamp's 12 and the
-// all-calm ceiling is the clamp's 76 (best-possible answers compute to ~91
-// pre-clamp) — the score always leaves a visible gap to the 80–100 calm
-// zone, because the gap IS the honest premise.
+// The floor of the trained-calm zone. Scores can only enter it when the trait
+// cluster is resolved (calmZoneUnlocked); otherwise they cap one point below.
+export const CALM_ZONE_FLOOR = 80;
+
+// Tuning anchors under v2 weights (see composure.test.ts):
+//  • all-worst answers  → the clamp floor, 12
+//  • all-best answers   → 100 (trait cluster resolved → calm zone open)
+//  • the reference persona (push-through adrenaline, breath-hold, spectatoring
+//    most sessions, partial release, moderate traits) → ~33: mid-low, clear gap
+//  • early-movers resolved but traits still active → high-70s, gated below 80
 export const COMPOSURE_WEIGHTS: {
   base: number;
   clamp: [number, number];
@@ -27,25 +46,51 @@ export const COMPOSURE_WEIGHTS: {
   maxScriptsPenalty: number;
   deductions: Record<string, Record<string, number>>;
 } = {
-  base: 96,
-  clamp: [12, 76], // never inside the 80–100 calm zone pre-program
-  perScriptPenalty: 3,
-  maxScriptsPenalty: 8,
+  base: 100,
+  clamp: [12, 100], // ceiling now reachable; the calm-zone GATE, not the clamp,
+  perScriptPenalty: 3, // is what keeps 80+ honest (see calmZoneUnlocked)
+  maxScriptsPenalty: 10,
   deductions: {
-    adrenalineSpike: { panic: 14, 'push-through': 9, occasionally: 5, calm: 0 },
-    breathEdge: { 'shallow-hold': 7, 'speeds-up': 6, 'never-noticed': 3, 'slow-deep': 0 },
-    spectatoring: { 'almost-every-time': 12, sometimes: 8, rarely: 3, never: 0 },
+    // Early-movers — up-weighted so genuine Day-14 gains move the number.
+    adrenalineSpike: { panic: 16, 'push-through': 11, occasionally: 6, calm: 0 },
+    breathEdge: { 'shallow-hold': 10, 'speeds-up': 8, 'never-noticed': 4, 'slow-deep': 0 },
+    spectatoring: { 'almost-every-time': 14, sometimes: 9, rarely: 3, never: 0 },
     // Numeric 1–10 release ratings (founder review 2026-07-10) map onto the
     // same three severity levels; 'skipped' is the only string value left.
     pelvicCheck: { skipped: 4 },
-    avoidance: { frequently: 8, sometimes: 4, rarely: 2, stopped: 10 },
-    aftermath: { shame: 4, anger: 3, numbness: 3, 'fear-next': 5 },
-    spillover: { everything: 6, confidence: 4, sometimes: 3, 'bedroom-only': 0 },
-    contentFrequency: { daily: 5, '3-5': 3, '1-2': 2, rarely: 0 },
-    escalation: { yes: 5, somewhat: 3, no: 0, 'no-say': 2 },
-    morningArousal: { rarely: 3, unsure: 2, sometimes: 1, most: 0 },
+    morningArousal: { rarely: 4, unsure: 2, sometimes: 1, most: 0 },
+    // Trait cluster — the four that gate the calm zone. Value keys describe the
+    // underlying construct (avoidance level, post-setback outcome); screens.ts
+    // frames them forward for the user. The 'best' value of each (rarely /
+    // recover-fast / bedroom-only, and zero scripts) is what unlocks 80+.
+    avoidance: { stopped: 12, frequently: 9, sometimes: 5, rarely: 0 },
+    aftermath: { spirals: 6, lingers: 4, 'recover-day': 2, 'recover-fast': 0 },
+    spillover: { everything: 8, confidence: 5, sometimes: 3, 'bedroom-only': 0 },
+    // Habit items — weighted, but not part of the calm gate (founder's four).
+    contentFrequency: { daily: 6, '3-5': 4, '1-2': 2, rarely: 0 },
+    escalation: { yes: 6, somewhat: 3, no: 0, 'no-say': 2 },
   },
 };
+
+/**
+ * The calm zone (80+) opens only when the trait cluster is at its resolved
+ * best: freely initiating, fast post-setback recovery, no life spillover, and
+ * no cognitive scripts still firing. A trait counts as "active" only when it
+ * was ANSWERED and is not at its best value — an unanswered item never blocks.
+ * This is the honest, answer-based gate that reserves trained calm for the
+ * men who have genuinely done the Phase 2–3 work.
+ */
+export function calmZoneUnlocked(answers: Answers, scriptCount: number): boolean {
+  const avoidance = str(answers.avoidance);
+  const aftermath = str(answers.aftermath);
+  const spillover = str(answers.spillover);
+  const active =
+    (avoidance !== null && avoidance !== 'rarely') ||
+    (aftermath !== null && aftermath !== 'recover-fast') ||
+    (spillover !== null && spillover !== 'bedroom-only') ||
+    scriptCount >= 1;
+  return !active;
+}
 
 /** 1–10 pelvic release rating → the same three severity levels the old
  *  categorical options carried (8+ full, 4–7 partial, 1–3 limited). */
@@ -83,15 +128,18 @@ const str = (v: unknown): string | null => (typeof v === 'string' ? v : null);
 const num = (v: unknown): number | null => (typeof v === 'number' ? v : null);
 
 /** The score verdict — one plain sentence that tells him whether this is bad
- *  and what it means. Deterministic bands over the 12–76 clamp. */
+ *  and what it means. Deterministic bands over the 12–100 scale. */
 export function verdictFor(score: number): string {
   if (score <= 35) {
     return 'Right now, adrenaline is running the show: your nervous system treats intimacy as a threat, and your body obeys it every time.';
   }
-  if (score <= 55) {
+  if (score < 60) {
     return 'Your nervous system is working against you — under intimate pressure it fires a stress response your body then has to fight.';
   }
-  return 'Steadier than most — but the interference is real, and it shows up exactly when it costs the most.';
+  if (score < CALM_ZONE_FLOOR) {
+    return 'Steadier than most — but the interference is real, and it shows up exactly when it costs the most.';
+  }
+  return 'This is trained calm: your nervous system holds steady under intimate pressure instead of firing against you.';
 }
 
 export function computeComposure(answers: Answers): ComposureResult {
@@ -107,6 +155,13 @@ export function computeComposure(answers: Answers): ComposureResult {
   const scripts = Array.isArray(answers.scripts) ? answers.scripts : [];
   score -= Math.min(scripts.length * perScriptPenalty, maxScriptsPenalty);
   score = Math.round(Math.min(Math.max(score, clamp[0]), clamp[1]));
+
+  // The calm-zone gate: trained calm (80+) is reserved for a resolved trait
+  // cluster. If any trait is still active, hold the score one point below the
+  // floor — "steadier, but not yet trained calm." Never lifts a score, only caps.
+  if (score >= CALM_ZONE_FLOOR && !calmZoneUnlocked(answers, scripts.length)) {
+    score = CALM_ZONE_FLOOR - 1;
+  }
 
   return { score, bars: buildBars(answers, scripts.length), mirror: buildMirror(answers) };
 }

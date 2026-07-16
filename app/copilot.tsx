@@ -12,8 +12,7 @@ import { useRouter } from 'expo-router';
 import { ChevronLeft } from 'lucide-react-native';
 
 /**
- * Somatic Copilot — the full Day-76+ maintenance-tier version of the tool
- * previewed in the Autonomic Sync lesson (app/autonomic-sync.tsx).
+ * Somatic Copilot — the in-the-moment coach, unlocked at Day 75.
  *
  * Deterministic end-to-end (§7): nine authored trigger→reframe pairs,
  * versioned here as content. The "asynchronous coach" framing is

@@ -10,24 +10,27 @@ import {
 } from 'react-native';
 import { useRouter } from 'expo-router';
 import { ChevronDown, ChevronLeft } from 'lucide-react-native';
+import { TESTIMONIALS } from '../content/testimonials';
 
 /**
- * Success Vault — the curated, read-only community replacement.
+ * "Others Who Walked It" (renamed from The Success Vault, founder 2026-07-15) —
+ * the curated, read-only community replacement in the You tab.
  *
- * Narrative modeling with the relapse built in: each story follows
- * struggle → abyss → breakthrough because the abyss is the point. The user
- * who falters on Day 22 and reaches for his phone to uninstall needs to
- * have already read about the man who faltered on Day 22 — vicarious
- * relapse normalization is the cheapest churn insurance content can buy,
- * and a real community would deliver it with none of this curation and all
- * of the horror stories.
+ * TWO PROVENANCE CLASSES, DELIBERATELY SEPARATED (honest-data doctrine):
  *
- * PROVENANCE IS LOAD-BEARING: these are authored composite narratives,
- * and the footer says so on-screen. Without that line they read as user
- * testimonials, which they are not — presenting them as such is FTC
- * deceptive-endorsement territory and an App Store health-claims tripwire.
- * Do not remove the disclosure; it is what makes this screen shippable.
- * (Logged in the claims-tightening ledger, .claude/ember-progress.md.)
+ * 1. Member stories — the six REAL, attributed, consented tester accounts
+ *    (content/testimonials.ts, shared with the onboarding field-reports
+ *    screen). Their disclosure says "real feedback, shared with permission."
+ *
+ * 2. Composite journeys — authored composite narratives following
+ *    struggle → abyss → breakthrough, because the abyss is the point (a man
+ *    who falters on Day 22 needs to have already read about one who did).
+ *    Their disclosure says "composite, not individual accounts."
+ *
+ * The two lines are OPPOSITES and must never be merged: labeling a real
+ * testimonial "composite" — or a composite "real" — is FTC deceptive-
+ * endorsement territory and an App Store health-claims tripwire. Keep each
+ * section under its own accurate line. (Claims ledger: .claude/ember-progress.md.)
  */
 
 // LayoutAnimation needs an explicit opt-in on old-architecture Android.
@@ -98,6 +101,43 @@ const CASE_STUDIES: CaseStudy[] = [
   },
 ];
 
+function MemberStoryCard({ story }: { story: (typeof TESTIMONIALS)[number] }) {
+  const [expanded, setExpanded] = useState(false);
+
+  const toggle = () => {
+    LayoutAnimation.configureNext(LayoutAnimation.create(220, 'easeInEaseOut', 'opacity'));
+    setExpanded((e) => !e);
+  };
+
+  return (
+    <TouchableOpacity
+      onPress={toggle}
+      activeOpacity={0.85}
+      className="bg-surface border border-line rounded-[18px] p-5"
+    >
+      <Text className="text-accent text-[10px] font-bold uppercase tracking-[0.2em]">
+        {story.tag}
+      </Text>
+      <View className="flex-row items-baseline gap-2 mt-1.5">
+        <Text className="text-ink text-[17px] font-serif-regular">{story.name}</Text>
+        <Text className="text-muted text-[13px]">{story.detail}</Text>
+      </View>
+      <Text
+        className="text-body text-sm leading-[21px] mt-2.5"
+        numberOfLines={expanded ? undefined : 3}
+      >
+        “{story.text}”
+      </Text>
+      {!expanded && (
+        <View className="flex-row items-center gap-1.5 mt-3">
+          <Text className="text-muted text-xs font-semibold">Read the whole story</Text>
+          <ChevronDown color="#6B7280" size={14} />
+        </View>
+      )}
+    </TouchableOpacity>
+  );
+}
+
 function CaseStudyCard({ study }: { study: CaseStudy }) {
   const [expanded, setExpanded] = useState(false);
 
@@ -160,24 +200,39 @@ export default function SuccessVaultScreen() {
       </TouchableOpacity>
 
       <Text className="text-muted text-[11px] font-semibold uppercase tracking-[0.28em]">
-        Resource Vault
+        The Vault
       </Text>
-      <Text className="text-ink text-[26px] font-serif-light mt-1.5">The Success Vault</Text>
+      <Text className="text-ink text-[26px] font-serif-light mt-1.5">Others Who Walked It</Text>
       <Text className="text-muted text-[13.5px] leading-5 mt-2">
-        Composite narratives of autonomic reclamation.
+        Men who were exactly where you are, and the partners who watched them change.
       </Text>
 
-      <View className="gap-3 mt-7">
+      {/* ── Section 1: real member stories ── */}
+      <Text className="text-dim text-[11px] font-bold uppercase tracking-[0.16em] mt-8 mb-1">
+        Member Stories
+      </Text>
+      <Text className="text-muted text-xs leading-[17px] mb-4">
+        Real feedback from men and partners who tested Compose, shared with permission.
+      </Text>
+      <View className="gap-3">
+        {TESTIMONIALS.map((story) => (
+          <MemberStoryCard key={story.name} story={story} />
+        ))}
+      </View>
+
+      {/* ── Section 2: composite journeys (distinct provenance) ── */}
+      <Text className="text-dim text-[11px] font-bold uppercase tracking-[0.16em] mt-9 mb-1">
+        Composite Journeys
+      </Text>
+      <Text className="text-muted text-xs leading-[17px] mb-4">
+        Full arcs — struggle, setback, and breakthrough — authored from the clinical patterns
+        this protocol is built around. Not individual user accounts.
+      </Text>
+      <View className="gap-3">
         {CASE_STUDIES.map((study) => (
           <CaseStudyCard key={study.id} study={study} />
         ))}
       </View>
-
-      {/* Load-bearing disclosure — see the header comment before touching. */}
-      <Text className="text-dim text-xs leading-[17px] text-center mt-6">
-        Composite narratives, authored from the clinical patterns this protocol is built
-        around — not individual user accounts.
-      </Text>
     </ScrollView>
   );
 }

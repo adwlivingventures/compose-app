@@ -187,7 +187,8 @@ export default function ProfileScreen() {
         />
         <NavRow
           icon={<BookOpen color="#C89B6D" size={18} />}
-          title="The Success Vault"
+          title="Others Who Walked It"
+          subtitle="Stories from men and partners who did this."
           onPress={() => router.push('/success-vault')}
         />
         <NavRow
@@ -204,16 +205,16 @@ export default function ProfileScreen() {
         />
       </View>
 
-      {/* Phase IV — kept apart from the Library: it's a tier, not reading,
-          and separation preserves its future-pacing job. */}
+      {/* The Mastery Suite — kept apart from the Library: it's a progression
+          of unlocks, not reading, and separation preserves its pull. */}
       <Text className="text-muted text-xs font-bold uppercase tracking-widest mb-3">
-        Phase IV
+        The Mastery Suite
       </Text>
       <View className="bg-surface border border-line rounded-2xl overflow-hidden mb-6">
         <NavRow
           icon={<Crown color="#C89B6D" size={18} />}
           title="Mastery Suite"
-          subtitle="What unlocks on Day 76."
+          subtitle="Tools that open as you progress."
           onPress={() => router.push('/mastery')}
           last
         />

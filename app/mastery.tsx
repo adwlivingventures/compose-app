@@ -3,7 +3,6 @@ import { ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { ChevronLeft, ChevronRight, Lock } from 'lucide-react-native';
 import { useProtocol } from '../context/ProtocolContext';
-import { useRevenueCat } from '../hooks/useRevenueCat';
 
 /**
  * Mastery Suite — Act II future-pacing of included membership content
@@ -24,68 +23,61 @@ interface MasteryModule {
   title: string;
   description: string;
   route: string;
-  /** 'always' = preview; 'maintenance' = Day 76 + active membership (Act II unlock). */
-  unlock: 'always' | 'maintenance';
-  badge?: string;
+  /** Protocol day the module opens on (founder ruling 2026-07-15: the suite
+   *  unlocks in stages across the 75 days, not all at Day 76 — each stage is
+   *  a milestone the man climbs toward). */
+  unlockDay: number;
 }
 
-// Founder review 2026-07-10: the suite lists its real categories, each locked
-// until graduation — the Somatic Copilot is one of them (previously it was
-// only implied by the preview card, so the suite looked smaller than it is),
-// and the partner-technique category was missing entirely. Plain words
-// everywhere: he must know exactly what he's getting.
+// Founder ruling 2026-07-15: staggered unlock schedule. The suite is listed
+// in the order it opens, so a man mid-protocol sees exactly what he's earned
+// and what's still ahead. Descriptions are plain and benefit-first — the man
+// should want to reach these; the clinical depth waits inside each feature.
 const MODULES: MasteryModule[] = [
   {
-    title: 'The Somatic Copilot',
+    title: 'The Refractory Window Guide',
     description:
-      'Step-by-step help matched to the real moment — before, during, or after — so you ' +
-      'always know your next move.',
-    route: '/copilot',
-    unlock: 'maintenance',
+      'What’s really happening in your body after you finish — and how to make round two ' +
+      'possible.',
+    route: '/lesson/refractory-window',
+    unlockDay: 1,
+  },
+  {
+    title: 'The Anxious Partner De-escalator',
+    description:
+      'The right words to steady the moment when things stall — so one hitch never spirals ' +
+      'into a bad night.',
+    route: '/lesson/partner-deescalator',
+    unlockDay: 1,
   },
   {
     title: 'Sensate Mastery',
     description:
-      'Stay calm and in control as excitement climbs — instead of rushing or pulling back.',
+      'A step-by-step touch practice with your partner that takes performance off the table — ' +
+      'and pulls you closer.',
     route: '/lesson/sensate-mastery',
-    unlock: 'maintenance',
+    unlockDay: 25,
   },
   {
     title: 'The Attunement Advantage',
     description:
-      'Become the partner she remembers: pacing, touch, and reading her responses in the ' +
-      'moment.',
+      'Read your partner’s signals and own the pace — so you’re the one they can’t stop ' +
+      'thinking about.',
     route: '/lesson/partner-attunement',
-    unlock: 'maintenance',
+    unlockDay: 50,
   },
   {
-    title: 'The Refractory Window Guide',
+    title: 'The Somatic Copilot',
     description:
-      'What happens in your body after you finish — and how to make round two possible.',
-    route: '/lesson/refractory-window',
-    unlock: 'maintenance',
-  },
-  {
-    title: 'The Anxious Partner De-escalator',
-    description: 'The exact words that calm your partner when a moment stalls.',
-    route: '/lesson/partner-deescalator',
-    unlock: 'maintenance',
-  },
-  {
-    title: 'The Autonomic Sync',
-    // "Open now" — plan-neutral (founder note 2026-07-10: "free" reads wrong
-    // to an annual member who already paid for all of this).
-    description:
-      'A first taste of the Copilot: a 3-second breath trick that settles you and your ' +
-      'partner at the same time.',
-    route: '/autonomic-sync',
-    unlock: 'always',
-    badge: 'Open now',
+      'Your in-the-moment coach. Tell it what’s happening and get your exact next move — ' +
+      'before, during, or after.',
+    route: '/copilot',
+    unlockDay: 75,
   },
 ];
 // (Somatic Sandbox moved out of this suite: strategy ruling is a Day-26
 // unlock inside Act I — it lives in the You-tab Library and
-// app/sandbox.tsx, not behind the Day-76 graduation unlock.)
+// app/sandbox.tsx, not behind this suite.)
 
 function MasteryModuleCard({
   module,
@@ -96,7 +88,7 @@ function MasteryModuleCard({
   locked: boolean;
   onPress?: () => void;
 }) {
-  const { title, description, badge } = module;
+  const { title, description, unlockDay } = module;
 
   const body = (
     <>
@@ -110,12 +102,19 @@ function MasteryModuleCard({
   );
 
   if (locked) {
-    // Inert by design — no tap handler, no fake affordance.
+    // Inert by design — no tap handler, no fake affordance. The unlock day
+    // is shown as the milestone to climb toward (founder ruling 2026-07-15:
+    // he should want to reach it), never as a countdown or loss frame.
     return (
       <View
         style={{ opacity: 0.55 }}
         className="bg-surface border border-line rounded-[18px] p-5"
       >
+        <View className="self-start bg-surface-deep border border-line-soft rounded-full px-2.5 py-1 mb-3">
+          <Text className="text-dim text-[10px] font-bold uppercase tracking-[0.14em]">
+            Unlocks Day {unlockDay}
+          </Text>
+        </View>
         {body}
       </View>
     );
@@ -127,13 +126,6 @@ function MasteryModuleCard({
       activeOpacity={0.85}
       className="bg-surface border border-accent/40 rounded-[18px] p-5"
     >
-      {badge && (
-        <View className="self-start bg-accent/10 border border-accent/30 rounded-full px-2.5 py-1 mb-3">
-          <Text className="text-accent text-[10px] font-bold uppercase tracking-[0.14em]">
-            {badge}
-          </Text>
-        </View>
-      )}
       {body}
     </TouchableOpacity>
   );
@@ -141,16 +133,18 @@ function MasteryModuleCard({
 
 export default function MasterySuiteScreen() {
   const router = useRouter();
-  const { completedDays } = useProtocol();
-  const { hasMembership } = useRevenueCat();
-  // Same completion derivation as the Today tab's post-program state.
-  // Model V2 gate: Day 75 complete + active membership — the Mastery Suite
-  // is included membership content that unlocks at graduation, not a tier.
-  const protocolComplete = completedDays[75]?.completed === true;
-  const maintenanceUnlocked = protocolComplete && hasMembership;
-
+  const { activeDay, hasPurchased } = useProtocol();
+  // Model V2 gate: included membership content, opened in stages by the
+  // protocol day reached (founder ruling 2026-07-15). Membership is checked
+  // via the app's own keychain-cached purchase flag (ProtocolContext), NOT
+  // the live RevenueCat entitlement — the cached flag is the same signal
+  // that unlocks the protocol itself, so it's true for any member on the
+  // ring (and, unlike a live RC call, it holds offline). __DEV__ builds
+  // bypass the membership check so the suite is testable without a sandbox
+  // purchase; the day gate still applies so staggering stays visible.
+  const member = hasPurchased || __DEV__;
   const isLocked = (module: MasteryModule) =>
-    module.unlock === 'maintenance' && !maintenanceUnlocked;
+    !member || activeDay < module.unlockDay;
 
   return (
     <ScrollView
@@ -167,13 +161,13 @@ export default function MasterySuiteScreen() {
       </TouchableOpacity>
 
       <Text className="text-muted text-[11px] font-semibold uppercase tracking-[0.28em]">
-        Phase IV
+        The Mastery Suite
       </Text>
-      <Text className="text-ink text-[26px] font-serif-light mt-1.5">Mastery Suite</Text>
+      <Text className="text-ink text-[26px] font-serif-light mt-1.5">What you’re building toward</Text>
 
       <View className="bg-surface-deep border border-line-soft rounded-[14px] px-4 py-3 mt-4">
-        <Text className="text-muted text-xs">
-          Included in your membership — unlocks at graduation.
+        <Text className="text-muted text-xs leading-5">
+          Included in your membership. New tools open as you move through the 75 days.
         </Text>
       </View>
 

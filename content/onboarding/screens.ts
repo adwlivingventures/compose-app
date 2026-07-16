@@ -9,6 +9,7 @@
 // therapy comparator, not our price).
 
 import type { ConsentScreen, Screen } from './types';
+import { TESTIMONIALS } from '../testimonials';
 
 /**
  * The full flow, in final (batched) order: the four clinical cards follow the
@@ -402,30 +403,38 @@ export const SCREENS: Screen[] = [
     button: 'Continue',
   },
   {
+    // Reframed 2026-07-15 (founder): measures post-setback RESILIENCE, not the
+    // size of the damage. Same instrument at Day 0 and every re-measurement, so
+    // an improving man isn't re-asked to rank his shame. Value keys map to the
+    // aftermath deduction table (composure.ts); 'recover-fast' is the resolved
+    // best that helps unlock the calm zone.
     id: 'aftermath',
     section: 'part3',
     archetype: 'single-select',
-    question: 'In the hours after it happens, what hits hardest?',
+    question: 'When a night doesn’t go the way you wanted, how quickly do you find your footing again?',
     answerKey: 'aftermath',
     options: [
-      { value: 'shame', label: 'Shame' },
-      { value: 'anger', label: 'Anger at myself' },
-      { value: 'numbness', label: 'Numbness' },
-      { value: 'fear-next', label: 'Fear of the next time' },
+      { value: 'recover-fast', label: 'Fast — it barely lands anymore' },
+      { value: 'recover-day', label: 'Within a day, then I’m steady' },
+      { value: 'lingers', label: 'It lingers for a few days' },
+      { value: 'spirals', label: 'It spirals — shame, or dread of the next time' },
     ],
   },
   {
+    // Reframed 2026-07-15 (founder): asks about initiation freedom instead of
+    // presupposing avoidance. Value keys are unchanged (avoidance level:
+    // rarely=best … stopped=worst) so the bar grades and Day-0/re-measurement
+    // comparability don't move; only the framing the user reads is positive.
     id: 'avoidance',
     section: 'part3',
     archetype: 'single-select',
-    question:
-      'How often do you avoid initiating sex because of how your body might respond?',
+    question: 'When you want intimacy, how freely do you initiate it?',
     answerKey: 'avoidance',
     options: [
-      { value: 'frequently', label: 'Frequently' },
-      { value: 'sometimes', label: 'Sometimes' },
-      { value: 'rarely', label: 'Rarely' },
-      { value: 'stopped', label: 'I’ve stopped initiating altogether' },
+      { value: 'rarely', label: 'Freely — I don’t hold back' },
+      { value: 'sometimes', label: 'Usually, with a little hesitation' },
+      { value: 'frequently', label: 'I often hold back' },
+      { value: 'stopped', label: 'I’ve mostly stopped initiating' },
     ],
   },
   {
@@ -812,44 +821,7 @@ export const SCREENS: Screen[] = [
     eyebrow: 'EARLY MEMBERS',
     headline: 'The experts describe it. These men lived it.',
     subhead: 'From the men who tested Compose, and the partners who watched it happen.',
-    stories: [
-      {
-        name: 'Marcus',
-        detail: '34',
-        tag: 'Out of his head',
-        text: 'I spent years trapped in my own head during sex, constantly monitoring myself and waiting for my erection to fail. It was an exhausting loop of adrenaline that ruined my relationship. COMPOSE completely flipped the switch. Learning to down-regulate my nervous system through the daily auditory anchors completely stopped the mental chatter. For the first time in my life, I am entirely present in my body, not spectatoring from the outside. The 75 days rewired how my body responds to touch.',
-      },
-      {
-        name: 'Julian',
-        detail: '28',
-        tag: 'Control, not white-knuckling',
-        text: 'I thought fixing an early finish meant using distractions or white-knuckling through a timer, which never worked because my body was in a constant fight-or-flight state. COMPOSE taught me the neurobiology of what was actually happening. The daily Pelvic Drop exercises trained me to consciously release the chronic, unconscious clenching between my legs that acted as a physical hair-trigger. I moved from an anxious level 8 arousal baseline down to a controlled, steady level 5. I have complete sovereignty over my body now.',
-      },
-      {
-        name: 'David',
-        detail: '42',
-        tag: 'The Day-30 setback',
-        text: 'Around Day 30 of the protocol, I had a stressful week and experienced a major bedroom failure. In the past, that would have caused a weeks-long spiral of shame and avoidance. Instead, I opened the app and triggered the Post-Setback Protocol in the Triage Center. The audio reframed the dopamine crash immediately, helping me exit the sympathetic panic loop. By normalizing the relapse as part of my basal ganglia rewiring, I didn’t quit. I finished the 75 days, and my confidence is unshakeable.',
-      },
-      {
-        name: 'Christian',
-        detail: '31',
-        tag: 'Performance to presence',
-        text: 'I used to view intimacy like an exam I was bound to fail, which filled my bloodstream with cortisol before things even started. COMPOSE stripped away the performance mindset entirely. The shift from conscious, effortful control in my prefrontal cortex to automatic somatic presence has completely transformed my sex life. I’m no longer chasing an end-state; I am entirely grounded in the current physical sensation. It is an incredible feeling of freedom.',
-      },
-      {
-        name: 'Sarah',
-        detail: '33 · Partner of 4 years',
-        tag: 'The distance closed',
-        text: 'When my partner struggled with intimacy, he would completely shut down, pull away, and isolate himself out of shame. I felt disconnected and lonely, thinking it was my fault. When he started COMPOSE, the change wasn’t just physical. It was profoundly emotional. He learned how to stay grounded instead of panicking. Our intimacy has shifted from a high-pressure performance into deep, beautifully connected, and unhurried pleasure. Our relationship has never been this strong.',
-      },
-      {
-        name: 'Elena',
-        detail: '39 · Married 11 years',
-        tag: 'Calm came home',
-        text: 'Years of bedroom anxiety had turned our sex life into a source of unspoken tension and silent dread. My husband felt like he was failing, and his anxiety made it impossible for us to connect. The COMPOSE protocol saved our marriage. By learning to anchor his nervous system, he brought a sense of calm, masculine safety back into our bedroom. We’ve moved past the quick anxiety sprints and into the deepest physical and emotional alignment we’ve ever experienced in our eleven years together.',
-      },
-    ],
+    stories: TESTIMONIALS,
     button: 'Continue',
   },
 

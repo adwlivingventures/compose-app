@@ -103,7 +103,6 @@ export default function RootLayout() {
           <Stack.Screen name="sandbox" />
           <Stack.Screen name="technique" />
           <Stack.Screen name="mastery" />
-          <Stack.Screen name="autonomic-sync" />
           <Stack.Screen name="copilot" />
           <Stack.Screen name="lesson/[id]" />
           <Stack.Screen name="success-vault" />
