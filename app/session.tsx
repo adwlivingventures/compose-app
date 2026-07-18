@@ -462,9 +462,17 @@ function SessionBody() {
         {stage === 'release' && <SomaticRelease onComplete={() => completeStage('release')} />}
 
         {stage === 'rewire' && (
-          <View>
+          /* The rewire stage now carries the day's word + the "I am" triad
+             (components/DailyRewire.tsx) — on long-quote days the stack can
+             exceed the viewport, so this stage alone scrolls; content still
+             centers when it fits. */
+          <ScrollView
+            style={{ flex: 1 }}
+            contentContainerStyle={{ flexGrow: 1, justifyContent: 'center', paddingVertical: 12 }}
+            showsVerticalScrollIndicator={false}
+          >
             <DailyRewire day={day} onComplete={() => completeStage('rewire')} />
-          </View>
+          </ScrollView>
         )}
 
         {stage === 'checkin' && (
