@@ -65,12 +65,13 @@ export type RegulationAudioKey =
 const PLACEHOLDER_SOURCE = require('../assets/audio/anchor_placeholder.wav');
 
 export const REGULATION_AUDIO: Record<RegulationAudioKey, AudioSource> = {
-  // TODO(renders): swap to require('../assets/audio/regulation_reset_breath.mp3') etc.
-  reset_breath: PLACEHOLDER_SOURCE,
-  steady_square: PLACEHOLDER_SOURCE,
-  body_scan: PLACEHOLDER_SOURCE,
-  deep_drop: PLACEHOLDER_SOURCE,
-  pelvic_drop: PLACEHOLDER_SOURCE,
+  // Rendered in the day_1.mp3 voice; re-paced to the scripted pause totals
+  // and re-encoded mono 64k per the anchor pipeline convention.
+  reset_breath: require('../assets/audio/regulation_reset_breath.mp3'),
+  steady_square: require('../assets/audio/regulation_steady_square.mp3'),
+  body_scan: require('../assets/audio/regulation_body_scan.mp3'),
+  deep_drop: require('../assets/audio/regulation_deep_drop.mp3'),
+  pelvic_drop: require('../assets/audio/regulation_pelvic_drop.mp3'),
   identity_rehearsal: PLACEHOLDER_SOURCE, // script not yet authored (Phase 3 content)
 };
 
@@ -196,7 +197,7 @@ export const PRACTICES: Practice[] = [
     kind: 'audio',
     title: 'Back Into the Body',
     purpose: 'A guided walk home — attention into sensation, feet to crown.',
-    minutes: 8,
+    minutes: 5,
     opensOnDay: 1,
     intro: 'Attention lives wherever you place it. For the next few minutes, you place it here.',
     closing: 'Presence is a place. You know the way in.',
@@ -207,8 +208,8 @@ export const PRACTICES: Practice[] = [
     shelf: 'meditation',
     kind: 'audio',
     title: 'The Deep Drop',
-    purpose: 'Ten minutes of complete rest while remaining awake.',
-    minutes: 10,
+    purpose: 'Complete rest while remaining awake — the trained kind.',
+    minutes: 5,
     opensOnDay: 26,
     sequencedReason: 'Opens Day 26 — deep rest lands best on the foundation Phase 1 builds.',
     intro: 'Lie down, palms up. Deep rest is a skill, and it responds to training.',
@@ -282,7 +283,7 @@ export const PRACTICES: Practice[] = [
     kind: 'audio',
     title: 'The Pelvic Drop — Long Practice',
     purpose: 'The guided version of the daily pacer — build the drop properly.',
-    minutes: 6,
+    minutes: 5,
     opensOnDay: 3,
     sequencedReason: 'Opens Day 3, with the anchor that introduces the drop.',
     intro: 'The daily pacer runs this pattern with you. Here, we slow it down and build it.',
