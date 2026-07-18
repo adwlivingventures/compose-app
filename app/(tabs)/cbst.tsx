@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
-import { useFocusEffect } from 'expo-router';
+import { router, useFocusEffect } from 'expo-router';
 import {
   View,
   Text,
@@ -23,28 +23,42 @@ import {
   DISTORTION_ORDER,
   SPIKE_FLOW_COPY,
 } from '../../content/restructure';
+import {
+  PRACTICES,
+  SHELF_META,
+  SHELF_ORDER,
+  Practice,
+  isOpen,
+  openCount,
+  resolveDoor,
+} from '../../content/regulation';
 import { track } from '../../services/analytics';
 
 /**
- * Restructure tab v2 — "Rewire" (founder review 2026-07-12).
+ * Steady tab v3 (founder ruling 2026-07-18; spec: docs/STEADY-TAB-SPEC.md).
+ * Formerly "Restructure" — the route name stays `cbst` to avoid nav churn.
  *
- * Spec correction at the core: §5 promises an IMMEDIATE, PRE-WRITTEN
- * reframe. v1 asked the user to author his own rational reframe — demanding
- * prefrontal work at the exact moment sympathetic activation has taken the
- * prefrontal offline. v2 asks him only to RECOGNIZE (tag the distortion);
- * the authored counter is delivered (§7 deterministic). Optional one-line
- * capture comes after, once down-regulated.
- *
- * Three instruments, one narrative:
- *  1. Daily Rewire — now a motor act: press-and-hold crosses out the old
- *     script (embodied defusion + commitment gesture; a tap is ignorable,
- *     a 1.2s hold is a decision), then the truth is read at a paced line.
- *  2. Spike flow — name it → counter it → close it with one long exhale
- *     (the vagal brake paired with the cognitive counter: every use ends
- *     calmer than it began, which is why he returns to it).
+ * The on-demand layer, in three levels:
+ *  1. The router — "What do you need right now?" Four state doors, each
+ *     opening exactly one thing (Hick's Law survives where it matters: at
+ *     the moment of need). Spike door runs the Spike Flow in place; the
+ *     other three push the highest-priority OPEN practice for that state.
+ *  2. The Library — the full collection, visible from Day 1, sequenced by
+ *     phase ("Opens Day N" + honest clinical reason, never "locked").
+ *     Perceived wealth without decision load; the freedom layer for the
+ *     regulated-and-curious state, one level below the anxious-state path.
  *  3. Evidence Locker — history as an asset: loops closed, days quiet,
  *     the dominant pattern named (trait-level defusion: one known voice,
  *     not many problems).
+ *
+ * Spike Flow spec note (v2, retained): §5 promises an IMMEDIATE,
+ * PRE-WRITTEN reframe — the user only RECOGNIZES (tags the distortion);
+ * the authored counter is delivered (§7 deterministic). Optional one-line
+ * capture comes after, once down-regulated.
+ *
+ * Library rules (anti-derailment, invisible as rules): no autoplay, no
+ * "up next"; practices end in stillness and return here; Library use casts
+ * NO protocol votes — the Blueprint stays the sole identity-evidence source.
  */
 
 // ─── Legacy freeform entries (v1) — still displayed, never created ───────────
@@ -64,14 +78,172 @@ const LEGACY_KEY = '@cbst_log_entries';
 export default function CBSTScreen() {
   return (
     <View className="flex-1 bg-ground">
+      {/* Header copy passes the stranger test (§6): the clinical framework
+          names live in onboarding, where they convert — not on persistent
+          chrome, where they expose. */}
       <View className="px-6 pt-14 pb-4 border-b border-line/60">
         <Text className="text-muted text-xs font-bold uppercase tracking-widest">COMPOSE</Text>
-        <Text className="text-ink text-2xl font-serif-regular mt-0.5">Restructure</Text>
+        <Text className="text-ink text-2xl font-serif-regular mt-0.5">Steady</Text>
         <Text className="text-muted text-[11.5px] mt-1">
-          Built on CBST — Cognitive Behavioral Sex Therapy.
+          The work between sessions.
         </Text>
       </View>
       <RewireBody />
+    </View>
+  );
+}
+
+// ─── The router — four state doors ───────────────────────────────────────────
+
+function StateDoors({
+  day,
+  spikeOpen,
+  onSpike,
+}: {
+  day: number;
+  spikeOpen: boolean;
+  onSpike: () => void;
+}) {
+  const openPractice = (door: 'settle' | 'drop_in' | 'release') => {
+    const practice = resolveDoor(door, day);
+    router.push({ pathname: '/practice', params: { id: practice.id } });
+  };
+
+  const doors: { key: string; label: string; sub: string; onPress: () => void; active?: boolean }[] = [
+    {
+      key: 'spike',
+      label: 'A thought is spiking',
+      sub: 'Name it, counter it, close it.',
+      onPress: onSpike,
+      active: spikeOpen,
+    },
+    {
+      key: 'settle',
+      label: 'Settle me fast',
+      sub: 'The quickest breath you own.',
+      onPress: () => openPractice('settle'),
+    },
+    {
+      key: 'drop_in',
+      label: 'Get me out of my head',
+      sub: 'Attention, walked back into the body.',
+      onPress: () => openPractice('drop_in'),
+    },
+    {
+      key: 'release',
+      label: 'Release the tension',
+      sub: 'From the floor up.',
+      onPress: () => openPractice('release'),
+    },
+  ];
+
+  return (
+    <>
+      <Text className="text-muted text-xs font-bold uppercase tracking-widest mb-3">
+        What do you need right now?
+      </Text>
+      <View className="flex-row flex-wrap -mx-1 mb-3">
+        {doors.map((door) => (
+          <View key={door.key} className="w-1/2 px-1 mb-2">
+            <TouchableOpacity
+              onPress={door.onPress}
+              activeOpacity={0.8}
+              className={`rounded-2xl p-4 min-h-[96px] border ${
+                door.active ? 'bg-surface border-accent/40' : 'bg-surface border-line'
+              }`}
+            >
+              <Text className="text-ink text-[13.5px] font-bold leading-[18px]">
+                {door.label}
+              </Text>
+              <Text className="text-muted text-[11px] leading-4 mt-1.5">{door.sub}</Text>
+            </TouchableOpacity>
+          </View>
+        ))}
+      </View>
+    </>
+  );
+}
+
+// ─── The Library — full collection, sequenced by phase ───────────────────────
+
+function LibraryShelves({ day }: { day: number }) {
+  const { open, total } = openCount(day);
+
+  const onOpenPractice = (practice: Practice) => {
+    router.push({ pathname: '/practice', params: { id: practice.id } });
+  };
+
+  return (
+    <View className="mt-3">
+      <View className="flex-row items-baseline justify-between mb-1">
+        <Text className="text-muted text-xs font-bold uppercase tracking-widest">
+          The Library
+        </Text>
+        <Text className="text-dim text-[10.5px] font-semibold tracking-[0.08em]">
+          {open} of {total} open
+        </Text>
+      </View>
+      {/* The frame line — does all the "don't abuse this" work, positively. */}
+      <Text className="text-faint text-[11.5px] leading-4 mb-4">
+        Your daily session is the training. These are the tools for the moments between.
+      </Text>
+
+      {SHELF_ORDER.map((shelf) => {
+        const items = PRACTICES.filter((p) => p.shelf === shelf);
+        return (
+          <View key={shelf} className="mb-5">
+            <View className="flex-row items-baseline gap-2 mb-2">
+              <Text className="text-ink text-sm font-bold">{SHELF_META[shelf].title}</Text>
+              <Text className="text-dim text-[10.5px]">{SHELF_META[shelf].sub}</Text>
+            </View>
+            <View className="bg-surface border border-line rounded-2xl overflow-hidden">
+              {items.map((p, i) => {
+                const openNow = isOpen(p, day);
+                // The Spike Flow lives on this tab — its row is a no-op
+                // pointer to the door above rather than a navigation.
+                const isTool = p.kind === 'tool';
+                return (
+                  <TouchableOpacity
+                    key={p.id}
+                    onPress={() => (openNow && !isTool ? onOpenPractice(p) : undefined)}
+                    disabled={!openNow || isTool}
+                    activeOpacity={0.8}
+                    className={`px-4 py-3.5 ${i > 0 ? 'border-t border-line-soft' : ''}`}
+                  >
+                    <View className="flex-row items-center justify-between">
+                      <Text
+                        className={`text-[13.5px] font-semibold flex-1 pr-3 ${
+                          openNow ? 'text-ink' : 'text-dim'
+                        }`}
+                      >
+                        {p.title}
+                      </Text>
+                      {openNow ? (
+                        <Text className="text-dim text-[10.5px] font-semibold">
+                          {isTool ? 'above' : `${p.minutes} min`}
+                        </Text>
+                      ) : (
+                        <View className="bg-surface-deep rounded-full px-2.5 py-0.5">
+                          <Text className="text-muted text-[10px] font-bold tracking-wider">
+                            Day {p.opensOnDay}
+                          </Text>
+                        </View>
+                      )}
+                    </View>
+                    <Text
+                      className={`text-[11.5px] leading-4 mt-1 ${
+                        openNow ? 'text-muted' : 'text-faint'
+                      }`}
+                    >
+                      {openNow ? p.purpose : p.sequencedReason ?? p.purpose}
+                    </Text>
+                  </TouchableOpacity>
+                );
+              })}
+            </View>
+          </View>
+        );
+      })}
     </View>
   );
 }
@@ -80,14 +252,29 @@ export default function CBSTScreen() {
 
 type SpikeStage = 'home' | 'name' | 'counter' | 'close' | 'closed';
 
-function SpikeFlow({ onSaved }: { onSaved: (entry: SpikeEntry) => void }) {
+function SpikeFlow({
+  onSaved,
+  initialStage = 'home',
+  onExit,
+}: {
+  onSaved: (entry: SpikeEntry) => void;
+  /** 'name' when opened from a router door — the door tap IS the CTA. */
+  initialStage?: SpikeStage;
+  /** When set, leaving the flow closes it (the parent unmounts) instead of
+   *  falling back to the standalone CTA card. */
+  onExit?: () => void;
+}) {
   const { addEntry } = useSpikeLog();
-  const [stage, setStage] = useState<SpikeStage>('home');
+  const [stage, setStage] = useState<SpikeStage>(initialStage);
   const [chosen, setChosen] = useState<Distortion | null>(null);
   const [note, setNote] = useState('');
   const exhaleProgress = useRef(new Animated.Value(0)).current;
 
   const reset = () => {
+    if (onExit) {
+      onExit();
+      return;
+    }
     setStage('home');
     setChosen(null);
     setNote('');
@@ -256,6 +443,8 @@ type HistoryItem =
   | { kind: 'spike'; id: string; entry: SpikeEntry };
 
 function RewireBody() {
+  const { activeDay } = useProtocol();
+  const [spikeOpen, setSpikeOpen] = useState(false);
   const [legacy, setLegacy] = useState<CBSTEntry[]>([]);
   const [loadingLegacy, setLoadingLegacy] = useState(true);
   const {
@@ -333,12 +522,22 @@ function RewireBody() {
         contentContainerStyle={{ paddingHorizontal: 24, paddingTop: 20, paddingBottom: 48 }}
         keyboardShouldPersistTaps="handled"
       >
-        {/* Daily Rewire moved into the session's own stages (founder ruling
-            2026-07-15) — this tab is now purely incident work + history. */}
-        <Text className="text-muted text-xs font-bold uppercase tracking-widest mb-3">
-          When a thought spikes
-        </Text>
-        <SpikeFlow onSaved={() => reloadSpikes()} />
+        {/* Level 1 — the router. Four state doors; the default path. */}
+        <StateDoors
+          day={activeDay}
+          spikeOpen={spikeOpen}
+          onSpike={() => setSpikeOpen((v) => !v)}
+        />
+        {spikeOpen && (
+          <SpikeFlow
+            initialStage="name"
+            onSaved={() => reloadSpikes()}
+            onExit={() => setSpikeOpen(false)}
+          />
+        )}
+
+        {/* Level 2 — the Library. The freedom layer, one level down. */}
+        <LibraryShelves day={activeDay} />
 
         {/* Evidence Locker */}
         <Text className="text-muted text-xs font-bold uppercase tracking-widest mb-3">

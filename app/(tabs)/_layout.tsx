@@ -1,5 +1,5 @@
 import { Tabs } from 'expo-router';
-import { LayoutDashboard, Brain, TrendingUp, UserRound } from 'lucide-react-native';
+import { LayoutDashboard, Anchor, TrendingUp, UserRound } from 'lucide-react-native';
 
 export default function TabsLayout() {
   return (
@@ -19,11 +19,13 @@ export default function TabsLayout() {
           tabBarIcon: ({ color, size }) => <LayoutDashboard color={color} size={size} />,
         }}
       />
+      {/* Route name stays `cbst` (file unrenamed to avoid nav churn) — the
+          surface is the Steady tab (docs/STEADY-TAB-SPEC.md). */}
       <Tabs.Screen
         name="cbst"
         options={{
-          title: 'Restructure',
-          tabBarIcon: ({ color, size }) => <Brain color={color} size={size} />,
+          title: 'Steady',
+          tabBarIcon: ({ color, size }) => <Anchor color={color} size={size} />,
         }}
       />
       <Tabs.Screen
