@@ -98,6 +98,15 @@ const EXTENDED_PHASES: OrbPhase[] = [
 ];
 const EXTENDED_LABELS = ['Breathe in, low and slow', 'Long exhale — twice the inhale'];
 
+// Resonance frequency: ~5.5 breaths/min maximizes heart-rate variability and
+// baroreflex gain — the trainable substrate of vagal tone. The sigh is the
+// acute lever; THIS is the chronic one (raises the baseline).
+const COHERENT_PHASES: OrbPhase[] = [
+  { toScale: FULL_BREATH, durationMs: 5500 },
+  { toScale: 1, durationMs: 5500 },
+];
+const COHERENT_LABELS = ['Breathe in, smooth and even', 'Breathe out, same pace'];
+
 // ─── The collection ──────────────────────────────────────────────────────────
 
 export const PRACTICES: Practice[] = [
@@ -158,6 +167,21 @@ export const PRACTICES: Practice[] = [
     opensOnDay: 1,
     closing: 'The long exhale is the half that calms the whole system.',
     orb: { phases: EXTENDED_PHASES, labels: EXTENDED_LABELS, sub: 'Let the exhale stay soft — twice the inhale, no forcing.' },
+  },
+  {
+    id: 'coherent_breathing',
+    shelf: 'breath',
+    kind: 'orb',
+    title: 'Coherent Breathing',
+    purpose: 'Five and a half counts in, five and a half out — the practice that raises your baseline.',
+    minutes: 10,
+    opensOnDay: 1,
+    closing: 'The rhythm trains the system that carries you. Daily minutes compound.',
+    orb: {
+      phases: COHERENT_PHASES,
+      labels: COHERENT_LABELS,
+      sub: 'No holds, no forcing — one smooth wave. Ten minutes trains the baseline.',
+    },
   },
   {
     id: 'humming_breath',
@@ -400,6 +424,42 @@ export const PRACTICES: Practice[] = [
       {
         title: 'The whole field',
         body: 'One pass of attention from feet to face. Anywhere still holding, exhale into it. Rest a minute in the released state — this is the state you are training toward.',
+      },
+    ],
+  },
+
+  {
+    id: 'pendulation',
+    shelf: 'somatic',
+    kind: 'steps',
+    title: 'Pendulation',
+    purpose: 'Swing attention between calm and activation — build tolerance for both.',
+    minutes: 6,
+    opensOnDay: 26,
+    sequencedReason: 'Opens Day 26 — this is Phase 2\'s skill: staying present as activation rises.',
+    closing: 'You visited the activation and returned on your own power. That is the skill.',
+    steps: [
+      {
+        title: 'Find the settled place',
+        body: 'Eyes closed or soft. Scan for one place in your body that feels calm, neutral, or simply okay right now — feet on the floor, the weight of your hands, the breath at the belly. Rest attention there until it feels familiar.',
+      },
+      {
+        title: 'Find the activation',
+        body: 'Now locate where the tension or unease lives — a tight chest, a held jaw, a buzzing stomach. Visit it briefly, through your own senses. Just enough to feel its edge.',
+        hint: 'A few seconds is enough',
+      },
+      {
+        title: 'Return to the settled place',
+        body: 'Walk attention back to the calm place and let it refill — the body remembers the way. Stay until the settling is real again.',
+      },
+      {
+        title: 'Swing between them',
+        body: 'Move between the two — a few breaths at the activation, a few breaths at the settled place. Each round, the swing gets easier and the activation softens at the edges.',
+        hint: '4–6 rounds',
+      },
+      {
+        title: 'Close at the settled place',
+        body: 'End where the calm lives. One long exhale. You chose where attention went, the whole time.',
       },
     ],
   },

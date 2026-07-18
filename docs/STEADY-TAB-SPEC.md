@@ -38,6 +38,7 @@ Rules: no autoplay, no "up next," no recommendations; every practice ends by ret
 | Box Breathing (orb pacer) | orb | Breath | 1 | — |
 | 4-7-8 (orb pacer) | orb | Breath | 1 | — |
 | Extended Exhale 4-8 (orb) | orb | Breath | 1 | — |
+| Coherent Breathing ~5.5bpm (orb) | orb | Breath | 1 | — |
 | Humming Breath | steps | Breath | 14 | Two weeks of exhale training first — the hum rides on it. |
 | Back Into the Body (scan) | audio | Meditation | 1 | — |
 | The Deep Drop (NSDR) | audio | Meditation | 26 | Deep rest lands best on the foundation Phase 1 builds. |
@@ -47,12 +48,15 @@ Rules: no autoplay, no "up next," no recommendations; every practice ends by ret
 | 5-4-3-2-1 Grounding | steps | Somatic | 1 | — |
 | Down-Training Stretches | steps | Somatic | 5 | The breath-pelvis link comes first; the stretches amplify it. |
 | Progressive Muscle Release | steps | Somatic | 10 | Learn the drop before generalizing it body-wide. |
+| Pendulation | steps | Somatic | 26 | Phase 2's skill: staying present as activation rises. |
 | Spike Flow | tool | Mind | 1 | — |
 | Leaves on a Stream | steps | Mind | 26 | Defusion is Phase 2's skill — it opens with it. |
 | Identity Rehearsal | audio | Mind | 51 | Phase 3 work — identity lands on 50 days of evidence. |
 | Evening Evidence Review | steps | Mind | 51 | Phase 3 work — votes counted at day's end. |
 
-Day-1 live: 8 of 18. Fresh openings at Days 3, 5, 10, 14 (Phase 1 novelty drip through the doubt window), 26 (Phase 2 wave), 51 (Phase 3 wave).
+Day-1 live: 9 of 20. Fresh openings at Days 3, 5, 10, 14 (Phase 1 novelty drip through the doubt window), 26 (Phase 2 wave), 51 (Phase 3 wave).
+
+**In-app vs. reference-library mapping (ruling):** the 24-item reference doc (`compose-regulation-library.md`, 8 per original category) is the *blueprint layer*; third-party recordings on it (Huberman, UCLA, Brach, Winston, Kenway videos) are deliberately NOT shipped — their mechanisms are carried by the in-house tracks above. Every non-third-party-bound item from the reference list now has an in-app counterpart.
 
 ## Implementation map
 
