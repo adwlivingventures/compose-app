@@ -241,6 +241,65 @@ export const PRACTICES: Practice[] = [
     audioKey: 'deep_drop',
   },
   {
+    id: 'sound_anchor',
+    shelf: 'meditation',
+    kind: 'steps',
+    title: 'Anchored in Sound',
+    purpose: 'Attention rested in hearing — effortless, anywhere, eyes open or closed.',
+    minutes: 5,
+    opensOnDay: 1,
+    closing: 'The world was holding an anchor the whole time. Now you know where.',
+    steps: [
+      {
+        title: 'Settle',
+        body: 'Sitting or standing, anywhere. Let the eyes close or soften. One slow exhale.',
+      },
+      {
+        title: 'Open to sound',
+        body: 'Let hearing widen. Sounds arrive on their own — the room, the street, your own breath. Receiving them is the whole practice.',
+      },
+      {
+        title: 'Near and far',
+        body: 'Notice the farthest sound you can find... then the nearest. Let attention travel between them, unhurried.',
+      },
+      {
+        title: 'Rest in the field',
+        body: 'Now hold all of it at once — one field of sound, changing on its own. When the mind drifts into thought, the next sound is the way back.',
+        hint: 'Three quiet minutes',
+      },
+    ],
+  },
+  {
+    id: 'breath_counting',
+    shelf: 'meditation',
+    kind: 'steps',
+    title: 'Counting the Breath',
+    purpose: 'One to ten on the exhales — the oldest concentration drill there is.',
+    minutes: 6,
+    opensOnDay: 5,
+    sequencedReason: 'Opens Day 5 — a few days of breath work first; then the count has something to hold.',
+    closing: 'Every restart was a repetition. That is how the muscle grows.',
+    steps: [
+      {
+        title: 'Take your seat',
+        body: 'Spine tall but easy, hands at rest. Breathe naturally — the count adapts to the breath, never the other way around.',
+      },
+      {
+        title: 'Count the exhales',
+        body: 'One on the first exhale... two on the next... up to ten. Then begin again at one.',
+      },
+      {
+        title: 'When you lose the count',
+        body: 'You will — everyone does, at three or at seven. The moment you notice, begin again at one. The restart is the repetition; losing count is the machine working, being caught.',
+      },
+      {
+        title: 'Continue',
+        body: 'Five minutes of counting. The score is not how high you get — it is how quickly you notice you\'ve drifted.',
+        hint: 'Noticing fast beats counting far',
+      },
+    ],
+  },
+  {
     id: 'noting',
     shelf: 'meditation',
     kind: 'steps',
@@ -277,8 +336,8 @@ export const PRACTICES: Practice[] = [
     title: 'The Self-Compassion Break',
     purpose: 'Three moves that take the charge out of a hard moment.',
     minutes: 5,
-    opensOnDay: 26,
-    sequencedReason: 'Opens Day 26 — it pairs with Phase 2 exposure training.',
+    opensOnDay: 14,
+    sequencedReason: 'Opens Day 14 — the counter for hard days, installed before the hard work starts.',
     closing: 'Spoken like a man you respect. Because that is who was listening.',
     steps: [
       {
@@ -301,6 +360,95 @@ export const PRACTICES: Practice[] = [
   },
 
   // ── Somatic & Pelvic ──
+  {
+    id: 'mindful_touch',
+    shelf: 'meditation',
+    kind: 'steps',
+    title: 'Mindful Touch',
+    purpose: 'Raw sensation, fully attended — the drill behind sensation over evaluation.',
+    minutes: 6,
+    opensOnDay: 26,
+    sequencedReason: 'Opens Day 26 — Phase 2 trains sensation over evaluation; this is the drill.',
+    closing: 'Sensation, received in full. This is the channel presence runs on.',
+    steps: [
+      {
+        title: 'One hand, one forearm',
+        body: 'Rest the fingertips of one hand on the opposite forearm. Eyes closed. This is a practice of receiving, and skin is the instrument.',
+      },
+      {
+        title: 'Move slowly',
+        body: 'Draw the fingertips along the forearm, slower than feels natural. Attend to what is actually there — temperature... pressure... texture... the trail the touch leaves behind.',
+      },
+      {
+        title: 'Both directions',
+        body: 'Feel it from both sides at once: the fingers touching, the arm being touched. Two streams of the same moment.',
+      },
+      {
+        title: 'When the mind narrates',
+        body: 'Thoughts about the practice will arrive — reviews, questions, plans. Let raw sensation be louder. Return to temperature, pressure, texture — the signal under the story.',
+        hint: 'A few quiet minutes',
+      },
+    ],
+  },
+  {
+    id: 'orienting',
+    shelf: 'somatic',
+    kind: 'steps',
+    title: 'Orienting',
+    purpose: 'A slow look around the room — the oldest all-clear signal the body knows.',
+    minutes: 3,
+    opensOnDay: 1,
+    closing: 'The room was already safe. Now the body has read it for itself.',
+    steps: [
+      {
+        title: 'Soften the gaze',
+        body: 'Seated or standing. Let the eyes go soft — wide-angle, receiving instead of searching.',
+      },
+      {
+        title: 'Turn slowly',
+        body: 'Let the head and neck turn, unhurried, and let the eyes drift across the room. Follow curiosity, at one-quarter speed.',
+      },
+      {
+        title: 'Land and linger',
+        body: 'When the eyes find something neutral or pleasant — a color, a shape, the light on a surface — let them rest there a while. Take it in fully.',
+        hint: 'Linger longer than feels normal',
+      },
+      {
+        title: 'Notice the settle',
+        body: 'Somewhere in the slow looking, the breath deepened and the shoulders dropped on their own. That is the body reading the room and finding it safe — a signal older than words.',
+      },
+    ],
+  },
+  {
+    id: 'jaw_release',
+    shelf: 'somatic',
+    kind: 'steps',
+    title: 'The Jaw Release',
+    purpose: 'The jaw and the floor of the pelvis move together — soften one, find the other.',
+    minutes: 4,
+    opensOnDay: 8,
+    sequencedReason: 'Opens Day 8 — once the drop is familiar, the jaw becomes a second handle on it.',
+    closing: 'Two floors, one release. The body keeps the connection.',
+    steps: [
+      {
+        title: 'Find the hinge',
+        body: 'Fingertips at the jaw hinge, just below the ears. Teeth apart, lips soft. Notice how much holding lives here on an ordinary day.',
+      },
+      {
+        title: 'Unhinge',
+        body: 'Let the jaw hang slightly open. Tongue resting loose on the floor of the mouth, wide and heavy. Breathe through the nose, low and slow.',
+      },
+      {
+        title: 'The echo below',
+        body: 'On the next slow exhale, keep the jaw loose and drop attention to the floor of the pelvis. The two soften together — the body wires them as a pair. Let the lower floor follow the upper one down.',
+        hint: '4–5 slow breaths',
+      },
+      {
+        title: 'Alternate',
+        body: 'A few rounds: soften the jaw... feel the pelvis answer... soften the pelvis... feel the jaw answer. One release, two doors.',
+      },
+    ],
+  },
   {
     id: 'pelvic_drop',
     shelf: 'somatic',
@@ -502,6 +650,66 @@ export const PRACTICES: Practice[] = [
         title: 'When you drift',
         body: 'You will find yourself downstream, inside a thought. The practice is the moment you notice — return to the bank, place it on a leaf, resume.',
         hint: 'Five quiet minutes',
+      },
+    ],
+  },
+  {
+    id: 'setback_rehearsal',
+    shelf: 'mind',
+    kind: 'steps',
+    title: 'The If-Then Install',
+    purpose: 'A response, chosen in calm, installed before it\'s ever needed.',
+    minutes: 4,
+    opensOnDay: 14,
+    sequencedReason: 'Opens Day 14 — two weeks in, the plan gets installed before it\'s ever needed.',
+    closing: 'The plan is installed. If the moment comes, it fires on its own.',
+    steps: [
+      {
+        title: 'Why this works',
+        body: 'A decision made during a spike costs willpower you won\'t have. A decision made now, in calm, and rehearsed, fires automatically later. Psychologists call these if-then plans — among the most reliably effective tools in behavior science.',
+      },
+      {
+        title: 'The plan',
+        body: 'Here is yours: "If my body softens or a wave passes through — then I take one long exhale, and return my attention to touch." That\'s the whole plan. One exhale, back to sensation.',
+      },
+      {
+        title: 'Rehearse it',
+        body: 'Through your own eyes, picture the moment arriving — calmly, like weather. Feel yourself take the long exhale. Feel attention land back on skin and warmth. Run it three times, slowly.',
+        hint: 'Field of view: your own — always',
+      },
+      {
+        title: 'Seal it',
+        body: 'Say it once, inwardly, in your own voice: "One exhale, back to sensation." Installed.',
+      },
+    ],
+  },
+  {
+    id: 'wearing_it_out',
+    shelf: 'mind',
+    kind: 'steps',
+    title: 'Wearing It Out',
+    purpose: 'Repeat the Spectator\'s word until it\'s only a sound.',
+    minutes: 3,
+    opensOnDay: 26,
+    sequencedReason: 'Opens Day 26 — a defusion drill for words that have earned too much weight.',
+    closing: 'A word is a sound the mind dresses up. You just undressed one.',
+    steps: [
+      {
+        title: 'Pick the word',
+        body: 'The Spectator has a favorite word for you — the one-word verdict it stamps on a hard moment. Bring it to mind. You know the one.',
+      },
+      {
+        title: 'Say it fast',
+        body: 'Now repeat it — aloud if you\'re alone, inwardly if not — as fast as you can, over and over, for thirty seconds. Faster than meaning can keep up.',
+        hint: '30 seconds, full speed',
+      },
+      {
+        title: 'Notice what\'s left',
+        body: 'Somewhere around the twentieth repetition it stopped being a verdict and became a noise — syllables, mouth-sounds, static. The word didn\'t change. Its grip did.',
+      },
+      {
+        title: 'Keep the lesson',
+        body: 'That\'s what the Spectator\'s vocabulary is made of: sounds with borrowed authority. Next time the word arrives stamped on a moment, you\'ve already heard it as static.',
       },
     ],
   },

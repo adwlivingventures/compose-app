@@ -41,20 +41,27 @@ Rules: no autoplay, no "up next," no recommendations; every practice ends by ret
 | Coherent Breathing ~5.5bpm (orb) | orb | Breath | 1 | — |
 | Humming Breath | steps | Breath | 14 | Two weeks of exhale training first — the hum rides on it. |
 | Back Into the Body (scan) | audio | Meditation | 1 | — |
+| Anchored in Sound | steps | Meditation | 1 | — |
+| Counting the Breath | steps | Meditation | 5 | A few days of breath work first; then the count has something to hold. |
 | The Deep Drop (NSDR) | audio | Meditation | 26 | Deep rest lands best on the foundation Phase 1 builds. |
 | Noting Practice | steps | Meditation | 26 | Phase 2 work — naming thoughts needs a settled baseline. |
-| Self-Compassion Break | steps | Meditation | 26 | Phase 2 work — it pairs with exposure training. |
+| Self-Compassion Break | steps | Meditation | 14 | The counter for hard days, installed before the hard work starts. |
+| Mindful Touch | steps | Meditation | 26 | Phase 2 trains sensation over evaluation; this is the drill. |
 | Pelvic Drop — Long Practice | audio | Somatic | 3 | Opens with your Day 3 anchor, which introduces the drop. |
 | 5-4-3-2-1 Grounding | steps | Somatic | 1 | — |
+| Orienting | steps | Somatic | 1 | — |
+| The Jaw Release | steps | Somatic | 8 | Once the drop is familiar, the jaw becomes a second handle on it. |
 | Down-Training Stretches | steps | Somatic | 5 | The breath-pelvis link comes first; the stretches amplify it. |
 | Progressive Muscle Release | steps | Somatic | 10 | Learn the drop before generalizing it body-wide. |
 | Pendulation | steps | Somatic | 26 | Phase 2's skill: staying present as activation rises. |
 | Spike Flow | tool | Mind | 1 | — |
+| The If-Then Install | steps | Mind | 14 | Two weeks in, the plan gets installed before it's ever needed. |
 | Leaves on a Stream | steps | Mind | 26 | Defusion is Phase 2's skill — it opens with it. |
+| Wearing It Out | steps | Mind | 26 | A defusion drill for words that have earned too much weight. |
 | Identity Rehearsal | audio | Mind | 51 | Phase 3 work — identity lands on 50 days of evidence. |
 | Evening Evidence Review | steps | Mind | 51 | Phase 3 work — votes counted at day's end. |
 
-Day-1 live: 9 of 20. Fresh openings at Days 3, 5, 10, 14 (Phase 1 novelty drip through the doubt window), 26 (Phase 2 wave), 51 (Phase 3 wave).
+Day-1 live: 11 of 27 (7 breath / 7 meditation / 7 somatic / 6 mind). Fresh openings at Days 3, 5, 8, 10, 14 (Phase 1 novelty drip through the doubt window), 26 (Phase 2 wave), 51 (Phase 3 wave).
 
 **In-app vs. reference-library mapping (ruling):** the 24-item reference doc (`compose-regulation-library.md`, 8 per original category) is the *blueprint layer*; third-party recordings on it (Huberman, UCLA, Brach, Winston, Kenway videos) are deliberately NOT shipped — their mechanisms are carried by the in-house tracks above. Every non-third-party-bound item from the reference list now has an in-app counterpart.
 
