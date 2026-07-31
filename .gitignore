@@ -41,3 +41,8 @@ yarn-error.*
 /android
 .claude/settings.local.json
 screens-review/
+
+# local build artifacts / scratch
+compose_src.tgz
+_to_delete/
+*.stale-*

@@ -4,7 +4,9 @@
 // labels placed in the open wedge BETWEEN the curves (first below the line,
 // later ones above-left) so nothing ever crosses a path. No numeric y-axis
 // (hard rule: nothing here may imply measured data — the caption owns the
-// honesty). Upper curve = accent-bright; lower = faint, dashed.
+// honesty). Deepwater roles: the retrained upper curve is forward
+// motion → aqua current; the start point is HIM tonight — identity → ember;
+// lower curve = faint, dashed, matte.
 
 import { Text, View } from 'react-native';
 import Svg, { Circle, Defs, LinearGradient, Path, Stop, Text as SvgText } from 'react-native-svg';
@@ -65,19 +67,19 @@ export default function DivergingGraphScreen({
                 {/* The upper future, filled — light accumulating under the
                     retrained curve. */}
                 <LinearGradient id="upperFill" x1="0" y1="0" x2="0" y2="1">
-                  <Stop offset="0" stopColor="#C89B6D" stopOpacity="0.16" />
-                  <Stop offset="1" stopColor="#C89B6D" stopOpacity="0" />
+                  <Stop offset="0" stopColor="#5FD4C1" stopOpacity="0.16" />
+                  <Stop offset="1" stopColor="#5FD4C1" stopOpacity="0" />
                 </LinearGradient>
               </Defs>
               <Path d={`${upperPath} L ${endX} ${startY} Z`} fill="url(#upperFill)" />
 
-              {/* Upper path — the retrained curve. */}
-              <Path d={upperPath} stroke="#D9B285" strokeWidth={2} fill="none" />
+              {/* Upper path — the retrained curve (aqua current). */}
+              <Path d={upperPath} stroke="#5FD4C1" strokeWidth={2} fill="none" />
 
               {/* Lower path — avoidance compounding. */}
               <Path
                 d={`M ${startX} ${startY} C ${lo.c1x} ${lo.c1y}, ${lo.c2x} ${lo.c2y}, ${endX} ${lo.p1y}`}
-                stroke="#4B5563"
+                stroke="#53626E"
                 strokeWidth={1.5}
                 strokeDasharray="4 5"
                 fill="none"
@@ -87,7 +89,7 @@ export default function DivergingGraphScreen({
                   the first sits in the wedge BELOW the upper curve, the later
                   two sit above-left of their dots. Nothing crosses a path. */}
               {milestones.map((m) => (
-                <Circle key={m.label} cx={m.x} cy={m.y} r={3.2} fill="#D9B285" />
+                <Circle key={m.label} cx={m.x} cy={m.y} r={3.2} fill="#8CE6D8" />
               ))}
               {milestones.map((m, i) =>
                 i === 0 ? (
@@ -95,7 +97,7 @@ export default function DivergingGraphScreen({
                     key={`label-${m.label}`}
                     x={m.x + 4}
                     y={m.y + 20}
-                    fill="#D9B285"
+                    fill="#8CE6D8"
                     fontSize={10}
                     fontWeight="300"
                     textAnchor="middle"
@@ -107,7 +109,7 @@ export default function DivergingGraphScreen({
                     key={`label-${m.label}`}
                     x={i === milestones.length - 1 ? m.x - 8 : m.x - 12}
                     y={i === milestones.length - 1 ? Math.max(m.y - 10, 12) : m.y - 12}
-                    fill="#D9B285"
+                    fill="#8CE6D8"
                     fontSize={10}
                     fontWeight="300"
                     textAnchor="end"
@@ -118,12 +120,12 @@ export default function DivergingGraphScreen({
               )}
 
               {/* The destination — lit. The one emission on this chart. */}
-              <Circle cx={endX} cy={up.p1y} r={14} fill="#C89B6D" opacity={0.14} />
-              <Circle cx={endX} cy={up.p1y} r={4.5} fill="#D9B285" />
+              <Circle cx={endX} cy={up.p1y} r={14} fill="#5FD4C1" opacity={0.14} />
+              <Circle cx={endX} cy={up.p1y} r={4.5} fill="#8CE6D8" />
               <SvgText
                 x={endX}
                 y={up.p1y + 24}
-                fill="#C89B6D"
+                fill="#5FD4C1"
                 fontSize={10.5}
                 fontWeight="400"
                 textAnchor="end"
@@ -135,7 +137,7 @@ export default function DivergingGraphScreen({
               <SvgText
                 x={endX}
                 y={lo.p1y + 18}
-                fill="#6B7280"
+                fill="#6E8090"
                 fontSize={10.5}
                 fontWeight="300"
                 textAnchor="end"
@@ -144,13 +146,14 @@ export default function DivergingGraphScreen({
               </SvgText>
 
               {/* The fork: him, tonight — label above the point, clear of both
-                  curves. */}
-              <Circle cx={startX} cy={startY} r={5.5} fill="none" stroke="#C89B6D" strokeWidth={1} opacity={0.5} />
-              <Circle cx={startX} cy={startY} r={3.5} fill="#C89B6D" />
+                  curves. Accent unification (2026-07-25): the start point rides
+                  the aqua current — one accent across the whole funnel. */}
+              <Circle cx={startX} cy={startY} r={5.5} fill="none" stroke="#5FD4C1" strokeWidth={1} opacity={0.5} />
+              <Circle cx={startX} cy={startY} r={3.5} fill="#5FD4C1" />
               <SvgText
                 x={startX - 6}
                 y={startY - 16}
-                fill="#D9B285"
+                fill="#8CE6D8"
                 fontSize={10.5}
                 fontWeight="400"
               >

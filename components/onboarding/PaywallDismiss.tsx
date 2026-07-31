@@ -50,8 +50,10 @@ export default function PaywallDismiss({
           </View>
 
           {goalEcho && (
+            // Accent unification (2026-07-25): his own goal words — identity
+            // echo in ink; the serif italic is the register, not a color.
             <Text
-              className="mt-6 font-serif-italic text-accent-deep"
+              className="mt-6 font-serif-italic text-ink"
               style={{ fontSize: 14, lineHeight: 21 }}
             >
               "{goalEcho}"

@@ -111,7 +111,7 @@ export default function CuePicker({ phase, items, initial, onComplete, onExit }:
         accessibilityLabel="Close — you can choose your cues next time you open the session"
         className="bg-surface border border-line rounded-full p-2.5"
       >
-        <X color="#6B7280" size={18} />
+        <X color="#6E8090" size={18} />
       </TouchableOpacity>
     </View>
   );
@@ -238,7 +238,7 @@ export default function CuePicker({ phase, items, initial, onComplete, onExit }:
                     setCustomDrafts((d) => ({ ...d, [key]: text.slice(0, CUSTOM_MAX_LENGTH) }))
                   }
                   placeholder="After I …, I …"
-                  placeholderTextColor="#4B5563"
+                  placeholderTextColor="#53626E"
                   multiline
                   autoFocus
                   className="bg-surface-deep border border-line rounded-[14px] px-4 py-3 text-ink text-[13.5px] leading-5 min-h-[64px]"
@@ -262,7 +262,7 @@ export default function CuePicker({ phase, items, initial, onComplete, onExit }:
         }`}
       >
         {finishing ? (
-          <ActivityIndicator color="#0C0B09" />
+          <ActivityIndicator color="#06232A" />
         ) : (
           <Text className="text-on-accent font-bold text-base">
             {step < items.length - 1 ? 'Continue' : 'Set my moments'}

@@ -1,18 +1,21 @@
 // ClinicalHero — per-concept emissive line motifs for the four reveal cards
 // (founder ruling 2026-07-14). Replaces the generic PNG renders: each card
 // gets a bespoke motif that names its idea at a glance (QUITTR's icon-first
-// legibility) while staying inside Ember Dusk — matte ink line-work on the
-// dusk ground with a single disciplined emission at the focal point (the
-// hero's one allowed sand emission; the arrow CTA is the other). No playful
-// mascots, no bright per-screen colours. The diagnosis section runs the hotter
-// ember-rust accent (passed in) rather than copper.
+// legibility) while staying inside Deepwater — matte ink line-work on the
+// deep ground with a single disciplined emission at the focal point (the
+// hero's one allowed accent emission; the arrow CTA is the other). No playful
+// mascots, no bright per-screen colours. Deepwater role: forward-looking
+// motifs (chapters, hopeful arc) default to the aqua current; the diagnosis
+// section passes its ember-rust accent in explicitly.
 
 import Svg, { Circle, Defs, Path, RadialGradient, Rect, Stop } from 'react-native-svg';
 import type { ClinicalMotif } from '../../content/onboarding/types';
 
 const INK = '#5B6478'; // muted structural line-work (absorbs)
-const STROKE = '#232D42'; // the frame ring
-const DEFAULT_ACCENT = '#C89B6D'; // copper fallback; cards pass ember-rust
+const STROKE = '#223140'; // the frame ring
+// Deepwater role: the default emission is the aqua current (forward motion);
+// diagnosis cards pass DIAGNOSTIC ember-rust instead.
+const DEFAULT_ACCENT = '#5FD4C1';
 
 const SIZE = 190;
 const MID = SIZE / 2;
@@ -141,7 +144,7 @@ function Growth({ accent }: { accent: string }) {
       {/* Lower leaf pair (ink — the past growth, absorbed). */}
       <Path d="M95 112 C84 110 74 102 72 90 C84 92 93 100 95 112" fill="none" stroke={INK} strokeWidth={2} strokeLinejoin="round" />
       <Path d="M95 104 C106 102 116 94 118 82 C106 84 97 92 95 104" fill="none" stroke={INK} strokeWidth={2} strokeLinejoin="round" />
-      {/* The new leaf at the tip — the one copper emission. */}
+      {/* The new leaf at the tip — the one accent emission. */}
       <Path d="M95 74 C93 60 98 48 110 42 C112 56 106 68 95 74" fill="none" stroke={accent} strokeWidth={2.4} strokeLinejoin="round" />
       <Circle cx={95} cy={74} r={3.6} fill={accent} />
     </Svg>
@@ -150,7 +153,7 @@ function Growth({ accent }: { accent: string }) {
 
 // ── Hopeful-arc motifs (founder ruling 2026-07-14: the arc went image-forward,
 // QUITTR-style). Same line-work language, but the emission marks the GOAL —
-// these five encourage; they never diagnose. Copper accent (base palette).
+// these five encourage; they never diagnose. Aqua current (Deepwater default).
 
 /** Ascent — a path climbing to a lit summit: 75 days, sequenced upward. */
 function Ascent({ accent }: { accent: string }) {

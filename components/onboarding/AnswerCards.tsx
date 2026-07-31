@@ -1,5 +1,6 @@
-// Answer cards — the selection treatment of Ember Dusk v2.
-// Selected cards look LIT, not highlighted: 1px warm border + interior glow
+// Answer cards — the selection treatment, now Deepwater aqua (selection is an
+// action state, so it rides the current — Deepwater role ruling).
+// Selected cards look LIT, not highlighted: 1px aqua border + interior glow
 // rising from the bottom edge + soft outer bloom (Addendum §2). On single-
 // select, the chosen card glows while the others dim to 60% over 250ms (the
 // "decision made" cue — no checkmark animation), then the flow advances after
@@ -24,8 +25,8 @@ function InteriorGlow() {
       <Svg width="100%" height="100%">
         <Defs>
           <LinearGradient id="cardGlow" x1="0" y1="1" x2="0" y2="0">
-            <Stop offset="0" stopColor="#C89B6D" stopOpacity="0.15" />
-            <Stop offset="1" stopColor="#C89B6D" stopOpacity="0" />
+            <Stop offset="0" stopColor="#5FD4C1" stopOpacity="0.13" />
+            <Stop offset="1" stopColor="#5FD4C1" stopOpacity="0" />
           </LinearGradient>
         </Defs>
         <Rect x="0" y="0" width="100%" height="100%" fill="url(#cardGlow)" />
@@ -106,8 +107,8 @@ function OptionCard({
         opacity: dim,
         ...(selected
           ? {
-              shadowColor: '#C89B6D',
-              shadowOpacity: 0.18,
+              shadowColor: SELECTION.border,
+              shadowOpacity: 0.16,
               shadowRadius: 14,
               shadowOffset: { width: 0, height: 0 },
             }
@@ -135,7 +136,7 @@ function OptionCard({
               width: 18,
               height: 18,
               borderWidth: 1.5,
-              borderColor: selected ? '#C89B6D' : '#2E3B5E',
+              borderColor: selected ? SELECTION.border : '#2A3A4A',
             }}
           >
             {selected && <View className="h-2 w-2 rounded-full bg-accent" />}
@@ -148,11 +149,11 @@ function OptionCard({
               height: 18,
               borderRadius: 5,
               borderWidth: 1.5,
-              borderColor: selected ? '#C89B6D' : '#2E3B5E',
-              backgroundColor: selected ? '#C89B6D' : 'transparent',
+              borderColor: selected ? SELECTION.border : '#2A3A4A',
+              backgroundColor: selected ? SELECTION.border : 'transparent',
             }}
           >
-            {selected && <Check size={12} color="#0C0B09" strokeWidth={3} />}
+            {selected && <Check size={12} color="#06232A" strokeWidth={3} />}
           </View>
         )}
         <Text

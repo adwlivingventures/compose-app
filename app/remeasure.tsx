@@ -129,7 +129,9 @@ export default function Remeasure() {
             <Text className="text-muted text-[11px] font-semibold uppercase tracking-[0.24em]">
               Composure score
             </Text>
-            {/* One of the screen's two sand moments: the reading itself. */}
+            {/* Deepwater ROLE: the reading is a measured result — earned
+                progress → accent (aqua), the screen's one accent moment
+                beside the CTA. */}
             <Text className="text-accent text-[72px] font-serif-light leading-[80px] mt-2">
               {result.score}
             </Text>

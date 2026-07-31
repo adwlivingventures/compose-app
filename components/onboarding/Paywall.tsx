@@ -13,9 +13,15 @@
 // predicts adherence) and the plain auto-renew disclosure near the CTA
 // (honest billing converts the subscription-trap-fearful better than
 // hiding the renewal ever could).
+//
+// Deepwater grammar (founder ruling 2026-07-25): serif headline, calm
+// hierarchy, ONE emissive aqua CTA — everything else matte. The offer card's
+// selection voice is a 1px aqua border, not a glow. Identity lines (goal
+// echo, positioning) stay ember. No countdowns, no urgency — ever.
 
 import { Linking, Pressable, ScrollView, Text, View } from 'react-native';
 import { ChevronLeft, Lock } from 'lucide-react-native';
+import { SELECTION } from '../../theme/emberDusk';
 import type { PaywallScreen as PaywallDescriptor } from '../../content/onboarding/types';
 import type { ComposureResult } from '../../content/onboarding/composure';
 import EmissiveCTA from './EmissiveCTA';
@@ -111,7 +117,7 @@ export default function Paywall({
             className="absolute z-10"
             style={{ top: 58, left: 24 }}
           >
-            <ChevronLeft size={17} color="#4B5563" strokeWidth={1.5} />
+            <ChevronLeft size={17} color="#53626E" strokeWidth={1.5} />
           </Pressable>
         )}
         <ScrollView
@@ -120,7 +126,9 @@ export default function Paywall({
           showsVerticalScrollIndicator={false}
         >
           {goalEcho && (
-            <Text className="font-serif-italic text-accent-deep" style={{ fontSize: 11.5 }}>
+            // Accent unification (2026-07-25): his own goal words — identity
+            // echo in ink; the serif italic is the register.
+            <Text className="font-serif-italic text-ink" style={{ fontSize: 11.5 }}>
               {`${screen.goalEchoPrefix} "${goalEcho}"`}
             </Text>
           )}
@@ -152,10 +160,10 @@ export default function Paywall({
           {/* Price anchor vs offer. */}
           <View className="mt-4 flex-row" style={{ gap: 10 }}>
             <View
-              className="flex-1 rounded-2xl bg-surface"
+              className="flex-1 rounded-2xl border border-line bg-surface"
               style={{ padding: 15, opacity: 0.55 }}
             >
-              <Text className="text-muted" style={{ fontSize: 10, fontWeight: '300', letterSpacing: 1 }}>
+              <Text className="text-muted" style={{ fontSize: 10, fontWeight: '600', letterSpacing: 2 }}>
                 SEX THERAPY
               </Text>
               <Text
@@ -168,22 +176,20 @@ export default function Paywall({
                 12 weeks
               </Text>
             </View>
+            {/* Deepwater role: the offer card is the selected path → 1px aqua
+                border, matte (the screen's one glow belongs to the CTA). */}
             <View
               className="rounded-2xl bg-surface"
               style={{
                 flex: 1.2,
                 padding: 15,
                 borderWidth: 1,
-                borderColor: '#C89B6D',
-                shadowColor: '#C89B6D',
-                shadowOpacity: 0.18,
-                shadowRadius: 14,
-                shadowOffset: { width: 0, height: 0 },
+                borderColor: SELECTION.border,
               }}
             >
               <Text
                 className="text-accent-bright"
-                style={{ fontSize: 10, fontWeight: '600', letterSpacing: 1 }}
+                style={{ fontSize: 10, fontWeight: '600', letterSpacing: 2 }}
               >
                 {offer.eyebrow}
               </Text>
@@ -206,8 +212,8 @@ export default function Paywall({
           </View>
 
           {/* Term selector — annual pre-selected, monthly secondary. Deliberately
-              accent-free: the glowing offer card above is the selection's voice,
-              and the accent budget (§6: ≤4 sand instances) is already spoken for. */}
+              accent-free: the aqua-bordered offer card above is the selection's
+              voice, and the accent budget (≤4 per screen) is already spoken for. */}
           {monthlyAvailable && (
             <View
               className="mt-3 flex-row rounded-full border border-line"
@@ -237,7 +243,10 @@ export default function Paywall({
           )}
 
           {/* Risk reversal. */}
-          <View className="mt-3 rounded-[14px] bg-surface" style={{ paddingVertical: 13, paddingHorizontal: 15 }}>
+          <View
+            className="mt-3 rounded-[14px] border border-line bg-surface"
+            style={{ paddingVertical: 13, paddingHorizontal: 15 }}
+          >
             <Text className="text-ink" style={{ fontSize: 12, fontWeight: '500' }}>
               {screen.riskReversal.title}
             </Text>
@@ -266,7 +275,7 @@ export default function Paywall({
             <View className="mt-2" style={{ gap: 6 }}>
               {screen.lockedBlock.features.map((f) => (
                 <View key={f.title} className="flex-row items-center" style={{ gap: 9 }}>
-                  <Lock size={11} color="#4B5563" strokeWidth={1.5} />
+                  <Lock size={11} color="#53626E" strokeWidth={1.5} />
                   <Text
                     className="flex-1 text-muted"
                     style={{ fontSize: 11.5, fontWeight: '300' }}
@@ -282,8 +291,9 @@ export default function Paywall({
             </Text>
           </View>
 
+          {/* Accent unification (2026-07-25): italic positioning line — ink. */}
           <Text
-            className="mt-4 font-serif-italic text-accent-deep"
+            className="mt-4 font-serif-italic text-ink"
             style={{ fontSize: 12 }}
           >
             {screen.positioningLine}

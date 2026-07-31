@@ -27,6 +27,15 @@ import BottomSheet from './BottomSheet';
 
 type TriageView = 'menu' | 'breath' | 'ground' | 'defuse';
 
+// Deepwater ROLE (SOS doctrine): every accent on this surface is matte clay —
+// it never glows, never animates, and is never aqua (aqua is the app's
+// "next step" current; the SOS user needs ground, not a current). The one
+// exception is the breathing orb itself, which stays aqua because the orb IS
+// the down-regulation instrument and its glow is the pacing target.
+const CLAY = '#C96A55';
+// Text/icon color on a clay fill — the ground token value; dark, matte, calm.
+const ON_CLAY = '#0A0F16';
+
 interface TriageCenterProps {
   visible: boolean;
   onClose: () => void;
@@ -74,7 +83,11 @@ function GroundingGuide() {
             key={step.verb}
             className="bg-ground border border-line rounded-2xl p-4 flex-row items-center gap-4"
           >
-            <Text className="text-accent font-serif-light" style={{ fontSize: 34, width: 30 }}>
+            {/* Deepwater: SOS numerals are matte clay, not accent. */}
+            <Text
+              className="font-serif-light"
+              style={{ fontSize: 34, width: 30, color: CLAY }}
+            >
               {step.count}
             </Text>
             <View className="flex-1">
@@ -161,14 +174,16 @@ function BreathingGuide() {
         </BreathingOrb>
       ) : (
         <View style={{ width: 230, height: 230 }} className="items-center justify-center">
+          {/* Deepwater: the idle circle previews the orb it becomes — aqua
+              (the orb is the one non-clay element on the SOS surface). */}
           <View
             style={{
               width: 150,
               height: 150,
               borderRadius: 75,
-              backgroundColor: 'rgba(200,155,109,0.09)',
+              backgroundColor: 'rgba(95,212,193,0.08)',
               borderWidth: 1.5,
-              borderColor: 'rgba(200,155,109,0.5)',
+              borderColor: 'rgba(95,212,193,0.45)',
             }}
             className="items-center justify-center"
           >
@@ -188,12 +203,17 @@ function BreathingGuide() {
           : 'Four rounds is usually enough to feel the shift.'}
       </Text>
 
+      {/* Deepwater: SOS action fills are matte clay — no glow, no shadow. */}
       <TouchableOpacity
         onPress={running ? stop : start}
         activeOpacity={0.85}
-        className={`rounded-xl py-3.5 px-11 mt-5 ${running ? 'bg-surface border border-line' : 'bg-accent'}`}
+        className={`rounded-xl py-3.5 px-11 mt-5 ${running ? 'bg-surface border border-line' : ''}`}
+        style={running ? undefined : { backgroundColor: CLAY }}
       >
-        <Text className={`font-semibold text-sm ${running ? 'text-body' : 'text-on-accent'}`}>
+        <Text
+          className={`font-semibold text-sm ${running ? 'text-body' : ''}`}
+          style={running ? undefined : { color: ON_CLAY }}
+        >
           {running ? 'Stop' : 'Begin again'}
         </Text>
       </TouchableOpacity>
@@ -247,8 +267,8 @@ function DefusionLogForm({ onDone }: { onDone: () => void }) {
     return (
       <View className="py-2">
         <View className="flex-row items-center gap-2 mb-3">
-          <CheckCircle2 color="#C89B6D" size={18} />
-          <Text className="text-accent text-xs font-bold uppercase tracking-widest">
+          <CheckCircle2 color={CLAY} size={18} />
+          <Text className="text-xs font-bold uppercase tracking-widest" style={{ color: CLAY }}>
             {FALLACY_META[chosenFallacy].label} — Named
           </Text>
         </View>
@@ -264,7 +284,7 @@ function DefusionLogForm({ onDone }: { onDone: () => void }) {
           multiline
           textAlignVertical="top"
           placeholder="e.g. “My body followed adrenaline. That's physiology, not a verdict on me.”"
-          placeholderTextColor="#4B5563"
+          placeholderTextColor="#53626E"
           value={ventralAnchor}
           onChangeText={setVentralAnchor}
         />
@@ -272,9 +292,10 @@ function DefusionLogForm({ onDone }: { onDone: () => void }) {
           onPress={saveEntry}
           disabled={saving}
           activeOpacity={0.85}
-          className="rounded-xl py-3.5 items-center mt-4 bg-accent"
+          className="rounded-xl py-3.5 items-center mt-4"
+          style={{ backgroundColor: CLAY }}
         >
-          <Text className="font-bold text-sm text-on-accent">
+          <Text className="font-bold text-sm" style={{ color: ON_CLAY }}>
             {ventralAnchor.trim().length > 0 ? 'Save my anchor' : 'Done — filed and dismissed'}
           </Text>
         </TouchableOpacity>
@@ -287,7 +308,7 @@ function DefusionLogForm({ onDone }: { onDone: () => void }) {
     if (spectatorClaim.trim().length > 0) {
       return (
         <View className="py-2">
-          <Text className="text-accent text-xs font-bold uppercase tracking-widest">
+          <Text className="text-xs font-bold uppercase tracking-widest" style={{ color: CLAY }}>
             Which pattern is it running?
           </Text>
           <Text className="text-body text-sm mt-2 leading-5">
@@ -302,7 +323,7 @@ function DefusionLogForm({ onDone }: { onDone: () => void }) {
                 className="bg-surface-deep border border-line rounded-xl px-4 py-3.5 flex-row items-center justify-between"
               >
                 <Text className="text-ink text-sm font-bold">{FALLACY_META[f].label}</Text>
-                <ChevronRight size={16} color="#6B7280" />
+                <ChevronRight size={16} color="#6E8090" />
               </TouchableOpacity>
             ))}
           </View>
@@ -311,7 +332,7 @@ function DefusionLogForm({ onDone }: { onDone: () => void }) {
     }
     return (
       <View className="py-2">
-        <Text className="text-accent text-xs font-bold uppercase tracking-widest">
+        <Text className="text-xs font-bold uppercase tracking-widest" style={{ color: CLAY }}>
           What is the voice saying?
         </Text>
         <TextInput
@@ -319,7 +340,7 @@ function DefusionLogForm({ onDone }: { onDone: () => void }) {
           multiline
           textAlignVertical="top"
           placeholder="Write the claim, word for word."
-          placeholderTextColor="#4B5563"
+          placeholderTextColor="#53626E"
           value={customClaim}
           onChangeText={setCustomClaim}
         />
@@ -328,11 +349,13 @@ function DefusionLogForm({ onDone }: { onDone: () => void }) {
           disabled={customClaim.trim().length === 0}
           activeOpacity={0.85}
           className={`rounded-xl py-3.5 items-center mt-4 ${
-            customClaim.trim() ? 'bg-accent' : 'bg-surface-deep'
+            customClaim.trim() ? '' : 'bg-surface-deep'
           }`}
+          style={customClaim.trim() ? { backgroundColor: CLAY } : undefined}
         >
           <Text
-            className={`font-bold text-sm ${customClaim.trim() ? 'text-on-accent' : 'text-faint'}`}
+            className={`font-bold text-sm ${customClaim.trim() ? '' : 'text-faint'}`}
+            style={customClaim.trim() ? { color: ON_CLAY } : undefined}
           >
             Continue
           </Text>
@@ -344,7 +367,7 @@ function DefusionLogForm({ onDone }: { onDone: () => void }) {
   // Screen 1 — tap the claim the replay is making. One tap does the naming.
   return (
     <View className="py-2">
-      <Text className="text-accent text-xs font-bold uppercase tracking-widest">
+      <Text className="text-xs font-bold uppercase tracking-widest" style={{ color: CLAY }}>
         The replay has started
       </Text>
       <Text className="text-body text-sm mt-2 leading-5">
@@ -378,22 +401,23 @@ function DefusionLogForm({ onDone }: { onDone: () => void }) {
 
 // ─── Triage Center (root sheet) ───────────────────────────────────────────────
 
+// Deepwater: menu icons carry the SOS clay — matte, calm, one per branch.
 const MENU_ITEMS: { view: TriageView; icon: React.ReactNode; title: string; subtitle: string }[] = [
   {
     view: 'breath',
-    icon: <Wind color="#C89B6D" size={20} />,
+    icon: <Wind color={CLAY} size={20} />,
     title: 'Before Intimacy — Rising Pressure',
     subtitle: 'A paced breathing sequence to settle the surge.',
   },
   {
     view: 'ground',
-    icon: <Anchor color="#C89B6D" size={20} />,
+    icon: <Anchor color={CLAY} size={20} />,
     title: 'During — Watching Yourself',
     subtitle: 'Return attention from evaluation to sensation.',
   },
   {
     view: 'defuse',
-    icon: <PenLine color="#C89B6D" size={20} />,
+    icon: <PenLine color={CLAY} size={20} />,
     title: 'Afterward — The Replay Has Started',
     subtitle: 'Take the Spectator’s story apart, piece by piece.',
   },
@@ -443,7 +467,7 @@ export default function TriageCenter({ visible, onClose }: TriageCenterProps) {
                       <Text className="text-ink text-sm font-bold">{item.title}</Text>
                       <Text className="text-muted text-xs mt-0.5 leading-4">{item.subtitle}</Text>
                     </View>
-                    <ChevronRight size={18} color="#6B7280" />
+                    <ChevronRight size={18} color="#6E8090" />
                   </TouchableOpacity>
                 ))}
               </View>
@@ -473,7 +497,7 @@ export default function TriageCenter({ visible, onClose }: TriageCenterProps) {
                 activeOpacity={0.7}
                 className="flex-row items-center gap-1 mb-2 self-start"
               >
-                <ChevronLeft size={16} color="#6B7280" />
+                <ChevronLeft size={16} color="#6E8090" />
                 <Text className="text-muted text-xs font-bold">Back</Text>
               </TouchableOpacity>
 

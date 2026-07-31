@@ -118,15 +118,16 @@ export default function Generating({
               cx={size / 2}
               cy={size / 2}
               r={radius}
-              stroke="#1B2233"
+              stroke="#182430"
               strokeWidth={strokeWidth}
               fill="none"
             />
+            {/* Deepwater role: progress fill → aqua current. */}
             <Circle
               cx={size / 2}
               cy={size / 2}
               r={radius}
-              stroke="#C89B6D"
+              stroke="#5FD4C1"
               strokeWidth={strokeWidth}
               fill="none"
               strokeDasharray={circumference}
@@ -146,15 +147,16 @@ export default function Generating({
             return (
               <View key={item} className="flex-row items-center" style={{ gap: 10 }}>
                 <View style={{ width: 14, alignItems: 'center' }}>
+                  {/* Deepwater role: checklist ticks are progress → aqua. */}
                   {isTicked && !isLast ? (
-                    <Check size={13} color="#C89B6D" strokeWidth={2.5} />
+                    <Check size={13} color="#5FD4C1" strokeWidth={2.5} />
                   ) : (
                     <View
                       className="rounded-full"
                       style={{
                         width: 5,
                         height: 5,
-                        backgroundColor: isTicked ? '#C89B6D' : '#2E3B5E',
+                        backgroundColor: isTicked ? '#5FD4C1' : '#2A3A4A',
                       }}
                     />
                   )}

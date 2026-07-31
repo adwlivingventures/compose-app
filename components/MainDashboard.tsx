@@ -1,30 +1,52 @@
 import React, { useCallback, useState } from 'react';
-import { View, Text, TouchableOpacity } from 'react-native';
+import { View, Text, TouchableOpacity, ScrollView } from 'react-native';
 import { useFocusEffect, useRouter } from 'expo-router';
 import Svg, { Circle } from 'react-native-svg';
-import { Check, ChevronRight, Play } from 'lucide-react-native';
+import { Check, Play } from 'lucide-react-native';
 import { useProtocol, localDateString } from '../context/ProtocolContext';
 import { getProtocolDay } from '../content/ProtocolData';
 import { getTonightLine } from '../content/tonightLines';
 import { fieldNoteForDay } from '../content/fieldNotes';
 import { ledgerItemsForDay } from '../content/ledger';
+import { TRAINING_ITEMS } from '../content/training';
 import { getComposureHistory, getDueMilestone } from '../services/composureHistory';
 import TriageCenter from './TriageCenter';
 
 /**
- * Today dashboard — E08 (session pending) and E13 (completed) states.
+ * Today dashboard — Deepwater phase 3 rebuild (claude/DEEPWATER-FLOW-MAP.md
+ * §4 B1; concept 01). E08 (session pending) and E13 (completed) states.
+ *
+ * Structure, pending: greeting → last-7-protocol-days strip → day ring →
+ * phase/focus → CTA (resume-aware) → training timeline → cards. The timeline
+ * is the Headspace-pattern open loop: five steps with states, so the next
+ * incomplete step is visible before the CTA is ever pressed (Zeigarnik pull).
  *
  * E13 deliberately offers no next action: the completed state is closure,
- * not a hook. The only interactive element after completion is the
- * Steady-me pill, because anxiety doesn't check whether today's session
- * is done.
+ * not a hook — the timeline HIDES after completion (a finished task list is
+ * clutter; a visible one at night reads as nagging). The only interactive
+ * element after completion is the Steady-me pill, because anxiety doesn't
+ * check whether today's session is done.
+ *
+ * Accent budget (≤4): ring arc, CTA, next-step node, Steady-me stays matte
+ * SOS-toned. Accent unification (founder ruling 2026-07-25): aqua is the only
+ * accent on this screen — ember survives solely in the sealed-day Check.
  */
 
 const PHASE_NUMERALS = ['I', 'II', 'III'];
 
-// ─── Progress Ring (250px, 6px stroke per E08) ────────────────────────────────
+/** Time-of-day greeting — deliberately nameless (discretion by default, §6:
+ *  the home screen should be unremarkable over a shoulder). */
+function greeting(): string {
+  const h = new Date().getHours();
+  if (h < 5) return 'Still here. Good.';
+  if (h < 12) return 'Good morning.';
+  if (h < 18) return 'Good afternoon.';
+  return 'Good evening.';
+}
 
-const RING_SIZE = 250;
+// ─── Progress Ring (Deepwater: aqua arc = earned progress) ───────────────────
+
+const RING_SIZE = 236;
 const RING_STROKE = 6;
 const RING_RADIUS = (RING_SIZE - RING_STROKE) / 2;
 const RING_CIRCUMFERENCE = 2 * Math.PI * RING_RADIUS;
@@ -43,7 +65,7 @@ function ProgressRing({ day, completedToday }: { day: number; completedToday: bo
           cx={RING_SIZE / 2}
           cy={RING_SIZE / 2}
           r={RING_RADIUS}
-          stroke="#221F1B"
+          stroke="#182430"
           strokeWidth={RING_STROKE}
           fill="none"
         />
@@ -51,7 +73,7 @@ function ProgressRing({ day, completedToday }: { day: number; completedToday: bo
           cx={RING_SIZE / 2}
           cy={RING_SIZE / 2}
           r={RING_RADIUS}
-          stroke="#C89B6D"
+          stroke="#5FD4C1"
           strokeWidth={RING_STROKE}
           strokeLinecap="round"
           fill="none"
@@ -63,8 +85,9 @@ function ProgressRing({ day, completedToday }: { day: number; completedToday: bo
       <View className="absolute items-center">
         {completedToday ? (
           <>
+            {/* Sealed day = identity moment → ember (§1). */}
             <Check color="#C89B6D" size={26} style={{ marginBottom: 6 }} />
-            <Text className="text-ink text-[56px] font-serif-light leading-[60px]">{day}</Text>
+            <Text className="text-ink text-[54px] font-serif-light leading-[58px]">{day}</Text>
             <Text className="text-faint text-[13px] mt-0.5">
               {day === 1 ? 'day composed' : 'days composed'}
             </Text>
@@ -74,7 +97,7 @@ function ProgressRing({ day, completedToday }: { day: number; completedToday: bo
             <Text className="text-muted text-[11px] font-semibold uppercase tracking-[0.24em]">
               Day
             </Text>
-            <Text className="text-ink text-[64px] font-serif-light leading-[68px]">{day}</Text>
+            <Text className="text-ink text-[62px] font-serif-light leading-[66px]">{day}</Text>
             <Text className="text-faint text-[13px]">of seventy-five</Text>
           </>
         )}
@@ -83,11 +106,108 @@ function ProgressRing({ day, completedToday }: { day: number; completedToday: bo
   );
 }
 
+// ─── Last-7-protocol-days strip ──────────────────────────────────────────────
+// Protocol days, not calendar days (ruling R1): a missed calendar day never
+// renders as a gap — the strip shows the last seven days OF THE WORK, so
+// returning after a pause shows an unbroken line of what he has actually
+// done. Evidence, never jeopardy.
+
+function DayStrip({
+  activeDay,
+  completedToday,
+}: {
+  activeDay: number;
+  completedToday: boolean;
+}) {
+  const start = Math.max(1, activeDay - 6);
+  const days: number[] = [];
+  for (let d = start; d <= activeDay; d++) days.push(d);
+  return (
+    <View className="flex-row justify-center mt-4" style={{ gap: 14 }}>
+      {days.map((d) => {
+        const done = d < activeDay || (d === activeDay && completedToday);
+        const isToday = d === activeDay;
+        return (
+          <View key={d} className="items-center" style={{ gap: 5 }}>
+            <View
+              className={`w-[26px] h-[26px] rounded-full items-center justify-center border ${
+                done
+                  ? 'bg-line border-line'
+                  : isToday
+                    ? 'border-accent'
+                    : 'border-line-soft'
+              }`}
+            >
+              {/* Done days absorb (accent scarcity) — only today carries the current. */}
+              {done && <Check color="#93A4B0" size={12} strokeWidth={2.5} />}
+            </View>
+            <Text className={`text-[9px] tracking-wide ${isToday ? 'text-body' : 'text-faint'}`}>
+              {d}
+            </Text>
+          </View>
+        );
+      })}
+    </View>
+  );
+}
+
+// ─── Training timeline (Headspace pattern: sequenced steps with states) ──────
+
+function TrainingTimeline({ done, nextIndex }: { done: boolean[]; nextIndex: number }) {
+  return (
+    <View className="bg-surface border border-line rounded-2xl px-4 py-1.5 mt-3">
+      {TRAINING_ITEMS.map((item, i) => {
+        const isDone = done[i];
+        const isNext = i === nextIndex;
+        const last = i === TRAINING_ITEMS.length - 1;
+        return (
+          <View
+            key={item.key}
+            className={`flex-row items-center py-3 ${last ? '' : 'border-b border-line-soft'}`}
+            style={{ gap: 12 }}
+          >
+            <View
+              className={`w-[26px] h-[26px] rounded-full items-center justify-center border ${
+                isDone
+                  ? 'bg-line border-line'
+                  : isNext
+                    ? 'border-accent'
+                    : 'border-line-soft'
+              }`}
+            >
+              {isDone ? (
+                <Check color="#93A4B0" size={12} strokeWidth={2.5} />
+              ) : (
+                <Text className={`text-[11px] ${isNext ? 'text-accent' : 'text-faint'}`}>
+                  {i + 1}
+                </Text>
+              )}
+            </View>
+            <Text
+              className={`flex-1 text-[13.5px] ${
+                isDone ? 'text-muted' : isNext ? 'text-ink font-semibold' : 'text-faint'
+              }`}
+            >
+              {item.title}
+            </Text>
+            {isNext && (
+              <Text className="text-accent text-[10px] font-bold uppercase tracking-[0.14em]">
+                Up next
+              </Text>
+            )}
+          </View>
+        );
+      })}
+    </View>
+  );
+}
+
 // ─── Main Dashboard ───────────────────────────────────────────────────────────
 
 export default function MainDashboard({ onStartSession }: { onStartSession: () => void }) {
   const router = useRouter();
-  const { activeDay, streak, lastCompletedDate, completedDays } = useProtocol();
+  const { activeDay, streak, lastCompletedDate, completedDays, updateDailyLedger } =
+    useProtocol();
   const [sosVisible, setSosVisible] = useState(false);
 
   // Composure re-measurement due? Re-checked on every focus so the card
@@ -113,150 +233,239 @@ export default function MainDashboard({ onStartSession }: { onStartSession: () =
   const todayMeta = getProtocolDay(displayDay);
   const focusLine = todayMeta.focus.replace(/\.$/, '');
 
-  // The check-anytime ledger row (content/ledger.ts): items get checked when
+  // Today's Training state — drives the timeline and the resume-aware CTA.
+  const training = completedDays[activeDay]?.training ?? {};
+  const stepDone = TRAINING_ITEMS.map((item) => Boolean(training[item.key]));
+  const stepsDone = stepDone.filter(Boolean).length;
+  const nextIndex = stepDone.findIndex((d) => !d);
+  const midLoop = !completedToday && stepsDone > 0;
+
+  // The check-anytime ledger card (content/ledger.ts): items get checked when
   // they happen, so the app's cue lives inside the day, not just at night.
+  // The card surfaces what is LEFT — checked items absorb out of view.
   const ledgerItems = ledgerItemsForDay(displayDay);
-  const ledgerCount = ledgerItems.filter(
-    (i) => completedDays[displayDay]?.ledger?.[i.key],
-  ).length;
+  const ledgerState = completedDays[displayDay]?.ledger ?? {};
+  const ledgerCount = ledgerItems.filter((i) => ledgerState[i.key]).length;
+  const ledgerRemaining = ledgerItems.filter((i) => !ledgerState[i.key]);
   // Milestone field note — authored arc texture, only on keyed days.
   const fieldNote = completedToday ? fieldNoteForDay(displayDay) : null;
 
   return (
-    <View className="flex-1 bg-ground px-7 pt-[76px]">
-      {/* Header: wordmark + the Steady-me pill (§6 — SOS one tap away,
-          identical in both states) */}
-      <View className="flex-row items-center justify-between">
-        <Text className="text-muted text-[11px] font-semibold uppercase tracking-[0.28em]">
-          Compose
-        </Text>
-        <TouchableOpacity
-          onPress={() => setSosVisible(true)}
-          activeOpacity={0.8}
-          accessibilityRole="button"
-          accessibilityLabel="Steady me — open calming support right now"
-          className="flex-row items-center gap-1.5 bg-surface border border-line rounded-full px-3.5 py-[7px]"
-        >
-          <View className="w-1.5 h-1.5 rounded-full bg-accent" />
-          <Text className="text-body text-xs font-semibold">Steady me</Text>
-        </TouchableOpacity>
-      </View>
-
-      <View className="flex-1 items-center justify-center">
-        <ProgressRing day={displayDay} completedToday={completedToday} />
-
-        {completedToday ? (
-          <>
-            <Text className="text-ink text-xl font-serif-regular mt-7">Today is complete.</Text>
-            <Text className="text-muted text-[13.5px] text-center leading-5 mt-2">
-              Day {Math.min(displayDay + 1, 75)} unlocks at midnight.{'\n'}Rest is part of the
-              work.
-            </Text>
-          </>
-        ) : (
-          <>
-            <Text className="text-accent text-[11px] font-bold uppercase tracking-[0.22em] mt-7">
-              Phase {PHASE_NUMERALS[todayMeta.phase - 1]} · {todayMeta.phaseTitle}
-            </Text>
-            <Text className="text-ink text-[22px] font-serif-regular mt-1.5 text-center">
-              {todayMeta.title}
-            </Text>
-            <Text className="text-muted text-[13px] mt-1.5 text-center leading-5">
-              {focusLine}
-            </Text>
-          </>
-        )}
-      </View>
-
-      <View className="pb-5">
-        {/* Re-measurement card — deliberately matte (the screen's sand budget
-            is spent: ring arc, phase eyebrow, CTA/Steady-me). Shown in the
-            completed state too: a scheduled evidence milestone is delivery
-            on an onboarding promise, not an engagement hook — and most men
-            reach Day 14 by finishing Day 14's session. */}
-        {dueMilestone !== null && (
+    <View className="flex-1 bg-ground">
+      <ScrollView
+        className="flex-1"
+        contentContainerStyle={{ paddingHorizontal: 28, paddingTop: 76, paddingBottom: 28 }}
+        showsVerticalScrollIndicator={false}
+      >
+        {/* Header: wordmark + the Steady-me pill (§6 — SOS one tap away,
+            identical in both states). The pill dot is matte SOS clay, not the
+            aqua current — SOS never competes for the action accent. */}
+        <View className="flex-row items-center justify-between">
+          <Text className="text-muted text-[11px] font-semibold uppercase tracking-[0.28em]">
+            Compose
+          </Text>
           <TouchableOpacity
-            onPress={() => router.push({ pathname: '/remeasure', params: { day: String(dueMilestone) } })}
+            onPress={() => setSosVisible(true)}
             activeOpacity={0.8}
             accessibilityRole="button"
-            accessibilityLabel={`Day ${dueMilestone} composure re-measurement — begin now`}
-            className="bg-surface border border-line rounded-2xl px-[18px] py-4 mb-3"
+            accessibilityLabel="Steady me — open calming support right now"
+            className="flex-row items-center gap-1.5 bg-surface border border-line rounded-full px-3.5 py-[7px]"
           >
-            <Text className="text-dim text-[10px] font-bold uppercase tracking-[0.2em]">
-              Day {dueMilestone} re-measurement
-            </Text>
-            <Text className="text-ink text-[15px] font-serif-regular mt-1">
-              Measure the loop again
-            </Text>
-            <Text className="text-muted text-xs mt-1 leading-4">
-              Same questions as Day 0 · about three minutes · evidence, not a promise
-            </Text>
+            <View className="w-1.5 h-1.5 rounded-full" style={{ backgroundColor: '#C96A55' }} />
+            <Text className="text-body text-xs font-semibold">Steady me</Text>
           </TouchableOpacity>
-        )}
-        {completedToday ? (
-          <>
-            {/* Milestone field note — the arc made visible at authored
-                thresholds (anti-hedonic-adaptation; content/fieldNotes.ts). */}
-            {fieldNote && (
-              <View className="bg-surface-deep border border-line rounded-2xl px-[18px] py-4 mb-3">
-                <Text className="text-dim text-[10px] font-bold uppercase tracking-[0.2em]">
-                  Field note · Day {displayDay}
-                </Text>
-                <Text className="text-body text-[13px] leading-5 mt-1.5">{fieldNote}</Text>
-              </View>
-            )}
-            {/* Tonight's line — the day's authored identity line read back as
-                a quote (content/tonightLines.ts), focus string as the
-                fallback. Closure, no next-action pressure. */}
-            <View className="bg-surface border border-line rounded-2xl px-[18px] py-4">
-              <Text className="text-dim text-[10px] font-bold uppercase tracking-[0.2em]">
-                Tonight's line
-              </Text>
-              <Text className="text-body text-sm leading-[22px] font-serif-italic mt-1.5">
-                "{getTonightLine(displayDay) ?? todayMeta.focus}"
-              </Text>
-            </View>
-          </>
-        ) : (
-          <>
-            <TouchableOpacity
-              onPress={onStartSession}
-              activeOpacity={0.85}
-              className="bg-accent rounded-2xl py-[19px] items-center flex-row justify-center gap-2.5"
-            >
-              <Play color="#0C0B09" size={16} fill="#0C0B09" />
-              <Text className="text-on-accent font-bold text-base">Begin today's session</Text>
-            </TouchableOpacity>
-            {streak > 1 && (
-              <Text className="text-faint text-xs text-center mt-3">
-                {streak} consecutive days · rest is part of the work
-              </Text>
-            )}
-          </>
-        )}
+        </View>
 
-        {/* The Daily Check-In row (unified surface, 2026-07-15) —
-            deliberately quiet (no accent: the one dominant action stays the
-            session CTA; Hick's Law). Open until midnight in both states —
-            Sleep and evening items happen after most sessions do. */}
-        <TouchableOpacity
-          onPress={() => router.push('/ledger')}
-          activeOpacity={0.7}
-          accessibilityRole="button"
-          accessibilityLabel={`Open today's Daily Check-In. ${ledgerCount} of ${ledgerItems.length} votes cast.`}
-          className="flex-row items-center justify-between bg-surface border border-line rounded-2xl px-[18px] py-3.5 mt-3"
-        >
-          <View>
-            <Text className="text-dim text-[10px] font-bold uppercase tracking-[0.2em]">
-              Daily Check-In
-            </Text>
-            <Text className="text-body text-[13px] mt-0.5">
-              {ledgerCount} of {ledgerItems.length} votes cast
-            </Text>
-          </View>
-          <ChevronRight size={16} color="#4B5563" />
-        </TouchableOpacity>
-      </View>
+        {/* Greeting + phase context — nameless by design (discretion, §6).
+            The Return (flow map §4 F1): after a ≥2-day gap the greeting
+            becomes one line of repair, never arithmetic of what was missed —
+            the modal moment of churn is the shame of coming back. */}
+        <View className="mt-7">
+          <Text className="text-ink text-[15px] font-serif-regular">
+            {(() => {
+              if (!completedToday && lastCompletedDate) {
+                const gapMs = Date.now() - new Date(`${lastCompletedDate}T12:00:00`).getTime();
+                if (gapMs > 2.2 * 24 * 60 * 60 * 1000) {
+                  return `Day ${activeDay} is still yours. Nothing was lost.`;
+                }
+              }
+              return greeting();
+            })()}
+          </Text>
+          <Text className="text-muted text-[10.5px] font-bold uppercase tracking-[0.2em] mt-1.5">
+            Phase {PHASE_NUMERALS[todayMeta.phase - 1]} · {todayMeta.phaseTitle}
+          </Text>
+        </View>
+
+        <DayStrip activeDay={displayDay} completedToday={completedToday} />
+
+        <View className="items-center mt-4">
+          <ProgressRing day={displayDay} completedToday={completedToday} />
+
+          {completedToday ? (
+            <>
+              <Text className="text-ink text-xl font-serif-regular mt-5">Today is complete.</Text>
+              <Text className="text-muted text-[13.5px] text-center leading-5 mt-2">
+                Day {Math.min(displayDay + 1, 75)} unlocks at midnight.{'\n'}Rest is part of the
+                work.
+              </Text>
+            </>
+          ) : (
+            <>
+              <Text className="text-ink text-[21px] font-serif-regular mt-4 text-center">
+                {todayMeta.title}
+              </Text>
+              <Text className="text-muted text-[13px] mt-1.5 text-center leading-5">
+                {focusLine}
+              </Text>
+            </>
+          )}
+        </View>
+
+        <View className="mt-6">
+          {/* Re-measurement card — deliberately matte (accent budget spent on
+              ring arc, CTA, next-step node). Shown in the completed state too:
+              a scheduled evidence milestone is delivery on an onboarding
+              promise, not an engagement hook. */}
+          {dueMilestone !== null && (
+            <TouchableOpacity
+              onPress={() => router.push({ pathname: '/remeasure', params: { day: String(dueMilestone) } })}
+              activeOpacity={0.8}
+              accessibilityRole="button"
+              accessibilityLabel={`Day ${dueMilestone} composure re-measurement — begin now`}
+              className="bg-surface border border-line rounded-2xl px-[18px] py-4 mb-3"
+            >
+              <Text className="text-dim text-[10px] font-bold uppercase tracking-[0.2em]">
+                Day {dueMilestone} re-measurement
+              </Text>
+              <Text className="text-ink text-[15px] font-serif-regular mt-1">
+                Measure the loop again
+              </Text>
+              <Text className="text-muted text-xs mt-1 leading-4">
+                Same questions as Day 0 · about three minutes · evidence, not a promise
+              </Text>
+            </TouchableOpacity>
+          )}
+
+          {completedToday ? (
+            <>
+              {/* Milestone field note — the arc made visible at authored
+                  thresholds (anti-hedonic-adaptation; content/fieldNotes.ts). */}
+              {fieldNote && (
+                <View className="bg-surface-deep border border-line rounded-2xl px-[18px] py-4 mb-3">
+                  <Text className="text-dim text-[10px] font-bold uppercase tracking-[0.2em]">
+                    Field note · Day {displayDay}
+                  </Text>
+                  <Text className="text-body text-[13px] leading-5 mt-1.5">{fieldNote}</Text>
+                </View>
+              )}
+              {/* Tonight's line — the day's authored identity line read back as
+                  a quote (content/tonightLines.ts), focus string as the
+                  fallback. Closure, no next-action pressure. Ink, serif italic
+                  (accent unification 2026-07-25). */}
+              <View className="bg-surface border border-line rounded-2xl px-[18px] py-4">
+                <Text className="text-dim text-[10px] font-bold uppercase tracking-[0.2em]">
+                  Tonight's line
+                </Text>
+                <Text className="text-ink text-sm leading-[22px] font-serif-italic mt-1.5">
+                  "{getTonightLine(displayDay) ?? todayMeta.focus}"
+                </Text>
+              </View>
+            </>
+          ) : (
+            <>
+              <TouchableOpacity
+                onPress={onStartSession}
+                activeOpacity={0.85}
+                className="bg-accent rounded-2xl py-[19px] items-center flex-row justify-center gap-2.5"
+              >
+                <Play color="#06232A" size={16} fill="#06232A" />
+                <Text className="text-on-accent font-bold text-base">
+                  {midLoop ? 'Continue today’s session' : 'Begin today’s session'}
+                </Text>
+              </TouchableOpacity>
+              {midLoop && nextIndex >= 0 ? (
+                <Text className="text-faint text-xs text-center mt-3">
+                  Step {nextIndex + 1} of {TRAINING_ITEMS.length} · {TRAINING_ITEMS[nextIndex].title}
+                </Text>
+              ) : streak > 1 ? (
+                <Text className="text-faint text-xs text-center mt-3">
+                  {streak} consecutive days · rest is part of the work
+                </Text>
+              ) : null}
+
+              {/* The open loop, visible before the button is ever pressed. */}
+              <TrainingTimeline done={stepDone} nextIndex={nextIndex} />
+            </>
+          )}
+
+          {/* Today's Check-In — the daily-habits card (founder 2026-07-25:
+              "N votes cast" was too quiet to read as a daily to-do). QUITTR
+              checklist pattern, kept calm: the first three UNCHECKED items
+              render inline as tappable rows, so what's left today is visible
+              without opening /ledger; checked items absorb out of view. No
+              accent, no percentages, no grades, no "votes" language — the one
+              dominant action stays the session CTA (Hick's Law). Open until
+              midnight in both states — evening items happen after most
+              sessions do. All done → one quiet closure line, absorbed check. */}
+          {ledgerRemaining.length === 0 ? (
+            <View
+              className="flex-row items-center bg-surface border border-line rounded-2xl px-[18px] py-3.5 mt-3"
+              style={{ gap: 10 }}
+              accessibilityLabel="Today's check-in is complete."
+            >
+              <View className="w-[22px] h-[22px] rounded-full bg-line items-center justify-center">
+                {/* Absorbed check — settled evidence, never celebratory. */}
+                <Check color="#93A4B0" size={12} strokeWidth={2.5} />
+              </View>
+              <Text className="text-body text-[13px]">Check-In complete.</Text>
+            </View>
+          ) : (
+            <View className="bg-surface border border-line rounded-2xl px-[18px] pt-4 pb-2 mt-3">
+              <View className="flex-row items-baseline justify-between">
+                <Text className="text-ink text-[14px] font-semibold">Today's Check-In</Text>
+                <Text className="text-muted text-xs">
+                  {ledgerCount} of {ledgerItems.length} today
+                </Text>
+              </View>
+              <Text className="text-faint text-[11px] mt-0.5">
+                Nine daily habits · resets at midnight
+              </Text>
+              <View className="mt-2">
+                {ledgerRemaining.slice(0, 3).map((item) => (
+                  <TouchableOpacity
+                    key={item.key}
+                    onPress={() =>
+                      updateDailyLedger(displayDay, { [item.key]: !ledgerState[item.key] })
+                    }
+                    activeOpacity={0.7}
+                    accessibilityRole="checkbox"
+                    accessibilityState={{ checked: false }}
+                    accessibilityLabel={`${item.title}. Tap to mark it done for today.`}
+                    className="flex-row items-center border-t border-line-soft py-3"
+                    style={{ gap: 11 }}
+                  >
+                    <View className="w-[22px] h-[22px] rounded-full border border-faint" />
+                    <Text className="text-body text-[13px] flex-1">{item.title}</Text>
+                    <Text className="text-faint text-[9px] font-bold uppercase tracking-[0.14em]">
+                      {item.timing}
+                    </Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+              <TouchableOpacity
+                onPress={() => router.push('/ledger')}
+                activeOpacity={0.7}
+                accessibilityRole="button"
+                accessibilityLabel="See all nine check-in items"
+                className="border-t border-line-soft py-3"
+              >
+                <Text className="text-muted text-[13px] font-semibold">See all nine →</Text>
+              </TouchableOpacity>
+            </View>
+          )}
+        </View>
+      </ScrollView>
 
       <TriageCenter visible={sosVisible} onClose={() => setSosVisible(false)} />
     </View>

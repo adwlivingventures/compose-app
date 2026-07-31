@@ -14,30 +14,38 @@ module.exports = {
   darkMode: 'class',
   theme: {
     extend: {
-      // Ember Dusk v2 design tokens — Design Authority Ruling,
-      // design/design_handoff_twilight_v1/BUILD_PROMPT.md §1 (founder-approved
-      // 2026-07-08). Cool dusk field; warm copper is EMISSION ONLY (≤4 uses per
-      // screen, only on the next step). Non-color material spec (glows, easing,
-      // dawn arc) lives in theme/emberDusk.ts.
+      // ── Deepwater v1 design tokens (founder-approved 2026-07-25) ──────────
+      // Supersedes Ember Dusk v2 VALUES; class names are retained so the whole
+      // app reskins coherently. Direction: Ember Dusk re-lit through Breathwrk —
+      // colder, deeper field; ONE luminous accent (`accent`, the aqua
+      // "current") reserved for the next step and earned progress (≤4 uses per
+      // screen). The old copper survives as `ember` — identity moments ONLY
+      // (phase names, milestone marks, italic mirror lines; ≤2 per screen).
+      // Governing spec: project doc claude/DEEPWATER-FLOW-MAP.md §1.
+      // Material spec (glows, easing, dawn arc): theme/emberDusk.ts.
       colors: {
-        ground: '#080A0F',         // all screen backgrounds
-        surface: '#151A26',        // cards, chips, inputs
-        'surface-deep': '#0E1119', // secondary/nested cards [derived]
-        tab: '#0C0F16',            // tab bar, bottom sheets [derived]
-        line: '#232D42',           // card borders, hairlines, dividers
-        'line-soft': '#1B2233',    // progress tracks, soft dividers [derived]
-        radio: '#2E3B5E',          // unselected radio/checkbox borders
-        accent: '#C89B6D',         // THE copper — one primary action per screen
-        'accent-bright': '#D9B285',// text accents, CTA gradient core
-        'accent-deep': '#A87F58',  // italic goal echoes
-        'accent-soft': '#E8D8C3',  // text on accent-tinted surfaces
-        'on-accent': '#0C0B09',    // text/icons on copper fills
-        ink: '#E5E7EB',            // headings, primary text
-        body: '#9CA3AF',           // body copy (weight 300)
-        muted: '#6B7280',          // secondary text, labels
-        faint: '#4B5563',          // footers, captions, fine print
-        dim: '#4B5563',            // merged with faint (Dusk has 4 text levels)
-        scrim: '#04050A',          // modal backdrop base [derived]
+        ground: '#0A0F16',         // all screen backgrounds (blue-black, deep water)
+        surface: '#121A24',        // cards, chips, inputs
+        'surface-deep': '#0D141D', // secondary/nested cards [derived]
+        tab: '#0B1119',            // tab bar, bottom sheets [derived]
+        line: '#223140',           // card borders, hairlines, dividers
+        'line-soft': '#182430',    // progress tracks, soft dividers [derived]
+        radio: '#2A3A4A',          // unselected radio/checkbox borders
+        accent: '#5FD4C1',         // THE current — one primary action per screen
+        'accent-bright': '#8CE6D8',// text accents, CTA gradient core
+        'accent-deep': '#3E9BD6',  // gradient deep end, pressed states
+        'accent-soft': '#D9F4EE',  // text on accent-tinted surfaces
+        'on-accent': '#06232A',    // text/icons on aqua fills
+        ink: '#EDF2F5',            // headings, primary text
+        body: '#93A4B0',           // body copy (weight 300)
+        muted: '#6E8090',          // secondary text, labels
+        faint: '#53626E',          // footers, captions, fine print
+        dim: '#53626E',            // merged with faint (4 text levels)
+        scrim: '#04070B',          // modal backdrop base [derived]
+        ember: '#C89B6D',          // identity moments only — never a CTA
+        'ember-bright': '#D9B285', // ember text accents
+        'ember-deep': '#A87F58',   // italic goal echoes
+        gain: '#78C99A',           // positive deltas only, always ▲ + label
         'severity-amber': '#D9A756', // semantic only, matte, never glows
         'severity-red': '#E07A5F',   // semantic only, matte, never glows
       },

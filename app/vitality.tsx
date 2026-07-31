@@ -30,7 +30,7 @@ export default function VitalityScreen() {
         activeOpacity={0.7}
         className="flex-row items-center gap-1 mb-5 self-start"
       >
-        <ChevronLeft size={16} color="#6B7280" />
+        <ChevronLeft size={16} color="#6E8090" />
         <Text className="text-muted text-xs font-semibold">Back</Text>
       </TouchableOpacity>
 

@@ -1,6 +1,7 @@
 import React, { useCallback, useState } from 'react';
 import { View, Text, ScrollView } from 'react-native';
 import Svg, { Polyline, Circle, Line, Text as SvgText } from 'react-native-svg';
+import { Check } from 'lucide-react-native';
 import { useFocusEffect } from 'expo-router';
 import { useProtocol, getPhaseForDay, DayData } from '../../context/ProtocolContext';
 import {
@@ -32,13 +33,20 @@ import {
  * behavior or plots a signal; nothing grades the self. v2 removed the old
  * percentage bars (they were verdicts). No red, no goals, no pass/fail;
  * missed days absorb into the ground color, they are never marked.
+ *
+ * v3 (Deepwater, 2026-07-25) — evidence-not-applause composition: composure
+ * headline with a gain-chipped delta ("since Day 1 — measured, not
+ * promised"), a 3-stat count row, the aqua control trend, and the
+ * identity-named milestone ladder at the bottom. Accent roles: aqua for
+ * measured/earned signals, ember only for identity marks (sealed-day cells,
+ * milestone names). No percentages, no grades.
  */
 
-// ─── Composure headline ───────────────────────────────────────────────────────
+// ─── Composure headline — evidence, not applause ─────────────────────────────
 
 function ComposureCard({ history }: { history: ComposureMeasurement[] }) {
   if (history.length === 0) return null;
-  const baseline = history[0];
+  const baseline = getBaseline(history) ?? history[0];
   const latest = history[history.length - 1];
   const delta = latest.day === baseline.day ? null : latest.score - baseline.score;
 
@@ -47,22 +55,33 @@ function ComposureCard({ history }: { history: ComposureMeasurement[] }) {
       <Text className="text-dim text-[10px] font-bold uppercase tracking-[0.2em]">
         Composure Score
       </Text>
-      <View className="flex-row items-end gap-3 mt-2">
-        <Text className="text-accent text-[44px] font-serif-light leading-[48px]">
-          {latest.score}
-        </Text>
-        {delta !== null && (
-          <Text className="text-body text-sm mb-2">
-            {delta >= 0 ? '+' : ''}
-            {delta} since your baseline of {baseline.score}
-          </Text>
-        )}
-      </View>
-      <Text className="text-muted text-xs leading-4 mt-2">
-        {delta === null
-          ? `Measured at onboarding — the number the protocol retrains. Re-measured at Days 14, 40, and 75: evidence you watch, never a promise you take.`
-          : `Measured, not promised. The calm zone sits at 80–100 — the gap is the work, and it is closing on schedule.`}
+      {/* Deepwater ROLE: the measured reading is earned progress → accent
+          (aqua). This numeral is the screen's first of its ≤4 aqua uses. */}
+      <Text className="text-accent text-[44px] font-serif-light leading-[48px] mt-2">
+        {latest.score}
       </Text>
+      {delta !== null && delta > 0 ? (
+        // Deepwater ROLE: positive delta → `gain`, never color-alone (the ▲
+        // and the label carry it). Shown only when the evidence is positive.
+        <View className="flex-row items-center gap-2 mt-2">
+          <View className="bg-gain/10 border border-gain/30 rounded-full px-2.5 py-0.5">
+            <Text className="text-gain text-xs font-semibold">▲ {delta}</Text>
+          </View>
+          <Text className="text-muted text-xs">since Day 1 — measured, not promised</Text>
+        </View>
+      ) : delta !== null ? (
+        // Flat or negative reads neutral: no red, no verdict — the reps are
+        // the evidence; the number is allowed to move last.
+        <Text className="text-muted text-xs leading-4 mt-2">
+          Measured against your Day-0 baseline of {baseline.score}. Same questions, same
+          scale — the number moves when the nervous system does.
+        </Text>
+      ) : (
+        <Text className="text-muted text-xs leading-4 mt-2">
+          Measured at onboarding — the number the protocol retrains. Re-measured at Days
+          14, 40, and 75: evidence you watch, never a promise you take.
+        </Text>
+      )}
     </View>
   );
 }
@@ -107,7 +126,7 @@ function ControlChart({ points }: { points: { day: number; score: number }[] }) 
           y1={yFor(s)}
           x2={CHART_W - PAD_X}
           y2={yFor(s)}
-          stroke="#1B2233"
+          stroke="#182430"
           strokeWidth={1}
         />
       ))}
@@ -118,19 +137,21 @@ function ControlChart({ points }: { points: { day: number; score: number }[] }) 
             y1={PAD_Y - 6}
             x2={b.x}
             y2={CHART_H - PAD_Y}
-            stroke="#2E3B5E"
+            stroke="#2A3A4A"
             strokeWidth={1}
             strokeDasharray="3 4"
           />
-          <SvgText x={b.x + 4} y={PAD_Y} fill="#4B5563" fontSize={8} fontWeight="300">
+          <SvgText x={b.x + 4} y={PAD_Y} fill="#53626E" fontSize={8} fontWeight="300">
             {b.label}
           </SvgText>
         </React.Fragment>
       ))}
+      {/* Deepwater ROLE: the control trend is earned progress, not identity —
+          the line goes aqua (accent), no legend; the raw trace stays faint. */}
       <Polyline
         points={poly}
         fill="none"
-        stroke="#C89B6D"
+        stroke="#5FD4C1"
         strokeWidth={1.5}
         strokeLinejoin="round"
         strokeLinecap="round"
@@ -140,7 +161,7 @@ function ControlChart({ points }: { points: { day: number; score: number }[] }) 
         <Polyline
           points={rollingPoly}
           fill="none"
-          stroke="#C89B6D"
+          stroke="#5FD4C1"
           strokeWidth={2.5}
           strokeLinejoin="round"
           strokeLinecap="round"
@@ -152,7 +173,7 @@ function ControlChart({ points }: { points: { day: number; score: number }[] }) 
           cx={xFor(i)}
           cy={yFor(p.score)}
           r={2.5}
-          fill="#C89B6D"
+          fill="#5FD4C1"
           opacity={points.length >= 7 ? 0.4 : 1}
         />
       ))}
@@ -193,16 +214,81 @@ function VoteMap({ completedDays }: { completedDays: Record<number, DayData> }) 
                   height: CELL,
                   marginLeft: c === 0 ? 0 : CELL_GAP,
                   borderRadius: 4,
-                  backgroundColor: done ? '#C89B6D' : '#0E121C',
+                  // Deepwater ROLE (accent unification 2026-07-25): lit cells
+                  // are earned progress → the aqua current. Unlit cells absorb
+                  // into the nested-surface tone; missed days are never marked.
+                  backgroundColor: done ? '#5FD4C1' : '#0D141D',
                   opacity: done ? opacity : 1,
                   borderWidth: done ? 0 : 1,
-                  borderColor: '#1B2233',
+                  borderColor: '#182430',
                 }}
               />
             );
           })}
         </View>
       ))}
+    </View>
+  );
+}
+
+// ─── The milestone ladder — identity named, never graded ─────────────────────
+// Votes-not-verdicts (canon §7.8): each rung is a named stage of who he is
+// becoming, not a score. No percentages, no grades; done-state derives from
+// activeDay alone. The identity words are the ladder's whole point — they
+// give the basal-ganglia work a self-image to consolidate into (Phase 3
+// doctrine, CLAUDE.md §4).
+
+const MILESTONES: { day: number; name: string; sub: string }[] = [
+  { day: 1, name: 'The Decision', sub: 'You chose the work.' },
+  { day: 7, name: 'Settling', sub: 'One week of daily reps.' },
+  { day: 14, name: 'Measured', sub: 'The first re-measurement.' },
+  { day: 25, name: 'Grounded', sub: 'Phase 1 sealed.' },
+  { day: 40, name: 'Steadied', sub: 'Steady under a heavier load.' },
+  { day: 51, name: 'Present', sub: 'The identity phase opens.' },
+  { day: 75, name: 'Composed', sub: 'The word becomes the baseline.' },
+];
+
+function MilestoneLadder({ activeDay }: { activeDay: number }) {
+  const nextIndex = MILESTONES.findIndex((m) => activeDay <= m.day);
+  return (
+    <View className="mt-4 bg-surface border border-line rounded-2xl p-5">
+      <Text className="text-dim text-[10px] font-bold uppercase tracking-[0.2em] mb-1">
+        The Milestones
+      </Text>
+      {MILESTONES.map((m, i) => {
+        const done = activeDay > m.day;
+        const isNext = i === nextIndex;
+        return (
+          <View
+            key={m.day}
+            className="flex-row items-center gap-3 py-2.5"
+            // Future rungs dim as a whole — visible endowment, zero urgency.
+            style={{ opacity: done || isNext ? 1 : 0.45 }}
+          >
+            {done ? (
+              // Done — the absorbed check: a sealed mark, not a celebration.
+              <View className="w-[18px] h-[18px] rounded-full bg-surface-deep border border-line items-center justify-center">
+                <Check size={10} color="#6E8090" strokeWidth={3} />
+              </View>
+            ) : isNext ? (
+              // Deepwater ROLE (accent unification 2026-07-25): the next rung
+              // is the next step → aqua ring.
+              <View className="w-[18px] h-[18px] rounded-full border-[1.5px] border-accent" />
+            ) : (
+              <View className="w-[18px] h-[18px] rounded-full border border-line-soft" />
+            )}
+            <View className="flex-1">
+              <Text className="text-muted text-xs">
+                Day {m.day} ·{' '}
+                {/* Deepwater ROLE (accent unification 2026-07-25): the identity
+                    word reads in ink, serif italic — register, not color. */}
+                <Text className="text-ink font-serif-italic text-[13px]">{m.name}</Text>
+              </Text>
+              <Text className="text-faint text-[11px] leading-4 mt-0.5">{m.sub}</Text>
+            </View>
+          </View>
+        );
+      })}
     </View>
   );
 }
@@ -271,21 +357,13 @@ function StatCard({ value, label }: { value: string; label: string }) {
 }
 
 export default function ProgressScreen() {
-  const { completedDays, streak } = useProtocol();
+  const { activeDay, completedDays, streak } = useProtocol();
   const { entries: spikes, reload: reloadSpikes } = useSpikeLog();
   const { entries: defusions, reload: reloadDefusions } = useDefusionLog();
-  const [composure, setComposure] = useState<ComposureMeasurement[]>([]);
-
-  useFocusEffect(
-    useCallback(() => {
-      getComposureHistory().then(setComposure);
-      reloadSpikes();
-      reloadDefusions();
-    }, [reloadSpikes, reloadDefusions]),
-  );
 
   // Composure measurements (Day 0 baseline + the 14/40/75 re-measurements),
   // re-read on focus so a reading taken minutes ago shows up immediately.
+  // One load feeds both the headline card and the measurement ledger below.
   const [composureHistory, setComposureHistory] = useState<ComposureMeasurement[]>([]);
   useFocusEffect(
     useCallback(() => {
@@ -293,10 +371,12 @@ export default function ProgressScreen() {
       getComposureHistory().then((history) => {
         if (alive) setComposureHistory(history);
       });
+      reloadSpikes();
+      reloadDefusions();
       return () => {
         alive = false;
       };
-    }, []),
+    }, [reloadSpikes, reloadDefusions]),
   );
   const composureBaseline = getBaseline(composureHistory);
   const latestComposure =
@@ -368,25 +448,22 @@ export default function ProgressScreen() {
       <Text className="text-ink text-3xl font-serif-light mt-1">Your Baseline</Text>
 
       {/* Composure — the headline the whole product reports to. */}
-      <ComposureCard history={composure} />
+      <ComposureCard history={composureHistory} />
 
-      {/* Stats */}
+      {/* The 3-stat row — counts only, never grades. Minutes are not
+          tracked anywhere in state (deriving them would be invention —
+          Deepwater brief: never invent data), so the third slot orients:
+          the protocol day reached, which the ladder below expands. */}
       <View className="flex-row mt-4 gap-3">
-        <StatCard value={`${days.length}`} label="Days Completed" />
-        <StatCard value={`${streak}`} label="Day Streak" />
-        <StatCard
-          value={
-            baselineShift === null
-              ? '—'
-              : `${baselineShift >= 0 ? '+' : ''}${baselineShift.toFixed(1)}`
-          }
-          label="Baseline Shift"
-        />
+        <StatCard value={`${streak}`} label="Day streak" />
+        <StatCard value={`${days.length}`} label="Sessions" />
+        <StatCard value={`${activeDay}`} label="Day of 75" />
       </View>
 
       {/* Composure measurements — the "measured, not promised" ledger.
-          Matte on purpose: this screen's sand is spent on the stat values
-          and the trendline; the ledger is evidence, not a next step. */}
+          Matte on purpose (Deepwater): the aqua budget is spent on the
+          headline numeral and the trendline; this ledger is evidence,
+          not a next step. */}
       {composureHistory.length > 0 && (
         <View className="mt-6 bg-surface border border-line rounded-2xl p-5">
           <Text className="text-body text-sm font-bold">Composure</Text>
@@ -413,8 +490,9 @@ export default function ProgressScreen() {
       {/* Control trendline */}
       <View className="mt-4 bg-surface border border-line rounded-2xl p-5">
         <Text className="text-body text-sm font-bold">Control Score</Text>
+        {/* No legend (Deepwater): one quiet sentence, not a key. */}
         <Text className="text-faint text-xs mt-0.5 mb-3">
-          Daily 1–10 self-rating (faint) and the 7-day trend (solid). P2/P3 mark phase starts.
+          Daily 1–10 self-rating; the line is the 7-day trend.
         </Text>
         {scores.length >= 2 ? (
           <ControlChart points={scores} />
@@ -442,8 +520,10 @@ export default function ProgressScreen() {
             )}
           </View>
         )}
+        {/* Deepwater ROLE: commentary absorbs — this screen's aqua budget is
+            spent on the composure numeral and the trendline itself. */}
         {baselineShift !== null && baselineShift > 0 && (
-          <Text className="text-accent/80 text-xs mt-3 leading-4">
+          <Text className="text-muted text-xs mt-3 leading-4">
             Your recent control scores average {baselineShift.toFixed(1)} higher than your
             first week — and each phase asks more of the same five minutes. That shift is
             your nervous system re-learning its baseline; not willpower, conditioning.
@@ -484,8 +564,10 @@ export default function ProgressScreen() {
             clears threshold (n≥10, both buckets ≥5, effect ≥ +0.5). This is
             the moment discipline connects to outcome — the identity thesis
             with a number on it. Deterministic templates; §7 intact. */}
+        {/* Deepwater ROLE: the insight is evidence, not a next action — it
+            reads in body ink, no accent. */}
         {insight && (
-          <Text className="text-accent-soft text-xs leading-4 mt-4 pt-4 border-t border-line-soft">
+          <Text className="text-body text-xs leading-4 mt-4 pt-4 border-t border-line-soft">
             {insight}
           </Text>
         )}
@@ -524,6 +606,10 @@ export default function ProgressScreen() {
           )}
         </View>
       )}
+
+      {/* The identity ladder closes the screen: after the evidence, the
+          becoming. Done-state derives from activeDay only. */}
+      <MilestoneLadder activeDay={activeDay} />
 
       <Text className="text-faint text-xs text-center mt-6 leading-4 px-4">
         All of this data lives only on this device.

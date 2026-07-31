@@ -110,7 +110,7 @@ export default function PelvicCheckScreen() {
         activeOpacity={0.7}
         className="flex-row items-center gap-1 self-start px-6 pb-2"
       >
-        <ChevronLeft size={16} color="#6B7280" />
+        <ChevronLeft size={16} color="#6E8090" />
         <Text className="text-muted text-xs font-semibold">Back</Text>
       </TouchableOpacity>
       <PelvicCheck screen={descriptor} onComplete={record} onSkip={() => router.back()} />

@@ -122,7 +122,7 @@ export default function SomaticPrimer({ onComplete, onExit, refresher = false }:
           activeOpacity={0.7}
           className="bg-surface border border-line rounded-full p-2.5"
         >
-          <X color="#6B7280" size={18} />
+          <X color="#6E8090" size={18} />
         </TouchableOpacity>
       </View>
 
@@ -145,9 +145,12 @@ export default function SomaticPrimer({ onComplete, onExit, refresher = false }:
             </View>
           )}
           <Text className="text-muted text-[13.5px] leading-5 mt-4">{step.subBody}</Text>
+          {/* Deepwater ROLE: the correction is caution-content, not an action
+              or progress — it absorbs (matte spine, body ink). Aqua here is
+              the progress dashes and the CTA only. */}
           {step.correction && (
-            <View className="border-l-2 border-l-accent/50 pl-3 mt-4">
-              <Text className="text-accent-soft text-[13px] leading-5">{step.correction}</Text>
+            <View className="border-l-2 border-l-radio pl-3 mt-4">
+              <Text className="text-body text-[13px] leading-5">{step.correction}</Text>
             </View>
           )}
         </View>

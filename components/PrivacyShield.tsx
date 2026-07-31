@@ -91,12 +91,17 @@ export default function PrivacyShield() {
         Compose
       </Text>
       {locked && !showSwitcherCover && !showHydrationCover && (
+        // Deepwater role ruling: Unlock is the single forward action on the
+        // lock surface, so it carries the screen's only accent. Flat fill, no
+        // glow — the surface stays matte, and everything else absorbs.
         <TouchableOpacity
           onPress={attemptUnlock}
           activeOpacity={0.85}
-          className="bg-surface border border-line rounded-2xl py-3.5 px-10 mt-8"
+          accessibilityRole="button"
+          accessibilityLabel="Unlock Compose"
+          className="bg-accent rounded-2xl py-3.5 px-10 mt-8"
         >
-          <Text className="text-body font-semibold text-sm">Unlock</Text>
+          <Text className="text-on-accent font-bold text-sm">Unlock</Text>
         </TouchableOpacity>
       )}
     </View>

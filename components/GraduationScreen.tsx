@@ -103,11 +103,18 @@ export default function GraduationScreen({
       className="flex-1 bg-ground"
       contentContainerStyle={{ paddingHorizontal: 28, paddingTop: 72, paddingBottom: 32, flexGrow: 1 }}
     >
-      <Text className="text-accent text-[11px] font-bold uppercase tracking-[0.28em]">
+      {/* Deepwater role ruling: the milestone eyebrow absorbs (muted) — this
+          ceremony's ember budget is spent on the two identity lines below. */}
+      <Text className="text-muted text-[11px] font-bold uppercase tracking-[0.28em]">
         Day seventy-five
       </Text>
-      <Text className="text-ink text-[30px] font-serif-light leading-[39px] mt-2.5">
-        The protocol is over.{'\n'}The baseline is yours.
+      <Text className="text-ink text-[28px] font-serif-regular leading-9 mt-2.5">
+        The protocol is over.
+      </Text>
+      {/* Deepwater role ruling: identity line — serif italic, ember-bright
+          (ember use 1 of 2). Quiet gravity, no celebration graphics. */}
+      <Text className="text-ember-bright text-[20px] font-serif-italic leading-7 mt-1.5">
+        The baseline is yours.
       </Text>
 
       {/* Evidence card — computed, never asserted */}
@@ -122,14 +129,18 @@ export default function GraduationScreen({
             [String(anchors.length), 'anchors written'],
           ].map(([stat, label]) => (
             <View key={label} className="flex-1 items-center">
-              <Text className="text-ink text-[22px] font-serif-light">{stat}</Text>
+              {/* Deepwater grammar: serif-light is 40px+ numerals only — these
+                  scores sit at 22px, so serif-medium. */}
+              <Text className="text-ink text-[22px] font-serif-medium">{stat}</Text>
               <Text className="text-dim text-[10.5px] mt-0.5">{label}</Text>
             </View>
           ))}
         </View>
         {quote && (
           <View className="border-t border-line-soft mt-4 pt-3.5">
-            <Text className="text-body text-sm leading-[23px] font-serif-italic">
+            {/* Deepwater role ruling: his own words read back are the mirror
+                line — ember-bright serif italic (ember use 2 of 2). */}
+            <Text className="text-ember-bright text-sm leading-[23px] font-serif-italic">
               "{quote.text}"
             </Text>
             <Text className="text-dim text-[11px] mt-1">— you, {formatDate(quote.date)}</Text>
@@ -137,12 +148,31 @@ export default function GraduationScreen({
         )}
       </View>
 
-      {/* Membership continuation (lapsed-edge only) — annual-first, both exits are wins */}
+      {/* Act II unlock — included membership content opening, not an offer.
+          No price, no CTA styling: the suite simply opens. */}
+      <View className="bg-surface border border-line rounded-[18px] p-5 mt-3.5">
+        <Text className="text-muted text-[10px] font-bold uppercase tracking-[0.2em]">
+          Act II · included in your membership
+        </Text>
+        <Text className="text-ink text-[17px] font-serif-regular mt-2">
+          The Mastery Suite is open.
+        </Text>
+        <Text className="text-body text-[13px] leading-5 mt-1.5">
+          The Somatic Copilot, Sensate Mastery, the Refractory Window Guide, and the Anxious
+          Partner De-escalator — included content, open from today.
+        </Text>
+      </View>
+
+      {/* Membership continuation (lapsed-edge only) — annual-first, both exits are wins.
+          Deepwater role ruling: ZERO aqua on this ceremony. "Both are wins." means
+          no privileged forward action exists, and an accent-lit price button would
+          restyle the unlock ceremony into an offer (CLAUDE.md §2: never a sales
+          moment). Both exits are equal-weight, matte, bordered. */}
       <View className="bg-surface-deep border border-line-soft rounded-2xl p-[18px] mt-3.5">
-        <Text className="text-ink text-sm font-bold">Keep it all within reach</Text>
+        <Text className="text-ink text-sm font-bold">Where it goes from here</Text>
         <Text className="text-muted text-[12.5px] leading-[18px] mt-1">
-          The Mastery Suite, your vault, maintenance tracks, and the log that proves the shift
-          {annualPrice ? ` — ${annualPrice} a year` : ''}. Or leave with everything you've
+          Keep the suite, your vault, and the log that proves the shift within reach
+          {annualPrice ? ` (${annualPrice} a year)` : ''} — or leave with everything you've
           learned. Both are wins.
         </Text>
         <View className="flex-row gap-2.5 mt-3.5">
@@ -150,23 +180,25 @@ export default function GraduationScreen({
             onPress={() => onKeepMembership('annual')}
             disabled={isProcessing}
             activeOpacity={0.85}
-            className="flex-1 bg-accent rounded-xl py-[13px] items-center"
+            accessibilityRole="button"
+            accessibilityLabel="Keep access"
+            className="flex-1 border border-line rounded-xl py-[13px] items-center"
           >
             {isProcessing ? (
-              <ActivityIndicator color="#0C0B09" size="small" />
+              <ActivityIndicator color="#93A4B0" size="small" />
             ) : (
-              <Text className="text-on-accent font-bold text-[13.5px]">
-                {annualPrice ? `Keep access — ${annualPrice}/yr` : 'Keep access'}
-              </Text>
+              <Text className="text-ink font-semibold text-[13.5px]">Keep access</Text>
             )}
           </TouchableOpacity>
           <TouchableOpacity
             onPress={exportRecord}
             disabled={isProcessing}
             activeOpacity={0.8}
+            accessibilityRole="button"
+            accessibilityLabel="Export my record"
             className="flex-1 border border-line rounded-xl py-[13px] items-center"
           >
-            <Text className="text-muted font-semibold text-[13.5px]">
+            <Text className="text-ink font-semibold text-[13.5px]">
               I'm done — export my record
             </Text>
           </TouchableOpacity>

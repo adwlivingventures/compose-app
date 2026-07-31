@@ -109,7 +109,7 @@ export default function DashboardScreen() {
   if (loading) {
     return (
       <View className="flex-1 bg-ground items-center justify-center">
-        <ActivityIndicator color="#C89B6D" />
+        <ActivityIndicator color="#5FD4C1" />
       </View>
     );
   }
@@ -147,7 +147,7 @@ export default function DashboardScreen() {
         contentContainerStyle={{ padding: 24, paddingTop: 96, paddingBottom: 48 }}
       >
         <View className="items-center mb-8">
-          <CheckCircle2 color="#C89B6D" size={48} />
+          <CheckCircle2 color="#5FD4C1" size={48} />
           <Text className="text-ink text-2xl font-serif-regular mt-4 text-center">
             75 Days. Complete.
           </Text>
@@ -206,7 +206,7 @@ export default function DashboardScreen() {
                 className="bg-accent rounded-xl py-3 items-center mt-4"
               >
                 {isProcessing ? (
-                  <ActivityIndicator color="#0C0B09" />
+                  <ActivityIndicator color="#06232A" />
                 ) : (
                   <Text className="text-on-accent font-bold text-sm">
                     {annualPriceStr ? `Continue — ${annualPriceStr}/yr` : 'Keep access'}

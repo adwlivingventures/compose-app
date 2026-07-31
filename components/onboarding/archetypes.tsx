@@ -1,7 +1,8 @@
-// Archetype scaffolds — Ember Dusk v2 onboarding.
-// Layout truth: the 3a reference screens; color/material: the ruling +
-// Craft Layer Addendum. Screen components receive resolved descriptors from
-// buildFlow.
+// Archetype scaffolds — Deepwater onboarding.
+// Layout truth: the 3a reference screens; color/material: the Deepwater brief
+// (aqua current = actions/progress; ember = identity lines; the diagnosis
+// section alone runs ember-rust). Screen components receive resolved
+// descriptors from buildFlow.
 
 import { useEffect, useRef, useState } from 'react';
 import { Animated, Easing, Image, Pressable, Text, View } from 'react-native';
@@ -87,8 +88,8 @@ function HeroImage({
         <Svg width="100%" height="100%">
           <Defs>
             <LinearGradient id="heroFade" x1="0" y1="0" x2="0" y2="1">
-              <Stop offset="0" stopColor="#080A0F" stopOpacity="0" />
-              <Stop offset="1" stopColor="#080A0F" stopOpacity="1" />
+              <Stop offset="0" stopColor="#0A0F16" stopOpacity="0" />
+              <Stop offset="1" stopColor="#0A0F16" stopOpacity="1" />
             </LinearGradient>
           </Defs>
           <Rect x="0" y="0" width="100%" height="100%" fill="url(#heroFade)" />
@@ -145,8 +146,8 @@ export function Chapter({
           }}
         >
           {/* Bespoke SVG motif (QUITTR-style image-forward chapter) — sits
-              above the headline; copper accent, since the turn is back on the
-              onboarding's base palette. */}
+              above the headline. Deepwater role: chapter motifs point forward,
+              so they ride the aqua current (ClinicalHero default). */}
           {screen.motif ? (
             <View style={{ marginBottom: 18 }}>
               <ClinicalHero motif={screen.motif} />
@@ -196,6 +197,44 @@ export function Chapter({
               </Text>
             </View>
           ))}
+          {/* Sequenced steps (founder ruling 2026-07-25) — one frosted card,
+              numbered rows, hairline separators. Deliberately the SAME visual
+              grammar as the Today dashboard's training timeline: the shape a
+              man learns here is the shape he reads every day for 75 days.
+              Left-aligned by design — centered lists read as decoration; a
+              numbered left rail reads as a process. */}
+          {screen.steps?.length ? (
+            <View className="mt-6 w-full rounded-2xl border border-line bg-surface px-4">
+              {screen.steps.map((step, i) => (
+                <View
+                  key={step.label}
+                  className={`flex-row items-center py-3.5 ${
+                    i === screen.steps!.length - 1 ? '' : 'border-b border-line-soft'
+                  }`}
+                  style={{ gap: 13 }}
+                >
+                  <View className="h-[26px] w-[26px] items-center justify-center rounded-full border border-accent">
+                    <Text className="text-accent" style={{ fontSize: 11, fontWeight: '600' }}>
+                      {i + 1}
+                    </Text>
+                  </View>
+                  <View className="flex-1">
+                    <Text className="text-ink" style={{ fontSize: 14, fontWeight: '500' }}>
+                      {step.label}
+                    </Text>
+                    {step.line ? (
+                      <Text
+                        className="text-muted"
+                        style={{ fontSize: 11.5, fontWeight: '300', lineHeight: 16, marginTop: 2 }}
+                      >
+                        {step.line}
+                      </Text>
+                    ) : null}
+                  </View>
+                </View>
+              ))}
+            </View>
+          ) : null}
           {screen.advisorLine ? (
             <Text
               className="mt-4 text-center font-serif-italic text-muted"
@@ -205,8 +244,10 @@ export function Chapter({
             </Text>
           ) : null}
           {screen.closingLine && (
+            // Accent unification (2026-07-25): italic closing lines read in
+            // ink — the serif italic carries the identity register.
             <Text
-              className="mt-5 text-center font-serif-italic text-accent-deep"
+              className="mt-5 text-center font-serif-italic text-ink"
               style={{ fontSize: 14.5 }}
             >
               {screen.closingLine}
@@ -215,10 +256,13 @@ export function Chapter({
         </View>
         {/* px-6 (founder review 2026-07-10): the welcome CTAs read wider. */}
         <View className="items-center px-6 pb-[52px]" style={{ gap: 20 }}>
+          <EmissiveCTA label={screen.button} onPress={onAdvance} paddingVertical={20} />
           {screen.privacyLine && (
-            // Two centered lines (founder review 2026-07-10): the promise on
-            // its own line, the specifics beneath it — one long run wrapped
-            // arbitrarily on narrow screens.
+            // Founder ruling 2026-07-25: the privacy line sits BELOW the CTA —
+            // it is objection-handling read at the moment of commitment, not a
+            // preamble competing with the headline. Two centered lines: the
+            // promise on its own line, specifics beneath (one long run wraps
+            // arbitrarily on narrow screens).
             <View className="items-center" style={{ gap: 4, opacity: 0.45 }}>
               {screen.privacyLine.split(' — ').map((line, i) => (
                 <Text
@@ -231,7 +275,6 @@ export function Chapter({
               ))}
             </View>
           )}
-          <EmissiveCTA label={screen.button} onPress={onAdvance} paddingVertical={20} />
           {screen.microText && (
             <Text className="text-faint" style={{ fontSize: 11, fontWeight: '300' }}>
               {screen.microText}
@@ -287,7 +330,7 @@ export function SectionTransition({
 /**
  * Circular emissive arrow — the diagnosis cards' navigation (founder review
  * 2026-07-10: a different affordance marks the reveal section as its own
- * chapter; no text, one arrow). Counts as the screen's one sand emission.
+ * chapter; no text, one arrow). Counts as the screen's one accent emission.
  */
 export function ArrowCTA({
   onPress,
@@ -371,7 +414,7 @@ export function ArrowCTA({
               <Rect x="0" y="0" width="100%" height="100%" fill="url(#arrowCore)" />
             </Svg>
           </View>
-          <ArrowRight size={25} color="#0C0B09" strokeWidth={2.25} />
+          <ArrowRight size={25} color="#06232A" strokeWidth={2.25} />
         </Pressable>
       </Animated.View>
     </View>
@@ -382,8 +425,9 @@ export function ArrowCTA({
  * Clinical Context card (the reveal cards): centered motif + dusk radial,
  * "WHAT YOUR ANSWERS SHOW · N OF total" eyebrow, optional data stat, body,
  * optional conditional lines. The section runs the hotter ember-rust
- * DIAGNOSTIC accent (founder ruling 2026-07-14) — distinct colour temperature
- * from the copper rest of onboarding. index/total are runtime values: cards
+ * DIAGNOSTIC accent (founder rulings 2026-07-14 and 2026-07-25) — warm
+ * diagnosis inside the cool aqua funnel; the contrast is deliberate.
+ * index/total are runtime values: cards
  * are conditionally shown (novelty/crutch), so the count reflects THIS user's
  * visible cards, not the static four. No per-card hope line — the batched arc
  * resolves at the turn-welcome pivot.

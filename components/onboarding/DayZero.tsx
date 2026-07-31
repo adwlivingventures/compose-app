@@ -69,7 +69,7 @@ export default function DayZero({
             className="absolute z-10"
             style={{ top: 58, left: 24 }}
           >
-            <ChevronLeft size={17} color="#4B5563" strokeWidth={1.5} />
+            <ChevronLeft size={17} color="#53626E" strokeWidth={1.5} />
           </Pressable>
         )}
         <ScrollView
@@ -100,18 +100,20 @@ export default function DayZero({
               value={signature}
               onChangeText={setSignature}
               placeholder={screen.signaturePrompt}
-              placeholderTextColor="#4B5563"
+              placeholderTextColor="#53626E"
               autoCapitalize="words"
               autoCorrect={false}
               editable={!purchasing}
               accessibilityLabel={screen.signaturePrompt}
-              className="font-serif-italic text-accent-deep"
+              // Accent unification (2026-07-25): the signature reads in ink —
+              // the serif italic carries the identity register, not a color.
+              className="font-serif-italic text-ink"
               style={{
                 fontSize: 22,
                 paddingVertical: 9,
                 paddingHorizontal: 4,
                 borderBottomWidth: 1,
-                borderBottomColor: '#2E3B5E',
+                borderBottomColor: '#2A3A4A',
               }}
             />
             <Text

@@ -27,13 +27,14 @@ function CountdownRing({
   return (
     <View
       className="items-center justify-center"
+      // Deepwater role: the guided-exercise ring is an action surface → aqua.
       style={{
         width: 150,
         height: 150,
         borderRadius: 75,
         borderWidth: 1.5,
-        borderColor: active ? 'rgba(200,155,109,0.9)' : 'rgba(200,155,109,0.5)',
-        backgroundColor: 'rgba(200,155,109,0.07)',
+        borderColor: active ? 'rgba(95,212,193,0.9)' : 'rgba(95,212,193,0.5)',
+        backgroundColor: 'rgba(95,212,193,0.07)',
         paddingHorizontal: 16,
       }}
     >
@@ -85,7 +86,7 @@ export function ReleaseScale({
                 style={{
                   height: 24,
                   borderWidth: isValue ? 0 : 1,
-                  borderColor: '#2E3B5E',
+                  borderColor: '#2A3A4A',
                   opacity: active && !isValue ? 0.55 : 1,
                 }}
               />

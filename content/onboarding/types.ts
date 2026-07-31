@@ -82,6 +82,9 @@ export interface ChapterScreen extends ScreenBase {
   privacyLine?: string;
   microText?: string;
   statCards?: string[];
+  /** Numbered process rows in one frosted card (how-it-works). Same visual
+   *  grammar as the Today dashboard's training timeline. */
+  steps?: { label: string; line?: string }[];
   /** Foundations advisor line — render ONLY when a signed advisor exists. Never a placeholder. */
   advisorLine?: string | null;
   closingLine?: string;

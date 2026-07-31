@@ -20,6 +20,9 @@ import { useReduceMotion } from '../../hooks/useReduceMotion';
  * The gauge marker as a miniature ember (Addendum §2): a warm core with a
  * couple of drifting sparks and a slow shimmer. Pure RN — identical on
  * Skia-less builds and under Reduce Motion (where it holds still).
+ * Deepwater role ruling: this marker is the user HIMSELF on the map —
+ * identity, not progress — so it stays ember (his warm light against the
+ * cool field, moving toward cool calm).
  */
 function EmberMarker({ shimmer: shimmerProp = true }: { shimmer?: boolean }) {
   const reduceMotion = useReduceMotion();
@@ -46,7 +49,7 @@ function EmberMarker({ shimmer: shimmerProp = true }: { shimmer?: boolean }) {
         width: sz,
         height: sz,
         borderRadius: sz / 2,
-        backgroundColor: '#D9B285',
+        backgroundColor: '#8CE6D8',
         opacity: shimmer
           ? glow.interpolate({ inputRange: [0, 1], outputRange: [base, base + 0.3] })
           : base,
@@ -64,8 +67,9 @@ function EmberMarker({ shimmer: shimmerProp = true }: { shimmer?: boolean }) {
           width: 2,
           height: 14,
           borderRadius: 2,
-          backgroundColor: '#C89B6D',
-          shadowColor: '#C89B6D',
+          // Accent unification (2026-07-25): his marker rides the aqua current.
+          backgroundColor: '#5FD4C1',
+          shadowColor: '#5FD4C1',
           shadowOpacity: shimmer
             ? (glow.interpolate({ inputRange: [0, 1], outputRange: [0.45, 0.75] }) as never)
             : 0.6,
@@ -140,7 +144,7 @@ function severityColors(severity: number): { fill: string; bg: string; text: str
   if (severity === 2)
     return { fill: SEVERITY_ORANGE, bg: 'rgba(221,145,91,0.15)', text: SEVERITY_ORANGE };
   if (severity === 1) return { fill: SEVERITY.amber, bg: SEVERITY.amberBg, text: SEVERITY.amber };
-  return { fill: '#232D42', bg: 'rgba(107,114,128,0.12)', text: '#9CA3AF' };
+  return { fill: '#223140', bg: 'rgba(107,114,128,0.12)', text: '#93A4B0' };
 }
 
 /** Three-segment severity meter: filled segments = rank, coloured by that rank
@@ -156,7 +160,7 @@ function SeverityMeter({ severity }: { severity: number }) {
             width: 8,
             height: 4,
             borderRadius: 2,
-            backgroundColor: i < severity ? fill : '#232D42',
+            backgroundColor: i < severity ? fill : '#223140',
           }}
         />
       ))}

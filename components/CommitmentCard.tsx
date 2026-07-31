@@ -23,12 +23,16 @@ export default function CommitmentCard({
 }) {
   return (
     <View className="bg-surface border border-line rounded-[18px] p-6">
-      <Text className="text-body text-[15px] leading-[26px] font-serif-italic">{OATH_TEXT}</Text>
+      {/* Accent unification (2026-07-25): the oath is an identity line — the
+          serif italic IS the register; it reads in ink, never accent. */}
+      <Text className="text-ink text-[18px] leading-[30px] font-serif-italic">
+        {OATH_TEXT}
+      </Text>
       <TextInput
         className="text-ink text-2xl font-serif-italic mt-7 pb-1.5"
-        style={{ borderBottomWidth: 1, borderBottomColor: '#2E3B5E' }}
+        style={{ borderBottomWidth: 1, borderBottomColor: '#2A3A4A' }}
         placeholder="Sign your first name"
-        placeholderTextColor="#4B5563"
+        placeholderTextColor="#53626E"
         value={value}
         onChangeText={onChangeText}
         autoCapitalize="words"

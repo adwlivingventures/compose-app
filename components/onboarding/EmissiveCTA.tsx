@@ -1,10 +1,11 @@
 // EmissiveCTA — the primary action pill as an emissive object (Addendum §2):
-// radial gradient core (lighter center), 12–16px outer bloom, 1px inner border
-// at +15% luminance. On press the bloom expands ~20% and luminance dips, then
-// settles — an exhale, not a click. Sentence case ALWAYS (Design Authority
-// Ruling CTA-case override).
+// radial gradient core (lighter center), 12–16px outer bloom, 1px inner border.
+// On press the bloom expands ~20% and luminance dips, then settles — an
+// exhale, not a click. Sentence case ALWAYS (Design Authority Ruling CTA-case
+// override). Deepwater: the core/bloom run the aqua current (theme CTA
+// constants) — next action only.
 //
-// This is one of the ≤4 sand emissions allowed per screen. Never render two.
+// This is one of the ≤4 accent emissions allowed per screen. Never render two.
 
 import { useRef } from 'react';
 import { ActivityIndicator, Animated, Pressable, Text, View } from 'react-native';
@@ -93,7 +94,7 @@ export default function EmissiveCTA({
           </Svg>
         </View>
         {loading ? (
-          <ActivityIndicator color="#0C0B09" />
+          <ActivityIndicator color="#06232A" />
         ) : (
           <Text
             className="text-center text-on-accent"

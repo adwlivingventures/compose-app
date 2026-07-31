@@ -49,8 +49,8 @@ export default function QuestionShell({
           <Svg width="100%" height="100%">
             <Defs>
               <LinearGradient id="questionFade" x1="0" y1="0" x2="0" y2="1">
-                <Stop offset="0" stopColor="#080A0F" stopOpacity="0" />
-                <Stop offset="1" stopColor="#080A0F" stopOpacity="1" />
+                <Stop offset="0" stopColor="#0A0F16" stopOpacity="0" />
+                <Stop offset="1" stopColor="#0A0F16" stopOpacity="1" />
               </LinearGradient>
             </Defs>
             <Rect x="0" y="0" width="100%" height="100%" fill="url(#questionFade)" />

@@ -71,7 +71,9 @@ export function coherenceFor(score: number, day: number): number {
   return 0.25 + 0.75 * (0.5 * s + 0.5 * d);
 }
 
-const COLORS = ['#D9B285', '#C89B6D', '#A87F58'];
+// Accent unification (founder ruling 2026-07-25): the living object runs the
+// aqua current, not the warm ember family — one accent across the funnel.
+const COLORS = ['#8CE6D8', '#5FD4C1', '#3E9BD6'];
 
 // Breath cycles (ms): [inhale, hold, exhale]. The 4-2-6 idle rhythm is the
 // app's master clock; SOS shifts to 4-7-8.
@@ -373,9 +375,9 @@ function EmberFallback({
       <Svg width={size} height={size}>
         <Defs>
           <RadialGradient id="emberFallback" cx="50%" cy="50%" rx="50%" ry="50%">
-            <Stop offset="0" stopColor="#D9B285" stopOpacity="0.5" />
-            <Stop offset="0.45" stopColor="#C89B6D" stopOpacity="0.22" />
-            <Stop offset="1" stopColor="#C89B6D" stopOpacity="0" />
+            <Stop offset="0" stopColor="#8CE6D8" stopOpacity="0.5" />
+            <Stop offset="0.45" stopColor="#5FD4C1" stopOpacity="0.22" />
+            <Stop offset="1" stopColor="#5FD4C1" stopOpacity="0" />
           </RadialGradient>
         </Defs>
         <SvgCircle cx={size / 2} cy={size / 2} r={size / 2} fill="url(#emberFallback)" />

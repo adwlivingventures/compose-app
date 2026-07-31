@@ -40,6 +40,8 @@ export default function OathScreen() {
       contentContainerStyle={{ flexGrow: 1, paddingHorizontal: 28, paddingTop: 72, paddingBottom: 32 }}
       keyboardShouldPersistTaps="handled"
     >
+      {/* Accent unification (founder ruling 2026-07-25): the eyebrow runs
+          muted; the one aqua element is the CTA below. */}
       <Text className="text-muted text-[11px] font-semibold uppercase tracking-[0.28em]">
         Day zero
       </Text>

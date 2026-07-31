@@ -1,13 +1,14 @@
 import React from 'react';
-import { ScrollView, Text, TouchableOpacity, View } from 'react-native';
+import { ScrollView, Text, View } from 'react-native';
 import { Check } from 'lucide-react-native';
 import type { ValueStackScreen } from '../../content/onboarding/types';
+import EmissiveCTA from './EmissiveCTA';
 
 /**
  * Pre-paywall value stack (types.ts ValueStackScreen) — grouped check rows
- * that make the purchase concrete before the price appears. Ember Dusk:
- * the rows absorb (muted checks, surface cards); copper stays on the CTA
- * alone (accent scarcity ≤4).
+ * that make the purchase concrete before the price appears. Deepwater:
+ * the rows absorb (muted checks, surface cards); the aqua current stays on
+ * the one emissive CTA alone (accent scarcity ≤4).
  */
 export default function ValueStack({
   screen,
@@ -45,7 +46,7 @@ export default function ValueStack({
                 }`}
               >
                 <View className="mt-[2px]">
-                  <Check size={15} color="#6B7280" strokeWidth={2} />
+                  <Check size={15} color="#6E8090" strokeWidth={2} />
                 </View>
                 <Text className="text-ink text-[13.5px] leading-5 flex-1">{item}</Text>
               </View>
@@ -54,13 +55,10 @@ export default function ValueStack({
         </View>
       ))}
 
-      <TouchableOpacity
-        onPress={onAdvance}
-        activeOpacity={0.85}
-        className="bg-accent rounded-2xl py-[19px] items-center mt-9"
-      >
-        <Text className="text-on-accent font-bold text-base">{screen.button}</Text>
-      </TouchableOpacity>
+      {/* Deepwater: the one emissive aqua CTA — same pill as every screen. */}
+      <View className="mt-9">
+        <EmissiveCTA label={screen.button} onPress={onAdvance} />
+      </View>
     </ScrollView>
   );
 }

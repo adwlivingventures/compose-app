@@ -1,6 +1,7 @@
 import React from 'react';
-import { ScrollView, Text, TouchableOpacity, View } from 'react-native';
+import { ScrollView, Text, View } from 'react-native';
 import type { TestimonialsScreen } from '../../content/onboarding/types';
+import EmissiveCTA from './EmissiveCTA';
 
 /**
  * Tester stories (types.ts TestimonialsScreen) — real, consented in-person
@@ -8,7 +9,7 @@ import type { TestimonialsScreen } from '../../content/onboarding/types';
  * expert-consensus slide: clinicians named the mechanism, these voices
  * confirm it lived. Story text stays roman (their words, not liturgy);
  * the short tag gives a skimming thumb the arc without the paragraph.
- * Copper on the CTA only.
+ * Deepwater: aqua on the one emissive CTA only.
  */
 export default function Testimonials({
   screen,
@@ -56,13 +57,10 @@ export default function Testimonials({
         ))}
       </View>
 
-      <TouchableOpacity
-        onPress={onAdvance}
-        activeOpacity={0.85}
-        className="bg-accent rounded-2xl py-[19px] items-center mt-9"
-      >
-        <Text className="text-on-accent font-bold text-base">{screen.button}</Text>
-      </TouchableOpacity>
+      {/* Deepwater: the one emissive aqua CTA — same pill as every screen. */}
+      <View className="mt-9">
+        <EmissiveCTA label={screen.button} onPress={onAdvance} />
+      </View>
     </ScrollView>
   );
 }

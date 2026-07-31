@@ -72,7 +72,7 @@ export default function RootLayout() {
   // Hold on a plain ground-colored view until the serif faces are ready —
   // a flash of fallback type undermines the composed first impression.
   if (!fontsLoaded) {
-    return <View style={{ flex: 1, backgroundColor: '#080A0F' }} />;
+    return <View style={{ flex: 1, backgroundColor: '#0A0F16' }} />;
   }
 
   return (
@@ -85,7 +85,7 @@ export default function RootLayout() {
         <Stack
           screenOptions={{
             headerShown: false,
-            contentStyle: { backgroundColor: '#080A0F' },
+            contentStyle: { backgroundColor: '#0A0F16' },
           }}
         >
           <Stack.Screen name="index" />

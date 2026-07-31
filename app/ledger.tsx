@@ -36,7 +36,7 @@ export default function LedgerScreen() {
           activeOpacity={0.7}
           className="flex-row items-center gap-1"
         >
-          <ChevronLeft size={16} color="#6B7280" />
+          <ChevronLeft size={16} color="#6E8090" />
           <Text className="text-muted text-xs font-semibold">Back</Text>
         </TouchableOpacity>
         <Text className="text-dim text-[11px] font-semibold uppercase tracking-[0.2em]">

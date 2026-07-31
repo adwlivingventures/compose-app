@@ -66,7 +66,7 @@ function CheckRow({
           on ? 'bg-line border-line' : 'border-faint'
         }`}
       >
-        {on && <Check color="#E5E7EB" size={14} strokeWidth={3} />}
+        {on && <Check color="#EDF2F5" size={14} strokeWidth={3} />}
       </View>
       <View className="flex-1">
         <View className="flex-row items-center gap-2">
@@ -188,7 +188,7 @@ export default function DailyCheckIn({
             }`}
           >
             {finishing ? (
-              <ActivityIndicator color="#0C0B09" />
+              <ActivityIndicator color="#06232A" />
             ) : (
               <Text className="text-on-accent font-bold text-base">Complete Day {day}</Text>
             )}

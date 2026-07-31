@@ -148,6 +148,8 @@ function StateDoors({
             <TouchableOpacity
               onPress={door.onPress}
               activeOpacity={0.8}
+              // Deepwater ROLE: one quiet aqua element per door, max — here
+              // it's the active-state border only; resting doors absorb.
               className={`rounded-2xl p-4 min-h-[96px] border ${
                 door.active ? 'bg-surface border-accent/40' : 'bg-surface border-line'
               }`}
@@ -213,7 +215,7 @@ function LibraryShelves({ day }: { day: number }) {
                     <View className="flex-row items-center justify-between">
                       <Text
                         className={`text-[13.5px] font-semibold flex-1 pr-3 ${
-                          openNow ? 'text-ink' : 'text-dim'
+                          openNow ? 'text-ink' : 'text-muted'
                         }`}
                       >
                         {p.title}
@@ -223,11 +225,12 @@ function LibraryShelves({ day }: { day: number }) {
                           {isTool ? 'above' : `${p.minutes} min`}
                         </Text>
                       ) : (
-                        <View className="bg-surface-deep rounded-full px-2.5 py-0.5">
-                          <Text className="text-muted text-[10px] font-bold tracking-wider">
-                            Day {p.opensOnDay}
-                          </Text>
-                        </View>
+                        // Deepwater ROLE: sequencing is identity pacing, not a
+                        // lock — muted "Opens", muted day-number, no lock icon
+                        // (accent unification 2026-07-25: one accent only).
+                        <Text className="text-muted text-[10.5px] font-semibold">
+                          Opens <Text className="text-muted">Day {p.opensOnDay}</Text>
+                        </Text>
                       )}
                     </View>
                     <Text
@@ -323,7 +326,9 @@ function SpikeFlow({
   if (stage === 'name') {
     return (
       <View className="bg-surface border border-line rounded-2xl p-5 mb-6">
-        <Text className="text-accent text-xs font-bold uppercase tracking-widest mb-3">
+        {/* Deepwater grammar: eyebrows are muted — aqua here is saved for
+            the close CTA, the flow's one true next action. */}
+        <Text className="text-muted text-xs font-bold uppercase tracking-widest mb-3">
           {SPIKE_FLOW_COPY.step1Title}
         </Text>
         <View className="flex-row flex-wrap -mx-1">
@@ -357,8 +362,10 @@ function SpikeFlow({
   if (stage === 'counter' && chosen) {
     return (
       <View className="bg-surface border border-line rounded-2xl p-5 mb-6">
-        <View className="self-start bg-surface-deep border border-accent/30 rounded-full px-3 py-1">
-          <Text className="text-accent-soft text-[10px] font-bold uppercase tracking-wider">
+        {/* Deepwater ROLE: the named distortion is a functional tag, not an
+            action or identity — it absorbs (matte chip). */}
+        <View className="self-start bg-surface-deep border border-line rounded-full px-3 py-1">
+          <Text className="text-muted text-[10px] font-bold uppercase tracking-wider">
             {DISTORTION_META[chosen].label}
           </Text>
         </View>
@@ -375,7 +382,7 @@ function SpikeFlow({
           multiline
           textAlignVertical="top"
           placeholder={SPIKE_FLOW_COPY.captureaPlaceholder}
-          placeholderTextColor="#4B5563"
+          placeholderTextColor="#53626E"
           value={note}
           onChangeText={setNote}
         />
@@ -406,7 +413,8 @@ function SpikeFlow({
             style={{
               height: '100%',
               borderRadius: 9999,
-              backgroundColor: '#C89B6D',
+              // Deepwater ROLE: the exhale bar is a progress fill → aqua.
+              backgroundColor: '#5FD4C1',
               width: exhaleProgress.interpolate({
                 inputRange: [0, 1],
                 outputRange: ['0%', '100%'],
@@ -420,8 +428,9 @@ function SpikeFlow({
 
   // closed
   return (
+    // Deepwater ROLE: a closed loop is earned progress → aqua tint + check.
     <View className="bg-accent/10 border border-accent/30 rounded-2xl p-5 mb-6 items-center">
-      <CheckCircle2 color="#C89B6D" size={28} />
+      <CheckCircle2 color="#5FD4C1" size={28} />
       <Text className="text-ink text-lg font-serif-regular mt-2">
         {SPIKE_FLOW_COPY.closedTitle}
       </Text>
@@ -569,7 +578,9 @@ function RewireBody() {
           <View className="bg-surface-deep border border-line rounded-2xl px-4 py-3.5 mb-3">
             <Text className="text-body text-xs leading-5">
               {dominant[1]} of your {loopsClosed} loops are one known voice —{' '}
-              <Text className="text-accent-soft font-serif-italic">
+              {/* Deepwater ROLE: the named voice is an identity line (serif
+                  italic) → ink (accent unification 2026-07-25). */}
+              <Text className="text-ink font-serif-italic">
                 {DISTORTION_META[dominant[0]].label.toLowerCase()}
               </Text>
               . One pattern, named. It arrives; you counter it; it leaves.
@@ -641,7 +652,8 @@ function SpikeEntryCard({ entry, onDelete }: { entry: SpikeEntry; onDelete: () =
           <View className="flex-row items-center gap-2">
             <Text className="text-muted text-xs font-mono">{dateLabel}</Text>
             <View className="bg-surface-deep rounded-full px-2 py-0.5">
-              <Text className="text-accent/80 text-[10px] font-bold uppercase tracking-wider">
+              {/* Deepwater ROLE: history tags absorb — no accent on records. */}
+              <Text className="text-muted text-[10px] font-bold uppercase tracking-wider">
                 {meta.label}
               </Text>
             </View>
@@ -652,11 +664,11 @@ function SpikeEntryCard({ entry, onDelete }: { entry: SpikeEntry; onDelete: () =
         </View>
         <View className="flex-row items-center gap-3">
           <TouchableOpacity onPress={onDelete} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
-            <Trash2 size={16} color="#4B5563" />
+            <Trash2 size={16} color="#53626E" />
           </TouchableOpacity>
           <ChevronRight
             size={18}
-            color="#4B5563"
+            color="#53626E"
             style={{ transform: [{ rotate: expanded ? '90deg' : '0deg' }] }}
           />
         </View>
@@ -690,11 +702,11 @@ function LegacyEntryCard({ entry, onDelete }: { entry: CBSTEntry; onDelete: () =
         </View>
         <View className="flex-row items-center gap-3">
           <TouchableOpacity onPress={onDelete} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
-            <Trash2 size={16} color="#4B5563" />
+            <Trash2 size={16} color="#53626E" />
           </TouchableOpacity>
           <ChevronRight
             size={18}
-            color="#4B5563"
+            color="#53626E"
             style={{ transform: [{ rotate: expanded ? '90deg' : '0deg' }] }}
           />
         </View>
@@ -737,7 +749,8 @@ function DefusionEntryCard({
           <View className="flex-row items-center gap-2">
             <Text className="text-muted text-xs font-mono">{dateLabel}</Text>
             <View className="bg-surface-deep rounded-full px-2 py-0.5">
-              <Text className="text-accent/80 text-[10px] font-bold uppercase tracking-wider">
+              {/* Deepwater ROLE: history tags absorb — no accent on records. */}
+              <Text className="text-muted text-[10px] font-bold uppercase tracking-wider">
                 {meta.label}
               </Text>
             </View>
@@ -750,11 +763,11 @@ function DefusionEntryCard({
         </View>
         <View className="flex-row items-center gap-3">
           <TouchableOpacity onPress={onDelete} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
-            <Trash2 size={16} color="#4B5563" />
+            <Trash2 size={16} color="#53626E" />
           </TouchableOpacity>
           <ChevronRight
             size={18}
-            color="#4B5563"
+            color="#53626E"
             style={{ transform: [{ rotate: expanded ? '90deg' : '0deg' }] }}
           />
         </View>
@@ -790,7 +803,9 @@ function EntryField({
       <Text className="text-muted text-xs font-bold uppercase tracking-widest mb-1">
         {label}
       </Text>
-      <Text className={`text-sm leading-5 ${highlight ? 'text-accent-soft' : 'text-body'}`}>
+      {/* Deepwater ROLE: the authored counter is content, not action —
+          highlight lifts to ink, never accent. */}
+      <Text className={`text-sm leading-5 ${highlight ? 'text-ink' : 'text-body'}`}>
         {value}
       </Text>
     </View>

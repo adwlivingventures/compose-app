@@ -64,10 +64,14 @@ function NavRow({
         <Text className="text-ink text-sm font-bold">{title}</Text>
         {subtitle && <Text className="text-muted text-xs mt-0.5 leading-4">{subtitle}</Text>}
       </View>
-      <ChevronRight color="#4B5563" size={16} />
+      <ChevronRight color="#53626E" size={16} />
     </TouchableOpacity>
   );
 }
+
+// Deepwater ROLE: the You tab is a quiet surface — row icons are muted, not
+// accent (nothing here is the next action; nothing here is earned progress).
+const ICON_MUTED = '#6E8090';
 
 export default function ProfileScreen() {
   const router = useRouter();
@@ -127,10 +131,12 @@ export default function ProfileScreen() {
             {firstName ?? 'Your Record'}
           </Text>
         </View>
+        {/* Deepwater ROLE: membership is status, not an action — the chip
+            stays matte (discretion doctrine: nothing here asks to be seen). */}
         {hasMembership && (
-          <View className="flex-row items-center gap-1.5 bg-accent/10 border border-accent/30 rounded-full px-3 py-1.5 mt-1">
-            <ShieldCheck color="#C89B6D" size={13} />
-            <Text className="text-accent text-xs font-bold">Membership active</Text>
+          <View className="flex-row items-center gap-1.5 bg-surface border border-line rounded-full px-3 py-1.5 mt-1">
+            <ShieldCheck color={ICON_MUTED} size={13} />
+            <Text className="text-body text-xs font-bold">Membership active</Text>
           </View>
         )}
       </View>
@@ -143,12 +149,14 @@ export default function ProfileScreen() {
         Library
       </Text>
       <View className="bg-surface border border-line rounded-2xl overflow-hidden mb-6">
-        {/* Somatic Sandbox — Day-26 unlock (Phase 2 milestone reward; locked
-            through Phase 1 to protect single-ratio habituation). The locked
-            row is inert and quiet, same discipline as the Mastery cards. */}
+        {/* Somatic Sandbox — Day-26 opening (Phase 2 milestone reward;
+            sequenced through Phase 1 to protect single-ratio habituation).
+            The sequenced row is inert and quiet, same discipline as the
+            Mastery cards. Deepwater grammar: "Opens Day N" with an ember
+            day-number — never a lock icon. */}
         {sandboxUnlocked ? (
           <NavRow
-            icon={<Wind color="#C89B6D" size={18} />}
+            icon={<Wind color={ICON_MUTED} size={18} />}
             title="Somatic Sandbox"
             subtitle="Your pacer, your ratio — on demand."
             onPress={() => router.push('/sandbox')}
@@ -158,16 +166,17 @@ export default function ProfileScreen() {
             style={{ opacity: 0.55 }}
             className="p-4 flex-row items-center gap-3 border-b border-line"
           >
-            <Wind color="#4B5563" size={18} />
+            <Wind color="#53626E" size={18} />
             <View className="flex-1">
               <Text className="text-ink text-sm font-bold">Somatic Sandbox</Text>
-              <Text className="text-muted text-xs mt-0.5 leading-4">Opens on Day 26.</Text>
+              <Text className="text-muted text-xs mt-0.5 leading-4">
+                Opens <Text className="text-muted">Day 26</Text>
+              </Text>
             </View>
-            <Lock color="#4B5563" size={14} />
           </View>
         )}
         <NavRow
-          icon={<ArrowDown color="#C89B6D" size={18} />}
+          icon={<ArrowDown color={ICON_MUTED} size={18} />}
           title="The Somatic Drop"
           onPress={() => router.push('/technique')}
         />
@@ -175,30 +184,30 @@ export default function ProfileScreen() {
             anyone) can re-measure whenever he wants (founder review
             2026-07-10). */}
         <NavRow
-          icon={<Activity color="#C89B6D" size={18} />}
+          icon={<Activity color={ICON_MUTED} size={18} />}
           title="Pelvic Release Check"
           subtitle="The 20-second tension test — re-measure any time."
           onPress={() => router.push('/pelvic-check')}
         />
         <NavRow
-          icon={<Sun color="#C89B6D" size={18} />}
+          icon={<Sun color={ICON_MUTED} size={18} />}
           title="The Vitality Baseline"
           onPress={() => router.push('/vitality')}
         />
         <NavRow
-          icon={<BookOpen color="#C89B6D" size={18} />}
+          icon={<BookOpen color={ICON_MUTED} size={18} />}
           title="Others Who Walked It"
           subtitle="Stories from men and partners who did this."
           onPress={() => router.push('/success-vault')}
         />
         <NavRow
-          icon={<MessageSquare color="#C89B6D" size={18} />}
+          icon={<MessageSquare color={ICON_MUTED} size={18} />}
           title="Partner Scripts"
           subtitle="Word-for-word openers, check-ins, and repairs."
           onPress={() => router.push('/partner-scripts')}
         />
         <NavRow
-          icon={<Users color="#C89B6D" size={18} />}
+          icon={<Users color={ICON_MUTED} size={18} />}
           title="Partner Guide"
           onPress={() => setGuideVisible(true)}
           last
@@ -212,7 +221,7 @@ export default function ProfileScreen() {
       </Text>
       <View className="bg-surface border border-line rounded-2xl overflow-hidden mb-6">
         <NavRow
-          icon={<Crown color="#C89B6D" size={18} />}
+          icon={<Crown color={ICON_MUTED} size={18} />}
           title="Mastery Suite"
           subtitle="Tools that open as you progress."
           onPress={() => router.push('/mastery')}
@@ -222,7 +231,7 @@ export default function ProfileScreen() {
 
       {/* CBT Vault */}
       <View className="flex-row items-center gap-2 mb-3">
-        <Lock color="#6B7280" size={13} />
+        <Lock color={ICON_MUTED} size={13} />
         <Text className="text-muted text-xs font-bold uppercase tracking-widest">
           The Vault · Local Record Only
         </Text>
@@ -241,7 +250,10 @@ export default function ProfileScreen() {
           {entries.map((entry) => (
             <View
               key={entry.id}
-              className="bg-surface border border-line rounded-2xl p-4 border-l-2 border-l-accent/40"
+              // Accent unification (2026-07-25): vault anchors are identity in
+              // his own words — quiet line spine, quote in ink italic. One
+              // repeated motif, not per-row accents.
+              className="bg-surface border border-line rounded-2xl p-4 border-l-2 border-l-line"
             >
               <View className="flex-row items-center justify-between mb-2">
                 <Text className="text-muted text-xs font-mono">{formatDate(entry.date)}</Text>
@@ -277,10 +289,10 @@ export default function ProfileScreen() {
           className="p-4 flex-row items-center justify-between border-b border-line"
         >
           <View className="flex-row items-center gap-2">
-            <EyeOff color="#9CA3AF" size={14} />
+            <EyeOff color="#93A4B0" size={14} />
             <Text className="text-body text-sm">Discretion</Text>
           </View>
-          <ChevronRight color="#4B5563" size={16} />
+          <ChevronRight color="#53626E" size={16} />
         </TouchableOpacity>
         <TouchableOpacity
           onPress={restorePurchases}
@@ -289,7 +301,7 @@ export default function ProfileScreen() {
           className="p-4 flex-row items-center justify-between border-b border-line"
         >
           <Text className="text-body text-sm">Restore Purchases</Text>
-          <ChevronRight color="#4B5563" size={16} />
+          <ChevronRight color="#53626E" size={16} />
         </TouchableOpacity>
         <TouchableOpacity
           onPress={confirmReset}
@@ -299,10 +311,10 @@ export default function ProfileScreen() {
           }`}
         >
           <View className="flex-row items-center gap-2">
-            <RotateCcw color="#9CA3AF" size={14} />
+            <RotateCcw color="#93A4B0" size={14} />
             <Text className="text-body text-sm">Reset Protocol Baseline</Text>
           </View>
-          <ChevronRight color="#4B5563" size={16} />
+          <ChevronRight color="#53626E" size={16} />
         </TouchableOpacity>
         {__DEV__ && (
           <>
@@ -319,7 +331,7 @@ export default function ProfileScreen() {
               className="p-4 flex-row items-center justify-between border-b border-line"
             >
               <Text className="text-dim text-sm">Replay Onboarding from start (dev only)</Text>
-              <ChevronRight color="#4B5563" size={16} />
+              <ChevronRight color="#53626E" size={16} />
             </TouchableOpacity>
             <TouchableOpacity
               onPress={() => {
@@ -349,7 +361,7 @@ export default function ProfileScreen() {
               className="p-4 flex-row items-center justify-between"
             >
               <Text className="text-dim text-sm">Jump to Day (dev only)</Text>
-              <ChevronRight color="#4B5563" size={16} />
+              <ChevronRight color="#53626E" size={16} />
             </TouchableOpacity>
           </>
         )}
@@ -364,7 +376,9 @@ export default function ProfileScreen() {
         <View className="bg-tab border-t border-line-soft rounded-t-3xl max-h-[88%]">
           <View className="px-6 pt-5 pb-3 flex-row items-start justify-between">
             <View className="flex-1 pr-4">
-              <Text className="text-accent text-xs font-bold uppercase tracking-widest">
+              {/* Deepwater grammar: eyebrows are muted — no accent on the
+                  guide sheet; it's reading, not action. */}
+              <Text className="text-muted text-xs font-bold uppercase tracking-widest">
                 For Your Partner
               </Text>
               <Text className="text-ink text-xl font-serif-regular mt-1">{PARTNER_GUIDE_TITLE}</Text>
@@ -374,7 +388,7 @@ export default function ProfileScreen() {
               activeOpacity={0.7}
               className="bg-surface-deep rounded-full p-2"
             >
-              <X color="#6B7280" size={16} />
+              <X color="#6E8090" size={16} />
             </TouchableOpacity>
           </View>
           <ScrollView

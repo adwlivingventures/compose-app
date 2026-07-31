@@ -6,24 +6,34 @@
 // Governing rule: if it is interactive or it is the Ember, it may EMIT
 // (gradient core + bloom). Everything else absorbs. Severity chips are matte.
 
+// Deepwater v1 (founder-approved 2026-07-25): the field cools to match the
+// post-paywall reskin (tailwind.config.js) so onboarding and app share one
+// ground. Founder ruling 2026-07-25 (second pass): onboarding's ACTION accents
+// (CTA, SELECTION, DUSK_RADIAL) now run the aqua "current" too — the whole
+// funnel is one guided stream. The warm family survives in exactly two places,
+// both deliberate: the ember-rust DIAGNOSTIC section (warm diagnosis inside a
+// cool funnel — the contrast is the point) and the `ember` identity register
+// (oaths, mirror lines, the user's own marker). New post-paywall material
+// constants live in theme/deepwater.ts.
 export const DUSK = {
-  ground: '#080A0F',
-  surface: '#151A26',
-  line: '#232D42',
-  radio: '#2E3B5E',
+  ground: '#0A0F16',
+  surface: '#121A24',
+  line: '#223140',
+  radio: '#2A3A4A',
   accent: '#C89B6D',
   accentBright: '#D9B285',
   accentDeep: '#A87F58',
-  ink: '#E5E7EB',
+  ink: '#EDF2F5',
 } as const;
 
-/** Emissive CTA: radial core (lighter center) + outer bloom + 1px inner border. */
+/** Emissive CTA: radial core (lighter center) + outer bloom + 1px inner border.
+ *  Deepwater: the aqua current — the one emissive next action per screen. */
 export const CTA = {
-  coreCenter: '#D9B285', // +8% luminance center
-  coreEdge: '#C89B6D',
-  bloomColor: 'rgba(200,155,109,0.35)',
+  coreCenter: '#8CE6D8', // lighter aqua center
+  coreEdge: '#5FD4C1',
+  bloomColor: 'rgba(95,212,193,0.30)',
   bloomRadius: 14, // 12–16px per ruling
-  innerBorder: 'rgba(230,190,145,0.55)', // +15% luminance hairline
+  innerBorder: 'rgba(190,240,232,0.50)', // brighter aqua hairline
   /** Press: bloom expands 20%, luminance dips, settles — an exhale, not a click. */
   pressBloomScale: 1.2,
   pressDimOpacity: 0.88,
@@ -58,7 +68,8 @@ export type ArrowAccent = {
   halo: string;
 };
 
-/** The default copper arrow accent (rest-of-onboarding tone). */
+/** Legacy copper arrow accent. Deepwater: no longer the default onboarding
+ *  tone — kept as a warm ArrowAccent variant (values unchanged on purpose). */
 export const COPPER_ARROW: ArrowAccent = {
   coreLight: '#E4C193',
   core: '#D9B285',
@@ -68,12 +79,14 @@ export const COPPER_ARROW: ArrowAccent = {
   halo: 'rgba(200,155,109,0.35)',
 };
 
-/** Selected answer cards: warm 1px border + interior glow rising from the bottom edge. */
+/** Selected answer cards: aqua 1px border + interior glow rising from the
+ *  bottom edge (Deepwater — selection is an action state, so it rides the
+ *  current). */
 export const SELECTION = {
-  border: '#C89B6D',
-  glow: 'rgba(200,155,109,0.18)',
-  /** Interior bottom-edge gradient, 15% opacity — chosen cards look lit, not highlighted. */
-  interiorGlow: 'rgba(200,155,109,0.15)',
+  border: '#5FD4C1',
+  glow: 'rgba(95,212,193,0.16)',
+  /** Interior bottom-edge gradient — chosen cards look lit, not highlighted. */
+  interiorGlow: 'rgba(95,212,193,0.13)',
   /** Unchosen cards dim to 60% over 250ms — the "decision made" cue. */
   dimOthersTo: 0.6,
   dimMs: 250,
@@ -81,9 +94,10 @@ export const SELECTION = {
   holdMs: 450,
 } as const;
 
-/** Warm dusk radial bleeding off the top of chapter screens. */
+/** Cool aqua radial bleeding off the top of chapter screens (Deepwater —
+ *  ambience follows the current; the diagnosis cards override it ember-rust). */
 export const DUSK_RADIAL = {
-  color: 'rgba(200,155,109,0.12)', // 0.10–0.14 band
+  color: 'rgba(95,212,193,0.10)', // 0.10–0.14 band
   fadeStop: 0.65, // → transparent at 65%
 } as const;
 

@@ -1,7 +1,7 @@
 import React from 'react';
 import { ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import { useRouter } from 'expo-router';
-import { ChevronLeft, ChevronRight, Lock } from 'lucide-react-native';
+import { ChevronLeft, ChevronRight } from 'lucide-react-native';
 import { useProtocol } from '../context/ProtocolContext';
 
 /**
@@ -93,9 +93,12 @@ function MasteryModuleCard({
   const body = (
     <>
       <View className="flex-row items-center gap-2.5">
-        {locked && <Lock color="#4B5563" size={14} />}
         <Text className="text-ink text-[17px] font-serif-regular flex-1">{title}</Text>
-        {!locked && <ChevronRight color="#C89B6D" size={16} />}
+        {/* Deepwater role ruling: the open-card chevron absorbs (muted) — post
+            Day 75 all five cards are open, and five aqua marks would break the
+            ≤4 accent scarcity rule. No padlock glyph anywhere: gating speaks
+            only in "Opens Day N" vocabulary. */}
+        {!locked && <ChevronRight color="#6E8090" size={16} />}
       </View>
       <Text className="text-muted text-[13px] leading-5 mt-2">{description}</Text>
     </>
@@ -112,7 +115,7 @@ function MasteryModuleCard({
       >
         <View className="self-start bg-surface-deep border border-line-soft rounded-full px-2.5 py-1 mb-3">
           <Text className="text-dim text-[10px] font-bold uppercase tracking-[0.14em]">
-            Unlocks Day {unlockDay}
+            Opens Day {unlockDay}
           </Text>
         </View>
         {body}
@@ -120,11 +123,15 @@ function MasteryModuleCard({
     );
   }
 
+  // Deepwater role ruling: open cards absorb (bg-surface / border-line) —
+  // availability is shown by full opacity + chevron, not by an accent border.
   return (
     <TouchableOpacity
       onPress={onPress}
       activeOpacity={0.85}
-      className="bg-surface border border-accent/40 rounded-[18px] p-5"
+      accessibilityRole="button"
+      accessibilityLabel={title}
+      className="bg-surface border border-line rounded-[18px] p-5"
     >
       {body}
     </TouchableOpacity>
@@ -156,14 +163,14 @@ export default function MasterySuiteScreen() {
         activeOpacity={0.7}
         className="flex-row items-center gap-1 mb-5 self-start"
       >
-        <ChevronLeft size={16} color="#6B7280" />
+        <ChevronLeft size={16} color="#6E8090" />
         <Text className="text-muted text-xs font-semibold">Back</Text>
       </TouchableOpacity>
 
       <Text className="text-muted text-[11px] font-semibold uppercase tracking-[0.28em]">
         The Mastery Suite
       </Text>
-      <Text className="text-ink text-[26px] font-serif-light mt-1.5">What you’re building toward</Text>
+      <Text className="text-ink text-[26px] font-serif-regular mt-1.5">What you’re building toward</Text>
 
       <View className="bg-surface-deep border border-line-soft rounded-[14px] px-4 py-3 mt-4">
         <Text className="text-muted text-xs leading-5">

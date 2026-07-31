@@ -52,14 +52,14 @@ export default function PartnerScriptsScreen() {
         activeOpacity={0.7}
         className="flex-row items-center gap-1 mb-5 self-start"
       >
-        <ChevronLeft size={16} color="#6B7280" />
+        <ChevronLeft size={16} color="#6E8090" />
         <Text className="text-muted text-xs font-semibold">Back</Text>
       </TouchableOpacity>
 
       <Text className="text-muted text-[11px] font-semibold uppercase tracking-[0.28em]">
         Library
       </Text>
-      <Text className="text-ink text-[26px] font-serif-light mt-1.5">Partner Scripts</Text>
+      <Text className="text-ink text-[26px] font-serif-regular mt-1.5">Partner Scripts</Text>
       <Text className="text-muted text-sm leading-5 mt-2 mb-6">
         Scripts for opening conversations with your partner, adapted from Sensate Focus
         and CBST communication frameworks.
@@ -110,7 +110,7 @@ function PartnerScriptCard({
         </View>
         <ChevronRight
           size={18}
-          color="#6B7280"
+          color="#6E8090"
           style={{ transform: [{ rotate: expanded ? '90deg' : '0deg' }] }}
         />
       </TouchableOpacity>
@@ -128,10 +128,12 @@ function PartnerScriptCard({
                 : 'bg-surface-deep border-line'
             }`}
           >
+            {/* Deepwater role ruling: the copied confirmation is action
+                feedback, not identity — aqua, matching the text-accent label. */}
             {isCopied ? (
-              <CheckCircle2 size={16} color="#C89B6D" />
+              <CheckCircle2 size={16} color="#5FD4C1" />
             ) : (
-              <Copy size={16} color="#9CA3AF" />
+              <Copy size={16} color="#93A4B0" />
             )}
             <Text
               className={`text-xs font-bold ${
@@ -140,11 +142,11 @@ function PartnerScriptCard({
             >
               {isCopied
                 ? Platform.OS === 'web'
-                  ? 'Copied!'
-                  : 'Shared!'
+                  ? 'Copied'
+                  : 'Shared'
                 : Platform.OS === 'web'
-                ? 'Copy Script'
-                : 'Share / Copy Script'}
+                ? 'Copy script'
+                : 'Share or copy script'}
             </Text>
           </TouchableOpacity>
         </View>

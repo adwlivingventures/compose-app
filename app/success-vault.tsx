@@ -115,7 +115,9 @@ function MemberStoryCard({ story }: { story: (typeof TESTIMONIALS)[number] }) {
       activeOpacity={0.85}
       className="bg-surface border border-line rounded-[18px] p-5"
     >
-      <Text className="text-accent text-[10px] font-bold uppercase tracking-[0.2em]">
+      {/* Deepwater role ruling: story arc tags are eyebrows, not actions or
+          progress — they absorb (muted). Six accent tags would flood scarcity. */}
+      <Text className="text-muted text-[10px] font-bold uppercase tracking-[0.2em]">
         {story.tag}
       </Text>
       <View className="flex-row items-baseline gap-2 mt-1.5">
@@ -131,7 +133,7 @@ function MemberStoryCard({ story }: { story: (typeof TESTIMONIALS)[number] }) {
       {!expanded && (
         <View className="flex-row items-center gap-1.5 mt-3">
           <Text className="text-muted text-xs font-semibold">Read the whole story</Text>
-          <ChevronDown color="#6B7280" size={14} />
+          <ChevronDown color="#6E8090" size={14} />
         </View>
       )}
     </TouchableOpacity>
@@ -152,7 +154,9 @@ function CaseStudyCard({ study }: { study: CaseStudy }) {
       activeOpacity={0.85}
       className="bg-surface border border-line rounded-[18px] p-5"
     >
-      <Text className="text-accent text-[10px] font-bold uppercase tracking-[0.2em]">
+      {/* Deepwater role ruling: theme eyebrows absorb (muted) — same ruling
+          as the member-story tags above. */}
+      <Text className="text-muted text-[10px] font-bold uppercase tracking-[0.2em]">
         {study.theme}
       </Text>
       <Text className="text-ink text-[19px] font-serif-regular mt-1.5">{study.title}</Text>
@@ -168,14 +172,17 @@ function CaseStudyCard({ study }: { study: CaseStudy }) {
           <Text className="text-dim text-[10px] font-bold uppercase tracking-[0.2em] mt-5">
             The Breakthrough
           </Text>
-          <View className="border-l-2 border-l-accent pl-3.5 mt-2">
+          {/* Accent unification (2026-07-25): the breakthrough spine runs in
+              the quiet line tone — never accent (aqua would misread another
+              man's arc as this user's next action), never ember. */}
+          <View className="border-l-2 border-l-line pl-3.5 mt-2">
             <Text className="text-body text-sm leading-[21px]">{study.breakthrough}</Text>
           </View>
         </>
       ) : (
         <View className="flex-row items-center gap-1.5 mt-4">
           <Text className="text-muted text-xs font-semibold">Read the full narrative</Text>
-          <ChevronDown color="#6B7280" size={14} />
+          <ChevronDown color="#6E8090" size={14} />
         </View>
       )}
     </TouchableOpacity>
@@ -195,14 +202,14 @@ export default function SuccessVaultScreen() {
         activeOpacity={0.7}
         className="flex-row items-center gap-1 mb-5 self-start"
       >
-        <ChevronLeft size={16} color="#6B7280" />
+        <ChevronLeft size={16} color="#6E8090" />
         <Text className="text-muted text-xs font-semibold">Back</Text>
       </TouchableOpacity>
 
       <Text className="text-muted text-[11px] font-semibold uppercase tracking-[0.28em]">
         The Vault
       </Text>
-      <Text className="text-ink text-[26px] font-serif-light mt-1.5">Others Who Walked It</Text>
+      <Text className="text-ink text-[26px] font-serif-regular mt-1.5">Others Who Walked It</Text>
       <Text className="text-muted text-[13.5px] leading-5 mt-2">
         Men who were exactly where you are, and the partners who watched them change.
       </Text>

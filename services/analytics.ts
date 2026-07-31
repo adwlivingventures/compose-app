@@ -86,6 +86,13 @@ type FieldSpec =
 // (or on a pre-segment install) still counts — it just lands untagged.
 const SEGMENT_FIELD: FieldSpec = { oneOf: SEGMENTS, optional: true };
 
+// Replay tag (2026-07-25): finishing a day in read-only replay mode fires the
+// SAME day_completed event (never a new name, never suppressed) carrying
+// replay:'true', so retention curves can filter re-listens from first
+// completions. Absent on every normal completion — ProtocolContext never
+// sets it.
+const REPLAY_FIELD: FieldSpec = { oneOf: ['true'] as const, optional: true };
+
 export const EVENT_SCHEMA: Record<string, Record<string, FieldSpec>> = {
   onboarding_started: {},
   onboarding_screen: {
@@ -96,7 +103,7 @@ export const EVENT_SCHEMA: Record<string, Record<string, FieldSpec>> = {
   composure_measured: { score: 'int', day: 'int', segment: SEGMENT_FIELD },
   paywall_viewed: {},
   purchase: { term: TERMS, segment: SEGMENT_FIELD },
-  day_completed: { day: 'int', segment: SEGMENT_FIELD },
+  day_completed: { day: 'int', segment: SEGMENT_FIELD, replay: REPLAY_FIELD },
   control_score: { value: 'int', day: 'int' },
   sos_opened: {},
   restructurer_used: { distortion: DISTORTIONS },

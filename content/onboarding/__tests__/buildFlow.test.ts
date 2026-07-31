@@ -14,7 +14,7 @@ import { CONSENT_SCREEN, SCREENS } from '../screens';
 // Numbered screen order (batched handoff pdf + 2026-07-10 amendments).
 const ORDER = [
   'welcome-opening', // 01
-  'welcome-roadmap', // 02
+  'how-it-works', // 02  (2026-07-25: replaces welcome-roadmap — method + three-stage roadmap)
   'relationship', // 03
   'reasons', // 04
   'duration', // 05

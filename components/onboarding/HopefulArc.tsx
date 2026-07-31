@@ -1,9 +1,10 @@
 // B-33/A-33 — the Hopeful Arc: five encouraging sub-screens under one screen
 // id, tapped through quickly to rebuild hope before the close. Image-forward
 // per founder ruling 2026-07-14 (supersedes the earlier typographic-only
-// imagery rule): each slide carries a bespoke SVG motif (copper — base
-// palette) + a short imperative headline + 1–2 sentences, with the wordmark
-// up top and pagination dots — the QUITTR quick-tap register in Ember Dusk.
+// imagery rule): each slide carries a bespoke SVG motif (aqua current —
+// Deepwater default) + a short imperative headline + 1–2 sentences, with the
+// wordmark up top and pagination dots — the QUITTR quick-tap register in
+// Deepwater.
 
 import { useState } from 'react';
 import { Text, View } from 'react-native';
@@ -27,15 +28,17 @@ function PhasePath() {
   return (
     <View className="mt-7 items-center">
       <Svg width={width} height={86}>
-        <Line x1={xs[0]} y1={y} x2={xs[2]} y2={y} stroke="#232D42" strokeWidth={2} />
+        <Line x1={xs[0]} y1={y} x2={xs[2]} y2={y} stroke="#223140" strokeWidth={2} />
+        {/* Accent unification (2026-07-25): the "You" marker rides the aqua
+            current; the unearned path stays matte. */}
         {xs.map((x, i) => (
           <Circle
             key={i}
             cx={x}
             cy={y}
             r={i === 0 ? 6 : 5}
-            fill={i === 0 ? '#C89B6D' : '#151A26'}
-            stroke={i === 0 ? '#C89B6D' : '#2E3B5E'}
+            fill={i === 0 ? '#5FD4C1' : '#121A24'}
+            stroke={i === 0 ? '#5FD4C1' : '#2A3A4A'}
             strokeWidth={1.5}
           />
         ))}
@@ -44,7 +47,7 @@ function PhasePath() {
             key={`label-${i}`}
             x={x}
             y={y + 26}
-            fill="#6B7280"
+            fill="#6E8090"
             fontSize={10}
             fontWeight="300"
             textAnchor={i === 0 ? 'start' : i === 2 ? 'end' : 'middle'}
@@ -55,7 +58,7 @@ function PhasePath() {
         <SvgText
           x={xs[0]}
           y={y - 16}
-          fill="#D9B285"
+          fill="#8CE6D8"
           fontSize={10}
           fontWeight="400"
           textAnchor="start"
@@ -111,8 +114,8 @@ export default function HopefulArc({
           />
           {sub.visual === 'phase-path' && <PhasePath />}
         </View>
-        {/* Pagination dots — the "quick section, almost there" cue. The active
-            dot is a progress marker, so copper is legal here (§6). */}
+        {/* Pagination dots — the "quick section, almost there" cue. Deepwater
+            role: the active dot is a progress marker → aqua current. */}
         <View className="flex-row justify-center" style={{ gap: 8, marginBottom: 20 }}>
           {screen.subScreens.map((_, i) => (
             <View
@@ -121,7 +124,7 @@ export default function HopefulArc({
               style={{
                 width: 6,
                 height: 6,
-                backgroundColor: i === index ? '#C89B6D' : '#232D42',
+                backgroundColor: i === index ? '#5FD4C1' : '#223140',
               }}
             />
           ))}

@@ -70,7 +70,9 @@ export default function PhaseTransition({
         paddingBottom: 40,
       }}
     >
-      <Text className="text-muted text-[11px] font-semibold uppercase tracking-[0.28em]">
+      {/* Deepwater role ruling: the phase name is an identity mark — ember,
+          not accent. Ember use 1 of 2 on this ceremony surface. */}
+      <Text className="text-ember text-[11px] font-semibold uppercase tracking-[0.28em]">
         {copy.eyebrow}
       </Text>
       <Text className="text-ink text-[27px] font-serif-regular leading-9 mt-2.5">
@@ -80,7 +82,10 @@ export default function PhaseTransition({
 
       {signature && (
         <View className="bg-surface border border-line rounded-[18px] p-6 mt-8">
-          <Text className="text-body text-[15px] leading-[26px] font-serif-italic">
+          {/* Deepwater role ruling: the oath read back is the identity line of
+              this screen — ember-bright serif italic (ember use 2 of 2). The
+              signature stays ink italic, per grammar. */}
+          <Text className="text-ember-bright text-[15px] leading-[26px] font-serif-italic">
             {OATH_TEXT}
           </Text>
           <Text className="text-ink text-2xl font-serif-italic mt-6">{signature.name}</Text>
@@ -91,14 +96,19 @@ export default function PhaseTransition({
       )}
 
       {copy.note && (
-        <Text className="text-accent-soft text-[12.5px] mt-6">{copy.note}</Text>
+        // Deepwater role ruling: the unlock notice absorbs (body) — a ceremony
+        // surface carries at most one aqua element, and that is the CTA below.
+        <Text className="text-body text-[12.5px] mt-6">{copy.note}</Text>
       )}
 
       <View className="flex-1" />
 
+      {/* Deepwater: the single aqua element on this ceremony — the forward action. */}
       <TouchableOpacity
         onPress={onContinue}
         activeOpacity={0.85}
+        accessibilityRole="button"
+        accessibilityLabel="Continue"
         className="bg-accent rounded-2xl py-[17px] items-center mt-10"
       >
         <Text className="text-on-accent font-bold text-base">Continue</Text>

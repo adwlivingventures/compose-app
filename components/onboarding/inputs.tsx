@@ -40,7 +40,7 @@ export function NameInput({
           value={value}
           onChangeText={setValue}
           placeholder={screen.placeholder}
-          placeholderTextColor="#4B5563"
+          placeholderTextColor="#53626E"
           autoCapitalize="words"
           autoCorrect={false}
           returnKeyType="done"
@@ -171,7 +171,7 @@ export function ScaleSlider({
                   style={{
                     height: 24,
                     borderWidth: isValue ? 0 : 1,
-                    borderColor: '#2E3B5E',
+                    borderColor: '#2A3A4A',
                     opacity: active && !isValue ? 0.55 : 1,
                   }}
                 />
@@ -256,7 +256,7 @@ export function MultiSelect({
               value={freeText}
               onChangeText={setFreeText}
               placeholder={screen.freeText.prompt}
-              placeholderTextColor="#4B5563"
+              placeholderTextColor="#53626E"
               multiline
               accessibilityLabel={screen.freeText.prompt}
               className="mt-4 rounded-2xl bg-surface px-5 font-serif-italic text-ink"

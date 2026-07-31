@@ -48,7 +48,13 @@ Elsewhere in this file, COMPOSE is described as a program that helps users **add
 
 - **Demographic:** Men aged 18–45, motivated to show up fully in intimacy but caught in a performance-anxiety loop.
 - **Core Pain Points:** Premature ejaculation, psychogenic erectile difficulty, performance anxiety, "spectatoring."
-- **Psychological Profile:** Highly vulnerable, embarrassed, private. Wants a durable internal shift over a chemical crutch. High sensitivity to "lock screen shame" — app discretion is a hard requirement (name, icon, notifications, lock screen previews).
+- **Psychological Profile:** Highly vulnerable, embarrassed, private. Wants a durable internal shift over a chemical crutch. Arrives running *from* shame (fear/scarcity motivation, which expires the moment the pain eases); the 75 days must migrate him to a *toward* motivation — presence, the partner he wants to be, the man he is becoming — or the change does not hold past symptom relief.
+- **Discretion — corrected weighting (founder ruling 2026-07-25; supersedes the prior "hard requirement" framing):** discretion is a **feature some users will want, not a design constraint the product bends around.** It is instrumental: its only job is to lower the cost of getting help — it is why a man who would never walk into a clinic installs this, and why he doesn't delete it the first time someone else picks up his phone. That is real, and worth serving. But **discretion is never prioritized over benefit to the user.** The moment it subtracts from the help itself, it has inverted into the thing it was protecting.
+  - **The test for any discretion-driven constraint:** *does this protect him from a harm he actually fears, or does it protect a doctrine at his expense?* If the second, the constraint loses.
+  - **Consequence A — data durability beats data minimalism.** Losing 75 days of work to a broken phone is a real harm; an awkward receipt in an inbox is not. Optional accounts and encrypted progress backup are a user benefit. State the privacy promise as an **access claim** ("seen by no one but you") rather than a **location claim** ("never leaves this phone"), so it stays true under any future data architecture.
+  - **Consequence B — no feature may be rejected on discretion grounds alone.** The argument against it must stand on user benefit first. (Example: the case against a community feed is that social comparison is spectatoring with an audience — the pathology installed as a feature. That holds for a user with zero discretion needs. Discretion is a distant second reason and must never lead.)
+  - **Consequence C — where discretion and benefit genuinely conflict, the user chooses,** not the product on his behalf. See the discretion level in §6.
+  - **This weighting is an assumption, not a finding.** Validate it: ask testers directly whether discretion factored into installing, and once telemetry is live, track adoption of the Discretion toggles. If fewer than a third of members ever enable Face ID or app-switcher hiding, reduce the discretion footprint in the funnel further — starting with hopeful-arc slide 5, which currently spends the last screen before the close answering "will anyone find out?" instead of "what do I actually get?"
 
 ## 4. Program Architecture — The 75-Day Protocol
 
@@ -73,19 +79,47 @@ One linear, all-or-nothing daily flow, under 10 minutes, three items:
 
 ## 6. Visual & UX Language
 
-- **Visual Language — "Ember Dusk v2":** dark mode only; a cool dusk field lit by warm emission. Deep blue-black ground (`#080A0F`), navy surfaces (`#151A26`) and strokes (`#232D42`), with a single warm sand-copper accent (`#C89B6D`) treated as *light, not paint* — emissive gradient cores and 12–16px blooms on interactive elements only. **Accent scarcity (hard rule):** sand appears at most 4 times per screen, only on the next step (CTA, progress fill, selection state, score/gauge marker); everything else absorbs. Severity amber `#D9A756` / red `#E07A5F` are semantic, matte, and never glow. Display type is Newsreader (400–500; italic for oaths/mirror sentences/goal echoes; 300 reserved for 40px+ numerals); UI/body stays system font, weight 300 body. All CTAs are sentence case; UPPERCASE 2px-tracked micro-type is reserved for eyebrows, progress headers, and the question footer. Ground/surface tokens interpolate by protocol day (dusk-to-dawn arc; hard ceiling ~8% luminance at Day 75 — first light, never daylight). No bright/clinical colors, no playful iconography, no shadows — flat surfaces with 1px borders; only interactive elements and the Ember emit. Canonical tokens: `tailwind.config.js` + `theme/emberDusk.ts`; the governing spec is `design/design_handoff_twilight_v1/` as amended by the Design Authority Ruling in its `BUILD_PROMPT.md` (layout truth: the reference DC; color truth: the ruling). **All new screens and components must be built in Ember Dusk v2 via NativeWind classes — no StyleSheet one-offs.** (Ember Dusk v2 supersedes Ember v1 and "Twilight Anchor"; the UX philosophy below is unchanged.)
+- **Visual Language — "Deepwater v1" (founder-approved 2026-07-25; supersedes Ember Dusk v2's VALUES, inherits its discipline):** dark mode only; a deep blue-black water field (`#0A0F16` ground, `#121A24` surfaces, `#223140` strokes) lit by ONE luminous aqua accent — the "current" (`#5FD4C1→#3E9BD6`) — reserved for the next step and earned progress (≤4 uses per screen). The old copper survives as the `ember` register (`#C89B6D`): identity moments only — phase names, oaths, mirror lines, milestone marks, sealed-day checks (≤2 per screen), never a CTA. SOS surfaces are matte clay `#C96A55`, never glowing. `gain` `#78C99A` marks positive deltas only, always with ▲ + label. Five tabs with Today raised at center as the bar's only luminous node, carrying the 5-segment session ring (sealed = ember, glow off). Canonical tokens: `tailwind.config.js` + `theme/deepwater.ts` (+ `theme/emberDusk.ts` for onboarding material constants); governing spec: project doc `claude/DEEPWATER-FLOW-MAP.md`. Typography, dusk-to-dawn arc, accent-scarcity rule, and all other Ember Dusk v2 discipline below carry forward unchanged.
+- **Prior language — "Ember Dusk v2" (historical reference):** dark mode only; a cool dusk field lit by warm emission. Deep blue-black ground (`#080A0F`), navy surfaces (`#151A26`) and strokes (`#232D42`), with a single warm sand-copper accent (`#C89B6D`) treated as *light, not paint* — emissive gradient cores and 12–16px blooms on interactive elements only. **Accent scarcity (hard rule):** sand appears at most 4 times per screen, only on the next step (CTA, progress fill, selection state, score/gauge marker); everything else absorbs. Severity amber `#D9A756` / red `#E07A5F` are semantic, matte, and never glow. Display type is Newsreader (400–500; italic for oaths/mirror sentences/goal echoes; 300 reserved for 40px+ numerals); UI/body stays system font, weight 300 body. All CTAs are sentence case; UPPERCASE 2px-tracked micro-type is reserved for eyebrows, progress headers, and the question footer. Ground/surface tokens interpolate by protocol day (dusk-to-dawn arc; hard ceiling ~8% luminance at Day 75 — first light, never daylight). No bright/clinical colors, no playful iconography, no shadows — flat surfaces with 1px borders; only interactive elements and the Ember emit. Canonical tokens: `tailwind.config.js` + `theme/emberDusk.ts`; the governing spec is `design/design_handoff_twilight_v1/` as amended by the Design Authority Ruling in its `BUILD_PROMPT.md` (layout truth: the reference DC; color truth: the ruling). **All new screens and components must be built in Ember Dusk v2 via NativeWind classes — no StyleSheet one-offs.** (Ember Dusk v2 supersedes Ember v1 and "Twilight Anchor"; the UX philosophy below is unchanged.)
 - **UX Philosophy — "Ventral Vagal Sanctuary":** users arrive anxious; the UI's job is to down-regulate them, not stimulate decision-making.
   - **Zero decision fatigue (Hick's Law):** no library-of-choices UI. Linear flow. One dominant action: "Begin Today's Session."
   - **Persistent SOS access:** a one-tap triage control, reachable from anywhere in the app, that leads to a grounding sequence (e.g., paced breathing, sensory grounding) for acute anxiety spikes.
 
-### Notification & Lock-Screen Copy Rules
+### Notification & External-Surface Copy Rules
 
-Notifications are the highest-exposure surface for "lock screen shame" (§3). These rules are binding for any notification, Live Activity, widget, or other outside-the-app text surface, present or future:
+*(Rewritten 2026-07-25 under the §3 discretion ruling. These rules were previously one undifferentiated doctrine; they are now split, because they were doing two different jobs. Most protected the user from **discovery** — a preference, now user-set. One protected him from **the product's own mechanism working against him** — clinical, and absolute at every level. Do not re-merge them.)*
 
-- **The stranger test:** every notification must be unremarkable to a stranger reading it over a shoulder or on a locked phone. Allowed pattern: "Compose — today's session is ready." App name renders as "Compose" only.
-- **Banned vocabulary on external surfaces:** anchor titles, phase names, and all domain vocabulary — anxiety, pelvic, intimacy, arousal, erection, performance, somatic, nervous system, protocol content of any kind.
-- **No urgency or loss framing** ("Don't lose your streak!", countdowns, warning emoji). Urgency framing is sympathetic activation — the opposite of the product's mechanism — and streak-loss threats weaponize shame against our own user.
-- **No emoji, no personalization** (never the user's name plus this app on a lock screen).
+Binding for any notification, Live Activity, widget, email, or other outside-the-app text surface, present or future. **Every such surface must implement both levels below** — a surface that can only render one of them is not shippable.
+
+#### The discretion level — set by the user, never silently defaulted
+
+The user picks his level once, on the Discretion setup screen, where the live lock-screen preview is already rendered. That screen is the only place in the app where he can answer this question with real information in front of him, so the ask belongs there and nowhere else.
+
+| Level | External surfaces | In-app greeting |
+|---|---|---|
+| **Personal** | The day's authored line may appear — e.g. "Tonight: the pause is a tool, not an escape." | Uses his first name |
+| **Shielded** | Neutral only — "Compose — today's session is ready." | Nameless — "Good evening." |
+
+**Shielded is the pre-2026-07-25 behavior and must remain fully intact as an option.** The three existing toggles (neutral notifications, Face ID, hide from app switcher) sit underneath the level and stay independently controllable at either setting.
+
+#### Absolute — every level, no exceptions
+
+- **No urgency or loss framing.** No "Don't lose your streak!", no countdowns, no warning emoji, no "you're falling behind." **This is a clinical rule, not a discretion rule, and it does not relax at the Personal level.** Urgency framing is sympathetic activation — the exact state the product exists to down-regulate — and streak-loss threats weaponize shame against our own user, for whom shame *is* the pathology. It was previously filed under discretion by accident; it outranks the discretion ruling entirely.
+- **No explicit, vulgar, or clinical-diagnostic language** on any external surface at any level.
+- **No emoji.**
+- **App name renders as "Compose."** Icon and billing descriptor never vary by level — they cost the user nothing.
+
+#### Shielded level — additional rules
+
+- **The stranger test:** every string must be unremarkable to a stranger reading it over a shoulder or on a locked phone.
+- **Banned vocabulary:** anchor titles, phase names, and all domain vocabulary — anxiety, pelvic, intimacy, arousal, erection, performance, somatic, nervous system, protocol content of any kind.
+- **No personalization** — never the user's name alongside this app on a lock screen.
+
+#### Personal level — what is permitted, and the bar that still applies
+
+- Domain-adjacent identity and practice content is permitted, and his first name is permitted.
+- **The bar drops from "unremarkable" to "non-diagnostic" — not to "anything goes."** A Personal-level string must still be one a stranger could read without learning what this app treats. "Tonight: the pause is a tool, not an escape" passes. Anything naming an erection, ejaculation, or a diagnosis does not, at any level.
+- Purpose of the level: a real re-engagement trigger and a daily identity rep, instead of a generic one — for the majority of users who never needed invisibility and were previously taxed for it anyway.
 
 ## 7. Technical Stack & Architecture
 

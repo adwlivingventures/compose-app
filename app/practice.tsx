@@ -52,7 +52,7 @@ export default function PracticeScreen() {
           accessibilityLabel="Close practice"
           className="bg-surface border border-line rounded-full p-2.5"
         >
-          <X color="#6B7280" size={18} />
+          <X color="#6E8090" size={18} />
         </TouchableOpacity>
       </View>
 
@@ -189,7 +189,9 @@ function StepsRunner({ practice, onDone }: { practice: Practice; onDone: () => v
         </Text>
 
         <View className="bg-surface border border-line rounded-2xl p-6">
-          <Text className="text-accent text-xs font-bold uppercase tracking-widest">
+          {/* Deepwater grammar: eyebrows are muted — this screen's aqua is
+              the step dots (progress) and the Next CTA (next action). */}
+          <Text className="text-muted text-xs font-bold uppercase tracking-widest">
             {step.title}
           </Text>
           <Text className="text-ink text-[15px] leading-7 font-serif-regular mt-3">

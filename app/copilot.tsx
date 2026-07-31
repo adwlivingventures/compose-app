@@ -160,14 +160,14 @@ export default function SomaticCopilotScreen() {
             activeOpacity={0.7}
             className="flex-row items-center gap-1 mb-5 self-start"
           >
-            <ChevronLeft size={16} color="#6B7280" />
+            <ChevronLeft size={16} color="#6E8090" />
             <Text className="text-muted text-xs font-semibold">Back</Text>
           </TouchableOpacity>
 
           <Text className="text-muted text-[11px] font-semibold uppercase tracking-[0.28em]">
             Mastery Suite
           </Text>
-          <Text className="text-ink text-[26px] font-serif-light mt-1.5">Somatic Copilot</Text>
+          <Text className="text-ink text-[26px] font-serif-regular mt-1.5">Somatic Copilot</Text>
           <Text className="text-muted text-[13.5px] leading-5 mt-2">
             Select the specific autonomic roadblock you encountered.
           </Text>
@@ -198,7 +198,7 @@ export default function SomaticCopilotScreen() {
           <Text className="text-muted text-[11px] font-semibold uppercase tracking-[0.28em] mt-8">
             Somatic Copilot
           </Text>
-          <Text className="text-ink text-[26px] font-serif-light mt-1.5">The CBST Reframe</Text>
+          <Text className="text-ink text-[26px] font-serif-regular mt-1.5">The CBST Reframe</Text>
 
           <ScrollView
             className="flex-1 mt-5"
@@ -211,6 +211,9 @@ export default function SomaticCopilotScreen() {
               <Text className="text-muted text-sm leading-5">{selected.trigger}</Text>
             </View>
 
+            {/* Deepwater role ruling: the left rule stays accent — the reframe
+                IS the prescribed next move, not an identity moment. Aqua count
+                on this view: this rule + the CTA = 2 of 4. */}
             <View className="border-l-2 border-l-accent bg-surface border border-line rounded-[16px] p-5 mt-3.5">
               <Text className="text-body text-[15px] leading-6">{selected.reframe}</Text>
             </View>
@@ -220,9 +223,11 @@ export default function SomaticCopilotScreen() {
           <TouchableOpacity
             onPress={() => router.back()}
             activeOpacity={0.85}
+            accessibilityRole="button"
+            accessibilityLabel="Acknowledge and internalize"
             className="bg-accent rounded-2xl py-[19px] items-center"
           >
-            <Text className="text-on-accent font-bold text-base">Acknowledge & Internalize</Text>
+            <Text className="text-on-accent font-bold text-base">Acknowledge and internalize</Text>
           </TouchableOpacity>
         </>
       )}

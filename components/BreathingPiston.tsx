@@ -54,9 +54,9 @@ export default function BreathingPiston() {
       {/* Torso cylinder — static walls and shoulder line, flat 1px-family
           strokes per the Ember no-shadow language. */}
       <Svg width={W} height={H} style={{ position: 'absolute' }}>
-        <Path d={`M 56 26 Q ${W / 2} 12, ${W - 56} 26`} stroke="#232D42" strokeWidth={2} fill="none" />
-        <Line x1={56} y1={26} x2={56} y2={158} stroke="#232D42" strokeWidth={2} />
-        <Line x1={W - 56} y1={26} x2={W - 56} y2={158} stroke="#232D42" strokeWidth={2} />
+        <Path d={`M 56 26 Q ${W / 2} 12, ${W - 56} 26`} stroke="#223140" strokeWidth={2} fill="none" />
+        <Line x1={56} y1={26} x2={56} y2={158} stroke="#223140" strokeWidth={2} />
+        <Line x1={W - 56} y1={26} x2={W - 56} y2={158} stroke="#223140" strokeWidth={2} />
       </Svg>
 
       {/* Diaphragm — descends on the inhale, recoils on the exhale. */}
@@ -72,7 +72,7 @@ export default function BreathingPiston() {
         <Svg width={W} height={26}>
           <Path
             d={`M 62 6 Q ${W / 2} 22, ${W - 62} 6`}
-            stroke="#C89B6D"
+            stroke="#5FD4C1"
             strokeWidth={2.5}
             strokeLinecap="round"
             fill="none"
@@ -99,7 +99,7 @@ export default function BreathingPiston() {
         <Svg width={W} height={26}>
           <Path
             d={`M 62 6 Q ${W / 2} 20, ${W - 62} 6`}
-            stroke="#C89B6D"
+            stroke="#5FD4C1"
             strokeWidth={2.5}
             strokeLinecap="round"
             fill="none"

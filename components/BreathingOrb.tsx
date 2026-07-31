@@ -161,9 +161,9 @@ export default function BreathingOrb({
         <Svg width={glowSize} height={glowSize}>
           <Defs>
             <RadialGradient id="orbGlow" cx="50%" cy="50%" r="50%">
-              <Stop offset="0%" stopColor="#C89B6D" stopOpacity={0.26} />
-              <Stop offset="55%" stopColor="#C89B6D" stopOpacity={0.05} />
-              <Stop offset="70%" stopColor="#C89B6D" stopOpacity={0} />
+              <Stop offset="0%" stopColor="#5FD4C1" stopOpacity={0.26} />
+              <Stop offset="55%" stopColor="#5FD4C1" stopOpacity={0.05} />
+              <Stop offset="70%" stopColor="#5FD4C1" stopOpacity={0} />
             </RadialGradient>
           </Defs>
           <Circle cx={glowSize / 2} cy={glowSize / 2} r={glowSize / 2} fill="url(#orbGlow)" />
@@ -174,9 +174,9 @@ export default function BreathingOrb({
           width: innerSize,
           height: innerSize,
           borderRadius: innerSize / 2,
-          backgroundColor: 'rgba(200,155,109,0.09)',
+          backgroundColor: 'rgba(95,212,193,0.09)',
           borderWidth: 1.5,
-          borderColor: 'rgba(200,155,109,0.5)',
+          borderColor: 'rgba(95,212,193,0.5)',
           transform: [{ scale: innerScale }],
         }}
         className="items-center justify-center"

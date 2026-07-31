@@ -1,13 +1,14 @@
 import React from 'react';
-import { ScrollView, Text, TouchableOpacity, View } from 'react-native';
+import { ScrollView, Text, View } from 'react-native';
 import type { ExpertQuotesScreen } from '../../content/onboarding/types';
+import EmissiveCTA from './EmissiveCTA';
 
 /**
  * Expert-consensus slide (types.ts ExpertQuotesScreen) — verbatim, sourced
  * clinician quotes. Newsreader italic carries the spoken register (the
  * mirror-sentence treatment); attribution stays quiet. No expert imagery,
  * no logos, nothing that could read as endorsement — the quotes describe
- * the mechanism and stop there. Copper on the CTA only.
+ * the mechanism and stop there. Deepwater: aqua on the one emissive CTA only.
  */
 export default function ExpertQuotes({
   screen,
@@ -48,13 +49,10 @@ export default function ExpertQuotes({
         ))}
       </View>
 
-      <TouchableOpacity
-        onPress={onAdvance}
-        activeOpacity={0.85}
-        className="bg-accent rounded-2xl py-[19px] items-center mt-9"
-      >
-        <Text className="text-on-accent font-bold text-base">{screen.button}</Text>
-      </TouchableOpacity>
+      {/* Deepwater: the one emissive aqua CTA — same pill as every screen. */}
+      <View className="mt-9">
+        <EmissiveCTA label={screen.button} onPress={onAdvance} />
+      </View>
     </ScrollView>
   );
 }

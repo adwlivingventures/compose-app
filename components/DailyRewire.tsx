@@ -40,10 +40,14 @@ type RewireStage = 'hold' | 'read' | 'affirm' | 'done';
 export default function DailyRewire({
   day,
   onComplete,
+  persist = true,
 }: {
   day: number;
   /** Fires when today's rep completes fresh (never on a revisit). */
   onComplete?: () => void;
+  /** false in replay mode (app/session.tsx): the rep can be redone, but
+   *  nothing is written — a replayed day never touches stored state. */
+  persist?: boolean;
 }) {
   const rewire = rewireForDay(day);
   const quote = quoteForDay(day);
@@ -65,9 +69,9 @@ export default function DailyRewire({
 
   const complete = useCallback(async () => {
     setStage('done');
-    await LocalStore.setItem(REWIRE_DONE_KEY, day);
+    if (persist) await LocalStore.setItem(REWIRE_DONE_KEY, day);
     onCompleteRef.current?.();
-  }, [day]);
+  }, [day, persist]);
 
   const beginRead = useCallback(() => {
     setStage('read');
@@ -132,11 +136,14 @@ export default function DailyRewire({
 
       <View className="bg-surface border border-line rounded-2xl p-5">
         <View className="flex-row items-center justify-between">
-          <Text className="text-accent text-xs font-bold uppercase tracking-widest">
+          {/* Accent unification (founder ruling 2026-07-25): one accent only —
+              the Rewire's chrome runs muted; progress and the done check run
+              the aqua current. */}
+          <Text className="text-muted text-xs font-bold uppercase tracking-widest">
             Daily Rewire
           </Text>
           {stage === 'done' ? (
-            <CheckCircle2 color="#C89B6D" size={16} />
+            <CheckCircle2 color="#5FD4C1" size={16} />
           ) : (
             <Text className="text-dim text-[10px] font-semibold tracking-[0.08em]">
               Rep {day} of 75
@@ -164,12 +171,12 @@ export default function DailyRewire({
             <View className="h-[2px] bg-line-soft rounded-full overflow-hidden mt-2">
               {/* Animated fills use inline style — NativeWind className
                   interop on Animated components isn't guaranteed; the color
-                  is the Ember accent token. */}
+                  is the aqua accent token. */}
               <Animated.View
                 style={{
                   height: '100%',
                   borderRadius: 9999,
-                  backgroundColor: '#C89B6D',
+                  backgroundColor: '#5FD4C1',
                   width: holdProgress.interpolate({
                     inputRange: [0, 1],
                     outputRange: ['0%', '100%'],
@@ -182,7 +189,7 @@ export default function DailyRewire({
 
         {crossedOut && (
           <>
-            <Text className="text-accent text-xs mt-4 mb-1.5 font-bold uppercase tracking-wider">
+            <Text className="text-muted text-xs mt-4 mb-1.5 font-bold uppercase tracking-wider">
               {REWIRE_COPY.truthLabel}
             </Text>
             <Text className="text-ink text-[15px] leading-6 font-serif-regular">
@@ -197,7 +204,7 @@ export default function DailyRewire({
                     style={{
                       height: '100%',
                       borderRadius: 9999,
-                      backgroundColor: '#C89B6D',
+                      backgroundColor: '#5FD4C1',
                       width: readProgress.interpolate({
                         inputRange: [0, 1],
                         outputRange: ['0%', '100%'],
@@ -211,7 +218,7 @@ export default function DailyRewire({
             {stage === 'done' && (
               <View className="border-t border-line-soft mt-4 pt-3">
                 <Text className="text-faint text-xs">{REWIRE_COPY.doneLine}</Text>
-                <Text className="text-accent-soft text-xs font-serif-italic mt-1">
+                <Text className="text-ink text-xs font-serif-italic mt-1">
                   {day === 1
                     ? 'The first deliberate rep against the old belief system.'
                     : `${day} deliberate reps against the old belief system.`}

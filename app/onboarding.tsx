@@ -1,4 +1,6 @@
-// Onboarding — data-driven flow runner (Ember Dusk v2 rebuild).
+// Onboarding — data-driven flow runner (Deepwater restyle, founder ruling
+// 2026-07-25: guided, immersive, concise — aqua current for actions/progress,
+// ember for identity, ember-rust for the diagnosis section).
 //
 // Single flow (founder ruling 2026-07-10 — the interleaved variant and the
 // onboarding A/B test are retired): buildFlow() resolves the screen order
@@ -60,6 +62,15 @@ interface PersistedState {
   screenId: string;
   answers: Answers;
 }
+
+/** Chapter number for the ProgressHeader's "PART N — <chapter>" eyebrow
+ *  (Deepwater guidance layer) — derived from the screen's section id; content
+ *  files untouched. */
+const PART_NUMBER: Partial<Record<ResolvedScreen['section'], number>> = {
+  part1: 1,
+  part2: 2,
+  part3: 3,
+};
 
 /** Screens the back stack can return to. */
 const isStable = (s: ResolvedScreen) =>
@@ -487,6 +498,7 @@ export default function Onboarding() {
           total={meta.total}
           minutesLeft={meta.minutesLeft}
           sectionLabel={meta.sectionLabel}
+          part={PART_NUMBER[screen.section]}
           onBack={history.current.length > 0 ? goBack : undefined}
         />
         <View className="flex-1">{body}</View>
@@ -525,7 +537,7 @@ export default function Onboarding() {
           className="absolute"
           style={{ top: 62, left: 22, opacity: 0.75 }}
         >
-          <ChevronLeft size={20} color="#6B7280" strokeWidth={1.5} />
+          <ChevronLeft size={20} color="#6E8090" strokeWidth={1.5} />
         </Pressable>
       )}
     </View>

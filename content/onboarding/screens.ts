@@ -28,44 +28,51 @@ export const SCREENS: Screen[] = [
     section: 'opening',
     archetype: 'chapter',
     eyebrow: 'COMPOSE',
-    // Founder review 2026-07-10: hard break — first sentence one full line,
-    // second sentence directly below it.
-    headline: 'Your body isn’t failing you.\nIt’s following orders.',
-    // Founder review 2026-07-10: two short, balanced lines instead of one long
-    // paragraph — centered text only reads centered when the lines are even.
-    bodyBlocks: [
-      'In the next few minutes, we’ll map exactly where those orders come from.',
-      'Every answer stays on this phone.',
-    ],
-    hero: 'fig-hero-somatic.png',
-    heroMode: 'contain',
-    privacyLine: 'Private by design. No account, no sync, no lock-screen tells',
-    microText: 'Takes about 5 minutes',
-    button: 'Find my baseline',
-  },
-  {
-    id: 'welcome-roadmap',
-    section: 'opening',
-    archetype: 'chapter',
-    eyebrow: 'COMPOSE',
+    // Founder ruling 2026-07-25 (Opal-pattern rebuild): screen one is warmth,
+    // not diagnosis. Wordmark, welcome, one reframe line, CTA — 14 words of
+    // copy, down from 44. Two screens now precede the first question; the
+    // old `welcome-roadmap` legitimacy screen is retired into how-it-works.
     welcome: true,
     headline: 'Welcome to Compose.',
-    // Founder review 2026-07-10: the "credit for" affirmation read as cheesy.
-    // Replaced with a direct legitimacy line — what this is and what it's
-    // built on — so the first impression is "structured and clinical," not
-    // "motivational." Names CBST specifically (it survives the skeptic's
-    // google search). "subconscious identity retraining" stays LOWERCASE by
-    // ruling: as a description it's a defensible mechanism claim (habituated
-    // patterns run below conscious willpower); Title-Cased it would read as
-    // an invented framework — a fake credential next to a real one poisons
-    // both, and pseudo-clinical branding is an App Store review liability.
+    // Founder ruling 2026-07-25: no hero image (the render read as stock
+    // decoration and undercut the clinical register). The reframe carries
+    // the screen as subtext instead — "an alarm you never set" is the
+    // upgrade over "orders": it names the actual mechanism (amygdala threat
+    // response) AND removes authorship, so the sentence absolves him in the
+    // same breath that it explains him. Nothing here asks him to agree with
+    // anything; the first tap costs him nothing.
+    bodyBlocks: ['Your body works. Let’s retrain the signal.'],
+    // Discretion ruling 2026-07-25 (CLAUDE.md §3): an access claim, not a
+    // location claim — stays true if accounts/backup ship. Renders BELOW the
+    // CTA (components/onboarding/archetypes.tsx).
+    privacyLine: 'Private by design.',
+    button: 'Get started',
+  },
+  {
+    // Founder ruling 2026-07-25: the method + roadmap screen. Three jobs, in
+    // this order: legitimacy (a real, findable modality survives the
+    // skeptic's google search), procedural expectation (naming the three
+    // stages up front is the intake frame — it makes the next 20 questions
+    // read as assessment rather than quiz funnel, which raises answer
+    // honesty, which is what makes the Day-14 delta real), and the promise
+    // that his answers are the input, not decoration.
+    id: 'how-it-works',
+    section: 'opening',
+    archetype: 'chapter',
+    eyebrow: 'HOW THIS WORKS',
+    headline: 'First we listen.\nThen we build.',
     bodyBlocks: [
-      // "daily" (not "retraining") in the first clause: avoids the double
-      // word, seeds the daily-practice expectation from the first sentence,
-      // and counters the passive misread of "subconscious."
-      'Compose is a structured daily program built on Cognitive Behavioral Sex Therapy (CBST) and subconscious identity retraining.',
-      'Before we suggest anything, we listen: first to the body, then to the mind. Then we build your protocol around what we find.',
+      'A daily program built on Cognitive Behavioral Sex Therapy and subconscious identity retraining.',
     ],
+    // Each row gets one concrete line — three bare labels read as decoration;
+    // labels with content read as an intake. The descriptors also pre-frame
+    // each section, so no question in it arrives as a surprise.
+    steps: [
+      { label: 'Your situation', line: 'What you’re dealing with, and how long it’s been.' },
+      { label: 'Your body', line: 'Arousal, breath, and pelvic tension.' },
+      { label: 'Your mind', line: 'What runs through it when a night goes wrong.' },
+    ],
+    closingLine: 'Your answers build your protocol.',
     button: 'Let’s begin',
   },
 

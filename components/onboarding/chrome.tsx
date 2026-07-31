@@ -1,6 +1,7 @@
-// Shared onboarding chrome — Ember Dusk v2.
+// Shared onboarding chrome — Deepwater.
 // Layout truth: reference/COMPOSE - Onboarding vB.dc.html (3a set).
-// Color truth: the Design Authority Ruling (BUILD_PROMPT §1).
+// Color truth: the Deepwater brief (aqua current = actions/progress; ember =
+// identity; the diagnosis section alone stays ember-rust).
 
 import { useEffect, useRef } from 'react';
 import { Animated, Pressable, Text, View } from 'react-native';
@@ -81,15 +82,16 @@ export function SecondaryLink({
 }
 
 /**
- * Warm dusk radial bleeding off the top of chapter/card screens.
- * rgba(200,155,109, 0.10–0.14) → transparent 65% per the ruling.
+ * Cool radial bleeding off the top of chapter/card screens.
+ * rgba(95,212,193, 0.10–0.14) → transparent 65%. Deepwater role: ambience
+ * follows the aqua current; the diagnosis cards override it ember-rust.
  */
 export function DuskRadial({
   intensity = 0.12,
-  tint = '#C89B6D',
+  tint = '#5FD4C1',
 }: {
   intensity?: number;
-  /** Overrides the copper dusk glow — the diagnosis cards run it ember. */
+  /** Overrides the aqua glow — the diagnosis cards run it ember-rust. */
   tint?: string;
 }) {
   return (
@@ -113,21 +115,25 @@ export function DuskRadial({
 }
 
 /**
- * Progress header: back chevron · section name · "~N MIN", over a 2px
- * track with sand fill (one of the screen's 4 permitted emissions).
- * No "X OF Y" — see the ruling in logic.ts progressMeta.
+ * Progress header — the guidance layer: back chevron · "PART N — <chapter>"
+ * eyebrow · "~N MIN", over a thin aqua fill on a line-soft track (Deepwater:
+ * progress rides the current — one of the screen's permitted emissions).
+ * No "X OF Y" screen counts — see the ruling in logic.ts progressMeta.
  */
 export function ProgressHeader({
   step,
   total,
   minutesLeft,
   sectionLabel,
+  part,
   onBack,
 }: {
   step: number;
   total: number;
   minutesLeft: number;
   sectionLabel: string;
+  /** 1-based chapter number ("Part N") when the screen belongs to one. */
+  part?: number;
   onBack?: () => void;
 }) {
   const fill = useRef(new Animated.Value(step / total)).current;
@@ -169,9 +175,13 @@ export function ProgressHeader({
           disabled={!onBack}
           style={{ width: 24, opacity: onBack ? 1 : 0 }}
         >
-          <ChevronLeft size={17} color="#6B7280" strokeWidth={1.5} />
+          <ChevronLeft size={17} color="#6E8090" strokeWidth={1.5} />
         </Pressable>
-        <Eyebrow>{sectionLabel.toUpperCase()}</Eyebrow>
+        <Eyebrow>
+          {part
+            ? `PART ${part} — ${sectionLabel.toUpperCase()}`
+            : sectionLabel.toUpperCase()}
+        </Eyebrow>
         <Text
           className="text-muted"
           style={{ fontSize: 10, fontWeight: '300', width: 44, textAlign: 'right' }}
@@ -179,7 +189,8 @@ export function ProgressHeader({
           {`~${minutesLeft} MIN`}
         </Text>
       </View>
-      <View className="mt-4 h-[2px] bg-line">
+      {/* Deepwater: thin aqua fill (accent = earned progress) on a line-soft track. */}
+      <View className="mt-4 h-[2px] bg-line-soft">
         <Animated.View
           className="h-full"
           style={{
