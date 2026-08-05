@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { View, Text, TouchableOpacity, ScrollView } from 'react-native';
+import { Image, View, Text, TouchableOpacity, ScrollView } from 'react-native';
 import { router, useLocalSearchParams } from 'expo-router';
 import { X } from 'lucide-react-native';
 import AudioPlayer from '../components/AudioPlayer';
@@ -93,6 +93,17 @@ function CloseState({ practice }: { practice: Practice }) {
 function AudioRunner({ practice, onDone }: { practice: Practice; onDone: () => void }) {
   return (
     <View className="flex-1 items-center justify-center px-6">
+      {/* Body-position practices carry their line-figure diagram (founder
+          ruling 2026-08-05) — the position shown, not described. Audio-only
+          practices render exactly as before. */}
+      {practice.figure && (
+        <Image
+          source={practice.figure}
+          style={{ width: 170, height: 170, marginBottom: 8 }}
+          resizeMode="contain"
+          accessibilityIgnoresInvertColors
+        />
+      )}
       <AudioPlayer
         title={practice.title}
         focus={practice.intro}

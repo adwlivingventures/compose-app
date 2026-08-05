@@ -1,0 +1,18 @@
+# COMPOSE — Cursor operating rules (founder + Claude ruling, 2026-08-05)
+
+1. READ CLAUDE.md IN THIS REPO FIRST. It is the constitution: clinical
+   doctrine (CBST / Sensate Focus / polyvagal framing), §6 design language
+   (Deepwater: accent scarcity, no urgency, no streak jeopardy, votes not
+   verdicts), §7 privacy (local-only; NO runtime-generated text, ever), and
+   §8 register rules. Any edit that conflicts with CLAUDE.md is wrong even
+   if it is a good idea elsewhere.
+2. ONE WRITER AT A TIME. Never edit this repo while a Claude (Cowork/Code)
+   session is active on it. Commit and push before switching tools; pull
+   before starting.
+3. Never add: streak warnings, countdowns, percentages/grades on
+   self-report surfaces, urgency copy, extra accent colors, interstitial
+   screens inside the daily session flow, or any runtime AI text.
+4. The measurement instruments (Composure weights, pelvic check phases,
+   re-measure screens) and the notification copy pipeline are FROZEN
+   without an explicit founder ruling recorded in CLAUDE.md.
+5. New user-facing copy is DRAFT until founder-reviewed. Mark it.

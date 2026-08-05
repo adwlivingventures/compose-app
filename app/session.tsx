@@ -123,6 +123,8 @@ function SessionBody() {
   const dayRef = useRef(isReplay ? requestedDay : activeDay);
   const [stage, setStage] = useState<Stage>('anchor');
   const [pelvicRating, setPelvicRating] = useState(0);
+  // Score acknowledgment beat (2026-08-05): brief authored line post-tap.
+  const [scoreAcknowledged, setScoreAcknowledged] = useState(false);
   const [finishing, setFinishing] = useState(false);
   const [sosVisible, setSosVisible] = useState(false);
   const [askReminder, setAskReminder] = useState(false);
@@ -485,9 +487,18 @@ function SessionBody() {
               {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map((n) => (
                 <TouchableOpacity
                   key={n}
+                  disabled={scoreAcknowledged}
                   onPress={() => {
+                    // Acknowledgment beat (2026-08-05 — closes the open
+                    // Bible item): one authored line for ~0.9s before the
+                    // advance, so the tap reads as being HEARD rather than
+                    // as data collection. No tap needed to proceed.
                     setPelvicRating(n);
-                    completeStage('score');
+                    setScoreAcknowledged(true);
+                    setTimeout(() => {
+                      setScoreAcknowledged(false);
+                      completeStage('score');
+                    }, 900);
                   }}
                   activeOpacity={0.8}
                   accessibilityRole="button"
@@ -502,6 +513,12 @@ function SessionBody() {
               <Text className="text-faint text-xs">{SCORE_MIN_LABEL}</Text>
               <Text className="text-faint text-xs">{SCORE_MAX_LABEL}</Text>
             </View>
+            <Text
+              className="text-muted text-[13px] font-serif-italic text-center mt-5 h-5"
+              accessibilityLiveRegion="polite"
+            >
+              {scoreAcknowledged ? 'Noted. The trend is what matters.' : ''}
+            </Text>
           </View>
         )}
 

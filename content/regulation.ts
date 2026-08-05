@@ -37,6 +37,11 @@ export interface Practice {
   minutes: number;
   /** Protocol day this practice opens (1 = live from the start). */
   opensOnDay: number;
+  /** Optional line-figure diagram (assets/figures/) — body-position practices
+   *  only (founder ruling 2026-08-05): the Somatic shelf teaches positions,
+   *  so it gets figures; Breath/Mind shelves are taught by the orb and the
+   *  audio, and decorating them would dilute the diagram's meaning. */
+  figure?: number;
   /** Honest clinical reason shown while sequenced. */
   sequencedReason?: string;
   /** Focus line on the runner screen before starting. */
@@ -362,6 +367,7 @@ export const PRACTICES: Practice[] = [
   // ── Somatic & Pelvic ──
   {
     id: 'mindful_touch',
+    figure: require('../assets/figures/mindful_touch.png'),
     shelf: 'meditation',
     kind: 'steps',
     title: 'Mindful Touch',
@@ -392,6 +398,7 @@ export const PRACTICES: Practice[] = [
   },
   {
     id: 'orienting',
+    figure: require('../assets/figures/orienting.png'),
     shelf: 'somatic',
     kind: 'steps',
     title: 'Orienting',
@@ -421,6 +428,7 @@ export const PRACTICES: Practice[] = [
   },
   {
     id: 'jaw_release',
+    figure: require('../assets/figures/jaw_release.png'),
     shelf: 'somatic',
     kind: 'steps',
     title: 'The Jaw Release',
@@ -451,6 +459,7 @@ export const PRACTICES: Practice[] = [
   },
   {
     id: 'pelvic_drop',
+    figure: require('../assets/figures/technique_released.png'),
     shelf: 'somatic',
     kind: 'audio',
     title: 'The Pelvic Drop — Long Practice',
@@ -492,6 +501,7 @@ export const PRACTICES: Practice[] = [
   },
   {
     id: 'downtraining_stretches',
+    figure: require('../assets/figures/wide_fold.png'),
     shelf: 'somatic',
     kind: 'steps',
     title: 'Down-Training Stretches',
@@ -530,6 +540,7 @@ export const PRACTICES: Practice[] = [
   },
   {
     id: 'pmr',
+    figure: require('../assets/figures/pmr.png'),
     shelf: 'somatic',
     kind: 'steps',
     title: 'Progressive Muscle Release',
@@ -578,6 +589,7 @@ export const PRACTICES: Practice[] = [
 
   {
     id: 'pendulation',
+    figure: require('../assets/figures/pendulation.png'),
     shelf: 'somatic',
     kind: 'steps',
     title: 'Pendulation',
