@@ -46,3 +46,7 @@ screens-review/
 compose_src.tgz
 _to_delete/
 *.stale-*
+
+# staging tarballs from cloud build sessions (2026-08-05)
+compose-src.tgz
+_incoming-tier12.tgz

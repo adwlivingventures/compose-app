@@ -1,7 +1,8 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { getPhaseForDay, localDateString, useProtocol } from '../../context/ProtocolContext';
+import BottomSheet from '../../components/BottomSheet';
 
 /**
  * The Protocol tab — The Somatic 75 map (Deepwater build phase 1;
@@ -41,6 +42,47 @@ const PHASES = [
     goal: 'Anchor the shift so it is self-sustaining — this is who you are now.',
   },
 ];
+
+/**
+ * Phase detail sheets (2026-08-03, build order 3.2 — DEEPWATER-FLOW-MAP §4
+ * C2, previously specified and unbuilt). Tap a phase card → one bottom
+ * sheet, one screen deep, never a rabbit hole. Three blocks per phase: the
+ * mechanism in plain language, what opens, and what "done" means — stated
+ * as capability, never a performance bar (the dartboard rule). This is the
+ * natural home of future-pacing: the man on Day 18 reading what Phase 2
+ * will ask of him is rehearsing continuation, the cheapest retention
+ * content there is. Locked phases show the same sheet — sequencing is
+ * pacing, not a lock, so the door is glass.
+ */
+const PHASE_DETAILS: Record<
+  1 | 2 | 3,
+  { mechanism: string; opens: string; done: string }
+> = {
+  1: {
+    mechanism:
+      'The long exhale engages the vagal brake; the floor learns to drop instead of clench. Twenty-five days of that pairing teach the alarm that intimacy is not a threat — by repetition, never by argument.',
+    opens:
+      'The Breath shelf and the grounding practices from Day 1. The Pelvic Drop long practice, the down-training stretches, and the Jaw Release open across the first two weeks — and Day 14 brings the first re-measure: your first before and after.',
+    done:
+      'Done looks like: the drop is familiar ground, the daily reps run without negotiation, and the Day-14 reading is measured, not imagined.',
+  },
+  2: {
+    mechanism:
+      'Exposure — staying present as intensity rises. The held drops in the conditioning track train openness under sustained charge, which is the somatic skeleton of control. Attention practiced on sensation starves the spectator of its audience.',
+    opens:
+      'The Somatic Sandbox opens Day 26, with the deeper attention work — the Deep Drop, Noting, Mindful Touch, Pendulation, Leaves on a Stream — that needs Phase 1’s floor underneath it. The Day-40 re-measure lands mid-phase.',
+    done:
+      'Done looks like: charge without bracing, the pause used as a tool, and presence that stays in the moment instead of stepping out to watch it.',
+  },
+  3: {
+    mechanism:
+      'Consolidation — the skills stop being techniques and start being how you operate. The cues fade from the conditioning track on purpose, because intimacy has none; the identity language arrives now because fifty days of evidence have earned it.',
+    opens:
+      'Identity Rehearsal and the Evening Evidence Review open Day 51 — the most identity-focused practices in the Library. Day 75 closes the record, and graduation opens the Mastery Suite. Included.',
+    done:
+      'Done looks like: a baseline you keep, not a program you follow. The word becomes the baseline.',
+  },
+};
 
 function DotGrid({ start, end, activeDay, completedToday, onReplay }: {
   start: number;
@@ -121,6 +163,7 @@ export default function ProtocolScreen() {
   const completedToday = lastCompletedDate === localDateString();
   const phase = getPhaseForDay(activeDay);
   const daysDone = completedToday ? activeDay : activeDay - 1;
+  const [detailPhase, setDetailPhase] = useState<1 | 2 | 3 | null>(null);
 
   const openReplay = (day: number) =>
     router.push({ pathname: '/session', params: { day: String(day), replay: '1' } });
@@ -131,8 +174,9 @@ export default function ProtocolScreen() {
   for (let d = activeDay - 1; d >= 1 && revisitDays.length < 3; d--) revisitDays.push(d);
 
   return (
+    <View className="flex-1 bg-ground">
     <ScrollView
-      className="flex-1 bg-ground"
+      className="flex-1"
       contentContainerStyle={{ paddingHorizontal: 24, paddingTop: 72, paddingBottom: 120 }}
     >
       <Text className="text-muted text-[11px] font-semibold uppercase tracking-[0.28em]">
@@ -152,7 +196,13 @@ export default function ProtocolScreen() {
         if (isActive || isPast) {
           return (
             <React.Fragment key={p.number}>
-              <View
+              {/* Card taps open the phase detail sheet (build order 3.2);
+                  the dot grid's own taps still win for replay. */}
+              <TouchableOpacity
+                onPress={() => setDetailPhase(p.number)}
+                activeOpacity={0.85}
+                accessibilityRole="button"
+                accessibilityLabel={`Phase ${p.number}, ${p.title} — open details`}
                 className={`mt-4 rounded-2xl border px-4 py-4 ${
                   isActive ? 'bg-surface border-accent/25' : 'bg-surface-deep border-line-soft'
                 }`}
@@ -174,7 +224,14 @@ export default function ProtocolScreen() {
                   completedToday={completedToday}
                   onReplay={openReplay}
                 />
-              </View>
+                {/* Replay discovery (build order 3.2): the feature existed
+                    with no signpost — one quiet line is all it needs. */}
+                {isActive && activeDay > start && (
+                  <Text className="text-faint text-[10.5px] mt-2.5">
+                    Tap any completed day to revisit it.
+                  </Text>
+                )}
+              </TouchableOpacity>
               {/* Revisit a day — quiet replay access (no accent: replay is
                   never the next step, it is the record staying open). */}
               {isActive && revisitDays.length > 0 && (
@@ -203,8 +260,12 @@ export default function ProtocolScreen() {
           );
         }
         return (
-          <View
+          <TouchableOpacity
             key={p.number}
+            onPress={() => setDetailPhase(p.number)}
+            activeOpacity={0.85}
+            accessibilityRole="button"
+            accessibilityLabel={`Phase ${p.number}, ${p.title} — opens Day ${start}. Open details.`}
             className="mt-4 rounded-2xl border border-line-soft bg-surface-deep px-4 py-3.5 opacity-60"
           >
             <View className="flex-row justify-between items-baseline">
@@ -216,7 +277,7 @@ export default function ProtocolScreen() {
               </Text>
             </View>
             <Text className="text-body text-[16px] font-serif-regular mt-1">{p.title}</Text>
-          </View>
+          </TouchableOpacity>
         );
       })}
 
@@ -236,5 +297,49 @@ export default function ProtocolScreen() {
         </View>
       )}
     </ScrollView>
+
+    {/* Phase detail sheet (build order 3.2) — one screen deep, dismissible,
+        no accent spend: reading about a phase is never the next action. */}
+    <BottomSheet
+      visible={detailPhase !== null}
+      onClose={() => setDetailPhase(null)}
+      draggable
+      scrimClass="bg-ground"
+    >
+      {detailPhase !== null && (
+        <View className="bg-tab border-t border-line-soft rounded-t-3xl px-6 pt-5 pb-12">
+          <View className="w-10 h-1 bg-line rounded-full self-center mb-5" />
+          <Text className="text-muted text-[10px] font-semibold uppercase tracking-[0.2em]">
+            Phase {detailPhase} · Days {PHASES[detailPhase - 1].days[0]}–
+            {PHASES[detailPhase - 1].days[1]}
+          </Text>
+          <Text className="text-ink text-[22px] font-serif-regular mt-1.5">
+            {PHASES[detailPhase - 1].title}
+          </Text>
+
+          <Text className="text-dim text-[10px] font-bold uppercase tracking-[0.16em] mt-5 mb-1.5">
+            The work
+          </Text>
+          <Text className="text-body text-[13px] leading-5">
+            {PHASE_DETAILS[detailPhase].mechanism}
+          </Text>
+
+          <Text className="text-dim text-[10px] font-bold uppercase tracking-[0.16em] mt-5 mb-1.5">
+            What opens
+          </Text>
+          <Text className="text-body text-[13px] leading-5">
+            {PHASE_DETAILS[detailPhase].opens}
+          </Text>
+
+          <Text className="text-dim text-[10px] font-bold uppercase tracking-[0.16em] mt-5 mb-1.5">
+            What done means
+          </Text>
+          <Text className="text-body text-[13px] leading-5">
+            {PHASE_DETAILS[detailPhase].done}
+          </Text>
+        </View>
+      )}
+    </BottomSheet>
+    </View>
   );
 }

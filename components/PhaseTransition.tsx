@@ -39,6 +39,11 @@ const COPY: Record<2 | 3, { eyebrow: string; headline: string; body: string; not
       'The last twenty-five days are consolidation — this stops being a program you follow ' +
       'and becomes how you operate. The fifteen minutes stay the same; what they anchor now is ' +
       'who you are.',
+    // 2026-08-03 (build order 0.4): Day 51 opens the two most identity-relevant
+    // practices in the product and previously announced neither — perceived
+    // progression only works if it is perceived. Same absorb treatment as the
+    // Day-26 Sandbox note (never a second aqua element on a ceremony).
+    note: 'Two practices open in your Library today: Identity Rehearsal, and the Evening Evidence Review.',
   },
 };
 

@@ -186,7 +186,7 @@ export default function ProfileScreen() {
         <NavRow
           icon={<Activity color={ICON_MUTED} size={18} />}
           title="Pelvic Release Check"
-          subtitle="The 20-second tension test — re-measure any time."
+          subtitle="The 15-second tension test — re-measure any time."
           onPress={() => router.push('/pelvic-check')}
         />
         <NavRow

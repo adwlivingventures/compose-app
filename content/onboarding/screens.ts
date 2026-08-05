@@ -131,28 +131,14 @@ export const SCREENS: Screen[] = [
       { value: 'always', label: 'As long as I’ve been sexually active' },
     ],
   },
-  {
-    id: 'attribution',
-    section: 'part1',
-    archetype: 'single-select',
-    question: 'How did you hear about us?',
-    subText: 'Helps us reach men like you.',
-    answerKey: 'attribution',
-    options: [
-      { value: 'facebook', label: 'Facebook' },
-      { value: 'instagram', label: 'Instagram' },
-      { value: 'tiktok', label: 'TikTok' },
-      { value: 'x', label: 'X' },
-      { value: 'youtube', label: 'YouTube' },
-      { value: 'reddit', label: 'Reddit' },
-      { value: 'podcast', label: 'Podcast' },
-      { value: 'google', label: 'Google' },
-      { value: 'app-store', label: 'App Store search' },
-      { value: 'clinician', label: 'My doctor or therapist' },
-      { value: 'friend', label: 'A friend' },
-      { value: 'other', label: 'Other' },
-    ],
-  },
+  // 2026-08-03 (build order 1.2): the attribution ask moved POST-PURCHASE
+  // (app/attribution.tsx, after telemetry consent). It was the one screen in
+  // the funnel serving us and not him — twelve flat options mid-escalation,
+  // right after he disclosed years of suffering — and its answer never left
+  // the device anyway (no whitelisted event existed). Post-purchase, a paying
+  // member has standing to be asked a favour, consent has just been decided,
+  // and the answer finally rides a whitelisted closed-list event. The
+  // 'attribution' AnswerKey stays in types.ts for stored-state compatibility.
   {
     id: 'name',
     section: 'part1',
@@ -288,7 +274,10 @@ export const SCREENS: Screen[] = [
     archetype: 'interactive-check',
     answerKey: 'pelvicCheck',
     intro: {
-      headline: 'A 20-second tension check.',
+      // 2026-08-03: "20-second" corrected to match the shipped 5s+10s phases —
+      // this is the one screen where he counts along, and the check is a
+      // re-measurable instrument (copy bends to the timer, never the reverse).
+      headline: 'A 15-second tension check.',
       // Founder review 2026-07-10: say WHAT we test and WHY it matters, plainly.
       subText:
         'Men who carry performance anxiety often hold the pelvic floor chronically tight without knowing it.',
@@ -299,8 +288,10 @@ export const SCREENS: Screen[] = [
         'On Begin, clench your pelvic floor, as if stopping urine flow.',
         'Hold five seconds, then release fully. Notice what the release feels like.',
       ],
-      button: 'Begin the 20-second check',
-      skipLink: 'Skip for now',
+      button: 'Begin the 15-second check',
+      // The skip states its consequence-free retry path — a bare "skip" reads
+      // as a door closing to a man already braced for verdicts.
+      skipLink: 'Skip for now — you can run it any time',
     },
     phases: [
       {
@@ -953,6 +944,10 @@ export const SCREENS: Screen[] = [
         label: 'With you the whole way',
         items: [
           'SOS grounding, one tap away, anywhere in the app.',
+          // 2026-08-03 (build order 0.5): the Library was the largest real
+          // asset going unsold at the decision point. Count matches the
+          // shipped registry (content/regulation.ts — 27 practices).
+          '27 guided practices — breath, meditation, somatic release, and thought work — open as you progress.',
           'The Thought Restructurer for the moments anxiety spikes.',
           'Every method drawn from published clinical research.',
         ],

@@ -49,7 +49,20 @@ export default function DailyRewire({
    *  nothing is written — a replayed day never touches stored state. */
   persist?: boolean;
 }) {
-  const rewire = rewireForDay(day);
+  // Personalized cycle order (2026-08-03, build order 2.1): the rewires
+  // matching his S22 ticks lead the cycle, so Day 1's rep lands on the
+  // belief HE named. '@user_scripts' is written once at purchase; absent
+  // (legacy installs, zero ticks) the order is byte-identical to before.
+  const [tickedScripts, setTickedScripts] = useState<string[] | null>(null);
+  const [scriptsLoaded, setScriptsLoaded] = useState(false);
+  useEffect(() => {
+    LocalStore.getItem<string[]>('@user_scripts').then((s) => {
+      if (Array.isArray(s)) setTickedScripts(s);
+      setScriptsLoaded(true);
+    });
+  }, []);
+
+  const rewire = rewireForDay(day, tickedScripts);
   const quote = quoteForDay(day);
   const statements = statementsForDay(day);
   const [stage, setStage] = useState<RewireStage>('hold');
@@ -117,6 +130,10 @@ export default function DailyRewire({
   };
 
   const crossedOut = stage !== 'hold';
+
+  // One-frame gate: never render a rewire the personalization is about to
+  // swap — a mid-hold text change would be a rep against the wrong belief.
+  if (!scriptsLoaded) return <View />;
 
   return (
     <View>

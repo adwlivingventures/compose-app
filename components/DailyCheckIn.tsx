@@ -1,13 +1,16 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { ActivityIndicator, ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Check } from 'lucide-react-native';
 import { useProtocol } from '../context/ProtocolContext';
+import { CHOSEN_CUES_KEY, type ChosenCues } from '../content/cues';
+import { LocalStore } from '../services/storage';
 import {
   LedgerItem,
   ledgerItemsForDay,
   CLEAN_FOCUS_FALTER_LINE,
   VITALITY_SECTION_INTRO,
+  VITALITY_EARLY_DAYS_LINE,
 } from '../content/ledger';
 import { TRAINING_ITEMS, trainingComplete, trainingCount } from '../content/training';
 
@@ -39,6 +42,7 @@ function CheckRow({
   title,
   main,
   detail,
+  cue,
   tag,
   onToggle,
 }: {
@@ -46,6 +50,13 @@ function CheckRow({
   title: string;
   main: string;
   detail?: string;
+  /** His chosen implementation intention (build order 3.1) — rendered as a
+   *  quiet third line. An intention he wrote and never re-reads decays back
+   *  into willpower; re-reading it at check-in time is the re-encoding rep,
+   *  and every option is first-person present-tense — an identity
+   *  impression, not an instruction. Plain small text, not serif italic:
+   *  nine italic lines on one card would blow the identity-register budget. */
+  cue?: string;
   tag?: string;
   onToggle: () => void;
 }) {
@@ -81,6 +92,9 @@ function CheckRow({
         {detail ? (
           <Text className="text-faint text-[11px] mt-1 leading-4">{detail}</Text>
         ) : null}
+        {cue ? (
+          <Text className="text-dim text-[11px] mt-1 leading-4">“{cue}”</Text>
+        ) : null}
       </View>
     </TouchableOpacity>
   );
@@ -98,6 +112,15 @@ export default function DailyCheckIn({
 }) {
   const router = useRouter();
   const { completedDays, updateDailyLedger, updateDailyTraining } = useProtocol();
+  // His chosen cues (Day 26/51 Cue Picker) — previously stored and rendered
+  // NOWHERE, which forfeited the picker's entire payoff (build order 3.1).
+  // Pre-Day-26 (or an unpicked item) renders exactly as before.
+  const [chosenCues, setChosenCues] = useState<ChosenCues>({});
+  useEffect(() => {
+    LocalStore.getItem<ChosenCues>(CHOSEN_CUES_KEY).then((c) => {
+      if (c) setChosenCues(c);
+    });
+  }, [day]);
   const dayData = completedDays[day];
   const ledger = dayData?.ledger ?? {};
   const training = dayData?.training ?? {};
@@ -134,6 +157,12 @@ export default function DailyCheckIn({
         Vitality Check-In
       </Text>
       <Text className="text-muted text-xs mb-3 ml-1 leading-4">{VITALITY_SECTION_INTRO}</Text>
+      {/* Days 1–7 only: pre-frames a low count as the normal start, not a
+          failing grade (votes, not verdicts). Retires once his own record
+          exists (2026-08-03, build order 0.6). */}
+      {day <= 7 && (
+        <Text className="text-faint text-xs mb-3 ml-1 leading-4">{VITALITY_EARLY_DAYS_LINE}</Text>
+      )}
 
       {TIMING_ORDER.map((timing) => {
         const group = items.filter((i) => i.timing === timing);
@@ -151,6 +180,7 @@ export default function DailyCheckIn({
                   title={item.title}
                   main={item.question}
                   detail={item.evaluate}
+                  cue={chosenCues[item.key]?.text}
                   tag={item.optional ? 'Optional' : undefined}
                   onToggle={() => updateDailyLedger(day, { [item.key]: !ledger[item.key] })}
                 />

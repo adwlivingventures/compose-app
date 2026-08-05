@@ -33,6 +33,7 @@ import PelvicCheck from '../components/onboarding/PelvicCheck';
 import EmissiveCTA from '../components/onboarding/EmissiveCTA';
 import { ScreenFade } from '../components/onboarding/archetypes';
 import { PrivacyFooter } from '../components/onboarding/chrome';
+import WhyEcho from '../components/WhyEcho';
 
 type Phase = 'intro' | 'questions' | 'result';
 
@@ -141,6 +142,17 @@ export default function Remeasure() {
             <Text className="text-body text-sm leading-[22px] text-center mt-8" style={{ fontWeight: '300' }}>
               {resolveResultCopy(copy, result.score, baseline)}
             </Text>
+            {/* His own Day-0 reason, on FLAT/DIP results only (build order
+                2.2). The dip paragraph tells him the number is not a
+                verdict; his own sentence tells him why he is still here.
+                An improved result never shows it — evidence is doing that
+                job, and pairing his why with a win would spend it. Delta
+                thresholds mirror resolveResultCopy (improved = +2 or more). */}
+            {baseline !== null && result.score - baseline < 2 && (
+              <View className="items-center px-2">
+                <WhyEcho compact />
+              </View>
+            )}
           </View>
           <Text className="text-faint text-xs text-center leading-4 px-2">{RESULT_FOOTER}</Text>
           <View className="pt-5 pb-8">

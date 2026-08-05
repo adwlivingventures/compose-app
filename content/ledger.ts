@@ -119,7 +119,10 @@ export const LEDGER_ITEMS: LedgerItem[] = [
   },
   {
     key: 'autonomicPreservation',
-    title: 'Autonomic Preservation',
+    // Renamed 2026-08-03 (build order 0.7): the one item titled in jargon on a
+    // list where every neighbor is plain ("Sunlight", "Hydrate", "Sleep").
+    // The storage key is unchanged — renames never migrate data.
+    title: 'Clean Baseline',
     question: 'Did you protect your baseline today — alcohol-free, substance-free, caffeine done by 2 PM?',
     evaluate:
       'Zero alcohol, zero recreational substances, zero high-dose synthetic stimulants — and the last caffeine of the day lands before 2 PM.',
@@ -131,9 +134,15 @@ export const LEDGER_ITEMS: LedgerItem[] = [
   {
     key: 'screenSunset',
     title: 'Sleep',
-    question: 'Did screens end 30 minutes before bed last night — and did you get 7+ hours?',
+    // Rescoped 2026-08-03 (build order 0.7): the compound question ("curfew
+    // AND 7+ hours") was unanswerable honestly on a night when one held and
+    // one didn't — and a checkbox that punishes truth collapses self-report.
+    // Doctrinal basis: a vote is a behavior he CHOSE (dartboard rule); hours
+    // slept is an outcome only partly in his control. The 7+ hours guidance
+    // lives on in the rationale below.
+    question: 'Did screens end 30 minutes before bed last night?',
     evaluate:
-      'Both parts count: no screens for at least the last 30 minutes before sleep, and seven or more hours in bed asleep.',
+      'No screens for at least the last 30 minutes before sleep. That is the vote — the seven-plus hours it protects are the payoff, not the test.',
     rationale:
       'Evening blue light suppresses melatonin and cuts into deep and REM sleep — where testosterone is synthesized and the endothelium repairs itself. Restorative sleep is the foundation the rest stands on.',
     cue: 'Charge the phone across the room at a fixed hour.',
@@ -178,6 +187,16 @@ export function ledgerVotes(state: LedgerState | undefined): number {
  */
 export const VITALITY_SECTION_INTRO =
   'Every check is a vote for the man you are becoming. Discipline here overflows into everything — and it carries an energy she can feel.';
+
+/**
+ * Early-days framing (2026-08-03, build order 0.6) — shown Days 1–7 only.
+ * Nine items land on Day 1 so he sees the whole standard; the risk is a
+ * 2-of-9 evening reading as a failing grade — a verdict, the one thing the
+ * ledger must never produce. This line pre-frames a low count as the normal
+ * starting state. It retires at Day 8, once his own data has replaced it.
+ */
+export const VITALITY_EARLY_DAYS_LINE =
+  'Most men start with two or three. The list is the standard, not the requirement.';
 
 /**
  * The falter line for No Porn — shown, quietly, when the item closes

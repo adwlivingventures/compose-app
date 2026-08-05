@@ -18,7 +18,11 @@ export type AnswerKey =
   | 'relationship'
   | 'reasons'
   | 'duration'
-  | 'attribution'
+  // 'attribution' removed from the quiz taxonomy (2026-08-03, build order
+  // 1.2): the ask moved post-purchase (app/attribution.tsx) and is now a
+  // whitelisted closed-list telemetry event, not an onboarding answer —
+  // the same taxonomy split used for spectatoring vs. the distortion slug.
+  // Legacy resume state carrying an 'attribution' answer is simply ignored.
   | 'name'
   | 'age'
   | 'bandaidHistory'

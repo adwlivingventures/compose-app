@@ -18,6 +18,7 @@ import {
   getComposureHistory,
   ComposureMeasurement,
 } from '../../services/composureHistory';
+import { LocalStore } from '../../services/storage';
 
 /**
  * Progress — "Autonomic Acclimation" / the Baseline tab, v2
@@ -302,7 +303,22 @@ interface DayRow {
 }
 
 /** Authored insight templates, keyed by ledger item. Computed locally;
- *  shown only when the evidence clears the thresholds below. */
+ *  shown only when the evidence clears the thresholds below.
+ *
+ *  2026-08-03 (build order 2.3): the four missing templates written —
+ *  previously Hydrate/Breathwork/Clean Baseline/Supplements could be
+ *  SELECTED as the strongest effect and then render nothing, so the man
+ *  whose own data showed his biggest lever saw no insight at all. Every
+ *  live LEDGER_ITEMS key now carries a template, computeInsight skips
+ *  template-less keys as a permanent guard, and the dead `tensionAudit`
+ *  entry (a retired habit) is removed. The ledger insight is the only
+ *  personally-generated causal belief in the product — unfakeable, from
+ *  his numbers — which made an empty slot here the costliest kind of
+ *  silent bug.
+ *
+ *  Register: mechanism stated plainly, no cheerleading. The Supplements
+ *  template is deliberately MECHANISM-FREE — correlation framing only,
+ *  never compound names, never dosages (App Store health-claim lane). */
 const INSIGHT_TEMPLATES: Partial<Record<string, string>> = {
   screenSunset:
     'On days after a full Screen Sunset, your control score has averaged {d} higher. The ledger and the pacer are one system.',
@@ -314,8 +330,14 @@ const INSIGHT_TEMPLATES: Partial<Record<string, string>> = {
     'On days with Deliberate Movement, your control score has averaged {d} higher. Blood flow is doing what blood flow does.',
   cleanFocus:
     'On days after Clean Focus held, your control score has averaged {d} higher. The resensitization is measurable.',
-  tensionAudit:
-    'On days you caught the clench, your control score has averaged {d} higher. The floor you release at noon is the floor you find at night.',
+  hydrate:
+    'On fully hydrated days, your control score has averaged {d} higher. Blood flow is plumbing before it is psychology — the vessels work with what you give them.',
+  breathwork:
+    'On days with a breath or meditation session outside the protocol, your control score has averaged {d} higher. The daily track trains the reflex; the extra session lowers the baseline it fires from.',
+  autonomicPreservation:
+    'On clean-baseline days, your control score has averaged {d} higher. Less stimulant load, less alcohol — a quieter baseline gives the alarm less to work with.',
+  supplements:
+    'On days you kept your supplement routine, your control score has averaged {d} higher. Your ledger, your data — steady routines read clearest.',
 };
 
 /** Items whose mechanism lands the NEXT day (sleep- and dopamine-mediated). */
@@ -327,6 +349,11 @@ function computeInsight(rows: DayRow[]): string | null {
 
   let best: { key: string; diff: number } | null = null;
   for (const item of LEDGER_ITEMS) {
+    // Guard (build order 2.3): a key with no authored template can never be
+    // selected — the selector degrades to the next-best covered insight,
+    // never to silence. All live keys are covered today; this holds under
+    // any future ledger edit.
+    if (!INSIGHT_TEMPLATES[item.key]) continue;
     const lag = NEXT_DAY_ITEMS.has(item.key) ? 1 : 0;
     const withItem: number[] = [];
     const without: number[] = [];
@@ -365,11 +392,17 @@ export default function ProgressScreen() {
   // re-read on focus so a reading taken minutes ago shows up immediately.
   // One load feeds both the headline card and the measurement ledger below.
   const [composureHistory, setComposureHistory] = useState<ComposureMeasurement[]>([]);
+  // Pelvic re-check log (newest-first, per app/pelvic-check.tsx) — read here
+  // for the Release-capacity evidence line (build order 2.5).
+  const [pelvicChecks, setPelvicChecks] = useState<{ date: string; value: number }[]>([]);
   useFocusEffect(
     useCallback(() => {
       let alive = true;
       getComposureHistory().then((history) => {
         if (alive) setComposureHistory(history);
+      });
+      LocalStore.getItem<{ date: string; value: number }[]>('@pelvic_recheck_log').then((log) => {
+        if (alive) setPelvicChecks(Array.isArray(log) ? log : []);
       });
       reloadSpikes();
       reloadDefusions();
@@ -483,6 +516,45 @@ export default function ProgressScreen() {
               {composureDelta} points above your Day-0 baseline — the same questions,
               answered by a differently conditioned nervous system.
             </Text>
+          )}
+        </View>
+      )}
+
+      {/* Release capacity (2026-08-03, build order 2.5) — the one physical,
+          objective-feeling metric in the product, previously buried in the
+          You tab. For a population that distrusts psychological metrics, a
+          number from his own muscle is the most credible evidence available,
+          and it moves faster than the Composure Score — so it belongs here,
+          in view before Day 14 carries the evidence burden alone. Read-only:
+          the tab's zero-tap-target rule holds; re-measuring lives in You. */}
+      {pelvicChecks.length > 0 && (
+        <View className="mt-4 bg-surface border border-line rounded-2xl p-5">
+          <Text className="text-body text-sm font-bold">Release capacity</Text>
+          <Text className="text-faint text-xs mt-0.5 mb-2">
+            The 15-second tension check, rated 1–10
+          </Text>
+          {pelvicChecks.length >= 2 ? (
+            <>
+              <View className="flex-row items-baseline gap-2">
+                <Text className="text-ink text-xl font-serif-light">
+                  {pelvicChecks[pelvicChecks.length - 1].value} → {pelvicChecks[0].value}
+                </Text>
+              </View>
+              <Text className="text-muted text-xs mt-1.5 leading-4">
+                First check to latest — the floor is learning to let go, and this number is the
+                muscle reporting it.
+              </Text>
+            </>
+          ) : (
+            <>
+              <View className="flex-row justify-between py-1">
+                <Text className="text-body text-xs">Latest check</Text>
+                <Text className="text-ink text-xs font-semibold">{pelvicChecks[0].value}</Text>
+              </View>
+              <Text className="text-muted text-xs mt-1.5 leading-4">
+                Re-measure any time from You → Pelvic Release Check — two readings make a trend.
+              </Text>
+            </>
           )}
         </View>
       )}

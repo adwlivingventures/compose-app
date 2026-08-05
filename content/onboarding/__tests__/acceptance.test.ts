@@ -27,7 +27,11 @@ describe('analytics privacy (CLAUDE.md §7)', () => {
     'relationship',
     'reasons',
     'duration',
-    'attribution',
+    // 'attribution' is deliberately absent (2026-08-03, build order 1.2):
+    // it is no longer a quiz answer — the ask moved post-purchase
+    // (app/attribution.tsx) and rides a whitelisted CLOSED-LIST event
+    // (channel slugs only, nothing user-written, fired only after the
+    // consent decision). Same taxonomy-split rationale as 'spectatoring'.
     'bandaidHistory',
     'morningArousal',
     'libido',

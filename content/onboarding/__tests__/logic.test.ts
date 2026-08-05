@@ -143,9 +143,11 @@ describe('testimonial gate + paywall-dismiss are never sequential', () => {
 });
 
 describe('progress header (section name eyebrow; step/total feed the fill bar only)', () => {
-  test('morning arousal is 10 of 24 under a "Your Body" label', () => {
+  test('morning arousal is 9 of 23 under a "Your Body" label', () => {
+    // Renumbered 2026-08-03 (build order 1.2): attribution moved
+    // post-purchase, shifting every later screen down by one.
     const meta = progressMeta(flow, at('morning-arousal'));
-    expect(meta).toMatchObject({ step: 10, total: 24, sectionLabel: 'Your Body' });
+    expect(meta).toMatchObject({ step: 9, total: 23, sectionLabel: 'Your Body' });
   });
 
   test('each part carries its section label, never a page count', () => {

@@ -1,7 +1,11 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { ActivityIndicator, ScrollView, Share, Text, TouchableOpacity, View } from 'react-native';
 import { useProtocol } from '../context/ProtocolContext';
 import { useDefusionLog } from '../hooks/useDefusionLog';
+import { getBaseline, getComposureHistory } from '../services/composureHistory';
+import { LocalStore } from '../services/storage';
+import { OATH_TEXT } from './CommitmentCard';
+import WhyEcho from './WhyEcho';
 
 /**
  * Graduation (E19) — shown once, when Day 75 is complete and no graduation
@@ -53,6 +57,31 @@ export default function GraduationScreen({
   const { completedDays } = useProtocol();
   const { entries } = useDefusionLog();
 
+  // 2026-08-03 (build order 4.1): the ceremony now carries the three things
+  // it inexplicably lacked — his Day Zero signature (the consistency loop's
+  // final close: nothing the app could say has the authority of what he
+  // said), the Composure before/after (the number the product was SOLD on,
+  // previously absent from its own finale), and his Day-0 why (WhyEcho's
+  // terminal placement). Peak-end: this screen is what the year is
+  // remembered as — which makes it the renewal decision's real paywall,
+  // eleven months early, with zero sales copy on it.
+  const [signature, setSignature] = useState<{ name: string; signedAt: string } | null>(null);
+  const [composure, setComposure] = useState<{ baseline: number; latest: number } | null>(null);
+  useEffect(() => {
+    LocalStore.getItem<{ name: string; signedAt: string }>('@signature_data').then((s) => {
+      if (s?.name) setSignature(s);
+    });
+    getComposureHistory().then((history) => {
+      const baseline = getBaseline(history);
+      const latest = history.length > 0 ? history[history.length - 1] : null;
+      // Two distinct readings or nothing — a single number is not a shift,
+      // and this card never invents data.
+      if (baseline && latest && latest.day !== 0) {
+        setComposure({ baseline: baseline.score, latest: latest.score });
+      }
+    });
+  }, []);
+
   // ── Evidence, from the user's own logs ──────────────────────────────────
   const rated = Object.entries(completedDays)
     .filter(([, d]) => d.completed && d.pelvicRating > 0)
@@ -75,13 +104,20 @@ export default function GraduationScreen({
   )[0];
 
   const exportRecord = async () => {
-    const lines = [
-      'COMPOSE — Personal Record',
-      '',
+    const lines = ['COMPOSE — Personal Record', ''];
+    // The record opens with his own oath and name — the artifact is kept
+    // because it is HIS, not because it is data (build order 4.1).
+    if (signature) {
+      lines.push(`"${OATH_TEXT}"`, `— signed ${signature.name}, Day Zero`, '');
+    }
+    lines.push(
       `Days completed: ${daysCompleted} of 75`,
       `Control score: ${scoreShift === '—' ? 'not logged' : `${scoreShift} (first week → final week)`}`,
-      `Anchors written: ${anchors.length}`,
-    ];
+    );
+    if (composure) {
+      lines.push(`Composure: Day 0: ${composure.baseline} → ${composure.latest}`);
+    }
+    lines.push(`Anchors written: ${anchors.length}`);
     if (anchors.length) {
       lines.push('', 'Your anchors, in your own words:');
       for (const anchor of anchors) {
@@ -117,11 +153,40 @@ export default function GraduationScreen({
         The baseline is yours.
       </Text>
 
+      {/* The oath, read back for the last time (build order 4.1). Ink serif
+          italic — identity register carried by TYPE, not color: this
+          ceremony's two ember uses stay where they were (the headline line
+          above, his vault quote below). His own handwriting-equivalent from
+          75 days ago, next to the evidence — the emotional peak this screen
+          previously left unfired. */}
+      {signature && (
+        <View className="bg-surface border border-line rounded-[18px] p-5 mt-6">
+          <Text className="text-ink text-[14px] leading-[24px] font-serif-italic">
+            {OATH_TEXT}
+          </Text>
+          <Text className="text-ink text-xl font-serif-italic mt-4">{signature.name}</Text>
+          <Text className="text-dim text-[11px] mt-1">
+            You signed this on Day Zero — 75 days of work ago.
+          </Text>
+        </View>
+      )}
+
       {/* Evidence card — computed, never asserted */}
-      <View className="bg-surface border border-line rounded-[18px] p-5 mt-6">
+      <View className={`bg-surface border border-line rounded-[18px] p-5 ${signature ? 'mt-3.5' : 'mt-6'}`}>
         <Text className="text-muted text-[10px] font-bold uppercase tracking-[0.2em]">
           What you built · from your own logs
         </Text>
+        {/* The number the product was sold on, closed out (build order 4.1):
+            same instrument, Day 0 → Day 75. Rendered only when two real
+            readings exist — this card never invents data. */}
+        {composure && (
+          <View className="flex-row items-baseline gap-2 mt-3.5">
+            <Text className="text-ink text-[26px] font-serif-medium">
+              {composure.baseline} → {composure.latest}
+            </Text>
+            <Text className="text-dim text-[10.5px]">composure · Day 0 → now</Text>
+          </View>
+        )}
         <View className="flex-row gap-2.5 mt-3.5">
           {[
             [String(daysCompleted), 'days completed'],
@@ -146,6 +211,9 @@ export default function GraduationScreen({
             <Text className="text-dim text-[11px] mt-1">— you, {formatDate(quote.date)}</Text>
           </View>
         )}
+        {/* His Day-0 why — WhyEcho's terminal placement (build order 2.2/4.1):
+            the reason he wrote before Day 1, read back beside what he built. */}
+        <WhyEcho compact />
       </View>
 
       {/* Act II unlock — included membership content opening, not an offer.

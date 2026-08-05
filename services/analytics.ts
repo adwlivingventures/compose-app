@@ -73,6 +73,28 @@ const SCREEN_ACTIONS = [
   'restore',
 ] as const;
 
+// Attribution sources (2026-08-03, build order 1.2) — the post-purchase
+// "How did you hear about us?" answer. A closed list of channel slugs,
+// nothing user-written ('other' is a slug, never a text field). This is the
+// product's only pre-install acquisition signal; fired at most once, and
+// only after the consent decision — a decline means it never sends.
+const ATTRIBUTION_SOURCES = [
+  'facebook',
+  'instagram',
+  'tiktok',
+  'x',
+  'youtube',
+  'reddit',
+  'podcast',
+  'google',
+  'app-store',
+  'clinician',
+  'friend',
+  'other',
+] as const;
+export type AttributionSource = (typeof ATTRIBUTION_SOURCES)[number];
+export const ATTRIBUTION_SOURCE_LIST: readonly string[] = ATTRIBUTION_SOURCES;
+
 export type ScreenAction = (typeof SCREEN_ACTIONS)[number];
 
 type FieldSpec =
@@ -109,6 +131,7 @@ export const EVENT_SCHEMA: Record<string, Record<string, FieldSpec>> = {
   restructurer_used: { distortion: DISTORTIONS },
   graduated: { segment: SEGMENT_FIELD },
   export_used: {},
+  attribution: { source: ATTRIBUTION_SOURCES },
 };
 
 export type EventName = keyof typeof EVENT_SCHEMA;

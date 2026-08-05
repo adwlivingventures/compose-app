@@ -113,8 +113,9 @@ export interface SeverityBar {
    *  (founder review 2026-07-10: a good reading must not look like a warning). */
   tone: 'amber' | 'red' | 'neutral';
   /** One plain-English line: what this bar means, traced to his answer.
-   *  (No longer rendered on the Map — founder review 2026-07-14, the bars
-   *  stand on label + grade alone; retained for future surfaces.) */
+   *  Rendered on the Map behind tap-to-expand (restored 2026-08-03, build
+   *  order 1.1): the depth-seeker gets the plain-English read, the
+   *  headline-reader is undisturbed, and nobody decodes "Moderate" alone. */
   detail: string;
 }
 
@@ -268,8 +269,12 @@ function buildBars(answers: Answers, scriptCount: number): SeverityBar[] {
 }
 
 // The mirror sentence: built ONLY from markers the user actually reported.
-// (No longer rendered on the Map after the 2026-07-10 revamp; retained for
-// the paywall family and future surfaces.)
+// Restored to the Map (2026-08-03, build order 1.1) — under the gauge, above
+// the bars: a composed clinical sentence assembled from HIS answers is the
+// strongest personalization receipt in the funnel (the "how did they know"
+// jolt is self-relevance processing — proof the analysis was rendered for
+// him, not looked up). Returns '' only in the true zero-answer edge, so the
+// Map renders nothing rather than a stub.
 function buildMirror(answers: Answers): string {
   const segments: string[] = [];
   if (str(answers.breathEdge) === 'shallow-hold') segments.push('Breath-holding at the edge');
@@ -280,6 +285,11 @@ function buildMirror(answers: Answers): string {
   const pelvic = pelvicRating !== null ? pelvicLevel(pelvicRating) : null;
   if (pelvic === 'partial') segments.push('partial pelvic release');
   else if (pelvic === 'limited') segments.push('a pelvic floor that would not let go');
+
+  // True zero-answer edge: no markers AND no duration reported — render
+  // nothing rather than a generic stub (a mirror that reflects nothing of
+  // his is worse than no mirror).
+  if (segments.length === 0 && str(answers.duration) === null) return '';
 
   const conditioned = conditionedPhrase(answers);
   if (segments.length >= 2) {

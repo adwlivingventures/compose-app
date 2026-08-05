@@ -49,6 +49,9 @@ const VALID_EXAMPLES: Record<string, Record<string, string | number>> = {
   restructurer_used: { distortion: 'catastrophizing' },
   graduated: {},
   export_used: {},
+  // Post-purchase attribution (2026-08-03, build order 1.2) — closed-list
+  // channel slug, fired at most once, only after the consent decision.
+  attribution: { source: 'instagram' },
 };
 
 describe('event schema whitelist', () => {

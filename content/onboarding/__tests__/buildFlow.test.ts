@@ -6,7 +6,8 @@
 // sees exactly four at runtime); the turn runs recovery → compose-welcome →
 // five arc beats (blueprint/foundations retired 2026-07-14, consent moved to
 // the post-purchase /consent route); two paywall lead-ins follow the
-// building-plan beat — 45 numbered screens.
+// building-plan beat — 44 numbered screens (attribution moved post-purchase
+// 2026-08-03, build order 1.2).
 
 import { buildFlow } from '../buildFlow';
 import { CONSENT_SCREEN, SCREENS } from '../screens';
@@ -18,9 +19,11 @@ const ORDER = [
   'relationship', // 03
   'reasons', // 04
   'duration', // 05
-  'attribution', // 06
-  'name', // 07
-  'age', // 08
+  // 'attribution' removed 2026-08-03 (build order 1.2): moved post-purchase
+  // to app/attribution.tsx — it was the one funnel screen serving us, not
+  // him, sitting mid-escalation. The flow is one screen shorter.
+  'name', // 06
+  'age', // 07
   'bandaid-history', // 09
   'morning-arousal', // 10
   'libido', // 11
@@ -67,17 +70,20 @@ const ORDER = [
 const numbered = () => buildFlow().filter((s) => s.specId !== null);
 
 describe('buildFlow', () => {
-  test('resolves to the amended order, 49 numbered screens', () => {
+  test('resolves to the amended order, 48 numbered screens', () => {
+    // 49 → 48 on 2026-08-03: attribution moved post-purchase (build order 1.2).
     const ids = numbered().map((s) => s.id);
     expect(ids).toEqual(ORDER);
-    expect(ids).toHaveLength(49);
+    expect(ids).toHaveLength(48);
   });
 
   test('spec ids match the amended numbering', () => {
+    // Renumbered 2026-08-03 (build order 1.2): attribution's removal shifts
+    // every screen after slot 05 down by one.
     const flow = numbered();
-    expect(flow[11]).toMatchObject({ id: 'physician-note', specId: '12' });
-    expect(flow[27]).toMatchObject({ id: 'card-adrenaline-trap', specId: '28' });
-    expect(flow[45]).toMatchObject({ id: 'paywall', specId: '46' });
+    expect(flow[10]).toMatchObject({ id: 'physician-note', specId: '11' });
+    expect(flow[26]).toMatchObject({ id: 'card-adrenaline-trap', specId: '27' });
+    expect(flow[44]).toMatchObject({ id: 'paywall', specId: '45' });
   });
 
   test('section transitions are present but unnumbered', () => {

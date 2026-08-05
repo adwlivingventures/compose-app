@@ -1,4 +1,4 @@
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { View, Text, TouchableOpacity, ScrollView } from 'react-native';
 import { useFocusEffect, useRouter } from 'expo-router';
 import Svg, { Circle } from 'react-native-svg';
@@ -10,7 +10,10 @@ import { fieldNoteForDay } from '../content/fieldNotes';
 import { ledgerItemsForDay } from '../content/ledger';
 import { TRAINING_ITEMS } from '../content/training';
 import { getComposureHistory, getDueMilestone } from '../services/composureHistory';
+import { useDiscreet } from '../context/DiscreetContext';
+import { LocalStore } from '../services/storage';
 import TriageCenter from './TriageCenter';
+import WhyEcho from './WhyEcho';
 
 /**
  * Today dashboard — Deepwater phase 3 rebuild (claude/DEEPWATER-FLOW-MAP.md
@@ -34,14 +37,17 @@ import TriageCenter from './TriageCenter';
 
 const PHASE_NUMERALS = ['I', 'II', 'III'];
 
-/** Time-of-day greeting — deliberately nameless (discretion by default, §6:
- *  the home screen should be unremarkable over a shoulder). */
-function greeting(): string {
+/** Time-of-day greeting. Shielded (and never-chosen) level: nameless — the
+ *  home screen stays unremarkable over a shoulder (§6). Personal level
+ *  (2026-08-03, build order 1.3): his first name joins the three standard
+ *  greetings — a daily identity rep for the man who chose it. The 3am line
+ *  stays nameless at every level: it is written for a man who does not want
+ *  to be addressed, only accompanied. */
+function greeting(firstName: string | null): string {
   const h = new Date().getHours();
   if (h < 5) return 'Still here. Good.';
-  if (h < 12) return 'Good morning.';
-  if (h < 18) return 'Good afternoon.';
-  return 'Good evening.';
+  const base = h < 12 ? 'Good morning' : h < 18 ? 'Good afternoon' : 'Good evening';
+  return firstName ? `${base}, ${firstName}.` : `${base}.`;
 }
 
 // ─── Progress Ring (Deepwater: aqua arc = earned progress) ───────────────────
@@ -210,6 +216,16 @@ export default function MainDashboard({ onStartSession }: { onStartSession: () =
     useProtocol();
   const [sosVisible, setSosVisible] = useState(false);
 
+  // Discretion level → greeting register (build order 1.3). The name joins
+  // the greeting ONLY at the user-chosen Personal level; Shielded and the
+  // never-chosen null stay nameless, byte-identical to the prior behavior.
+  const { level } = useDiscreet();
+  const [firstName, setFirstName] = useState<string | null>(null);
+  useEffect(() => {
+    LocalStore.getItem<string>('@user_first_name').then(setFirstName);
+  }, []);
+  const greetName = level === 'personal' ? firstName : null;
+
   // Composure re-measurement due? Re-checked on every focus so the card
   // clears the moment a reading is taken and appears the day a milestone
   // lands (Days 14/40/75 — canon §8's "measured, not promised" cadence).
@@ -276,26 +292,31 @@ export default function MainDashboard({ onStartSession }: { onStartSession: () =
           </TouchableOpacity>
         </View>
 
-        {/* Greeting + phase context — nameless by design (discretion, §6).
-            The Return (flow map §4 F1): after a ≥2-day gap the greeting
-            becomes one line of repair, never arithmetic of what was missed —
-            the modal moment of churn is the shame of coming back. */}
-        <View className="mt-7">
-          <Text className="text-ink text-[15px] font-serif-regular">
-            {(() => {
-              if (!completedToday && lastCompletedDate) {
-                const gapMs = Date.now() - new Date(`${lastCompletedDate}T12:00:00`).getTime();
-                if (gapMs > 2.2 * 24 * 60 * 60 * 1000) {
-                  return `Day ${activeDay} is still yours. Nothing was lost.`;
-                }
-              }
-              return greeting();
-            })()}
-          </Text>
-          <Text className="text-muted text-[10.5px] font-bold uppercase tracking-[0.2em] mt-1.5">
-            Phase {PHASE_NUMERALS[todayMeta.phase - 1]} · {todayMeta.phaseTitle}
-          </Text>
-        </View>
+        {/* Greeting + phase context (greeting register is level-driven —
+            see greeting()). The Return (flow map §4 F1): after a ≥2-day gap
+            the greeting becomes one line of repair, never arithmetic of what
+            was missed — the modal moment of churn is the shame of coming
+            back. Under it, HIS OWN reason from Day 0 (build order 2.2): the
+            one voice that can meet the "I can't even do this right" script
+            at the door is his. Repair surfaces only — never ordinary days. */}
+        {(() => {
+          const isReturn =
+            !completedToday &&
+            !!lastCompletedDate &&
+            Date.now() - new Date(`${lastCompletedDate}T12:00:00`).getTime() >
+              2.2 * 24 * 60 * 60 * 1000;
+          return (
+            <View className="mt-7">
+              <Text className="text-ink text-[15px] font-serif-regular">
+                {isReturn ? `Day ${activeDay} is still yours. Nothing was lost.` : greeting(greetName)}
+              </Text>
+              <Text className="text-muted text-[10.5px] font-bold uppercase tracking-[0.2em] mt-1.5">
+                Phase {PHASE_NUMERALS[todayMeta.phase - 1]} · {todayMeta.phaseTitle}
+              </Text>
+              {isReturn && <WhyEcho compact />}
+            </View>
+          );
+        })()}
 
         <DayStrip activeDay={displayDay} completedToday={completedToday} />
 

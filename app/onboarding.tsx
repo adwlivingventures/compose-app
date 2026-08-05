@@ -46,7 +46,6 @@ import HopefulArc from '../components/onboarding/HopefulArc';
 import ValueStack from '../components/onboarding/ValueStack';
 import ExpertQuotes from '../components/onboarding/ExpertQuotes';
 import Testimonials from '../components/onboarding/Testimonials';
-import { shouldAskPostPurchase } from '../services/rating';
 import DivergingGraphScreen from '../components/onboarding/DivergingGraphScreen';
 import Generating from '../components/onboarding/Generating';
 import MapScreen from '../components/onboarding/MapScreen';
@@ -264,13 +263,32 @@ export default function Onboarding() {
         emit('purchase-success');
         // Conversion event carries the term only — the funnel's bottom line.
         track('purchase', { term });
+        // Persist the durable profile keys from his answers (2026-08-03,
+        // build order 2.2 — and a latent-bug fix: '@user_first_name' was
+        // read by the You tab and never written anywhere). Local-only, §7.
+        //  - first name → the You-tab header and the Personal-level surfaces
+        //  - why → his own reason (free text, else his first selected goal),
+        //    delivered back at the moments of maximum doubt: the Return
+        //    state, a flat/dip re-measure, and graduation. Write-only until
+        //    today; this is the churn-mitigation content he authored himself.
+        //  - scripts → the S22 ticks that personalize the Daily Rewire order.
+        const firstName = typeof answers.name === 'string' ? answers.name.trim() : '';
+        if (firstName) await LocalStore.setItem('@user_first_name', firstName);
+        const why = resolveGoalEcho(answers, flow);
+        if (why) await LocalStore.setItem('@user_why', why);
+        if (Array.isArray(answers.scripts) && answers.scripts.length > 0) {
+          await LocalStore.setItem('@user_scripts', answers.scripts);
+        }
         await unlockProtocol();
-        // Post-purchase chain (founder rulings 2026-07-14/15): rating ask
-        // (when the native module is available) → consent → Discreet Mode.
-        router.replace((await shouldAskPostPurchase()) ? '/rate' : '/consent');
+        // Post-purchase chain (revised 2026-08-03, build order 0.3): consent →
+        // Discreet Mode. The pre-Day-1 rating ask is cut — he has used the
+        // product for zero seconds and has nothing to rate but a funnel; the
+        // first ask now rides the Day-2 completion high (services/rating.ts
+        // schedule, unchanged), where a rating reflects the product.
+        router.replace('/consent');
       }
     },
-    [term, getAnnualPackage, getMonthlyPackage, purchasePackage, unlockProtocol, router, emit],
+    [term, answers, flow, getAnnualPackage, getMonthlyPackage, purchasePackage, unlockProtocol, router, emit],
   );
 
   // ── Render ──────────────────────────────────────────────────────────────

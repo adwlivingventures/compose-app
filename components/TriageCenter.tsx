@@ -112,12 +112,21 @@ const BREATH_LABELS = [
 ] as const;
 const BREATH_SECONDS = SOS_478_PHASES.map((p) => Math.round(p.durationMs / 1000));
 
-function BreathingGuide() {
+function BreathingGuide({ onDone }: { onDone: () => void }) {
   // Starts breathing the moment the branch opens — the user arrived
   // sympathetically activated; asking them to make a "start" decision first
   // is one decision too many. Stop is the only control while running.
   // runId keys the orb so an explicit restart begins cleanly from the top of
   // an inhale (re-renders never restart it — that's handled inside the orb).
+  //
+  // Soft close (2026-08-03, build order 0.2): after the 4th completed cycle
+  // the branch offers an exit — "Back to your evening." A bounded container
+  // is itself a down-regulation cue (an open-ended exercise invites the
+  // monitoring mind to ask "how long do I do this?" — spectatoring, pointed
+  // at the rescue tool), and it honors the funnel's promise of a guided
+  // sequence that ENDS. Never a hard stop: the orb keeps pacing for as long
+  // as he keeps breathing; the close is an exit appearing, not a door
+  // shutting. No redirect, no upsell — the exit returns him to his evening.
   const [runId, setRunId] = useState(1);
   const [phaseIndex, setPhaseIndex] = useState(0);
   const [cycles, setCycles] = useState(0);
@@ -197,24 +206,32 @@ function BreathingGuide() {
       </Text>
       <Text className="text-muted text-[12.5px] mt-1 h-5">
         {running
-          ? cycles > 0
-            ? `${cycles} ${cycles === 1 ? 'cycle' : 'cycles'} complete · four is usually enough`
-            : 'Follow the orb'
+          ? cycles >= 4
+            ? 'Four cycles complete. Stay as long as you like.'
+            : cycles > 0
+              ? `${cycles} ${cycles === 1 ? 'cycle' : 'cycles'} complete · four is usually enough`
+              : 'Follow the orb'
           : 'Four rounds is usually enough to feel the shift.'}
       </Text>
 
-      {/* Deepwater: SOS action fills are matte clay — no glow, no shadow. */}
+      {/* Deepwater: SOS action fills are matte clay — no glow, no shadow.
+          At 4+ cycles the offered action becomes the exit (clay fill); the
+          orb keeps pacing regardless — closing is his choice, not ours. */}
       <TouchableOpacity
-        onPress={running ? stop : start}
+        onPress={running ? (cycles >= 4 ? onDone : stop) : start}
         activeOpacity={0.85}
-        className={`rounded-xl py-3.5 px-11 mt-5 ${running ? 'bg-surface border border-line' : ''}`}
-        style={running ? undefined : { backgroundColor: CLAY }}
+        accessibilityRole="button"
+        accessibilityLabel={running ? (cycles >= 4 ? 'Back to your evening' : 'Stop') : 'Begin again'}
+        className={`rounded-xl py-3.5 px-11 mt-5 ${
+          running && cycles < 4 ? 'bg-surface border border-line' : ''
+        }`}
+        style={running && cycles < 4 ? undefined : { backgroundColor: CLAY }}
       >
         <Text
-          className={`font-semibold text-sm ${running ? 'text-body' : ''}`}
-          style={running ? undefined : { color: ON_CLAY }}
+          className={`font-semibold text-sm ${running && cycles < 4 ? 'text-body' : ''}`}
+          style={running && cycles < 4 ? undefined : { color: ON_CLAY }}
         >
-          {running ? 'Stop' : 'Begin again'}
+          {running ? (cycles >= 4 ? 'Back to your evening' : 'Stop') : 'Begin again'}
         </Text>
       </TouchableOpacity>
     </View>
@@ -502,7 +519,7 @@ export default function TriageCenter({ visible, onClose }: TriageCenterProps) {
               </TouchableOpacity>
 
               <ScrollView showsVerticalScrollIndicator={false} keyboardShouldPersistTaps="handled">
-                {view === 'breath' && <BreathingGuide />}
+                {view === 'breath' && <BreathingGuide onDone={close} />}
                 {view === 'ground' && <GroundingGuide />}
                 {view === 'defuse' && <DefusionLogForm onDone={close} />}
               </ScrollView>

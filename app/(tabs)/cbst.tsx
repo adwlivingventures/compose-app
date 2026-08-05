@@ -168,8 +168,32 @@ function StateDoors({
 
 // ─── The Library — full collection, sequenced by phase ───────────────────────
 
+/**
+ * Tonight's suggestion (2026-08-03, build order 2.4) — one day-keyed row
+ * above the Library. Sixteen of the 27 practices sit below the fold behind
+ * four doors and a spike flow; without a served surface most are never
+ * seen. One row converts the shelf into a rotation: impression content is
+ * served, not browsed.
+ *
+ * Selection is DETERMINISTIC (§7): keyed to the protocol day, drawn only
+ * from open, navigable practices, rotating shelves so each discipline
+ * surfaces across the week. Same day → same suggestion, all day. Never a
+ * carousel — one row, or the Library has leaked into the corridor.
+ */
+function suggestionForDay(day: number): Practice | null {
+  const shelfOrder = SHELF_ORDER;
+  for (let hop = 0; hop < shelfOrder.length; hop++) {
+    const shelf = shelfOrder[(day - 1 + hop) % shelfOrder.length];
+    const open = PRACTICES.filter((p) => p.shelf === shelf && p.kind !== 'tool' && isOpen(p, day));
+    if (open.length === 0) continue; // a shelf with nothing open yet — hop on
+    return open[Math.floor((day - 1) / shelfOrder.length) % open.length];
+  }
+  return null;
+}
+
 function LibraryShelves({ day }: { day: number }) {
   const { open, total } = openCount(day);
+  const suggestion = suggestionForDay(day);
 
   const onOpenPractice = (practice: Practice) => {
     router.push({ pathname: '/practice', params: { id: practice.id } });
@@ -177,6 +201,31 @@ function LibraryShelves({ day }: { day: number }) {
 
   return (
     <View className="mt-3">
+      {suggestion && (
+        <View className="mb-5">
+          <Text className="text-muted text-xs font-bold uppercase tracking-widest mb-2">
+            Tonight’s suggestion
+          </Text>
+          <TouchableOpacity
+            onPress={() => onOpenPractice(suggestion)}
+            activeOpacity={0.8}
+            accessibilityRole="button"
+            accessibilityLabel={`Tonight's suggestion: ${suggestion.title}, ${suggestion.minutes} minutes`}
+            className="bg-surface border border-line rounded-2xl px-4 py-3.5"
+          >
+            <View className="flex-row items-center justify-between">
+              <Text className="text-ink text-[13.5px] font-semibold flex-1 pr-3">
+                {suggestion.title}
+              </Text>
+              <Text className="text-dim text-[10.5px] font-semibold">
+                {suggestion.minutes} min
+              </Text>
+            </View>
+            <Text className="text-muted text-[11.5px] leading-4 mt-1">{suggestion.purpose}</Text>
+          </TouchableOpacity>
+        </View>
+      )}
+
       <View className="flex-row items-baseline justify-between mb-1">
         <Text className="text-muted text-xs font-bold uppercase tracking-widest">
           The Library

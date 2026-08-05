@@ -5,8 +5,9 @@
 // No protocol preview here — the symptoms cost inventory follows, then the
 // four driver cards.
 
-import { useEffect, useRef } from 'react';
-import { Animated, Easing, ScrollView, Text, View } from 'react-native';
+import { useEffect, useRef, useState } from 'react';
+import { Animated, Easing, ScrollView, Text, TouchableOpacity, View } from 'react-native';
+import { ChevronDown } from 'lucide-react-native';
 import { DURATION, EASING } from '../../theme/emberDusk';
 import type { MapScreen as MapDescriptor } from '../../content/onboarding/types';
 import { type ComposureResult, type SeverityBar } from '../../content/onboarding/composure';
@@ -211,6 +212,10 @@ export default function MapScreen({
   headline: string;
   onAdvance: () => void;
 }) {
+  // Tap-to-expand state for the bar detail lines (restored 2026-08-03, build
+  // order 1.1). One open at a time: this is a disclosure, not a decision —
+  // Hick's Law stays intact because nothing here forks his path.
+  const [expandedBar, setExpandedBar] = useState<string | null>(null);
   // Most-serious first, so the ranking reads top-down (founder review
   // 2026-07-13). Hermes' sort is stable, so ties keep the clinical order.
   const orderedBars = [...result.bars].sort(
@@ -275,6 +280,19 @@ export default function MapScreen({
             </Text>
           </View>
 
+          {/* The mirror sentence (restored 2026-08-03, build order 1.1) — his
+              own reported markers composed into one clinical read. Serif
+              italic ink: identity register, no accent spend. Renders nothing
+              in the zero-answer edge (buildMirror returns ''). */}
+          {result.mirror.length > 0 && (
+            <Text
+              className="mt-5 text-ink font-serif-italic"
+              style={{ fontSize: 14.5, lineHeight: 23 }}
+            >
+              {result.mirror}
+            </Text>
+          )}
+
           <Text
             className="mt-5 text-body"
             style={{ fontSize: 10, fontWeight: '300', letterSpacing: 2 }}
@@ -285,9 +303,18 @@ export default function MapScreen({
             {orderedBars.map((bar, index) => {
               const sev = displayedSeverity(bar, index);
               const c = severityColors(sev);
+              const open = expandedBar === bar.label;
               return (
               <StaggeredRow key={bar.label} index={index}>
-                <View
+                {/* Tap-to-expand (build order 1.1): the authored detail line
+                    returns behind a disclosure. Chrome stays ink/muted —
+                    zero accent spend on the expansion. */}
+                <TouchableOpacity
+                  activeOpacity={0.8}
+                  onPress={() => setExpandedBar(open ? null : bar.label)}
+                  accessibilityRole="button"
+                  accessibilityState={{ expanded: open }}
+                  accessibilityLabel={`${bar.label}, ${bar.grade}. ${open ? 'Collapse' : 'Expand'} detail.`}
                   className="rounded-xl bg-surface"
                   style={{ paddingVertical: 11, paddingHorizontal: 14 }}
                 >
@@ -316,9 +343,20 @@ export default function MapScreen({
                           {bar.grade.toUpperCase()}
                         </Text>
                       </View>
+                      <View style={{ transform: [{ rotate: open ? '180deg' : '0deg' }] }}>
+                        <ChevronDown size={14} color="#6E8090" />
+                      </View>
                     </View>
                   </View>
-                </View>
+                  {open && bar.detail.length > 0 && (
+                    <Text
+                      className="text-muted"
+                      style={{ fontSize: 12, lineHeight: 18, marginTop: 8 }}
+                    >
+                      {bar.detail}
+                    </Text>
+                  )}
+                </TouchableOpacity>
               </StaggeredRow>
               );
             })}
