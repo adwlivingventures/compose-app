@@ -1,5 +1,5 @@
 import React, { useRef, useState } from 'react';
-import { View, Text, TouchableOpacity } from 'react-native';
+import { ScrollView, View, Text, TouchableOpacity } from 'react-native';
 import { useRouter } from 'expo-router';
 import BreathingOrb, { CONDITIONING_PHASES } from './BreathingOrb';
 import { conditioningProtocolForDay } from '../content/conditioning';
@@ -100,8 +100,8 @@ export default function ConditioningTrack({ day, onComplete }: ConditioningTrack
 
   const orbLabel = hold ? 'Hold' : cuesFaded ? '·' : inhaling ? 'Soften' : 'Engage';
 
-  return (
-    <View className="items-center w-full">
+  const body = (
+    <>
       <BreathingOrb
         phases={CONDITIONING_PHASES}
         size={280}
@@ -148,11 +148,13 @@ export default function ConditioningTrack({ day, onComplete }: ConditioningTrack
               different session every night; the identical reflex every
               night. Hedonic adaptation solved without touching the
               instrument. */}
-          <View className="w-full bg-surface-deep border border-line-soft rounded-xl px-4 py-3 mt-4">
+          <View className="w-full bg-surface-deep border border-line-soft border-l-2 border-l-accent/60 rounded-xl px-4 py-3 mt-4">
             <Text className="text-dim text-[10px] font-bold uppercase tracking-[0.2em]">
               Today’s focus
             </Text>
-            <Text className="text-ink text-[13px] leading-5 mt-1">{focusForDay(day)}</Text>
+            <Text className="text-ink text-[13.5px] leading-5 mt-1 font-serif-italic">
+              {focusForDay(day)}
+            </Text>
           </View>
 
           {/* The technique, compressed to its two cues + the one common error. */}
@@ -205,6 +207,24 @@ export default function ConditioningTrack({ day, onComplete }: ConditioningTrack
           </TouchableOpacity>
         </>
       )}
-    </View>
+    </>
   );
+
+  // Pre-start, this stage stacks orb + focus card + technique card + CTA and
+  // can exceed the viewport (founder bug report 2026-08-05: Begin overlapped
+  // the persistent Steady-me row) — so the un-started state scrolls, with
+  // bottom clearance for the SOS row. Once running, content is short and the
+  // layout stays fixed so the orb never drifts mid-breath.
+  if (!started) {
+    return (
+      <ScrollView
+        className="w-full"
+        showsVerticalScrollIndicator={false}
+        contentContainerStyle={{ alignItems: 'center', paddingBottom: 110 }}
+      >
+        {body}
+      </ScrollView>
+    );
+  }
+  return <View className="items-center w-full">{body}</View>;
 }

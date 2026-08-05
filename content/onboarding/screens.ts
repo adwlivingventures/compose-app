@@ -776,8 +776,18 @@ export const SCREENS: Screen[] = [
     archetype: 'expert-quotes',
     eyebrow: 'THE CONSENSUS',
     headline: 'The professionals agree: this is more than a physical fix.',
-    subhead: 'Seven leading clinicians. One conclusion.',
+    subhead: 'Ten leading voices. One conclusion.',
+    // Founder verification pass 2026-08-05: all quotes verified against
+    // sources; citations filed in docs/research/EXPERT-QUOTE-CITATIONS.md.
+    // Three additions (Kerner, Huberman, Clear). Kerner leads — a named
+    // clinician disclosing his own history is the strongest normalization
+    // this screen can carry.
     quotes: [
+      {
+        text: 'Through much of my life I’ve suffered terribly from sexual dysfunction, and I know all too well the humiliation, anxiety, and despair of not being able to satisfy a woman.',
+        name: 'Dr. Ian Kerner',
+        credential: 'Sex Therapist & Author, She Comes First',
+      },
       {
         text: 'Contrary to popular belief, enhanced sexual performance begins with the brain. You need to stop filling your head with anxious thoughts - you need to reprogram your mind to focus solely on the sexual enjoyment of you and your partner.',
         name: 'Dr. Janet Hall',
@@ -799,7 +809,7 @@ export const SCREENS: Screen[] = [
         credential: 'Clinical Psychologist & Sexologist',
       },
       {
-        text: 'Sex that is pleasurable and satisfying without the expectation or demand that it’s going to be perfect every time — because sex is rarely perfect.',
+        text: 'Good-enough sex is sex that is pleasurable and satisfying without the expectation or demand that it’s going to be perfect every time — because sex is rarely perfect.',
         name: 'Dr. Justin Lehmiller',
         credential: 'Social Psychologist & Research Fellow',
       },
@@ -812,6 +822,16 @@ export const SCREENS: Screen[] = [
         text: 'The problem isn’t the desire itself, it’s the context. You need more sexually relevant stimuli activating the accelerator and fewer things hitting the brake.',
         name: 'Emily Nagoski, PhD',
         credential: 'Author & Sex Educator',
+      },
+      {
+        text: 'A lot of habit formation has to do with being in the right state of mind and being able to control your body and mind.',
+        name: 'Dr. Andrew Huberman',
+        credential: 'Neuroscientist, Stanford School of Medicine',
+      },
+      {
+        text: 'Every action you take is like a vote for the type of person you wish to become. No single instance will transform your beliefs, but as the votes build up, so does the evidence of your new identity.',
+        name: 'James Clear',
+        credential: 'Author, Atomic Habits',
       },
     ],
     button: 'Who has it worked for?',

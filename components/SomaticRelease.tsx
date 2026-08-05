@@ -136,8 +136,10 @@ export default function SomaticRelease({
 
   return (
     <View className="items-center w-full">
+      {/* Category named plainly (founder markup 2026-08-05): he should never
+          wonder what KIND of thing this is — it is a stretch. */}
       <Text className="text-dim text-[11px] font-semibold uppercase tracking-[0.2em]">
-        Tonight’s position · {pose.name}
+        Tonight’s stretch · {pose.name}
       </Text>
 
       <View className="items-center mt-3">
@@ -145,6 +147,20 @@ export default function SomaticRelease({
       </View>
 
       <Text className="text-muted text-xs text-center leading-4 px-6 mt-1">{pose.how}</Text>
+
+      {/* Purpose + expectation, one compact line each (founder markup
+          2026-08-05). "Feel" is expectation-setting: it prevents both alarm
+          ("is this wrong?") and forcing ("should I push harder?"). */}
+      <View className="w-full px-6 mt-2.5" style={{ gap: 3 }}>
+        <Text className="text-faint text-[11.5px] leading-4">
+          <Text className="text-dim font-bold">WHY </Text>
+          {pose.why}
+        </Text>
+        <Text className="text-faint text-[11.5px] leading-4">
+          <Text className="text-dim font-bold">FEEL </Text>
+          {pose.feel} Never pain — pain means ease off.
+        </Text>
+      </View>
 
       <Text className="text-ink font-serif-light" style={{ fontSize: 48, marginTop: 10 }}>
         {remaining}

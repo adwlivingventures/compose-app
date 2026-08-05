@@ -59,10 +59,12 @@ export interface ReminderTime {
  * rep delivered at a moment the app is closed — which is exactly why the
  * Personal level exists.
  */
+// Founder review 2026-08-05: lines 1–3 rewritten (originals read as clever;
+// the approved register is plain, declarative, work-focused — like 4–7).
 const PERSONAL_LINES = [
-  'Tonight: the pause is a tool, not an escape.', // Sunday
-  'Fifteen minutes, headphones on. The rest of the evening is yours.',
-  'The breath is the handle. Tonight you pick it up again.',
+  'Today’s session is ready. Fifteen minutes, start to finish.', // Sunday
+  'Tonight’s fifteen minutes are ready when you are.',
+  'The daily rep is what changes the baseline. Tonight’s is ready.',
   'Presence is a practice, and tonight’s session is ready.',
   'Steady is built daily. Today’s work is waiting.',
   'The work is quiet, and it is working. Tonight continues it.',
