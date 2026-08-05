@@ -1,26 +1,15 @@
-// Post-purchase attribution ask (2026-08-03, build order 1.2) — moved here
-// from onboarding Part 1, where it was the one screen serving us and not him:
-// twelve flat options mid-escalation, a momentum break at a bad moment, and
-// an answer that never left the device (no whitelisted event existed).
-//
-// Why this placement is correct: a paying member has maximum standing to be
-// asked a favour; the consent decision was made one screen ago, so the answer
-// can actually ride telemetry (a decline means track() drops it — correct by
-// design); and the funnel is one screen shorter. Response rate will be lower
-// than the captive pre-paywall ask — that is the accepted trade: lower yield
-// at zero funnel cost beats full yield at conversion cost.
-//
-// Skip is real and equal-dignity, same contract as the consent screen.
+// Post-purchase attribution ask (2026-08-03, build order 1.2) — deferred to
+// Day 3+ on the Today tab so the post-purchase chain reaches the first
+// session faster. Standalone mode (`?standalone=1`) returns to Today.
 
 import { useState } from 'react';
 import { ScrollView, Text, TouchableOpacity, View } from 'react-native';
-import { useRouter } from 'expo-router';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 import { ScreenFade } from '../components/onboarding/archetypes';
 import { Eyebrow, SecondaryLink } from '../components/onboarding/chrome';
 import { track, type AttributionSource } from '../services/analytics';
 import { LocalStore } from '../services/storage';
-
-const ATTRIBUTION_KEY = '@attribution_source';
+import { ATTRIBUTION_DISMISS_KEY, ATTRIBUTION_KEY } from '../components/AttributionCard';
 
 const OPTIONS: { value: AttributionSource; label: string }[] = [
   { value: 'facebook', label: 'Facebook' },
@@ -39,9 +28,12 @@ const OPTIONS: { value: AttributionSource; label: string }[] = [
 
 export default function Attribution() {
   const router = useRouter();
+  const { standalone } = useLocalSearchParams<{ standalone?: string }>();
+  const isStandalone = standalone === '1';
   const [answered, setAnswered] = useState(false);
 
-  const advance = () => router.replace('/discretion?intro=1');
+  const advance = () =>
+    isStandalone ? router.back() : router.replace('/discretion?intro=1');
 
   const choose = async (source: AttributionSource) => {
     if (answered) return; // one tap decides; double-taps never double-fire
@@ -56,8 +48,8 @@ export default function Attribution() {
   return (
     <ScreenFade>
       <View className="flex-1 bg-ground">
-        <View className="px-7" style={{ paddingTop: 84 }}>
-          <Eyebrow>ONE MORE</Eyebrow>
+        <View className="px-7" style={{ paddingTop: isStandalone ? 72 : 84 }}>
+          <Eyebrow>{isStandalone ? 'OPTIONAL' : 'ONE MORE'}</Eyebrow>
           <Text
             className="font-serif-regular text-ink"
             style={{ fontSize: 26, lineHeight: 34, marginTop: 14 }}
@@ -95,7 +87,13 @@ export default function Attribution() {
         </ScrollView>
 
         <View className="px-8 pb-[52px]" style={{ paddingTop: 8 }}>
-          <SecondaryLink label="Skip" onPress={advance} />
+          <SecondaryLink
+            label="Skip"
+            onPress={async () => {
+              if (isStandalone) await LocalStore.setItem(ATTRIBUTION_DISMISS_KEY, true);
+              advance();
+            }}
+          />
         </View>
       </View>
     </ScreenFade>

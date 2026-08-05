@@ -339,7 +339,7 @@ export default function DiscretionScreen() {
           </TouchableOpacity>
           {!level && (
             <Text className="text-faint text-xs text-center mt-3 leading-4">
-              Choose how Compose speaks to you above — you can change it any time.
+              Choose how Compose speaks to you above — then your first session is one tap away.
             </Text>
           )}
         </>

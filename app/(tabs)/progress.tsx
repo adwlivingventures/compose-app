@@ -19,6 +19,7 @@ import {
   ComposureMeasurement,
 } from '../../services/composureHistory';
 import { LocalStore } from '../../services/storage';
+import TabContextBanner from '../../components/TabContextBanner';
 
 /**
  * Progress — "Autonomic Acclimation" / the Baseline tab, v2
@@ -471,8 +472,10 @@ export default function ProgressScreen() {
     loopsClosed >= 6 && weekly[0] > weekly[weekly.length - 1];
 
   return (
-    <ScrollView
-      className="flex-1 bg-ground"
+    <View className="flex-1 bg-ground">
+      <TabContextBanner tab="baseline" />
+      <ScrollView
+      className="flex-1"
       contentContainerStyle={{ padding: 24, paddingTop: 72, paddingBottom: 48 }}
     >
       <Text className="text-muted text-xs font-bold uppercase tracking-widest">
@@ -687,5 +690,6 @@ export default function ProgressScreen() {
         All of this data lives only on this device.
       </Text>
     </ScrollView>
+    </View>
   );
 }

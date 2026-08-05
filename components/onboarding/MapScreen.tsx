@@ -1,89 +1,31 @@
-// "Your Results" (founder revamp 2026-07-10) — the unflinching read of his
-// problem. Score + one-sentence verdict, self-explanatory gauge (labeled
-// axis ends), severity rows of label + grade only (amber/red matte; healthy
-// reads neutral, never warning-colored; detail lines dropped 2026-07-14).
-// No protocol preview here — the symptoms cost inventory follows, then the
-// four driver cards.
+// "Your Composure Score" — the funnel's viral moment. The score lands as the
+// hero: counted up, ring-framed, haptic-sealed. A verdict + hook frame why
+// this number is the whole product's spine; drivers stay below as depth.
 
-import { useEffect, useRef, useState } from 'react';
-import { Animated, Easing, ScrollView, Text, TouchableOpacity, View } from 'react-native';
+import { useEffect, useRef, useState, type ReactNode } from 'react';
+import {
+  Animated,
+  Easing,
+  ScrollView,
+  Text,
+  TouchableOpacity,
+  View,
+} from 'react-native';
 import { ChevronDown } from 'lucide-react-native';
+import Svg, { Circle, Defs, LinearGradient, Rect, Stop } from 'react-native-svg';
 import { DURATION, EASING } from '../../theme/emberDusk';
+import { DEEPWATER } from '../../theme/deepwater';
 import type { MapScreen as MapDescriptor } from '../../content/onboarding/types';
-import { type ComposureResult, type SeverityBar } from '../../content/onboarding/composure';
+import {
+  type ComposureResult,
+  type SeverityBar,
+} from '../../content/onboarding/composure';
 import { GAUGE, SEVERITY } from '../../theme/emberDusk';
+import { seal } from '../../services/haptics';
 import EmissiveCTA from './EmissiveCTA';
 import { ScreenFade } from './archetypes';
 import { DuskRadial, Eyebrow } from './chrome';
 import { useReduceMotion } from '../../hooks/useReduceMotion';
-
-/**
- * The gauge marker as a miniature ember (Addendum §2): a warm core with a
- * couple of drifting sparks and a slow shimmer. Pure RN — identical on
- * Skia-less builds and under Reduce Motion (where it holds still).
- * Deepwater role ruling: this marker is the user HIMSELF on the map —
- * identity, not progress — so it stays ember (his warm light against the
- * cool field, moving toward cool calm).
- */
-function EmberMarker({ shimmer: shimmerProp = true }: { shimmer?: boolean }) {
-  const reduceMotion = useReduceMotion();
-  const shimmer = shimmerProp && !reduceMotion;
-  const glow = useRef(new Animated.Value(0)).current;
-  useEffect(() => {
-    if (!shimmer) return;
-    const loop = Animated.loop(
-      Animated.sequence([
-        Animated.timing(glow, { toValue: 1, duration: 2600, useNativeDriver: true }),
-        Animated.timing(glow, { toValue: 0, duration: 3400, useNativeDriver: true }),
-      ]),
-    );
-    loop.start();
-    return () => loop.stop();
-  }, [shimmer, glow]);
-
-  const spark = (top: number, left: number, sz: number, base: number) => (
-    <Animated.View
-      style={{
-        position: 'absolute',
-        top,
-        left,
-        width: sz,
-        height: sz,
-        borderRadius: sz / 2,
-        backgroundColor: '#8CE6D8',
-        opacity: shimmer
-          ? glow.interpolate({ inputRange: [0, 1], outputRange: [base, base + 0.3] })
-          : base,
-      }}
-    />
-  );
-
-  return (
-    <View style={{ width: 10, height: 22, marginLeft: -5 }}>
-      <Animated.View
-        style={{
-          position: 'absolute',
-          left: 4,
-          top: 4,
-          width: 2,
-          height: 14,
-          borderRadius: 2,
-          // Accent unification (2026-07-25): his marker rides the aqua current.
-          backgroundColor: '#5FD4C1',
-          shadowColor: '#5FD4C1',
-          shadowOpacity: shimmer
-            ? (glow.interpolate({ inputRange: [0, 1], outputRange: [0.45, 0.75] }) as never)
-            : 0.6,
-          shadowRadius: 6,
-          shadowOffset: { width: 0, height: 0 },
-        }}
-      />
-      {spark(0, 1, 3, 0.5)}
-      {spark(6, 8, 2, 0.4)}
-      {spark(17, 0, 2, 0.35)}
-    </View>
-  );
-}
 
 /** Horizontal baseline gauge — also reused dimmed on the paywall-dismiss screen. */
 export function BaselineGauge({
@@ -95,32 +37,87 @@ export function BaselineGauge({
   calmZone: [number, number];
   dimmed?: boolean;
 }) {
+  const clamped = Math.min(100, Math.max(0, score));
+  const fillPct = Math.max(clamped, clamped > 0 ? 2 : 0);
+  const trackH = 10;
+  const capW = 5;
+  const capH = 16;
+
   return (
-    <View style={{ opacity: dimmed ? 0.55 : 1 }}>
-      <View className="rounded-md bg-surface" style={{ height: 8 }}>
+    <View style={{ opacity: dimmed ? 0.55 : 1, paddingVertical: 4 }}>
+      <View style={{ height: trackH, justifyContent: 'center' }}>
         <View
-          className="absolute rounded-r-md"
           style={{
-            left: `${calmZone[0]}%`,
-            right: 0,
-            top: 0,
-            bottom: 0,
-            backgroundColor: GAUGE.calmZone,
+            height: trackH,
+            borderRadius: trackH / 2,
+            backgroundColor: '#182430',
+            overflow: 'hidden',
           }}
-        />
-        {/* The user's marker: warm light against the cool field. */}
-        <View style={{ position: 'absolute', left: `${score}%`, top: -4 }}>
-          <EmberMarker shimmer={!dimmed} />
+        >
+          <View
+            style={{
+              position: 'absolute',
+              left: `${calmZone[0]}%`,
+              right: 0,
+              top: 0,
+              bottom: 0,
+              backgroundColor: GAUGE.calmZone,
+            }}
+          />
+          {fillPct > 0 && (
+            <View
+              style={{
+                position: 'absolute',
+                left: 0,
+                top: 0,
+                bottom: 0,
+                width: `${fillPct}%`,
+                borderRadius: trackH / 2,
+                overflow: 'hidden',
+              }}
+            >
+              <Svg width="100%" height={trackH} preserveAspectRatio="none">
+                <Defs>
+                  <LinearGradient id="gaugeScoreFill" x1="0" y1="0" x2="1" y2="0">
+                    <Stop offset="0" stopColor={DEEPWATER.accentDeep} stopOpacity={dimmed ? 0.75 : 1} />
+                    <Stop offset="0.5" stopColor={DEEPWATER.accent} stopOpacity={dimmed ? 0.8 : 1} />
+                    <Stop offset="1" stopColor={DEEPWATER.accentBright} stopOpacity={dimmed ? 0.85 : 1} />
+                  </LinearGradient>
+                </Defs>
+                <Rect
+                  x="0"
+                  y="0"
+                  width="100%"
+                  height={trackH}
+                  rx={trackH / 2}
+                  fill="url(#gaugeScoreFill)"
+                />
+              </Svg>
+            </View>
+          )}
         </View>
+        {clamped > 0 && (
+          <View
+            style={{
+              position: 'absolute',
+              left: `${clamped}%`,
+              marginLeft: -capW / 2,
+              width: capW,
+              height: capH,
+              borderRadius: capW / 2,
+              backgroundColor: DEEPWATER.accentBright,
+              shadowColor: DEEPWATER.accent,
+              shadowOpacity: dimmed ? 0.35 : 0.7,
+              shadowRadius: 10,
+              shadowOffset: { width: 0, height: 0 },
+            }}
+          />
+        )}
       </View>
     </View>
   );
 }
 
-/** Severity rank 0–3 per grade — drives both the meter and the most-serious-
- *  first ordering. Palette-free ranking (founder review 2026-07-13): the reader
- *  sees which areas are worse without leaving the amber/red severity language
- *  (Ember Dusk bans a green "good" color; healthy already reads neutral). */
 const GRADE_SEVERITY: Record<string, number> = {
   High: 3,
   Elevated: 2,
@@ -136,9 +133,6 @@ const GRADE_SEVERITY: Record<string, number> = {
 };
 const severityOf = (grade: string): number => GRADE_SEVERITY[grade] ?? 1;
 
-// Severity colour ramp (founder ruling 2026-07-13): 1 tick = gold, 2 = orange
-// (the midpoint blend of gold and red), 3 = red. Orange is the only added hue —
-// a blend of the two existing severity colours, not a new green/traffic light.
 const SEVERITY_ORANGE = '#DD915B';
 function severityColors(severity: number): { fill: string; bg: string; text: string } {
   if (severity >= 3) return { fill: SEVERITY.red, bg: SEVERITY.redBg, text: SEVERITY.red };
@@ -148,8 +142,6 @@ function severityColors(severity: number): { fill: string; bg: string; text: str
   return { fill: '#223140', bg: 'rgba(107,114,128,0.12)', text: '#93A4B0' };
 }
 
-/** Three-segment severity meter: filled segments = rank, coloured by that rank
- *  (gold / orange / red); empties sit on the hairline colour. */
 function SeverityMeter({ severity }: { severity: number }) {
   const fill = severityColors(severity).fill;
   return (
@@ -169,8 +161,7 @@ function SeverityMeter({ severity }: { severity: number }) {
   );
 }
 
-/** Bars continue the assembly: staggered rise, breath-out easing. */
-function StaggeredRow({ index, children }: { index: number; children: React.ReactNode }) {
+function StaggeredRow({ index, children }: { index: number; children: ReactNode }) {
   const reduceMotion = useReduceMotion();
   const t = useRef(new Animated.Value(0)).current;
   useEffect(() => {
@@ -200,6 +191,135 @@ function StaggeredRow({ index, children }: { index: number; children: React.Reac
   );
 }
 
+/** Count-up + ring — the score lands like a reveal, not a label. */
+function ComposureScoreHero({
+  score,
+  hook,
+}: {
+  score: number;
+  hook?: string;
+}) {
+  const reduceMotion = useReduceMotion();
+  const [displayScore, setDisplayScore] = useState(reduceMotion ? score : 0);
+  const heroOpacity = useRef(new Animated.Value(0)).current;
+  const heroScale = useRef(new Animated.Value(0.92)).current;
+  const sealed = useRef(false);
+
+  const size = 168;
+  const strokeWidth = 5;
+  const radius = (size - strokeWidth) / 2;
+  const circumference = 2 * Math.PI * radius;
+  const progress = displayScore / 100;
+
+  useEffect(() => {
+    if (reduceMotion) {
+      setDisplayScore(score);
+      heroOpacity.setValue(1);
+      heroScale.setValue(1);
+      return;
+    }
+
+    Animated.parallel([
+      Animated.timing(heroOpacity, {
+        toValue: 1,
+        duration: 420,
+        easing: Easing.bezier(...EASING.breathOut),
+        useNativeDriver: true,
+      }),
+      Animated.spring(heroScale, {
+        toValue: 1,
+        friction: 7,
+        tension: 40,
+        useNativeDriver: true,
+      }),
+    ]).start();
+
+    const durationMs = 1400;
+    const start = Date.now();
+    const tick = () => {
+      const elapsed = Date.now() - start;
+      const t = Math.min(elapsed / durationMs, 1);
+      const eased = 1 - (1 - t) ** 3;
+      const next = Math.round(eased * score);
+      setDisplayScore(next);
+      if (t < 1) {
+        requestAnimationFrame(tick);
+      } else if (!sealed.current) {
+        sealed.current = true;
+        seal();
+      }
+    };
+    requestAnimationFrame(tick);
+  }, [score, reduceMotion, heroOpacity, heroScale]);
+
+  return (
+    <View className="items-center rounded-2xl border border-line bg-surface px-5 py-7">
+      <Animated.View
+        style={{
+          opacity: heroOpacity,
+          transform: [{ scale: heroScale }],
+          alignSelf: 'stretch',
+          alignItems: 'center',
+        }}
+      >
+        <Eyebrow center>COMPOSURE SCORE</Eyebrow>
+        <View style={{ width: size, height: size, marginTop: 18 }} className="items-center justify-center">
+          <Svg
+            width={size}
+            height={size}
+            style={{ position: 'absolute', transform: [{ rotate: '-90deg' }] }}
+          >
+            <Circle
+              cx={size / 2}
+              cy={size / 2}
+              r={radius}
+              stroke={DEEPWATER.line}
+              strokeWidth={strokeWidth}
+              fill="none"
+            />
+            <Circle
+              cx={size / 2}
+              cy={size / 2}
+              r={radius}
+              stroke={DEEPWATER.accent}
+              strokeWidth={strokeWidth}
+              fill="none"
+              strokeDasharray={circumference}
+              strokeDashoffset={circumference * (1 - progress)}
+              strokeLinecap="round"
+            />
+          </Svg>
+          <View className="items-center">
+            <Text
+              className="font-serif-light text-accent"
+              style={{
+                fontSize: 72,
+                lineHeight: 76,
+                textShadowColor: 'rgba(95,212,193,0.35)',
+                textShadowRadius: 18,
+                textShadowOffset: { width: 0, height: 0 },
+              }}
+            >
+              {displayScore}
+            </Text>
+            <Text className="font-serif-regular text-faint" style={{ fontSize: 18, marginTop: -4 }}>
+              / 100
+            </Text>
+          </View>
+        </View>
+        {hook ? (
+          <Text
+            className="text-center text-ember-bright font-serif-italic"
+            style={{ fontSize: 15, lineHeight: 22, marginTop: 16 }}
+          >
+            {hook}
+          </Text>
+        ) : null}
+      </Animated.View>
+    </View>
+  );
+}
+
 export default function MapScreen({
   screen,
   result,
@@ -208,55 +328,48 @@ export default function MapScreen({
 }: {
   screen: MapDescriptor;
   result: ComposureResult;
-  /** Pre-resolved with the user's name by the flow runner. */
   headline: string;
   onAdvance: () => void;
 }) {
-  // Tap-to-expand state for the bar detail lines (restored 2026-08-03, build
-  // order 1.1). One open at a time: this is a disclosure, not a decision —
-  // Hick's Law stays intact because nothing here forks his path.
   const [expandedBar, setExpandedBar] = useState<string | null>(null);
-  // Most-serious first, so the ranking reads top-down (founder review
-  // 2026-07-13). Hermes' sort is stable, so ties keep the clinical order.
+  const reduceMotion = useReduceMotion();
+  const summaryOpacity = useRef(new Animated.Value(reduceMotion ? 1 : 0)).current;
+
+  useEffect(() => {
+    if (reduceMotion) return;
+    Animated.timing(summaryOpacity, {
+      toValue: 1,
+      duration: DURATION.transitionMin,
+      delay: 1500,
+      easing: Easing.bezier(...EASING.breathOut),
+      useNativeDriver: true,
+    }).start();
+  }, [summaryOpacity, reduceMotion]);
+
   const orderedBars = [...result.bars].sort(
     (a, b) => severityOf(b.grade) - severityOf(a.grade),
   );
-  // Guarantee at least one red: if his worst area is a genuine problem
-  // (moderate) but nothing hit High naturally, his single worst driver reads
-  // red — honest ranking of his real answers, framed as his primary driver
-  // (founder ruling 2026-07-13). Guarded to severity 2 so a genuinely mild
-  // profile (near-impossible in this funnel) is never given a fabricated red.
   const topRaw = orderedBars.length ? severityOf(orderedBars[0].grade) : 0;
   const promoteTop = topRaw === 2;
   const displayedSeverity = (bar: SeverityBar, i: number) =>
     i === 0 && promoteTop ? 3 : severityOf(bar.grade);
+
   return (
     <ScreenFade>
       <View className="flex-1 bg-ground">
-        <DuskRadial intensity={0.14} />
+        <DuskRadial intensity={0.2} />
         <ScrollView
           className="flex-1 px-6"
-          contentContainerStyle={{ paddingTop: 64, paddingBottom: 12 }}
+          contentContainerStyle={{ paddingTop: 56, paddingBottom: 12 }}
           showsVerticalScrollIndicator={false}
         >
-          <Eyebrow>{screen.eyebrow}</Eyebrow>
+          <ComposureScoreHero score={result.score} hook={screen.scoreHook} />
+
           <Text
-            className="font-serif-regular text-ink"
-            style={{ fontSize: 24, lineHeight: 31, marginTop: 10 }}
+            className="mt-4 font-serif-regular text-ink text-center"
+            style={{ fontSize: 20, lineHeight: 26 }}
           >
             {headline}
-          </Text>
-
-          <View className="mt-4 flex-row items-baseline" style={{ gap: 4 }}>
-            <Text className="font-serif-regular text-ink" style={{ fontSize: 56, lineHeight: 60 }}>
-              {result.score}
-            </Text>
-            <Text className="font-serif-regular text-faint" style={{ fontSize: 24 }}>
-              {' '}/ 100
-            </Text>
-          </View>
-          <Text className="text-muted" style={{ fontSize: 11, fontWeight: '300', marginTop: 6 }}>
-            {screen.scoreLabel}
           </Text>
 
           <View className="mt-5">
@@ -278,20 +391,15 @@ export default function MapScreen({
             >
               {screen.gauge.calmLabel}
             </Text>
+            <Animated.View style={{ opacity: summaryOpacity, marginTop: 16 }}>
+              <Text
+                className="text-ink font-serif-italic text-center"
+                style={{ fontSize: 14, lineHeight: 21 }}
+              >
+                {result.summary}
+              </Text>
+            </Animated.View>
           </View>
-
-          {/* The mirror sentence (restored 2026-08-03, build order 1.1) — his
-              own reported markers composed into one clinical read. Serif
-              italic ink: identity register, no accent spend. Renders nothing
-              in the zero-answer edge (buildMirror returns ''). */}
-          {result.mirror.length > 0 && (
-            <Text
-              className="mt-5 text-ink font-serif-italic"
-              style={{ fontSize: 14.5, lineHeight: 23 }}
-            >
-              {result.mirror}
-            </Text>
-          )}
 
           <Text
             className="mt-5 text-body"
@@ -305,59 +413,56 @@ export default function MapScreen({
               const c = severityColors(sev);
               const open = expandedBar === bar.label;
               return (
-              <StaggeredRow key={bar.label} index={index}>
-                {/* Tap-to-expand (build order 1.1): the authored detail line
-                    returns behind a disclosure. Chrome stays ink/muted —
-                    zero accent spend on the expansion. */}
-                <TouchableOpacity
-                  activeOpacity={0.8}
-                  onPress={() => setExpandedBar(open ? null : bar.label)}
-                  accessibilityRole="button"
-                  accessibilityState={{ expanded: open }}
-                  accessibilityLabel={`${bar.label}, ${bar.grade}. ${open ? 'Collapse' : 'Expand'} detail.`}
-                  className="rounded-xl bg-surface"
-                  style={{ paddingVertical: 11, paddingHorizontal: 14 }}
-                >
-                  <View className="flex-row items-center justify-between">
-                    <Text className="text-ink" style={{ fontSize: 13, fontWeight: '400' }}>
-                      {bar.label}
-                    </Text>
-                    <View className="flex-row items-center" style={{ gap: 8 }}>
-                      <SeverityMeter severity={sev} />
-                      <View
-                        className="rounded-full"
-                        style={{
-                          paddingVertical: 3,
-                          paddingHorizontal: 9,
-                          backgroundColor: c.bg,
-                        }}
-                      >
-                        <Text
+                <StaggeredRow key={bar.label} index={index}>
+                  <TouchableOpacity
+                    activeOpacity={0.8}
+                    onPress={() => setExpandedBar(open ? null : bar.label)}
+                    accessibilityRole="button"
+                    accessibilityState={{ expanded: open }}
+                    accessibilityLabel={`${bar.label}, ${bar.grade}. ${open ? 'Collapse' : 'Expand'} detail.`}
+                    className="rounded-xl bg-surface"
+                    style={{ paddingVertical: 11, paddingHorizontal: 14 }}
+                  >
+                    <View className="flex-row items-center justify-between">
+                      <Text className="text-ink" style={{ fontSize: 13, fontWeight: '400' }}>
+                        {bar.label}
+                      </Text>
+                      <View className="flex-row items-center" style={{ gap: 8 }}>
+                        <SeverityMeter severity={sev} />
+                        <View
+                          className="rounded-full"
                           style={{
-                            fontSize: 10,
-                            fontWeight: '600',
-                            letterSpacing: 0.5,
-                            color: c.text,
+                            paddingVertical: 3,
+                            paddingHorizontal: 9,
+                            backgroundColor: c.bg,
                           }}
                         >
-                          {bar.grade.toUpperCase()}
-                        </Text>
-                      </View>
-                      <View style={{ transform: [{ rotate: open ? '180deg' : '0deg' }] }}>
-                        <ChevronDown size={14} color="#6E8090" />
+                          <Text
+                            style={{
+                              fontSize: 10,
+                              fontWeight: '600',
+                              letterSpacing: 0.5,
+                              color: c.text,
+                            }}
+                          >
+                            {bar.grade.toUpperCase()}
+                          </Text>
+                        </View>
+                        <View style={{ transform: [{ rotate: open ? '180deg' : '0deg' }] }}>
+                          <ChevronDown size={14} color="#6E8090" />
+                        </View>
                       </View>
                     </View>
-                  </View>
-                  {open && bar.detail.length > 0 && (
-                    <Text
-                      className="text-muted"
-                      style={{ fontSize: 12, lineHeight: 18, marginTop: 8 }}
-                    >
-                      {bar.detail}
-                    </Text>
-                  )}
-                </TouchableOpacity>
-              </StaggeredRow>
+                    {open && bar.detail.length > 0 && (
+                      <Text
+                        className="text-muted"
+                        style={{ fontSize: 12, lineHeight: 18, marginTop: 8 }}
+                      >
+                        {bar.detail}
+                      </Text>
+                    )}
+                  </TouchableOpacity>
+                </StaggeredRow>
               );
             })}
           </View>

@@ -9,6 +9,7 @@ import { LocalStore } from '../../services/storage';
 import { track } from '../../services/analytics';
 import MainDashboard from '../../components/MainDashboard';
 import GraduationScreen from '../../components/GraduationScreen';
+import MasteryHome from '../../components/MasteryHome';
 import PhaseTransition, { SignatureData } from '../../components/PhaseTransition';
 
 export default function DashboardScreen() {
@@ -122,6 +123,7 @@ export default function DashboardScreen() {
     return (
       <GraduationScreen
         isProcessing={isProcessing}
+        hasMembership={hasMembership}
         annualPrice={continuationPackage('annual')?.product.priceString ?? null}
         monthlyPrice={continuationPackage('monthly')?.product.priceString ?? null}
         onKeepMembership={async (term) => {
@@ -129,8 +131,10 @@ export default function DashboardScreen() {
           if (granted) await recordGraduationChoice('membership');
           return granted;
         }}
+        onEnterMastery={async () => {
+          await recordGraduationChoice('membership');
+        }}
         onExported={() => {
-          // §7: the fact of the export, never the record's content.
           track('export_used');
           return recordGraduationChoice('export');
         }}
@@ -138,9 +142,12 @@ export default function DashboardScreen() {
     );
   }
 
-  // Post-program state: the protocol is finished — this is the one moment a
-  // continuation decision belongs on screen.
+  // Post-program: Mastery home for members; renewal path for lapsed.
   if (protocolComplete) {
+    if (hasMembership || graduationChoice === 'membership') {
+      return <MasteryHome />;
+    }
+
     return (
       <ScrollView
         className="flex-1 bg-ground"

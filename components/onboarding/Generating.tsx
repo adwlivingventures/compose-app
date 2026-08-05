@@ -96,7 +96,7 @@ export default function Generating({
           className="font-serif-regular text-ink text-center"
           style={{ fontSize: 20, marginBottom: 26 }}
         >
-          Analyzing your responses
+          Calculating your Composure Score
         </Text>
         <View style={{ width: size, height: size }} className="items-center justify-center">
           {/* The Ember gathers as the map computes; coherence follows progress,

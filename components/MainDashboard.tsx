@@ -7,13 +7,19 @@ import { useProtocol, localDateString } from '../context/ProtocolContext';
 import { getProtocolDay } from '../content/ProtocolData';
 import { getTonightLine } from '../content/tonightLines';
 import { fieldNoteForDay } from '../content/fieldNotes';
-import { ledgerItemsForDay } from '../content/ledger';
-import { TRAINING_ITEMS } from '../content/training';
+import { ledgerItemsForDay, VITALITY_ASYNC_LINE, VITALITY_FULL_STACK_LINE } from '../content/ledger';
+import { TRAINING_ITEMS, trainingDurationMin } from '../content/training';
 import { getComposureHistory, getDueMilestone } from '../services/composureHistory';
 import { useDiscreet } from '../context/DiscreetContext';
 import { LocalStore } from '../services/storage';
 import TriageCenter from './TriageCenter';
 import WhyEcho from './WhyEcho';
+import DayOneOrientation from './DayOneOrientation';
+import ReminderBackstopCard, { useReminderBackstop } from './ReminderBackstopCard';
+import AttributionCard, { useAttributionPrompt } from './AttributionCard';
+
+const ORIENTATION_KEY = '@day_one_orientation_seen';
+const FULL_STACK_NOTICE_KEY = '@vitality_full_stack_notice_seen';
 
 /**
  * Today dashboard — Deepwater phase 3 rebuild (claude/DEEPWATER-FLOW-MAP.md
@@ -160,8 +166,13 @@ function DayStrip({
 // ─── Training timeline (Headspace pattern: sequenced steps with states) ──────
 
 function TrainingTimeline({ done, nextIndex }: { done: boolean[]; nextIndex: number }) {
+  const totalMin = trainingDurationMin();
   return (
     <View className="bg-surface border border-line rounded-2xl px-4 py-1.5 mt-3">
+      <View className="flex-row items-baseline justify-between py-3 border-b border-line-soft">
+        <Text className="text-ink text-[13px] font-semibold">Today&apos;s session</Text>
+        <Text className="text-faint text-[11px]">~{totalMin} min · 5 steps</Text>
+      </View>
       {TRAINING_ITEMS.map((item, i) => {
         const isDone = done[i];
         const isNext = i === nextIndex;
@@ -196,8 +207,9 @@ function TrainingTimeline({ done, nextIndex }: { done: boolean[]; nextIndex: num
             >
               {item.title}
             </Text>
+            <Text className="text-faint text-[10px] w-8 text-right">{item.durationMin}m</Text>
             {isNext && (
-              <Text className="text-accent text-[10px] font-bold uppercase tracking-[0.14em]">
+              <Text className="text-accent text-[10px] font-bold uppercase tracking-[0.14em] ml-1">
                 Up next
               </Text>
             )}
@@ -219,14 +231,40 @@ export default function MainDashboard({ onStartSession }: { onStartSession: () =
   // Discretion level → greeting register (build order 1.3). The name joins
   // the greeting ONLY at the user-chosen Personal level; Shielded and the
   // never-chosen null stay nameless, byte-identical to the prior behavior.
-  const { level } = useDiscreet();
+  const { level, setNotifications } = useDiscreet();
   const [firstName, setFirstName] = useState<string | null>(null);
   useEffect(() => {
     LocalStore.getItem<string>('@user_first_name').then(setFirstName);
   }, []);
   const greetName = level === 'personal' ? firstName : null;
 
-  // Composure re-measurement due? Re-checked on every focus so the card
+  // Day 1 orientation — one-time sheet before the first session.
+  const [showOrientation, setShowOrientation] = useState(false);
+  useFocusEffect(
+    useCallback(() => {
+      if (activeDay !== 1) return;
+      let alive = true;
+      LocalStore.getItem<boolean>(ORIENTATION_KEY).then((seen) => {
+        if (alive && !seen) setShowOrientation(true);
+      });
+      return () => {
+        alive = false;
+      };
+    }, [activeDay]),
+  );
+  const dismissOrientation = async (beginSession: boolean) => {
+    await LocalStore.setItem(ORIENTATION_KEY, true);
+    setShowOrientation(false);
+    if (beginSession) onStartSession();
+  };
+
+  const { show: showReminderBackstop, dismiss: dismissReminderBackstop } =
+    useReminderBackstop(activeDay);
+  const { show: showAttribution, dismiss: dismissAttribution } = useAttributionPrompt(activeDay);
+
+  const [showFullStackNotice, setShowFullStackNotice] = useState(false);
+
+  // Composure re-measurement due?
   // clears the moment a reading is taken and appears the day a milestone
   // lands (Days 14/40/75 — canon §8's "measured, not promised" cadence).
   const [dueMilestone, setDueMilestone] = useState<number | null>(null);
@@ -265,6 +303,17 @@ export default function MainDashboard({ onStartSession }: { onStartSession: () =
   const ledgerRemaining = ledgerItems.filter((i) => !ledgerState[i.key]);
   // Milestone field note — authored arc texture, only on keyed days.
   const fieldNote = completedToday ? fieldNoteForDay(displayDay) : null;
+
+  useEffect(() => {
+    if (activeDay !== 8) return;
+    LocalStore.getItem<boolean>(FULL_STACK_NOTICE_KEY).then((seen) => {
+      if (!seen) setShowFullStackNotice(true);
+    });
+  }, [activeDay]);
+  const dismissFullStackNotice = async () => {
+    await LocalStore.setItem(FULL_STACK_NOTICE_KEY, true);
+    setShowFullStackNotice(false);
+  };
 
   return (
     <View className="flex-1 bg-ground">
@@ -344,6 +393,31 @@ export default function MainDashboard({ onStartSession }: { onStartSession: () =
         </View>
 
         <View className="mt-6">
+          {showAttribution && !completedToday && (
+            <AttributionCard onDismiss={dismissAttribution} />
+          )}
+
+          {showReminderBackstop && !completedToday && (
+            <ReminderBackstopCard
+              onDismiss={dismissReminderBackstop}
+              onScheduled={() => setNotifications(true)}
+            />
+          )}
+
+          {showFullStackNotice && (
+            <View className="bg-surface-deep border border-line rounded-2xl px-[18px] py-4 mb-3">
+              <Text className="text-dim text-[10px] font-bold uppercase tracking-[0.2em]">
+                Day eight
+              </Text>
+              <Text className="text-body text-[13px] leading-5 mt-1.5">
+                {VITALITY_FULL_STACK_LINE}
+              </Text>
+              <TouchableOpacity onPress={dismissFullStackNotice} activeOpacity={0.7} className="mt-2">
+                <Text className="text-muted text-xs font-semibold">Got it</Text>
+              </TouchableOpacity>
+            </View>
+          )}
+
           {/* Re-measurement card — deliberately matte (accent budget spent on
               ring arc, CTA, next-step node). Shown in the completed state too:
               a scheduled evidence milestone is delivery on an onboarding
@@ -402,7 +476,11 @@ export default function MainDashboard({ onStartSession }: { onStartSession: () =
               >
                 <Play color="#06232A" size={16} fill="#06232A" />
                 <Text className="text-on-accent font-bold text-base">
-                  {midLoop ? 'Continue today’s session' : 'Begin today’s session'}
+                  {midLoop
+                    ? 'Continue today’s session'
+                    : displayDay === 1
+                      ? 'Start Day 1 — about 15 minutes'
+                      : 'Begin today’s session'}
                 </Text>
               </TouchableOpacity>
               {midLoop && nextIndex >= 0 ? (
@@ -449,8 +527,8 @@ export default function MainDashboard({ onStartSession }: { onStartSession: () =
                   {ledgerCount} of {ledgerItems.length} today
                 </Text>
               </View>
-              <Text className="text-faint text-[11px] mt-0.5">
-                Nine daily habits · resets at midnight
+              <Text className="text-faint text-[11px] mt-0.5 leading-4">
+                {VITALITY_ASYNC_LINE}
               </Text>
               <View className="mt-2">
                 {ledgerRemaining.slice(0, 3).map((item) => (
@@ -478,10 +556,12 @@ export default function MainDashboard({ onStartSession }: { onStartSession: () =
                 onPress={() => router.push('/ledger')}
                 activeOpacity={0.7}
                 accessibilityRole="button"
-                accessibilityLabel="See all nine check-in items"
+                accessibilityLabel={`See all ${ledgerItems.length} check-in items`}
                 className="border-t border-line-soft py-3"
               >
-                <Text className="text-muted text-[13px] font-semibold">See all nine →</Text>
+                <Text className="text-muted text-[13px] font-semibold">
+                  See all {ledgerItems.length} →
+                </Text>
               </TouchableOpacity>
             </View>
           )}
@@ -489,6 +569,12 @@ export default function MainDashboard({ onStartSession }: { onStartSession: () =
       </ScrollView>
 
       <TriageCenter visible={sosVisible} onClose={() => setSosVisible(false)} />
+
+      <DayOneOrientation
+        visible={showOrientation}
+        onBegin={() => dismissOrientation(true)}
+        onDismiss={() => dismissOrientation(false)}
+      />
     </View>
   );
 }

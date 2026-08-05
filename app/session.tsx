@@ -505,7 +505,9 @@ function SessionBody() {
           </View>
         )}
 
-        {stage === 'release' && <SomaticRelease onComplete={() => completeStage('release')} />}
+        {stage === 'release' && (
+          <SomaticRelease day={day} onComplete={() => completeStage('release')} />
+        )}
 
         {stage === 'rewire' && (
           /* The rewire stage now carries the day's word + the "I am" triad

@@ -4,10 +4,8 @@
 // total (zero events, including everything buffered during onboarding), and
 // the path forward is identical either way.
 //
-// 2026-08-03 (build order 1.2): the chain gained the attribution ask directly
-// after this screen — consent decided first, so the attribution answer knows
-// whether it may ride telemetry. Chain: Day Zero → consent → attribution →
-// discretion → Today.
+// Chain (2026-08): Day Zero → consent → discretion → Today. Attribution
+// deferred to Day 3+ on the Today tab so the first session arrives faster.
 
 import { useRouter } from 'expo-router';
 import ConsentScreenView from '../components/onboarding/ConsentScreen';
@@ -21,7 +19,7 @@ export default function Consent() {
       screen={CONSENT_SCREEN}
       onDecision={(granted) => {
         setTelemetryConsent(granted);
-        router.replace('/attribution');
+        router.replace('/discretion?intro=1');
       }}
     />
   );

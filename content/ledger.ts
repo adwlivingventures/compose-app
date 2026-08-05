@@ -162,9 +162,14 @@ export const LEDGER_ITEMS: LedgerItem[] = [
   },
 ];
 
-/** All items are active every day (v3 — phase gating retired by founder
- *  ruling 2026-07-15; the day argument is kept for call-site stability). */
-export function ledgerItemsForDay(_day: number): LedgerItem[] {
+/** Core trio for Days 1–7 — session habit first; the full stack opens Day 8. */
+export const CORE_LEDGER_KEYS: LedgerKey[] = ['presenceRep', 'cleanFocus', 'morningLight'];
+
+/** Days 1–7: three core habits. Day 8+: the full nine-item stack. */
+export function ledgerItemsForDay(day: number): LedgerItem[] {
+  if (day <= 7) {
+    return LEDGER_ITEMS.filter((item) => CORE_LEDGER_KEYS.includes(item.key));
+  }
   return LEDGER_ITEMS;
 }
 
@@ -189,14 +194,26 @@ export const VITALITY_SECTION_INTRO =
   'Every check is a vote for the man you are becoming. Discipline here overflows into everything — and it carries an energy she can feel.';
 
 /**
+ * Async framing (2026-08): the check-in is through the day, not part of
+ * the session block — stated on Today and in the session check-in stage.
+ */
+export const VITALITY_ASYNC_LINE =
+  'Through the day, not during your session — check items off whenever they happen.';
+
+/**
+ * Shown once when the full nine-item stack opens on Day 8.
+ */
+export const VITALITY_FULL_STACK_LINE =
+  'The full daily stack opens today — nine habits that support the work.';
+
+/**
  * Early-days framing (2026-08-03, build order 0.6) — shown Days 1–7 only.
- * Nine items land on Day 1 so he sees the whole standard; the risk is a
- * 2-of-9 evening reading as a failing grade — a verdict, the one thing the
- * ledger must never produce. This line pre-frames a low count as the normal
- * starting state. It retires at Day 8, once his own data has replaced it.
+ * Three core items land first so Day 1 reads as approachable; the risk is a
+ * low count feeling like a failing grade — a verdict, the one thing the
+ * ledger must never produce.
  */
 export const VITALITY_EARLY_DAYS_LINE =
-  'Most men start with two or three. The list is the standard, not the requirement.';
+  'Three habits to start. Most men check one or two today — the list is the standard, not the requirement.';
 
 /**
  * The falter line for No Porn — shown, quietly, when the item closes

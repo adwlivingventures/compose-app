@@ -6,12 +6,13 @@ import { useProtocol } from '../context/ProtocolContext';
 import { CHOSEN_CUES_KEY, type ChosenCues } from '../content/cues';
 import { LocalStore } from '../services/storage';
 import {
-  LedgerItem,
-  ledgerItemsForDay,
+  type LedgerItem,
   CLEAN_FOCUS_FALTER_LINE,
-  VITALITY_SECTION_INTRO,
+  ledgerItemsForDay,
+  VITALITY_ASYNC_LINE,
   VITALITY_EARLY_DAYS_LINE,
 } from '../content/ledger';
+import { checklistHeaderForDay } from '../content/sessionCopy';
 import { TRAINING_ITEMS, trainingComplete, trainingCount } from '../content/training';
 
 /**
@@ -133,12 +134,17 @@ export default function DailyCheckIn({
 
   return (
     <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={{ paddingVertical: 8 }}>
+      {onCompleteDay ? (
+        <Text className="text-faint text-[11px] text-center leading-4 mb-4 px-2">
+          Use Previous, Next, or the step list above to move between training and habits.
+        </Text>
+      ) : null}
       {/* ── Section 1: Today's Training ── */}
       <Text className="text-dim text-[10px] font-bold uppercase tracking-[0.2em] mb-1 ml-1">
-        Today’s Training
+        Close today&apos;s training
       </Text>
       <Text className="text-muted text-xs mb-3 ml-1">
-        {trainingDone} of {TRAINING_ITEMS.length} complete — the session marks these as you go.
+        {trainingDone} of {TRAINING_ITEMS.length} complete — confirm each step, then seal the day.
       </Text>
       <View className="gap-2.5 mb-6">
         {TRAINING_ITEMS.map((item) => (
@@ -154,9 +160,12 @@ export default function DailyCheckIn({
 
       {/* ── Section 2: Vitality Check-In ── */}
       <Text className="text-dim text-[10px] font-bold uppercase tracking-[0.2em] mb-1 ml-1">
-        Vitality Check-In
+        {checklistHeaderForDay(day)}
       </Text>
-      <Text className="text-muted text-xs mb-3 ml-1 leading-4">{VITALITY_SECTION_INTRO}</Text>
+      <Text className="text-muted text-xs mb-2 ml-1 leading-4">{VITALITY_ASYNC_LINE}</Text>
+      <Text className="text-muted text-xs mb-3 ml-1 leading-4">
+        Session first — these habits happen through the day, not all at once.
+      </Text>
       {/* Days 1–7 only: pre-frames a low count as the normal start, not a
           failing grade (votes, not verdicts). Retires once his own record
           exists (2026-08-03, build order 0.6). */}

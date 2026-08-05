@@ -262,7 +262,8 @@ export interface MapScreen extends ScreenBase {
   archetype: 'map';
   eyebrow: string;
   headline: string; // {name} token
-  scoreLabel: string;
+  /** One line under the score that frames why this moment matters (viral hook). */
+  scoreHook?: string;
   /** Axis end labels make the gauge self-explanatory (founder review 2026-07-10). */
   gauge: { calmZone: [number, number]; calmLabel: string; axisLow: string; axisHigh: string };
   barsHeading: string;

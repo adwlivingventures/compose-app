@@ -13,7 +13,20 @@ import EmissiveCTA from './EmissiveCTA';
 import { ScreenFade } from './archetypes';
 import { SecondaryLink } from './chrome';
 
-type Phase = 'ready' | 0 | 1 | 'result';
+type Phase = 'ready' | 'leadin' | 0 | 1 | 'result';
+
+// Founder ruling 2026-08-05 (walkthrough edit #4): a 3-second READY beat
+// between tapping Begin and the CLENCH phase. On the walk, the clench
+// arrived abruptly — a cold start into max effort. The lead-in lives HERE,
+// not in the screen's `phases` array, deliberately: the phases array IS the
+// instrument (5s clench / 10s release, with stored longitudinal history),
+// and its indices drive the clench/release haptics below. A settle beat is
+// presentation, not measurement — timings stay comparable across every
+// stored reading, and all three surfaces that render this component
+// (onboarding, re-measure, standalone recheck) get the pause for free.
+const LEADIN_SECONDS = 3;
+const LEADIN_LABEL = 'READY';
+const LEADIN_INSTRUCTION = 'Nothing to do yet. Settle in — the clench comes next.';
 
 function CountdownRing({
   numeral,
@@ -162,6 +175,23 @@ export default function PelvicCheck({
     }, 1000);
   };
 
+  /** The settle beat: dim ring, no haptic (nothing to do yet), then the
+   *  clench begins exactly as before. */
+  const startWithLeadIn = () => {
+    setPhase('leadin');
+    setCount(LEADIN_SECONDS);
+    timer.current = setInterval(() => {
+      setCount((c) => {
+        if (c <= 1) {
+          clear();
+          runPhase(0);
+          return 0;
+        }
+        return c - 1;
+      });
+    }, 1000);
+  };
+
   const { intro } = screen;
   const activePhase = typeof phase === 'number' ? screen.phases[phase] : null;
 
@@ -217,10 +247,23 @@ export default function PelvicCheck({
             </View>
             <View className="flex-1" />
             <View style={{ gap: 6, marginTop: 24 }}>
-              <EmissiveCTA label={intro.button} onPress={() => runPhase(0)} />
+              <EmissiveCTA label={intro.button} onPress={startWithLeadIn} />
               <SecondaryLink label={intro.skipLink} onPress={onSkip} />
             </View>
           </>
+        )}
+
+        {phase === 'leadin' && (
+          <View className="items-center" style={{ gap: 30, paddingTop: 40 }}>
+            {/* Dim ring, no haptics: a breath of orientation, not a task. */}
+            <CountdownRing numeral={String(count)} label={LEADIN_LABEL} active={false} />
+            <Text
+              className="px-6 text-center text-body"
+              style={{ fontSize: 14, fontWeight: '300', lineHeight: 20 }}
+            >
+              {LEADIN_INSTRUCTION}
+            </Text>
+          </View>
         )}
 
         {activePhase && (

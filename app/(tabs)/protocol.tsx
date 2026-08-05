@@ -3,6 +3,7 @@ import { ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { getPhaseForDay, localDateString, useProtocol } from '../../context/ProtocolContext';
 import BottomSheet from '../../components/BottomSheet';
+import TabContextBanner from '../../components/TabContextBanner';
 
 /**
  * The Protocol tab — The Somatic 75 map (Deepwater build phase 1;
@@ -175,6 +176,7 @@ export default function ProtocolScreen() {
 
   return (
     <View className="flex-1 bg-ground">
+    <TabContextBanner tab="protocol" />
     <ScrollView
       className="flex-1"
       contentContainerStyle={{ paddingHorizontal: 24, paddingTop: 72, paddingBottom: 120 }}

@@ -3,6 +3,7 @@ import { View, Text, TouchableOpacity } from 'react-native';
 import { useRouter } from 'expo-router';
 import BreathingOrb, { CONDITIONING_PHASES } from './BreathingOrb';
 import { conditioningProtocolForDay } from '../content/conditioning';
+import { focusForDay } from '../content/dailyFocus';
 
 /**
  * Physical Conditioning Track (CLAUDE.md §5, item 2) — E10 orb variant,
@@ -139,8 +140,23 @@ export default function ConditioningTrack({ day, onComplete }: ConditioningTrack
         </View>
       ) : (
         <>
+          {/* Today's Focus (2026-08-05, founder walkthrough build): the
+              variety layer. The rep NEVER varies — the 4/6 drop is motor
+              learning and must be identical all 75 nights. What varies is
+              the LENS: one authored line per day (content/dailyFocus.ts)
+              that changes what he attends to during the same reps. A
+              different session every night; the identical reflex every
+              night. Hedonic adaptation solved without touching the
+              instrument. */}
+          <View className="w-full bg-surface-deep border border-line-soft rounded-xl px-4 py-3 mt-4">
+            <Text className="text-dim text-[10px] font-bold uppercase tracking-[0.2em]">
+              Today’s focus
+            </Text>
+            <Text className="text-ink text-[13px] leading-5 mt-1">{focusForDay(day)}</Text>
+          </View>
+
           {/* The technique, compressed to its two cues + the one common error. */}
-          <View className="w-full bg-surface border border-line rounded-2xl p-4 mt-5">
+          <View className="w-full bg-surface border border-line rounded-2xl p-4 mt-4">
             <View className="gap-2">
               {/* Founder batch 2026-07-15: the breath given a route to
                   follow — imagery makes the drop findable for a man who

@@ -33,6 +33,7 @@ import {
   resolveDoor,
 } from '../../content/regulation';
 import { track } from '../../services/analytics';
+import TabContextBanner from '../../components/TabContextBanner';
 
 /**
  * Steady tab v3 (founder ruling 2026-07-18; spec: docs/STEADY-TAB-SPEC.md).
@@ -88,6 +89,7 @@ export default function CBSTScreen() {
           The work between sessions.
         </Text>
       </View>
+      <TabContextBanner tab="steady" />
       <RewireBody />
     </View>
   );

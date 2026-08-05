@@ -120,8 +120,10 @@ export const SCREENS: Screen[] = [
     section: 'part1',
     archetype: 'single-select',
     question: 'How long has this been affecting your intimate life?',
-    subText:
-      'Whatever the answer, the mechanism is the same: a conditioned response. Conditioning can be retrained.',
+    // Founder ruling 2026-08-05 (walkthrough edit #1): subtext removed. The
+    // conditioning-is-retrainable reframe now lands later, via S31 ("learned
+    // can be unlearned") and the Map's mirror sentence ("conditioned over
+    // roughly N years") — not at the moment of this answer.
     answerKey: 'duration',
     options: [
       { value: 'under-6m', label: 'Less than 6 months' },
@@ -144,7 +146,9 @@ export const SCREENS: Screen[] = [
     section: 'part1',
     archetype: 'text-input',
     question: 'What is your name?',
-    subText: 'First name only. Like every answer here, it never leaves this device.',
+    // Founder ruling 2026-08-05 (walkthrough edit #2): subtext removed. The
+    // "first name only" guidance survives in the placeholder below; the
+    // privacy reassurance lives in the question-screen privacy footer.
     answerKey: 'name',
     placeholder: 'Your first name',
     button: 'Continue',
@@ -258,8 +262,9 @@ export const SCREENS: Screen[] = [
     section: 'part2',
     archetype: 'single-select',
     question: 'At the peak of arousal, what happens to your breathing?',
-    subText:
-      'Breath under arousal is the clearest window into your nervous system.',
+    // Founder ruling 2026-08-05 (walkthrough edit #3): subtext removed —
+    // the question stands bare; the breath→nervous-system link is taught
+    // properly by the conditioning track from Day 1.
     answerKey: 'breathEdge',
     options: [
       { value: 'shallow-hold', label: 'It gets shallow, or I hold my breath' },
@@ -490,10 +495,9 @@ export const SCREENS: Screen[] = [
     id: 'map',
     section: 'analysis',
     archetype: 'map',
-    eyebrow: 'YOUR RESULTS',
-    headline: '{name}, here is what your answers show.',
-    scoreLabel:
-      'Your Composure Score: how steady your body stays under intimate pressure.',
+    eyebrow: 'YOUR COMPOSURE SCORE',
+    headline: '{name}, this is your baseline.',
+    scoreHook: 'Most men never measure this.',
     gauge: {
       // "Composed zone" (founder ruling 2026-07-13) ties the target band to
       // the product name and the Composure Score. Only the destination band is
@@ -505,7 +509,7 @@ export const SCREENS: Screen[] = [
       axisLow: '0 · adrenaline runs it',
       axisHigh: '100 · calm & present',
     },
-    barsHeading: 'Your biggest drivers',
+    barsHeading: 'Biggest drivers',
     bars: [
       { label: 'Sympathetic override' },
       { label: 'Spectatoring loop' },

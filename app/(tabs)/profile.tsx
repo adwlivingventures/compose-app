@@ -27,6 +27,7 @@ import {
   PARTNER_GUIDE_SECTIONS,
 } from '../../content/partnerGuide';
 import BottomSheet from '../../components/BottomSheet';
+import TabContextBanner from '../../components/TabContextBanner';
 
 /**
  * Profile — the CBT Vault, Partner Guide, and account utilities.
@@ -121,6 +122,7 @@ export default function ProfileScreen() {
       className="flex-1 bg-ground"
       contentContainerStyle={{ padding: 24, paddingTop: 72, paddingBottom: 48 }}
     >
+      <TabContextBanner tab="you" />
       {/* Header */}
       <View className="flex-row items-start justify-between mb-6">
         <View>

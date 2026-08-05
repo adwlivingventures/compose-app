@@ -35,9 +35,13 @@ interface GraduationScreenProps {
    * `membership` entitlement landed.
    */
   onKeepMembership: (term: 'annual' | 'monthly') => Promise<boolean>;
+  /** Active member: skip purchase and enter Mastery directly. */
+  onEnterMastery: () => Promise<void>;
   /** Persist the export choice after a completed share. */
   onExported: () => Promise<void>;
   isProcessing: boolean;
+  /** When true, graduation is unlock-only — no purchase UI. */
+  hasMembership: boolean;
   /** Localized price strings from the RC offering — null until it loads. */
   annualPrice: string | null;
   monthlyPrice: string | null;
@@ -49,8 +53,10 @@ function formatDate(iso: string): string {
 
 export default function GraduationScreen({
   onKeepMembership,
+  onEnterMastery,
   onExported,
   isProcessing,
+  hasMembership,
   annualPrice,
   monthlyPrice,
 }: GraduationScreenProps) {
@@ -216,8 +222,7 @@ export default function GraduationScreen({
         <WhyEcho compact />
       </View>
 
-      {/* Act II unlock — included membership content opening, not an offer.
-          No price, no CTA styling: the suite simply opens. */}
+      {/* Act II unlock — included membership content opening, not an offer. */}
       <View className="bg-surface border border-line rounded-[18px] p-5 mt-3.5">
         <Text className="text-muted text-[10px] font-bold uppercase tracking-[0.2em]">
           Act II · included in your membership
@@ -231,59 +236,66 @@ export default function GraduationScreen({
         </Text>
       </View>
 
-      {/* Membership continuation (lapsed-edge only) — annual-first, both exits are wins.
-          Deepwater role ruling: ZERO aqua on this ceremony. "Both are wins." means
-          no privileged forward action exists, and an accent-lit price button would
-          restyle the unlock ceremony into an offer (CLAUDE.md §2: never a sales
-          moment). Both exits are equal-weight, matte, bordered. */}
-      <View className="bg-surface-deep border border-line-soft rounded-2xl p-[18px] mt-3.5">
-        <Text className="text-ink text-sm font-bold">Where it goes from here</Text>
-        <Text className="text-muted text-[12.5px] leading-[18px] mt-1">
-          Keep the suite, your vault, and the log that proves the shift within reach
-          {annualPrice ? ` (${annualPrice} a year)` : ''} — or leave with everything you've
-          learned. Both are wins.
-        </Text>
-        <View className="flex-row gap-2.5 mt-3.5">
-          <TouchableOpacity
-            onPress={() => onKeepMembership('annual')}
-            disabled={isProcessing}
-            activeOpacity={0.85}
-            accessibilityRole="button"
-            accessibilityLabel="Keep access"
-            className="flex-1 border border-line rounded-xl py-[13px] items-center"
-          >
-            {isProcessing ? (
-              <ActivityIndicator color="#93A4B0" size="small" />
-            ) : (
-              <Text className="text-ink font-semibold text-[13.5px]">Keep access</Text>
-            )}
-          </TouchableOpacity>
-          <TouchableOpacity
-            onPress={exportRecord}
-            disabled={isProcessing}
-            activeOpacity={0.8}
-            accessibilityRole="button"
-            accessibilityLabel="Export my record"
-            className="flex-1 border border-line rounded-xl py-[13px] items-center"
-          >
-            <Text className="text-ink font-semibold text-[13.5px]">
-              I'm done — export my record
-            </Text>
-          </TouchableOpacity>
+      {hasMembership ? (
+        <TouchableOpacity
+          onPress={() => onEnterMastery()}
+          disabled={isProcessing}
+          activeOpacity={0.85}
+          accessibilityRole="button"
+          accessibilityLabel="Enter the Mastery Suite"
+          className="border border-line rounded-2xl py-[15px] items-center mt-3.5"
+        >
+          <Text className="text-ink font-semibold text-[15px]">Enter the Mastery Suite</Text>
+        </TouchableOpacity>
+      ) : (
+        /* Lapsed-membership edge — annual-first, both exits are wins. */
+        <View className="bg-surface-deep border border-line-soft rounded-2xl p-[18px] mt-3.5">
+          <Text className="text-ink text-sm font-bold">Where it goes from here</Text>
+          <Text className="text-muted text-[12.5px] leading-[18px] mt-1">
+            Keep the suite, your vault, and the log that proves the shift within reach
+            {annualPrice ? ` (${annualPrice} a year)` : ''} — or leave with everything you've
+            learned. Both are wins.
+          </Text>
+          <View className="flex-row gap-2.5 mt-3.5">
+            <TouchableOpacity
+              onPress={() => onKeepMembership('annual')}
+              disabled={isProcessing}
+              activeOpacity={0.85}
+              accessibilityRole="button"
+              accessibilityLabel="Keep access"
+              className="flex-1 border border-line rounded-xl py-[13px] items-center"
+            >
+              {isProcessing ? (
+                <ActivityIndicator color="#93A4B0" size="small" />
+              ) : (
+                <Text className="text-ink font-semibold text-[13.5px]">Keep access</Text>
+              )}
+            </TouchableOpacity>
+            <TouchableOpacity
+              onPress={exportRecord}
+              disabled={isProcessing}
+              activeOpacity={0.8}
+              accessibilityRole="button"
+              accessibilityLabel="Export my record"
+              className="flex-1 border border-line rounded-xl py-[13px] items-center"
+            >
+              <Text className="text-ink font-semibold text-[13.5px]">
+                I'm done — export my record
+              </Text>
+            </TouchableOpacity>
+          </View>
+          {monthlyPrice && (
+            <TouchableOpacity
+              onPress={() => onKeepMembership('monthly')}
+              disabled={isProcessing}
+              activeOpacity={0.7}
+              className="items-center mt-3"
+            >
+              <Text className="text-faint text-xs">or {monthlyPrice}/month instead</Text>
+            </TouchableOpacity>
+          )}
         </View>
-        {monthlyPrice && (
-          <TouchableOpacity
-            onPress={() => onKeepMembership('monthly')}
-            disabled={isProcessing}
-            activeOpacity={0.7}
-            className="items-center mt-3"
-          >
-            <Text className="text-faint text-xs">
-              or {monthlyPrice}/month instead
-            </Text>
-          </TouchableOpacity>
-        )}
-      </View>
+      )}
 
       <View className="flex-1" />
       <Text className="text-dim text-xs text-center mt-6">

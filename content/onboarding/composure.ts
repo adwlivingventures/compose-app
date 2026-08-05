@@ -123,6 +123,8 @@ export interface ComposureResult {
   score: number;
   bars: SeverityBar[];
   mirror: string;
+  /** Map screen: verdict + reported markers in one line. */
+  summary: string;
 }
 
 const str = (v: unknown): string | null => (typeof v === 'string' ? v : null);
@@ -132,15 +134,40 @@ const num = (v: unknown): number | null => (typeof v === 'number' ? v : null);
  *  and what it means. Deterministic bands over the 12–100 scale. */
 export function verdictFor(score: number): string {
   if (score <= 35) {
-    return 'Right now, adrenaline is running the show: your nervous system treats intimacy as a threat, and your body obeys it every time.';
+    return 'Adrenaline is running the show — intimacy reads as a threat to your body.';
   }
   if (score < 60) {
-    return 'Your nervous system is working against you — under intimate pressure it fires a stress response your body then has to fight.';
+    return 'Under pressure, your nervous system fires before you can stay present.';
   }
   if (score < CALM_ZONE_FLOOR) {
-    return 'Steadier than most — but the interference is real, and it shows up exactly when it costs the most.';
+    return 'Steadier than most — but the interference still shows up when it matters.';
   }
-  return 'This is trained calm: your nervous system holds steady under intimate pressure instead of firing against you.';
+  return 'Trained calm — your nervous system holds steady under pressure.';
+}
+
+/** Reported markers that feed the mirror line — shared with buildMirror. */
+function mirrorSegments(answers: Answers): string[] {
+  const segments: string[] = [];
+  if (str(answers.breathEdge) === 'shallow-hold') segments.push('breath-holding at the edge');
+  const spect = str(answers.spectatoring);
+  if (spect === 'almost-every-time') segments.push('spectatoring most sessions');
+  else if (spect === 'sometimes') segments.push('spectatoring some sessions');
+  const pelvicRating = num(answers.pelvicCheck);
+  const pelvic = pelvicRating !== null ? pelvicLevel(pelvicRating) : null;
+  if (pelvic === 'partial') segments.push('partial pelvic release');
+  else if (pelvic === 'limited') segments.push('a pelvic floor that would not let go');
+  return segments;
+}
+
+/** One Map read: score-band verdict woven with his reported markers. */
+export function mapSummaryFor(score: number, answers: Answers): string {
+  const verdict = verdictFor(score);
+  const segments = mirrorSegments(answers);
+  if (segments.length === 0) return verdict;
+  const list = segments.join(', ');
+  const conditioned = conditionedPhrase(answers);
+  const stem = verdict.replace(/\.$/, '');
+  return `${stem} — ${list}, conditioned ${conditioned}.`;
 }
 
 export function computeComposure(answers: Answers): ComposureResult {
@@ -164,7 +191,12 @@ export function computeComposure(answers: Answers): ComposureResult {
     score = CALM_ZONE_FLOOR - 1;
   }
 
-  return { score, bars: buildBars(answers, scripts.length), mirror: buildMirror(answers) };
+  return {
+    score,
+    bars: buildBars(answers, scripts.length),
+    mirror: buildMirror(answers),
+    summary: mapSummaryFor(score, answers),
+  };
 }
 
 // Each bar's grade vocabulary is its own (spec: Moderate/High/Partial/
@@ -276,15 +308,7 @@ function buildBars(answers: Answers, scriptCount: number): SeverityBar[] {
 // him, not looked up). Returns '' only in the true zero-answer edge, so the
 // Map renders nothing rather than a stub.
 function buildMirror(answers: Answers): string {
-  const segments: string[] = [];
-  if (str(answers.breathEdge) === 'shallow-hold') segments.push('Breath-holding at the edge');
-  const spect = str(answers.spectatoring);
-  if (spect === 'almost-every-time') segments.push('spectatoring most sessions');
-  else if (spect === 'sometimes') segments.push('spectatoring some sessions');
-  const pelvicRating = num(answers.pelvicCheck);
-  const pelvic = pelvicRating !== null ? pelvicLevel(pelvicRating) : null;
-  if (pelvic === 'partial') segments.push('partial pelvic release');
-  else if (pelvic === 'limited') segments.push('a pelvic floor that would not let go');
+  const segments = mirrorSegments(answers);
 
   // True zero-answer edge: no markers AND no duration reported — render
   // nothing rather than a generic stub (a mirror that reflects nothing of
@@ -297,6 +321,10 @@ function buildMirror(answers: Answers): string {
     const noun = segments.length === 3 ? 'triad' : 'pattern';
     const first = list.charAt(0).toUpperCase() + list.slice(1);
     return `${first} — that ${noun} is the adrenaline trap, and yours has been conditioned ${conditioned}.`;
+  }
+  if (segments.length === 1) {
+    const first = segments[0].charAt(0).toUpperCase() + segments[0].slice(1);
+    return `${first} — conditioned ${conditioned}.`;
   }
   return `This is a conditioned adrenaline response — trained into your nervous system ${conditioned}.`;
 }

@@ -280,11 +280,8 @@ export default function Onboarding() {
           await LocalStore.setItem('@user_scripts', answers.scripts);
         }
         await unlockProtocol();
-        // Post-purchase chain (revised 2026-08-03, build order 0.3): consent →
-        // Discreet Mode. The pre-Day-1 rating ask is cut — he has used the
-        // product for zero seconds and has nothing to rate but a funnel; the
-        // first ask now rides the Day-2 completion high (services/rating.ts
-        // schedule, unchanged), where a rating reflects the product.
+        // Post-purchase chain (2026-08): consent → Discretion → Today.
+        // Attribution moved to Day 3+ on the Today tab.
         router.replace('/consent');
       }
     },

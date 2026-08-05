@@ -3,6 +3,11 @@ import { ScrollView, Text, TouchableOpacity, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { ChevronLeft, ChevronRight } from 'lucide-react-native';
 import { useProtocol } from '../context/ProtocolContext';
+import {
+  isMasteryModuleLocked,
+  MASTERY_MODULES,
+  type MasteryModule,
+} from '../content/masteryModules';
 
 /**
  * Mastery Suite — Act II future-pacing of included membership content
@@ -14,70 +19,9 @@ import { useProtocol } from '../context/ProtocolContext';
  * so graduation lands as the next chapter of a story he's already in —
  * an earned unlock, never a sales moment. One module is visibly
  * previewable to make Act II concrete rather than hypothetical; the rest
- * stay quiet. Locked cards are deliberately inert (no toast, no modal): a
- * locked thing that begs for taps reads as a sales surface, and this
- * screen must stay inside the sanctuary register.
+ * stay quiet. Locked cards are deliberately inert (no toast, no modal).
+ * Module definitions: content/masteryModules.ts
  */
-
-interface MasteryModule {
-  title: string;
-  description: string;
-  route: string;
-  /** Protocol day the module opens on (founder ruling 2026-07-15: the suite
-   *  unlocks in stages across the 75 days, not all at Day 76 — each stage is
-   *  a milestone the man climbs toward). */
-  unlockDay: number;
-}
-
-// Founder ruling 2026-07-15: staggered unlock schedule. The suite is listed
-// in the order it opens, so a man mid-protocol sees exactly what he's earned
-// and what's still ahead. Descriptions are plain and benefit-first — the man
-// should want to reach these; the clinical depth waits inside each feature.
-const MODULES: MasteryModule[] = [
-  {
-    title: 'The Refractory Window Guide',
-    description:
-      'What’s really happening in your body after you finish — and how to make round two ' +
-      'possible.',
-    route: '/lesson/refractory-window',
-    unlockDay: 1,
-  },
-  {
-    title: 'The Anxious Partner De-escalator',
-    description:
-      'The right words to steady the moment when things stall — so one hitch never spirals ' +
-      'into a bad night.',
-    route: '/lesson/partner-deescalator',
-    unlockDay: 1,
-  },
-  {
-    title: 'Sensate Mastery',
-    description:
-      'A step-by-step touch practice with your partner that takes performance off the table — ' +
-      'and pulls you closer.',
-    route: '/lesson/sensate-mastery',
-    unlockDay: 25,
-  },
-  {
-    title: 'The Attunement Advantage',
-    description:
-      'Read your partner’s signals and own the pace — so you’re the one they can’t stop ' +
-      'thinking about.',
-    route: '/lesson/partner-attunement',
-    unlockDay: 50,
-  },
-  {
-    title: 'The Somatic Copilot',
-    description:
-      'Your in-the-moment coach. Tell it what’s happening and get your exact next move — ' +
-      'before, during, or after.',
-    route: '/copilot',
-    unlockDay: 75,
-  },
-];
-// (Somatic Sandbox moved out of this suite: strategy ruling is a Day-26
-// unlock inside Act I — it lives in the You-tab Library and
-// app/sandbox.tsx, not behind this suite.)
 
 function MasteryModuleCard({
   module,
@@ -151,7 +95,7 @@ export default function MasterySuiteScreen() {
   // purchase; the day gate still applies so staggering stays visible.
   const member = hasPurchased || __DEV__;
   const isLocked = (module: MasteryModule) =>
-    !member || activeDay < module.unlockDay;
+    isMasteryModuleLocked(module, activeDay, false, member);
 
   return (
     <ScrollView
@@ -179,7 +123,7 @@ export default function MasterySuiteScreen() {
       </View>
 
       <View className="gap-3 mt-5">
-        {MODULES.map((module) => {
+        {MASTERY_MODULES.map((module) => {
           const locked = isLocked(module);
           return (
             <MasteryModuleCard
