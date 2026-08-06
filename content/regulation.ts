@@ -54,10 +54,9 @@ export interface Practice {
 }
 
 // ─── Audio sources ────────────────────────────────────────────────────────────
-// Metro needs static require() calls. The five regulation renders follow the
+// Metro needs static require() calls. All six regulation renders follow the
 // anchor pipeline (docs/elevenlabs/regulation_*.txt → ElevenLabs, day_1.mp3
-// voice → assets/audio/). Until a render lands, its key resolves to the
-// anchor placeholder — swap each line as files arrive.
+// voice → assets/audio/, mono 64k). Content-complete as of 2026-08-06.
 
 export type RegulationAudioKey =
   | 'reset_breath'
@@ -67,8 +66,6 @@ export type RegulationAudioKey =
   | 'pelvic_drop'
   | 'identity_rehearsal';
 
-const PLACEHOLDER_SOURCE = require('../assets/audio/anchor_placeholder.wav');
-
 export const REGULATION_AUDIO: Record<RegulationAudioKey, AudioSource> = {
   // Rendered in the day_1.mp3 voice; re-paced to the scripted pause totals
   // and re-encoded mono 64k per the anchor pipeline convention.
@@ -77,7 +74,9 @@ export const REGULATION_AUDIO: Record<RegulationAudioKey, AudioSource> = {
   body_scan: require('../assets/audio/regulation_body_scan.mp3'),
   deep_drop: require('../assets/audio/regulation_deep_drop.mp3'),
   pelvic_drop: require('../assets/audio/regulation_pelvic_drop.mp3'),
-  identity_rehearsal: PLACEHOLDER_SOURCE, // script not yet authored (Phase 3 content)
+  // Founder-recorded 2026-08-06 (ElevenLabs, day_1 voice line): 3:40, re-encoded
+  // mono 64k per the anchor pipeline convention. Closes launch blocker #5.
+  identity_rehearsal: require('../assets/audio/regulation_identity_rehearsal.mp3'),
 };
 
 // ─── Orb phase sets (shape mirrors BreathingOrb's canonical arrays) ──────────
