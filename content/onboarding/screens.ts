@@ -606,10 +606,14 @@ export const SCREENS: Screen[] = [
   //  • The whole section runs the hotter ember-rust DIAGNOSTIC accent.
   //  • Per-card reassurance is trimmed; the entire reversibility turn now rests
   //    on turn-welcome ("learned means reversible") — keep that screen strong.
-  // CLAIMS GATE (see .claude/ember-progress.md) — verify before launch, no
-  // fabricated numbers. Only ONE stat remains after the 2026-07-14 copy trim:
-  //  • "50% quit ED pills within a year" (The Crutch) — PDE5i discontinuation
-  //    literature. (The 1-in-4 and Age-12 figures were removed.)
+  // CLAIMS GATE — CLOSED 2026-08-06. The one remaining stat is now cited
+  // (docs/research/CLAIMS-CITATIONS.md):
+  //  • "50% stop taking ED pills" — Carvalheira et al. 2012, J Sex Med 9(9):
+  //    48.9% (160/327) discontinued; psychological factors a leading reason.
+  //  • "many quit even when they work" — Kim et al. 2014, Int J Impot Res
+  //    26:87-93: 23.9% discontinued despite successful intercourse; #1
+  //    reason (31.0%) reluctance toward medication-dependent intercourse.
+  //  (The 1-in-4 and Age-12 figures were removed 2026-07-14.)
   {
     id: 'card-adrenaline-trap',
     section: 'analysis',
@@ -653,7 +657,10 @@ export const SCREENS: Screen[] = [
     title: 'The Crutch',
     stat: {
       figure: '50%',
-      caption: 'of men quit ED pills within a year, even when they work.',
+      // Reworded 2026-08-06 to say exactly what the two cited studies
+      // support — and the second clause is the card's thesis in data form:
+      // men walk away rather than let intimacy depend on a tablet.
+      caption: 'of men stop taking ED pills — many even when they work, rather than let intimacy depend on a tablet.',
     },
     body:
       'Are we really going to pretend supplements are the answer? Every pill and cream teaches you the same **lie**: that you can’t do this without them. And it quietly eats away at your **self-esteem**.',

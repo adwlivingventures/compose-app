@@ -24,21 +24,21 @@ imply endorsement of Compose (the screen's standing rule).
    performance begins with the brain…" — *Overcome Premature Ejaculation*
    (Sensational Sex Series).
 
-## Filed pending URL — founder to attach the specific article link
+## Filed with URL (founder supplied, 2026-08-06)
 
-These four are verified as genuine by the founder but their sources are
-articles/features; attach the exact URL or publication reference here before
-App Store submission:
-
-7. **Dr. Lori Brotto** — "Our minds are inextricably connected…" — expert
-   feature on mindfulness-based sexual therapy. **URL needed.**
+7. **Dr. Lori Brotto** — "Our minds are inextricably connected…" —
+   Headspace feature on mindfulness and sex.
+   https://www.headspace.com/articles/enjoy-sex-more
 8. **Dr. David Ley** — "The higher levels of internal shame and conflict…" —
-   clinical research commentary. **URL needed.**
+   Business Insider reference feature on sex addiction research.
+   https://www.businessinsider.com/reference/is-sex-addiction-real
 9. **Dr. Justin Lehmiller** — "Good-enough sex is sex that is pleasurable
-   and satisfying…" — Kinsey Institute research feature. **URL needed.**
+   and satisfying…" — WRAL feature (Kinsey Institute research coverage).
+   https://www.wral.com/archive/22131656/
 10. **Michael Aaron, PhD** — "They are caught up in the thoughts in their
-    mind…" — clinical sexology feature on spectatoring. **URL needed.**
+    mind…" — Headspace feature on presence and spectatoring.
+    https://www.headspace.com/articles/enjoy-sex-more
 
-Rule of record: a quote whose URL cannot be produced moves off the screen
-before submission. Fair-use posture: short attributed quotes, mechanism
-description only, explicit non-endorsement.
+**Status: all ten quotes filed. Launch blocker #1 CLOSED.** Fair-use
+posture: short attributed quotes, mechanism description only, explicit
+non-endorsement.

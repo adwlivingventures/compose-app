@@ -4,7 +4,6 @@ import { useFocusEffect, useRouter } from 'expo-router';
 import {
   Lock,
   ShieldCheck,
-  Users,
   EyeOff,
   Sun,
   ArrowDown,
@@ -21,11 +20,6 @@ import { useProtocol } from '../../context/ProtocolContext';
 import { useRevenueCat } from '../../hooks/useRevenueCat';
 import { useDefusionLog, FALLACY_META } from '../../hooks/useDefusionLog';
 import { LocalStore } from '../../services/storage';
-import {
-  PARTNER_GUIDE_TITLE,
-  PARTNER_GUIDE_INTRO,
-  PARTNER_GUIDE_SECTIONS,
-} from '../../content/partnerGuide';
 import BottomSheet from '../../components/BottomSheet';
 import TabContextBanner from '../../components/TabContextBanner';
 
@@ -80,7 +74,6 @@ export default function ProfileScreen() {
   const sandboxUnlocked = activeDay >= 26 || completedDays[75]?.completed === true;
   const { hasMembership, restorePurchases, isProcessing } = useRevenueCat();
   const { entries, reload } = useDefusionLog();
-  const [guideVisible, setGuideVisible] = useState(false);
   const [firstName, setFirstName] = useState<string | null>(null);
 
   useEffect(() => {
@@ -202,16 +195,18 @@ export default function ProfileScreen() {
           subtitle="Stories from men and partners who did this."
           onPress={() => router.push('/success-vault')}
         />
+        {/* Partner Guide CUT (founder ruling 2026-08-06): the guide was a
+            document written for HER that the founder would have to author
+            and stand behind; the Partner Scripts below are the part that
+            serves HIM (word-for-word sentences, nothing required from the
+            partner) and carry the clinical value. Launch blocker #4 closed
+            by removal. Partner lane continues post-Day-75 via the Anxious
+            Partner De-escalator (Mastery Suite). */}
         <NavRow
           icon={<MessageSquare color={ICON_MUTED} size={18} />}
           title="Partner Scripts"
           subtitle="Word-for-word openers, check-ins, and repairs."
           onPress={() => router.push('/partner-scripts')}
-        />
-        <NavRow
-          icon={<Users color={ICON_MUTED} size={18} />}
-          title="Partner Guide"
-          onPress={() => setGuideVisible(true)}
           last
         />
       </View>
@@ -373,43 +368,6 @@ export default function ProfileScreen() {
         Everything on this screen is stored only on this device.
       </Text>
 
-      {/* Partner Guide sheet */}
-      <BottomSheet visible={guideVisible} onClose={() => setGuideVisible(false)}>
-        <View className="bg-tab border-t border-line-soft rounded-t-3xl max-h-[88%]">
-          <View className="px-6 pt-5 pb-3 flex-row items-start justify-between">
-            <View className="flex-1 pr-4">
-              {/* Deepwater grammar: eyebrows are muted — no accent on the
-                  guide sheet; it's reading, not action. */}
-              <Text className="text-muted text-xs font-bold uppercase tracking-widest">
-                For Your Partner
-              </Text>
-              <Text className="text-ink text-xl font-serif-regular mt-1">{PARTNER_GUIDE_TITLE}</Text>
-            </View>
-            <TouchableOpacity
-              onPress={() => setGuideVisible(false)}
-              activeOpacity={0.7}
-              className="bg-surface-deep rounded-full p-2"
-            >
-              <X color="#6E8090" size={16} />
-            </TouchableOpacity>
-          </View>
-          <ScrollView
-            className="px-6"
-            contentContainerStyle={{ paddingBottom: 48 }}
-            showsVerticalScrollIndicator={false}
-          >
-            <Text className="text-body text-sm leading-6 italic mb-5">
-              {PARTNER_GUIDE_INTRO}
-            </Text>
-            {PARTNER_GUIDE_SECTIONS.map((section) => (
-              <View key={section.heading} className="mb-5">
-                <Text className="text-ink text-base font-bold mb-1.5">{section.heading}</Text>
-                <Text className="text-body text-sm leading-6">{section.body}</Text>
-              </View>
-            ))}
-          </ScrollView>
-        </View>
-      </BottomSheet>
     </ScrollView>
   );
 }
