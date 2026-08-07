@@ -1,0 +1,889 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>COMPOSE — Deepwater v2.1 Design Mockup (DRAFT)</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,300;0,6..72,400;0,6..72,500;1,6..72,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    /* Deepwater v2.1 — calibrated after reference-app review */
+    --ground: #0A0F16;
+    --surface: #151E28;
+    --surface-deep: #0D1319;
+    --line: #223140;
+    --ink: #EDF2F5;
+    --body: #94A3B0;
+    --dim: #5A6878;
+    --faint: #3B4A58;
+    --current: #4EC4B4;
+    --current-bright: #6FD9CC;
+    --current-deep: #3A8FBF;
+    --on-current: #06232A;
+    --ember: #A89078;
+    --ember-ceremony: #C89B6D;
+    --bone: #E5E7EB;
+    --on-bone: #0A0F16;
+    --gain: #78C99A;
+    --sos: #C96A55;
+    /* v2 reference (comparison only) */
+    --v2-surface: #121A24;
+    --v2-body: #9CA8B4;
+    --v2-current: #5FD4C1;
+    --v2-ember: #C89B6D;
+  }
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+  body {
+    background: #040608;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    color: var(--ink);
+    padding: 40px 24px 80px;
+    min-height: 100vh;
+  }
+  .serif { font-family: 'Newsreader', Georgia, serif; }
+
+  /* Page header */
+  .page-header { max-width: 1400px; margin: 0 auto 48px; }
+  .page-header h1 { font-family: 'Newsreader'; font-weight: 400; font-size: 32px; }
+  .page-header p { color: var(--body); margin-top: 8px; font-size: 14px; line-height: 1.6; max-width: 720px; }
+  .draft-badge {
+    display: inline-block; font-size: 10px; font-weight: 600; letter-spacing: 0.15em;
+    text-transform: uppercase; color: var(--ember-ceremony); border: 1px solid rgba(200,155,109,0.35);
+    padding: 4px 10px; border-radius: 999px; margin-bottom: 16px;
+  }
+
+  /* Gallery grid */
+  .gallery {
+    display: flex; flex-wrap: wrap; gap: 40px 32px;
+    justify-content: center; max-width: 1600px; margin: 0 auto;
+  }
+  .frame-wrap { display: flex; flex-direction: column; align-items: center; gap: 12px; }
+  .frame-label {
+    font-size: 11px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase;
+    color: var(--dim);
+  }
+  .frame-sublabel { font-size: 12px; color: var(--faint); text-align: center; max-width: 280px; }
+
+  /* Phone shell */
+  .phone {
+    width: 320px; height: 693px; background: var(--ground);
+    border: 1px solid var(--line); border-radius: 40px;
+    overflow: hidden; position: relative; flex-shrink: 0;
+  }
+  .phone::before {
+    content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+    pointer-events: none; z-index: 0;
+    background:
+      radial-gradient(ellipse 80% 50% at 50% 15%, rgba(58,143,191,0.09) 0%, transparent 70%),
+      radial-gradient(ellipse 60% 40% at 85% 85%, rgba(78,196,180,0.07) 0%, transparent 60%),
+      radial-gradient(ellipse 50% 35% at 10% 60%, rgba(168,144,120,0.05) 0%, transparent 50%);
+  }
+  .phone > * { position: relative; z-index: 1; }
+  .status { height: 44px; display: flex; align-items: flex-end; justify-content: center; padding-bottom: 6px; }
+  .status span { font-size: 11px; color: var(--dim); letter-spacing: 0.05em; }
+  .screen { height: calc(100% - 44px); display: flex; flex-direction: column; padding: 0 20px; }
+  .screen-full { padding: 0; }
+
+  /* Shared components */
+  .eyebrow {
+    font-size: 10px; font-weight: 600; letter-spacing: 0.2em;
+    text-transform: uppercase; color: var(--dim);
+  }
+  .cta-current {
+    width: 100%; padding: 16px; border: none; border-radius: 999px;
+    background: linear-gradient(180deg, var(--current-bright) 0%, var(--current) 55%, var(--current-deep) 100%);
+    color: var(--on-current); font-size: 15px; font-weight: 500;
+    box-shadow: 0 0 10px rgba(78,196,180,0.18);
+    cursor: pointer; font-family: inherit;
+  }
+  .cta-bone {
+    width: 100%; padding: 16px; border: none; border-radius: 999px;
+    background: var(--bone); color: var(--on-bone);
+    font-size: 15px; font-weight: 500; cursor: pointer; font-family: inherit;
+  }
+  .cta-secondary {
+    background: transparent; border: none; color: var(--faint);
+    font-size: 13px; cursor: pointer; font-family: inherit; margin-top: 12px;
+  }
+
+  /* Tab bar */
+  .tab-bar {
+    position: absolute; bottom: 20px; left: 16px; right: 16px;
+    height: 56px; background: rgba(21,30,40,0.55);
+    backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(255,255,255,0.06); border-radius: 999px;
+    display: flex; align-items: center; justify-content: space-around;
+    padding: 0 8px;
+  }
+  .tab { display: flex; flex-direction: column; align-items: center; gap: 3px; opacity: 0.5; }
+  .tab.active { opacity: 1; }
+  .tab-icon { width: 22px; height: 22px; border-radius: 50%; border: 1.5px solid var(--dim); }
+  .tab-label { font-size: 9px; color: var(--body); }
+  .tab-today {
+    width: 48px; height: 48px; border-radius: 50%;
+    border: 2px solid rgba(255,255,255,0.10);
+    display: flex; align-items: center; justify-content: center;
+    position: relative; margin-top: -20px;
+    background: var(--surface);
+  }
+  .tab-today-ring {
+    position: absolute; inset: -3px; border-radius: 50%;
+    background: conic-gradient(var(--current) 0deg 144deg, rgba(255,255,255,0.08) 144deg 360deg);
+    mask: radial-gradient(farthest-side, transparent calc(100% - 3px), #000 calc(100% - 3px));
+    -webkit-mask: radial-gradient(farthest-side, transparent calc(100% - 3px), #000 calc(100% - 3px));
+  }
+  .tab-today-dot { width: 8px; height: 8px; background: var(--current); border-radius: 50%; box-shadow: 0 0 6px rgba(78,196,180,0.35); }
+
+  /* ── Screen 1: Today Home ── */
+  .home-content { flex: 1; padding-top: 24px; padding-bottom: 90px; display: flex; flex-direction: column; }
+  .home-greeting { font-size: 14px; color: var(--body); font-weight: 300; }
+  .home-day { font-family: 'Newsreader'; font-size: 26px; font-weight: 400; margin-top: 4px; }
+  .home-phase { font-size: 12px; color: var(--ember-ceremony); margin-top: 6px; letter-spacing: 0.05em; }
+  .home-motivation {
+    text-align: center; font-size: 13px; color: var(--body); font-weight: 300;
+    line-height: 1.5; padding: 0 8px; margin-top: 8px;
+  }
+  .home-orb-wrap { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 14px; }
+  .home-orb {
+    width: 148px; height: 148px; border-radius: 50%;
+    background: radial-gradient(circle at 35% 30%, var(--current-bright) 0%, var(--current) 45%, var(--current-deep) 100%);
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 0 24px rgba(78,196,180,0.18), 0 0 48px rgba(58,143,191,0.08);
+    cursor: pointer;
+  }
+  .home-orb span { color: var(--on-current); font-weight: 600; font-size: 16px; text-align: center; line-height: 1.25; padding: 0 20px; }
+  .home-duration {
+    font-size: 12px; color: var(--body); padding: 6px 14px;
+    background: rgba(18,26,36,0.65); border: 1px solid var(--line); border-radius: 999px;
+  }
+  .home-meta { text-align: center; font-size: 11px; color: var(--faint); margin-top: 4px; }
+
+  /* ── Screen 2: Conditioning Track ── */
+  .session-bg {
+    background: var(--surface-deep); height: 100%;
+    background-image:
+      radial-gradient(ellipse 90% 60% at 50% 30%, rgba(58,143,191,0.10) 0%, transparent 65%),
+      radial-gradient(ellipse 70% 50% at 20% 80%, rgba(78,196,180,0.08) 0%, transparent 55%);
+  }
+  .technique-chip {
+    margin: 16px auto 0; display: flex; gap: 20px; padding: 10px 18px;
+    background: rgba(18,26,36,0.6); border-radius: 14px; border: 1px solid var(--line);
+    width: fit-content;
+  }
+  .technique-item { text-align: center; }
+  .technique-icon { width: 28px; height: 28px; border: 1.5px solid var(--dim); border-radius: 50%; margin: 0 auto 4px; }
+  .technique-num { font-size: 11px; color: var(--body); }
+  .breath-area { flex: 1; display: flex; align-items: center; justify-content: center; position: relative; }
+  .breath-ring-outer {
+    width: 240px; height: 240px; border-radius: 50%;
+    border: 1px solid rgba(255,255,255,0.06);
+    display: flex; align-items: center; justify-content: center;
+    animation: breathe 8s ease-in-out infinite;
+  }
+  .breath-ring-mid {
+    width: 200px; height: 200px; border-radius: 50%;
+    border: 1px solid rgba(255,255,255,0.10);
+    display: flex; align-items: center; justify-content: center;
+  }
+  .breath-orb {
+    width: 160px; height: 160px; border-radius: 50%;
+    background: rgba(95,212,193,0.12);
+    border: 1px solid rgba(95,212,193,0.25);
+    display: flex; align-items: center; justify-content: center;
+    animation: breathe-inner 8s ease-in-out infinite;
+  }
+  .breath-orb span { font-size: 18px; font-weight: 500; color: var(--ink); }
+  @keyframes breathe {
+    0%, 100% { transform: scale(1); }
+    40% { transform: scale(1.12); }
+    60% { transform: scale(1.12); }
+  }
+  @keyframes breathe-inner {
+    0%, 100% { transform: scale(1); opacity: 0.8; }
+    40% { transform: scale(1.08); opacity: 1; }
+    60% { transform: scale(1.08); opacity: 1; }
+  }
+  .session-controls {
+    padding: 0 24px 40px; display: flex; flex-direction: column; align-items: center; gap: 12px;
+  }
+  .pause-btn {
+    width: 52px; height: 52px; border-radius: 50%; background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.12); display: flex; align-items: center; justify-content: center;
+  }
+  .pause-icon { width: 14px; height: 16px; display: flex; gap: 4px; }
+  .pause-icon span { width: 5px; background: var(--ink); border-radius: 1px; }
+  .session-time { font-size: 12px; color: var(--dim); padding: 4px 12px; background: rgba(18,26,36,0.5); border-radius: 999px; }
+
+  /* ── Screen 3: Auditory Anchor ── */
+  .anchor-content { flex: 1; display: flex; flex-direction: column; justify-content: center; padding-bottom: 60px; text-align: center; }
+  .anchor-phase { margin-bottom: 12px; }
+  .anchor-title { font-family: 'Newsreader'; font-size: 24px; font-weight: 400; line-height: 1.35; padding: 0 12px; }
+  .anchor-sub { font-size: 14px; color: var(--body); font-weight: 300; margin-top: 12px; line-height: 1.5; padding: 0 20px; }
+  .scrubber { margin: 40px 20px 0; }
+  .scrubber-track { height: 2px; background: var(--line); border-radius: 1px; position: relative; }
+  .scrubber-fill { height: 100%; width: 35%; background: var(--current); border-radius: 1px; }
+  .scrubber-dot {
+    position: absolute; top: 50%; left: 35%; transform: translate(-50%, -50%);
+    width: 10px; height: 10px; background: var(--ink); border-radius: 50%;
+  }
+  .scrubber-times { display: flex; justify-content: space-between; margin-top: 8px; font-size: 11px; color: var(--dim); }
+  .anchor-play { margin: 32px auto 0; width: 56px; height: 56px; border-radius: 50%; background: rgba(255,255,255,0.06); border: 1px solid var(--line); display: flex; align-items: center; justify-content: center; }
+  .play-tri { width: 0; height: 0; border-left: 14px solid var(--ink); border-top: 9px solid transparent; border-bottom: 9px solid transparent; margin-left: 4px; }
+
+  /* ── Screen 4: Onboarding ── */
+  .onboard-content { flex: 1; padding-top: 96px; padding-bottom: 32px; display: flex; flex-direction: column; }
+  .onboard-progress { height: 2px; background: var(--line); border-radius: 1px; margin-bottom: 32px; }
+  .onboard-progress-fill { height: 100%; width: 28%; background: var(--current); border-radius: 1px; }
+  .onboard-q { font-family: 'Newsreader'; font-size: 26px; font-weight: 400; line-height: 1.35; margin-bottom: 32px; }
+  .answer-card {
+    background: var(--surface); border: 1px solid var(--line); border-radius: 999px;
+    padding: 16px 20px; margin-bottom: 10px; display: flex; align-items: center; justify-content: space-between;
+    cursor: pointer; min-height: 52px;
+  }
+  .answer-card.selected { border-color: var(--current); box-shadow: 0 0 12px rgba(95,212,193,0.15); }
+  .answer-text { font-size: 15px; color: var(--ink); font-weight: 300; }
+  .answer-radio { width: 18px; height: 18px; border-radius: 50%; border: 1.5px solid var(--line); flex-shrink: 0; }
+  .answer-card.selected .answer-radio { border-color: var(--current); display: flex; align-items: center; justify-content: center; }
+  .answer-card.selected .answer-radio::after { content: ''; width: 8px; height: 8px; background: var(--current); border-radius: 50%; }
+  .onboard-footer { margin-top: auto; text-align: center; font-size: 10px; letter-spacing: 0.15em; text-transform: uppercase; color: var(--faint); }
+
+  /* ── Screen 5: Paywall ── */
+  .paywall-content { flex: 1; padding-top: 32px; padding-bottom: 24px; display: flex; flex-direction: column; }
+  .paywall-headline { font-family: 'Newsreader'; font-size: 28px; font-weight: 400; line-height: 1.3; }
+  .paywall-sub { font-size: 14px; color: var(--body); font-weight: 300; margin-top: 12px; line-height: 1.5; }
+  .plan-card {
+    margin-top: 28px; padding: 20px; background: var(--surface);
+    border: 1px solid var(--current); border-radius: 18px;
+    box-shadow: inset 0 0 0 1px rgba(78,196,180,0.12);
+  }
+  .plan-card.secondary { border-color: var(--line); box-shadow: none; margin-top: 10px; opacity: 0.7; }
+  .plan-row { display: flex; justify-content: space-between; align-items: center; }
+  .plan-name { font-size: 15px; font-weight: 500; }
+  .plan-price { font-size: 15px; color: var(--current); font-weight: 500; }
+  .plan-detail { font-size: 12px; color: var(--dim); margin-top: 4px; }
+  .feature-list { margin-top: 24px; display: flex; flex-direction: column; gap: 14px; }
+  .feature-item { display: flex; align-items: flex-start; gap: 12px; font-size: 14px; color: var(--body); font-weight: 300; }
+  .feature-dot { width: 6px; height: 6px; background: var(--current); border-radius: 50%; margin-top: 6px; flex-shrink: 0; }
+  .paywall-actions { margin-top: auto; }
+  .paywall-honest { text-align: center; font-size: 12px; color: var(--dim); margin-top: 12px; }
+
+  /* ── Screen 6: Progress ── */
+  .progress-content { flex: 1; padding-top: 24px; padding-bottom: 90px; }
+  .progress-title { font-family: 'Newsreader'; font-size: 26px; font-weight: 400; }
+  .progress-phase { font-size: 12px; color: var(--ember-ceremony); margin-top: 6px; }
+  .trend-card { margin-top: 24px; padding: 20px; background: var(--surface); border: 1px solid var(--line); border-radius: 18px; }
+  .trend-label { font-size: 10px; font-weight: 600; letter-spacing: 0.15em; text-transform: uppercase; color: var(--dim); margin-bottom: 16px; }
+  .trend-chart { height: 80px; position: relative; }
+  .trend-line { position: absolute; bottom: 0; left: 0; right: 0; height: 60px; }
+  .trend-line svg { width: 100%; height: 100%; }
+  .dot-strip { display: flex; gap: 8px; margin-top: 20px; justify-content: center; }
+  .dot { width: 10px; height: 10px; border-radius: 50%; background: var(--line); }
+  .dot.filled { background: var(--current); }
+  .dot.sealed { background: rgba(200,155,109,0.55); }
+  .gain-row { margin-top: 16px; font-size: 13px; color: var(--gain); display: flex; align-items: center; gap: 6px; }
+
+  /* ── Screen 7: SOS ── */
+  .sos-content { flex: 1; display: flex; flex-direction: column; justify-content: center; padding-bottom: 40px; }
+  .sos-card {
+    background: var(--surface); border: 1px solid var(--line); border-radius: 18px;
+    padding: 28px 24px; text-align: center;
+  }
+  .sos-label { font-size: 10px; font-weight: 600; letter-spacing: 0.2em; text-transform: uppercase; color: var(--sos); margin-bottom: 16px; }
+  .sos-title { font-family: 'Newsreader'; font-size: 22px; font-weight: 400; line-height: 1.4; }
+  .sos-body { font-size: 14px; color: var(--body); font-weight: 300; margin-top: 12px; line-height: 1.5; }
+  .sos-cta {
+    margin-top: 24px; width: 100%; padding: 16px; border-radius: 999px;
+    background: var(--sos); color: var(--ink); border: none;
+    font-size: 15px; font-weight: 500; cursor: pointer; font-family: inherit;
+  }
+
+  /* ── Composure Score (Your Map) ── */
+  .composure-scroll { flex: 1; overflow-y: auto; padding-bottom: 24px; scrollbar-width: none; }
+  .composure-scroll::-webkit-scrollbar { display: none; }
+  .score-hero {
+    background: var(--surface); border: 1px solid var(--line); border-radius: 18px;
+    padding: 24px 20px; text-align: center; margin-top: 12px;
+  }
+  .score-ring-wrap { position: relative; width: 140px; height: 140px; margin: 16px auto 0; }
+  .score-ring-bg, .score-ring-fill {
+    position: absolute; inset: 0; border-radius: 50%;
+    border: 4px solid var(--line);
+  }
+  .score-ring-fill {
+    border-color: transparent;
+    border-top-color: var(--current); border-right-color: var(--current);
+    transform: rotate(-45deg);
+  }
+  .score-num { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+  .score-num .big { font-family: 'Newsreader'; font-size: 52px; font-weight: 300; color: var(--ink); line-height: 1; }
+  .score-num .of { font-size: 14px; color: var(--faint); margin-top: 2px; }
+  .score-hook { font-family: 'Newsreader'; font-style: italic; font-size: 14px; color: var(--ember); margin-top: 14px; line-height: 1.4; }
+  .score-headline { font-family: 'Newsreader'; font-size: 19px; text-align: center; margin-top: 16px; line-height: 1.35; }
+  .gauge-wrap { margin-top: 18px; }
+  .gauge-track { height: 8px; background: #182430; border-radius: 4px; position: relative; overflow: hidden; }
+  .gauge-calm { position: absolute; right: 0; top: 0; bottom: 0; width: 20%; background: rgba(95,212,193,0.15); }
+  .gauge-fill { height: 100%; width: 47%; background: linear-gradient(90deg, var(--current-deep), var(--current), var(--current-bright)); border-radius: 4px; }
+  .gauge-cap { position: absolute; left: 47%; top: 50%; transform: translate(-50%,-50%); width: 4px; height: 14px; background: var(--ink); border-radius: 2px; }
+  .gauge-labels { display: flex; justify-content: space-between; margin-top: 8px; font-size: 9px; color: var(--dim); font-weight: 300; }
+  .gauge-calm-label { text-align: right; font-size: 9px; color: var(--current-deep); letter-spacing: 0.08em; margin-top: 4px; }
+  .score-summary { font-family: 'Newsreader'; font-style: italic; font-size: 13px; color: var(--body); text-align: center; line-height: 1.5; margin-top: 14px; padding: 0 4px; }
+  .bars-heading { font-size: 10px; letter-spacing: 0.15em; text-transform: uppercase; color: var(--dim); margin-top: 20px; margin-bottom: 8px; }
+  .bar-row {
+    background: var(--surface); border-radius: 14px; padding: 12px 14px; margin-bottom: 8px;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .bar-label { font-size: 13px; color: var(--ink); }
+  .bar-grade {
+    font-size: 9px; font-weight: 600; letter-spacing: 0.06em; padding: 3px 8px;
+    border-radius: 999px; background: rgba(221,145,91,0.15); color: #DD915B;
+  }
+  .bar-grade.high { background: rgba(224,122,95,0.12); color: #E07A5F; }
+  .bar-grade.low { background: rgba(107,114,128,0.12); color: #93A4B0; }
+  .bar-meters { display: flex; gap: 2px; margin-right: 8px; }
+  .bar-meter { width: 8px; height: 4px; border-radius: 2px; background: var(--line); }
+  .bar-meter.on { background: #DD915B; }
+  .bar-meter.on.high { background: #E07A5F; }
+
+  /* ── Vitality Checklist ── */
+  .vitality-content { flex: 1; padding-top: 32px; padding-bottom: 32px; display: flex; flex-direction: column; }
+  .vitality-title { font-family: 'Newsreader'; font-size: 24px; font-weight: 400; }
+  .vitality-sub { font-size: 13px; color: var(--body); font-weight: 300; margin-top: 8px; line-height: 1.45; }
+  .check-row {
+    margin-top: 14px; background: var(--surface); border: 1px solid var(--line);
+    border-radius: 16px; padding: 18px; display: flex; align-items: center; justify-content: space-between;
+  }
+  .check-row.done { border-color: rgba(95,212,193,0.25); }
+  .check-label { font-size: 15px; color: var(--ink); font-weight: 300; line-height: 1.35; max-width: 220px; }
+  .check-toggle {
+    width: 44px; height: 26px; border-radius: 999px; background: var(--line);
+    position: relative; flex-shrink: 0;
+  }
+  .check-toggle.on { background: var(--current); }
+  .check-toggle::after {
+    content: ''; position: absolute; top: 3px; left: 3px; width: 20px; height: 20px;
+    border-radius: 50%; background: var(--ink); transition: left 0.2s;
+  }
+  .check-toggle.on::after { left: 21px; background: var(--on-current); }
+
+  /* ── Welcome ── */
+  .welcome-content { flex: 1; display: flex; flex-direction: column; justify-content: center; text-align: center; padding-bottom: 40px; }
+  .wordmark { font-size: 10px; letter-spacing: 0.5em; font-weight: 300; color: var(--ink); margin-bottom: 48px; }
+  .welcome-title { font-family: 'Newsreader'; font-size: 30px; font-weight: 400; line-height: 1.3; padding: 0 12px; }
+  .welcome-body { font-size: 15px; color: var(--body); font-weight: 300; line-height: 1.55; margin-top: 16px; padding: 0 16px; }
+  .welcome-actions { margin-top: auto; padding-top: 32px; }
+
+  /* ── Clinical Card ── */
+  .clinical-content { flex: 1; padding-top: 40px; padding-bottom: 32px; display: flex; flex-direction: column; align-items: center; text-align: center; }
+  .clinical-visual {
+    width: 160px; height: 160px; border-radius: 16px; margin-bottom: 24px;
+    background: radial-gradient(circle at 50% 40%, rgba(78,196,180,0.18) 0%, rgba(58,143,191,0.06) 45%, transparent 70%);
+    border: 1px solid var(--line);
+    display: flex; align-items: center; justify-content: center;
+    position: relative; overflow: hidden;
+  }
+  .clinical-visual::after {
+    content: 'fig-hero-somatic.png'; position: absolute; bottom: 6px; left: 0; right: 0;
+    font-size: 8px; letter-spacing: 0.06em; color: var(--faint); text-transform: uppercase;
+  }
+  .clinical-node { width: 56px; height: 56px; border-radius: 50%; background: rgba(78,196,180,0.12); border: 1.5px solid rgba(78,196,180,0.35); }
+  .clinical-title { font-family: 'Newsreader'; font-size: 24px; line-height: 1.35; padding: 0 8px; }
+  .clinical-body { font-size: 14px; color: var(--body); font-weight: 300; line-height: 1.55; margin-top: 14px; padding: 0 12px; }
+
+  /* ── Discretion Setup ── */
+  .discretion-content { flex: 1; padding-top: 28px; padding-bottom: 32px; }
+  .discretion-title { font-family: 'Newsreader'; font-size: 26px; }
+  .discretion-sub { font-size: 13px; color: var(--body); font-weight: 300; margin-top: 8px; line-height: 1.45; }
+  .level-card {
+    margin-top: 20px; padding: 16px; background: var(--surface); border: 1px solid var(--line);
+    border-radius: 16px; cursor: pointer;
+  }
+  .level-card.selected { border-color: var(--current); }
+  .level-name { font-size: 15px; font-weight: 500; }
+  .level-desc { font-size: 12px; color: var(--dim); margin-top: 4px; line-height: 1.4; }
+  .preview-box {
+    margin-top: 16px; padding: 14px; background: #000; border-radius: 12px;
+    border: 1px solid var(--line); font-size: 12px; color: var(--body);
+  }
+  .toggle-row {
+    margin-top: 12px; padding: 14px 16px; background: var(--surface);
+    border: 1px solid var(--line); border-radius: 14px;
+    display: flex; align-items: center; justify-content: space-between;
+  }
+  .toggle-row span { font-size: 14px; color: var(--ink); font-weight: 300; }
+
+  /* ── Day Sealed ── */
+  .sealed-content { flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; padding-bottom: 48px; }
+  .sealed-mark {
+    width: 64px; height: 64px; border-radius: 50%;
+    border: 2px solid rgba(200,155,109,0.55); display: flex; align-items: center; justify-content: center;
+  }
+  .sealed-check { width: 20px; height: 12px; border-left: 2px solid var(--ember-ceremony); border-bottom: 2px solid var(--ember-ceremony); transform: rotate(-45deg); margin-top: -4px; }
+  .sealed-title { font-family: 'Newsreader'; font-style: italic; font-size: 24px; color: var(--ember-ceremony); margin-top: 24px; line-height: 1.35; }
+  .sealed-body { font-size: 14px; color: var(--body); font-weight: 300; margin-top: 12px; line-height: 1.5; padding: 0 24px; }
+
+  /* ── Re-measure Result ── */
+  .remeasure-content { flex: 1; padding-top: 32px; padding-bottom: 32px; display: flex; flex-direction: column; align-items: center; text-align: center; }
+  .remeasure-delta { display: flex; align-items: baseline; gap: 12px; margin-top: 20px; }
+  .remeasure-old { font-family: 'Newsreader'; font-size: 28px; color: var(--faint); font-weight: 300; }
+  .remeasure-new { font-family: 'Newsreader'; font-size: 48px; color: var(--ink); font-weight: 300; }
+  .remeasure-gain { font-size: 14px; color: var(--gain); margin-top: 8px; }
+  .remeasure-copy { font-size: 14px; color: var(--body); font-weight: 300; line-height: 1.55; margin-top: 20px; padding: 0 16px; }
+
+  /* Legend */
+  .legend {
+    max-width: 1400px; margin: 56px auto 0; padding: 24px;
+    background: var(--surface); border: 1px solid var(--line); border-radius: 18px;
+  }
+  .legend h2 { font-family: 'Newsreader'; font-size: 20px; margin-bottom: 16px; }
+  .legend-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(140px, 1fr)); gap: 12px; }
+  .swatch { display: flex; align-items: center; gap: 10px; font-size: 12px; color: var(--body); }
+  .swatch-color { width: 32px; height: 32px; border-radius: 8px; border: 1px solid var(--line); flex-shrink: 0; }
+
+  /* Token comparison v2 → v2.1 */
+  .compare {
+    max-width: 1400px; margin: 0 auto 48px; padding: 28px;
+    background: var(--surface); border: 1px solid var(--line); border-radius: 18px;
+  }
+  .compare h2 { font-family: 'Newsreader'; font-size: 22px; margin-bottom: 8px; }
+  .compare > p { font-size: 13px; color: var(--body); line-height: 1.55; margin-bottom: 24px; max-width: 720px; }
+  .compare-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; }
+  @media (max-width: 700px) { .compare-grid { grid-template-columns: 1fr; } }
+  .compare-col h3 { font-size: 11px; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase; color: var(--dim); margin-bottom: 12px; }
+  .compare-row { display: flex; align-items: center; gap: 12px; padding: 10px 0; border-bottom: 1px solid rgba(34,49,64,0.5); font-size: 13px; }
+  .compare-row:last-child { border-bottom: none; }
+  .compare-swatch { width: 36px; height: 36px; border-radius: 8px; border: 1px solid var(--line); flex-shrink: 0; }
+  .compare-meta { color: var(--faint); font-size: 11px; font-family: ui-monospace, monospace; }
+  .compare-note { margin-top: 20px; font-size: 12px; color: var(--dim); line-height: 1.5; }
+</style>
+</head>
+<body>
+
+<div class="page-header">
+  <div class="draft-badge">v2.1 — founder review required</div>
+  <h1>COMPOSE · Deepwater v2.1</h1>
+  <p>13 screens with calibrated tokens: desaturated current, bone navigational CTAs, cooler body text, ceremony ember tier, Composure score in ink. Re-import to Figma via html.to.design.</p>
+</div>
+
+<div class="gallery">
+
+  <!-- 1. Today Home -->
+  <div class="frame-wrap">
+    <div class="frame-label">Today · Home</div>
+    <div class="phone">
+      <div class="status"><span>9:41</span></div>
+      <div class="screen">
+        <div class="home-content">
+          <div class="home-greeting">Good evening.</div>
+          <div class="home-day serif">Day 12</div>
+          <div class="home-phase">Phase 1 · Nervous System Reset</div>
+          <p class="home-motivation">Presence starts with one session. Under ten minutes tonight.</p>
+          <div class="home-orb-wrap">
+            <div class="home-orb"><span>Start</span></div>
+            <div class="home-duration">~9 min</div>
+          </div>
+          <div class="home-meta">Anchor · Conditioning · Vitality</div>
+        </div>
+        <div class="tab-bar">
+          <div class="tab"><div class="tab-icon"></div><span class="tab-label">Protocol</span></div>
+          <div class="tab"><div class="tab-icon"></div><span class="tab-label">Progress</span></div>
+          <div class="tab-today"><div class="tab-today-ring"></div><div class="tab-today-dot"></div></div>
+          <div class="tab"><div class="tab-icon"></div><span class="tab-label">Rewire</span></div>
+          <div class="tab"><div class="tab-icon"></div><span class="tab-label">Profile</span></div>
+        </div>
+      </div>
+    </div>
+    <div class="frame-sublabel">Breathwrk Start orb · Calm evening greeting · Opal glass tab bar</div>
+  </div>
+
+  <!-- 2. Conditioning Track -->
+  <div class="frame-wrap">
+    <div class="frame-label">Session · Conditioning</div>
+    <div class="phone session-bg">
+      <div class="status"><span>9:41</span></div>
+      <div class="screen screen-full" style="display:flex;flex-direction:column;height:calc(100% - 44px)">
+        <div class="technique-chip">
+          <div class="technique-item"><div class="technique-icon"></div><div class="technique-num">4</div></div>
+          <div class="technique-item"><div class="technique-icon"></div><div class="technique-num">6</div></div>
+        </div>
+        <div class="breath-area">
+          <div class="breath-ring-outer">
+            <div class="breath-ring-mid">
+              <div class="breath-orb"><span>Inhale</span></div>
+            </div>
+          </div>
+        </div>
+        <div class="session-controls">
+          <div class="pause-btn"><div class="pause-icon"><span></span><span></span></div></div>
+          <div class="session-time">02:14</div>
+        </div>
+      </div>
+    </div>
+    <div class="frame-sublabel">Breathwrk single instrument · breath-paced orb · minimal chrome</div>
+  </div>
+
+  <!-- 3. Auditory Anchor -->
+  <div class="frame-wrap">
+    <div class="frame-label">Session · Auditory Anchor</div>
+    <div class="phone">
+      <div class="status"><span>9:41</span></div>
+      <div class="screen">
+        <div class="anchor-content">
+          <div class="eyebrow anchor-phase">Phase 1 · Day 12</div>
+          <div class="anchor-title serif">The pause is a tool, not an escape</div>
+          <div class="anchor-sub">Three minutes to settle the body before the mind follows.</div>
+          <div class="scrubber">
+            <div class="scrubber-track"><div class="scrubber-fill"></div><div class="scrubber-dot"></div></div>
+            <div class="scrubber-times"><span>1:04</span><span>3:00</span></div>
+          </div>
+          <div class="anchor-play"><div class="play-tri"></div></div>
+        </div>
+      </div>
+    </div>
+    <div class="frame-sublabel">Calm player restraint · title + scrubber + play only</div>
+  </div>
+
+  <!-- 4. Onboarding -->
+  <div class="frame-wrap">
+    <div class="frame-label">Onboarding · Question</div>
+    <div class="phone">
+      <div class="status"><span>9:41</span></div>
+      <div class="screen">
+        <div class="onboard-content">
+          <div class="onboard-progress"><div class="onboard-progress-fill"></div></div>
+          <div class="eyebrow" style="margin-bottom:16px">Mapping · 3 of 24</div>
+          <div class="onboard-q serif">When intimacy begins, where does your attention go first?</div>
+          <div class="answer-card selected"><span class="answer-text">Into my body — sensation and breath</span><div class="answer-radio"></div></div>
+          <div class="answer-card"><span class="answer-text">Into my head — evaluating how I'm doing</span><div class="answer-radio"></div></div>
+          <div class="answer-card"><span class="answer-text">Split between both, never fully either</span><div class="answer-radio"></div></div>
+          <div class="onboard-footer">Answers stay on this phone. Always.</div>
+        </div>
+      </div>
+    </div>
+    <div class="frame-sublabel">Headspace one-question generosity · generous vertical rhythm</div>
+  </div>
+
+  <!-- 5. Paywall -->
+  <div class="frame-wrap">
+    <div class="frame-label">Paywall · Membership</div>
+    <div class="phone">
+      <div class="status"><span>9:41</span></div>
+      <div class="screen">
+        <div class="paywall-content">
+          <div class="paywall-headline serif">Your 75-day protocol — and a full year to make it yours</div>
+          <div class="paywall-sub">One structured program. One membership. Everything included.</div>
+          <div class="plan-card">
+            <div class="plan-row"><span class="plan-name">Annual membership</span><span class="plan-price">$99.99/yr</span></div>
+            <div class="plan-detail">Full protocol + Act II mastery suite + maintenance year</div>
+          </div>
+          <div class="plan-card secondary">
+            <div class="plan-row"><span class="plan-name">Monthly</span><span class="plan-price" style="color:var(--body)">$17.99/mo</span></div>
+          </div>
+          <div class="feature-list">
+            <div class="feature-item"><div class="feature-dot"></div><span>75-day structured protocol with daily sessions</span></div>
+            <div class="feature-item"><div class="feature-dot"></div><span>Mastery suite unlocked at graduation</span></div>
+            <div class="feature-item"><div class="feature-dot"></div><span>Composure re-measurements — evidence, not promises</span></div>
+          </div>
+          <div class="paywall-actions">
+            <button class="cta-current">Begin membership</button>
+            <div class="paywall-honest">One payment covers your full year.</div>
+            <button class="cta-secondary">Exit for now</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="frame-sublabel">Opal join framing · Headspace warmth · no urgency theater</div>
+  </div>
+
+  <!-- 6. Progress -->
+  <div class="frame-wrap">
+    <div class="frame-label">Progress · Trends</div>
+    <div class="phone">
+      <div class="status"><span>9:41</span></div>
+      <div class="screen">
+        <div class="progress-content">
+          <div class="progress-title serif">Your trajectory</div>
+          <div class="progress-phase">Phase 1 · Nervous System Reset</div>
+          <div class="trend-card">
+            <div class="trend-label">Composure</div>
+            <div class="trend-chart">
+              <div class="trend-line">
+                <svg viewBox="0 0 260 60" preserveAspectRatio="none">
+                  <polyline fill="none" stroke="#5FD4C1" stroke-width="1.5" points="0,50 40,45 80,38 120,32 160,28 200,22 240,18 260,15"/>
+                </svg>
+              </div>
+            </div>
+            <div class="gain-row">▲ Trending toward presence</div>
+          </div>
+          <div class="trend-card">
+            <div class="trend-label">Control · last 7 days</div>
+            <div class="dot-strip">
+              <div class="dot filled"></div><div class="dot filled"></div><div class="dot filled"></div>
+              <div class="dot filled"></div><div class="dot"></div><div class="dot filled"></div><div class="dot sealed"></div>
+            </div>
+          </div>
+        </div>
+        <div class="tab-bar">
+          <div class="tab"><div class="tab-icon"></div><span class="tab-label">Protocol</span></div>
+          <div class="tab active"><div class="tab-icon" style="border-color:var(--current)"></div><span class="tab-label">Progress</span></div>
+          <div class="tab-today"><div class="tab-today-ring"></div><div class="tab-today-dot"></div></div>
+          <div class="tab"><div class="tab-icon"></div><span class="tab-label">Rewire</span></div>
+          <div class="tab"><div class="tab-icon"></div><span class="tab-label">Profile</span></div>
+        </div>
+      </div>
+    </div>
+    <div class="frame-sublabel">No stat density · trend line + dot strip · no streaks</div>
+  </div>
+
+  <!-- 7. SOS -->
+  <div class="frame-wrap">
+    <div class="frame-label">SOS · Grounding</div>
+    <div class="phone">
+      <div class="status"><span>9:41</span></div>
+      <div class="screen">
+        <div class="sos-content">
+          <div class="sos-card">
+            <div class="sos-label">Grounding</div>
+            <div class="sos-title serif">You're here. That's enough for now.</div>
+            <div class="sos-body">Four counts in. Six counts out. Let the body lead.</div>
+            <button class="sos-cta">Begin paced breathing</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="frame-sublabel">Matte SOS · no glow · no animation</div>
+  </div>
+
+  <!-- 8. Composure Score -->
+  <div class="frame-wrap">
+    <div class="frame-label">Onboarding · Composure Score</div>
+    <div class="phone">
+      <div class="status"><span>9:41</span></div>
+      <div class="screen">
+        <div class="composure-scroll">
+          <div class="eyebrow" style="text-align:center;margin-top:8px">Your composure score</div>
+          <div class="score-hero">
+            <div class="score-ring-wrap">
+              <div class="score-ring-bg"></div>
+              <div class="score-ring-fill"></div>
+              <div class="score-num">
+                <span class="big">47</span>
+                <span class="of">/ 100</span>
+              </div>
+            </div>
+            <div class="score-hook serif">Most men never measure this.</div>
+          </div>
+          <div class="score-headline serif">Andrew, this is your baseline.</div>
+          <div class="gauge-wrap">
+            <div class="gauge-track">
+              <div class="gauge-calm"></div>
+              <div class="gauge-fill"></div>
+              <div class="gauge-cap"></div>
+            </div>
+            <div class="gauge-labels">
+              <span>0 · adrenaline runs it</span>
+              <span>100 · calm &amp; present</span>
+            </div>
+            <div class="gauge-calm-label">COMPOSED ZONE · 80–100</div>
+          </div>
+          <div class="score-summary">Under pressure, your nervous system fires before you can stay present — spectatoring most sessions, conditioned over the last couple of years.</div>
+          <div class="bars-heading">Biggest drivers</div>
+          <div class="bar-row">
+            <span class="bar-label">Sympathetic override</span>
+            <div style="display:flex;align-items:center">
+              <div class="bar-meters"><div class="bar-meter on high"></div><div class="bar-meter on high"></div><div class="bar-meter on high"></div></div>
+              <span class="bar-grade high">HIGH</span>
+            </div>
+          </div>
+          <div class="bar-row">
+            <span class="bar-label">Spectatoring loop</span>
+            <div style="display:flex;align-items:center">
+              <div class="bar-meters"><div class="bar-meter on"></div><div class="bar-meter on"></div><div class="bar-meter"></div></div>
+              <span class="bar-grade">MODERATE</span>
+            </div>
+          </div>
+          <div class="bar-row">
+            <span class="bar-label">Pelvic release capacity</span>
+            <div style="display:flex;align-items:center">
+              <div class="bar-meters"><div class="bar-meter on"></div><div class="bar-meter on"></div><div class="bar-meter"></div></div>
+              <span class="bar-grade">PARTIAL</span>
+            </div>
+          </div>
+          <div class="bar-row">
+            <span class="bar-label">Cognitive scripts</span>
+            <div style="display:flex;align-items:center">
+              <div class="bar-meters"><div class="bar-meter on"></div><div class="bar-meter"></div><div class="bar-meter"></div></div>
+              <span class="bar-grade">PRESENT</span>
+            </div>
+          </div>
+          <button class="cta-bone" style="margin-top:20px">Where else is this showing up?</button>
+          <div class="onboard-footer" style="margin-top:12px">Stored on this device only</div>
+        </div>
+      </div>
+    </div>
+    <div class="frame-sublabel">Headspace results reveal · Opal gem ring · severity bars not verdicts</div>
+  </div>
+
+  <!-- 9. Vitality Checklist -->
+  <div class="frame-wrap">
+    <div class="frame-label">Session · Vitality</div>
+    <div class="phone">
+      <div class="status"><span>9:41</span></div>
+      <div class="screen">
+        <div class="vitality-content">
+          <div class="eyebrow">Step 3 of 3</div>
+          <div class="vitality-title serif">Vitality check</div>
+          <div class="vitality-sub">Three honest votes — not grades. Tap what was true today.</div>
+          <div class="check-row done">
+            <span class="check-label">Spent conscious time embodied</span>
+            <div class="check-toggle on"></div>
+          </div>
+          <div class="check-row done">
+            <span class="check-label">Avoided pornographic consumption</span>
+            <div class="check-toggle on"></div>
+          </div>
+          <div class="check-row">
+            <span class="check-label">Protected physical energy</span>
+            <div class="check-toggle"></div>
+          </div>
+          <button class="cta-current" style="margin-top:auto">Seal today's session</button>
+        </div>
+      </div>
+    </div>
+    <div class="frame-sublabel">Binary check-ins · no scores · QUITTR dignity without counters</div>
+  </div>
+
+  <!-- 10. Welcome -->
+  <div class="frame-wrap">
+    <div class="frame-label">Onboarding · Welcome</div>
+    <div class="phone">
+      <div class="status"><span>9:41</span></div>
+      <div class="screen">
+        <div class="welcome-content">
+          <div class="wordmark">COMPOSE</div>
+          <div class="welcome-title serif">Show up fully — without performing.</div>
+          <div class="welcome-body">A structured 75-day practice to retrain presence, not mask symptoms. Private. Evidence-based. Yours alone.</div>
+          <div class="welcome-actions">
+            <button class="cta-bone">Find my baseline</button>
+            <button class="cta-secondary">I have doubts</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="frame-sublabel">QUITTR directness · Tide atmospheric depth · Headspace generous space</div>
+  </div>
+
+  <!-- 11. Clinical Card -->
+  <div class="frame-wrap">
+    <div class="frame-label">Onboarding · Clinical</div>
+    <div class="phone">
+      <div class="status"><span>9:41</span></div>
+      <div class="screen">
+        <div class="clinical-content">
+          <div class="eyebrow">Clinical context · 1 of 4</div>
+          <div class="clinical-visual"><div class="clinical-node"></div></div>
+          <div class="clinical-title serif">The adrenaline trap</div>
+          <div class="clinical-body">When intimacy begins, your body can misread arousal as threat — adrenaline floods before you can choose presence.</div>
+          <button class="cta-bone" style="margin-top:auto;width:100%">Continue</button>
+        </div>
+      </div>
+    </div>
+    <div class="frame-sublabel">Abstract node visual · no photography · Tide depth field</div>
+  </div>
+
+  <!-- 12. Discretion Setup -->
+  <div class="frame-wrap">
+    <div class="frame-label">Settings · Discretion</div>
+    <div class="phone">
+      <div class="status"><span>9:41</span></div>
+      <div class="screen">
+        <div class="discretion-content">
+          <div class="discretion-title serif">Your discretion level</div>
+          <div class="discretion-sub">Choose what appears on your lock screen. You can change this anytime.</div>
+          <div class="level-card selected">
+            <div class="level-name">Shielded</div>
+            <div class="level-desc">Neutral notifications only — unreadable at a glance.</div>
+          </div>
+          <div class="level-card">
+            <div class="level-name">Personal</div>
+            <div class="level-desc">Practice lines and your first name on lock screen.</div>
+          </div>
+          <div class="preview-box">Compose — today's session is ready.</div>
+          <div class="toggle-row"><span>Face ID lock</span><div class="check-toggle on"></div></div>
+          <div class="toggle-row"><span>Hide from app switcher</span><div class="check-toggle"></div></div>
+          <button class="cta-bone" style="margin-top:20px">Continue</button>
+        </div>
+      </div>
+    </div>
+    <div class="frame-sublabel">Live lock-screen preview · Opal glass cards · user chooses</div>
+  </div>
+
+  <!-- 13. Day Sealed -->
+  <div class="frame-wrap">
+    <div class="frame-label">Today · Day Sealed</div>
+    <div class="phone">
+      <div class="status"><span>9:41</span></div>
+      <div class="screen">
+        <div class="sealed-content">
+          <div class="sealed-mark"><div class="sealed-check"></div></div>
+          <div class="sealed-title serif">Day 12 sealed.</div>
+          <div class="sealed-body">The app stops asking tonight. What you practiced stays with you.</div>
+          <button class="cta-secondary" style="margin-top:32px">Return home</button>
+        </div>
+      </div>
+    </div>
+    <div class="frame-sublabel">Ember identity moment · no celebration layer · ring glow off</div>
+  </div>
+
+</div>
+
+<!-- v2 → v2.1 token comparison -->
+<div class="compare">
+  <h2>Token calibration · v2 → v2.1</h2>
+  <p>Six agreed refinements from reference-app review: quieter aqua, bone navigational CTAs, lifted surface, cooler body, split ember tier, Composure numeral in ink.</p>
+  <div class="compare-grid">
+    <div class="compare-col">
+      <h3>v2 (previous)</h3>
+      <div class="compare-row"><div class="compare-swatch" style="background:#5FD4C1"></div><div><div>current</div><div class="compare-meta">#5FD4C1</div></div></div>
+      <div class="compare-row"><div class="compare-swatch" style="background:#8CE6D8"></div><div><div>current-bright</div><div class="compare-meta">#8CE6D8</div></div></div>
+      <div class="compare-row"><div class="compare-swatch" style="background:#121A24"></div><div><div>surface</div><div class="compare-meta">#121A24</div></div></div>
+      <div class="compare-row"><div class="compare-swatch" style="background:#9CA8B4"></div><div><div>body</div><div class="compare-meta">#9CA8B4</div></div></div>
+      <div class="compare-row"><div class="compare-swatch" style="background:#C89B6D"></div><div><div>ember (all identity)</div><div class="compare-meta">#C89B6D</div></div></div>
+      <div class="compare-row"><div class="compare-swatch" style="background:linear-gradient(180deg,#8CE6D8,#5FD4C1)"></div><div><div>CTA</div><div class="compare-meta">aqua glow on all actions</div></div></div>
+    </div>
+    <div class="compare-col">
+      <h3>v2.1 (current)</h3>
+      <div class="compare-row"><div class="compare-swatch" style="background:#4EC4B4"></div><div><div>current</div><div class="compare-meta">#4EC4B4 · −10% chroma</div></div></div>
+      <div class="compare-row"><div class="compare-swatch" style="background:#6FD9CC"></div><div><div>current-bright</div><div class="compare-meta">#6FD9CC · bloom reserved</div></div></div>
+      <div class="compare-row"><div class="compare-swatch" style="background:#151E28"></div><div><div>surface</div><div class="compare-meta">#151E28 · +lift</div></div></div>
+      <div class="compare-row"><div class="compare-swatch" style="background:#94A3B0"></div><div><div>body</div><div class="compare-meta">#94A3B0 · cooler</div></div></div>
+      <div class="compare-row"><div class="compare-swatch" style="background:#A89078"></div><div><div>ember</div><div class="compare-meta">#A89078 · default identity</div></div></div>
+      <div class="compare-row"><div class="compare-swatch" style="background:#C89B6D"></div><div><div>ember-ceremony</div><div class="compare-meta">#C89B6D · sealed / phase only</div></div></div>
+      <div class="compare-row"><div class="compare-swatch" style="background:#E5E7EB"></div><div><div>bone CTA</div><div class="compare-meta">#E5E7EB · navigation tier</div></div></div>
+    </div>
+  </div>
+  <div class="compare-note">CTA rule: one aqua luminous element per screen (Start orb or commitment action). All Continue / Find my baseline / map-advance buttons use bone. Composure score numeral renders in ink; aqua stays on the ring only.</div>
+</div>
+
+<!-- Token legend -->
+<div class="legend">
+  <h2>Deepwater v2.1 · Active tokens</h2>
+  <div class="legend-grid">
+    <div class="swatch"><div class="swatch-color" style="background:#0A0F16"></div>ground</div>
+    <div class="swatch"><div class="swatch-color" style="background:#151E28"></div>surface</div>
+    <div class="swatch"><div class="swatch-color" style="background:#0D1319"></div>surface-deep</div>
+    <div class="swatch"><div class="swatch-color" style="background:#223140"></div>line</div>
+    <div class="swatch"><div class="swatch-color" style="background:#4EC4B4"></div>current</div>
+    <div class="swatch"><div class="swatch-color" style="background:#6FD9CC"></div>current-bright</div>
+    <div class="swatch"><div class="swatch-color" style="background:#3A8FBF"></div>current-deep</div>
+    <div class="swatch"><div class="swatch-color" style="background:#A89078"></div>ember</div>
+    <div class="swatch"><div class="swatch-color" style="background:#C89B6D"></div>ember-ceremony</div>
+    <div class="swatch"><div class="swatch-color" style="background:#E5E7EB"></div>bone</div>
+    <div class="swatch"><div class="swatch-color" style="background:#94A3B0"></div>body</div>
+    <div class="swatch"><div class="swatch-color" style="background:#78C99A"></div>gain</div>
+    <div class="swatch"><div class="swatch-color" style="background:#C96A55"></div>sos</div>
+  </div>
+</div>
+
+</body>
+</html>

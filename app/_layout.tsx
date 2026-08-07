@@ -12,6 +12,7 @@ import {
 } from '@expo-google-fonts/newsreader';
 import { ProtocolProvider } from '../context/ProtocolContext';
 import { DiscreetProvider } from '../context/DiscreetContext';
+import { AuthProvider } from '../context/AuthContext';
 import PrivacyShield from '../components/PrivacyShield';
 
 const IS_DEV = __DEV__;
@@ -76,6 +77,7 @@ export default function RootLayout() {
   }
 
   return (
+    <AuthProvider>
     <ProtocolProvider>
       <DiscreetProvider>
         <StatusBar style="light" />
@@ -98,6 +100,9 @@ export default function RootLayout() {
           {/* No swipe-back: the oath is a threshold, not a form (arm A signs
               here post-purchase; see app/oath.tsx). */}
           <Stack.Screen name="oath" options={{ gestureEnabled: false }} />
+          {/* Account create/sign-in — post-purchase intro step + reachable
+              from You → Settings (founder directive 2026-08-06). */}
+          <Stack.Screen name="account" />
           <Stack.Screen name="discretion" />
           <Stack.Screen name="vitality" />
           <Stack.Screen name="sandbox" />
@@ -113,5 +118,6 @@ export default function RootLayout() {
         <PrivacyShield />
       </DiscreetProvider>
     </ProtocolProvider>
+    </AuthProvider>
   );
 }

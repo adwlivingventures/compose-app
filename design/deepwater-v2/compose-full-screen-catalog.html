@@ -1,0 +1,1281 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>COMPOSE — Full Screen Catalog (v2.1)</title>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,wght@0,400;1,400&display=swap" rel="stylesheet">
+<style>
+:root{
+  --ground:#0A0F16;--surface:#151E28;--line:#223140;--ink:#EDF2F5;--body:#94A3B0;
+  --dim:#5A6878;--faint:#3B4A58;--current:#4EC4B4;--ember:#A89078;--ember-c:#C89B6D;
+  --bone:#E5E7EB;--on-bone:#0A0F16;--gain:#78C99A;--sos:#C96A55;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{background:#030508;color:var(--ink);font-family:-apple-system,BlinkMacSystemFont,sans-serif;padding:32px 20px 80px}
+.hdr{max-width:1200px;margin:0 auto 40px}
+.hdr h1{font-family:Newsreader,serif;font-weight:400;font-size:28px}
+.hdr p{color:var(--body);font-size:13px;line-height:1.6;margin-top:8px;max-width:720px}
+.badge{display:inline-block;font-size:10px;letter-spacing:.14em;text-transform:uppercase;color:var(--ember-c);border:1px solid rgba(200,155,109,.35);padding:4px 10px;border-radius:999px;margin-bottom:12px}
+.stats{display:flex;gap:24px;margin-top:16px;font-size:12px;color:var(--dim)}
+.sect{max-width:1400px;margin:0 auto 48px}
+.sect h2{font-family:Newsreader,serif;font-size:20px;margin-bottom:6px}
+.sect-desc{font-size:12px;color:var(--body);margin-bottom:20px;max-width:640px;line-height:1.5}
+.grid{display:flex;flex-wrap:wrap;gap:20px 16px}
+.cell{width:200px;display:flex;flex-direction:column;align-items:center;gap:6px}
+.cell-id{font-size:9px;color:var(--faint);letter-spacing:.06em;text-align:center;word-break:break-all;max-width:200px}
+.cell-route{font-size:9px;color:var(--dim);text-align:center}
+.phone{width:200px;height:433px;background:var(--ground);border:1px solid var(--line);border-radius:32px;overflow:hidden;position:relative}
+.phone::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse 80% 40% at 50% 10%,rgba(58,143,191,.09),transparent 70%);pointer-events:none}
+.ph-status{height:28px;display:flex;align-items:flex-end;justify-content:center;font-size:9px;color:var(--dim);padding-bottom:4px;position:relative;z-index:1}
+.ph-screen{height:calc(100% - 28px);padding:12px 14px 14px;display:flex;flex-direction:column;position:relative;z-index:1}
+.ph-type{font-size:8px;letter-spacing:.14em;text-transform:uppercase;color:var(--dim);margin-bottom:8px}
+.ph-head{font-family:Newsreader,serif;font-size:13px;line-height:1.35;flex-shrink:0}
+.mini-body{font-size:10px;color:var(--body);font-weight:300;line-height:1.45;margin-top:auto;margin-bottom:8px}
+.mini-pill{height:28px;border-radius:999px;background:var(--surface);border:1px solid var(--line);margin-bottom:6px}
+.mini-pill.on{border-color:var(--current)}
+.mini-clinical{width:64px;height:64px;border-radius:12px;background:var(--surface);border:1px solid var(--line);margin:16px auto}
+.mini-orb{width:72px;height:72px;border-radius:50%;border:1px solid rgba(78,196,180,.3);background:rgba(78,196,180,.1);display:flex;align-items:center;justify-content:center;font-size:11px;margin:20px auto;color:var(--ink)}
+.mini-ring{width:80px;height:80px;border-radius:50%;border:3px solid var(--line);border-top-color:var(--current);border-right-color:var(--current);margin:12px auto;display:flex;align-items:center;justify-content:center;transform:rotate(-45deg)}
+.mini-score{font-family:Newsreader;font-size:28px;color:var(--ink);transform:rotate(45deg)}
+.mini-hook{font-family:Newsreader;font-style:italic;font-size:10px;color:var(--ember);text-align:center;margin-top:4px}
+.mini-ring-lg{width:90px;height:90px;border-radius:50%;border:3px solid var(--line);border-top-color:var(--current);margin:16px auto;display:flex;align-items:center;justify-content:center;font-family:Newsreader;font-size:22px;color:var(--current)}
+.mini-sealed{width:40px;height:40px;border-radius:50%;border:2px solid rgba(200,155,109,.55);color:var(--ember-c);display:flex;align-items:center;justify-content:center;margin:24px auto;font-size:16px}
+.mini-scrub{height:2px;background:var(--line);margin:32px 0;position:relative}
+.mini-scrub::after{content:'';position:absolute;left:0;top:0;height:100%;width:35%;background:var(--current)}
+.mini-plan{font-size:10px;padding:10px;background:var(--surface);border:1px solid var(--current);border-radius:12px;margin:16px 0;text-align:center}
+.btn-bone,.btn-aqua{margin-top:auto;padding:10px;border-radius:999px;font-size:10px;font-weight:500;text-align:center}
+.btn-bone{background:var(--bone);color:var(--on-bone)}
+.btn-aqua{background:linear-gradient(180deg,#6FD9CC,#4EC4B4);color:#06232A;box-shadow:0 0 8px rgba(78,196,180,.15)}
+.import{max-width:1200px;margin:40px auto 0;padding:20px;background:var(--surface);border:1px solid var(--line);border-radius:14px;font-size:12px;color:var(--body);line-height:1.55}
+</style>
+</head>
+<body>
+<div class="hdr">
+  <div class="badge">Full app catalog · v2.1 tokens</div>
+  <h1>COMPOSE — Every Screen</h1>
+  <p>Complete inventory from the codebase (92 frames). Import via Figma plugin <strong>html.to.design</strong> → File tab. Dev-only routes (sandbox, ember-demo) omitted.</p>
+  <div class="stats">
+    <span>Onboarding: 56</span>
+    <span>Post-setup: 5</span>
+    <span>Tabs: 6</span>
+    <span>Session: 6</span>
+    <span>Tools: 12</span>
+    <span>Milestones: 7</span>
+  </div>
+</div>
+
+<section class="sect"><h2>Onboarding funnel</h2><p class="sect-desc">content/onboarding/screens.ts — diagnostic through Day Zero</p><div class="grid">
+  <div class="cell">
+    <div class="cell-id">welcome-opening</div>
+    <div class="phone">
+      <div class="ph-status">9:41</div>
+      <div class="ph-screen">
+        <div class="ph-type">Chapter</div>
+        <div class="ph-head">Welcome to Compose.</div>
+        <p class="mini-body">Chapter</p>
+        <div class="btn-bone">Get started</div>
+      </div>
+    </div>
+    <div class="cell-route">/onboarding</div>
+  </div>
+  <div class="cell">
+    <div class="cell-id">how-it-works</div>
+    <div class="phone">
+      <div class="ph-status">9:41</div>
+      <div class="ph-screen">
+        <div class="ph-type">Chapter</div>
+        <div class="ph-head">First we listen. Then we build.</div>
+        <p class="mini-body">Chapter</p>
+        <div class="btn-bone">Let's begin</div>
+      </div>
+    </div>
+    <div class="cell-route">/onboarding</div>
+  </div>
+  <div class="cell">
+    <div class="cell-id">transition-part1</div>
+    <div class="phone">
+      <div class="ph-status">9:41</div>
+      <div class="ph-screen">
+        <div class="ph-type">Transition</div>
+        <div class="ph-head">Part 1 · Your story</div>
+        <p class="mini-body">Transition</p>
+        
+      </div>
+    </div>
+    <div class="cell-route">/onboarding</div>
+  </div>
+  <div class="cell">
+    <div class="cell-id">relationship</div>
+    <div class="phone">
+      <div class="ph-status">9:41</div>
+      <div class="ph-screen">
+        <div class="ph-type">Question</div>
+        <div class="ph-head">What's your relationship status?</div>
+        <div class="mini-pill on"></div><div class="mini-pill"></div><div class="mini-pill"></div>
+        
+      </div>
+    </div>
+    <div class="cell-route">/onboarding</div>
+  </div>
+  <div class="cell">
+    <div class="cell-id">reasons</div>
+    <div class="phone">
+      <div class="ph-status">9:41</div>
+      <div class="ph-screen">
+        <div class="ph-type">Multi-select</div>
+        <div class="ph-head">What brought you here?</div>
+        <div class="mini-pill on"></div><div class="mini-pill"></div><div class="mini-pill"></div>
+        <div class="btn-bone">Continue</div>
+      </div>
+    </div>
+    <div class="cell-route">/onboarding</div>
+  </div>
+  <div class="cell">
+    <div class="cell-id">duration</div>
+    <div class="phone">
+      <div class="ph-status">9:41</div>
+      <div class="ph-screen">
+        <div class="ph-type">Question</div>
+        <div class="ph-head">How long has this been going on?</div>
+        <div class="mini-pill on"></div><div class="mini-pill"></div><div class="mini-pill"></div>
+        
+      </div>
+    </div>
+    <div class="cell-route">/onboarding</div>
+  </div>
+  <div class="cell">
+    <div class="cell-id">name</div>
+    <div class="phone">
+      <div class="ph-status">9:41</div>
+      <div class="ph-screen">
+        <div class="ph-type">Text input</div>
+        <div class="ph-head">What should we call you?</div>
+        <p class="mini-body">Text input</p>
+        <div class="btn-bone">Continue</div>
+      </div>
+    </div>
+    <div class="cell-route">/onboarding</div>
+  </div>
+  <div class="cell">
+    <div class="cell-id">age</div>
+    <div class="phone">
+      <div class="ph-status">9:41</div>
+      <div class="ph-screen">
+        <div class="ph-type">Wheel</div>
+        <div class="ph-head">How old are you?</div>
+        <p class="mini-body">Wheel</p>
+        <div class="btn-bone">Continue</div>
+      </div>
+    </div>
+    <div class="cell-route">/onboarding</div>
+  </div>
+  <div class="cell">
+    <div class="cell-id">transition-part2</div>
+    <div class="phone">
+      <div class="ph-status">9:41</div>
+      <div class="ph-screen">
+        <div class="ph-type">Transition</div>
+        <div class="ph-head">Part 2 · Your body</div>
+        <p class="mini-body">Transition</p>
+        
+      </div>
+    </div>
+    <div class="cell-route">/onboarding</div>
+  </div>
+  <div class="cell">
+    <div class="cell-id">bandaid-history</div>
+    <div class="phone">
+      <div class="ph-status">9:41</div>
+      <div class="ph-screen">
+        <div class="ph-type">Multi-select</div>
+        <div class="ph-head">Have you tried quick fixes?</div>
+        <div class="mini-pill on"></div><div class="mini-pill"></div><div class="mini-pill"></div>
+        <div class="btn-bone">Continue</div>
+      </div>
+    </div>
+    <div class="cell-route">/onboarding</div>
+  </div>
+  <div class="cell">
+    <div class="cell-id">morning-arousal</div>
+    <div class="phone">
+      <div class="ph-status">9:41</div>
+      <div class="ph-screen">
+        <div class="ph-type">Question</div>
+        <div class="ph-head">Morning erections</div>
+        <div class="mini-pill on"></div><div class="mini-pill"></div><div class="mini-pill"></div>
+        
+      </div>
+    </div>
+    <div class="cell-route">/onboarding</div>
+  </div>
+  <div class="cell">
+    <div class="cell-id">libido</div>
+    <div class="phone">
+      <div class="ph-status">9:41</div>
+      <div class="ph-screen">
+        <div class="ph-type">Slider</div>
+        <div class="ph-head">General libido level</div>
+        <p class="mini-body">Slider</p>
+        <div class="btn-bone">Continue</div>
+      </div>
+    </div>
+    <div class="cell-route">/onboarding</div>
+  </div>
+  <div class="cell">
+    <div class="cell-id">physician-note</div>
+    <div class="phone">
+      <div class="ph-status">9:41</div>
+      <div class="ph-screen">
+        <div class="ph-type">Note card</div>
+        <div class="ph-head">Worth checking with a doctor.</div>
+        <p class="mini-body">Note card</p>
+        <div class="btn-bone">Understood</div>
+      </div>
+    </div>
+    <div class="cell-route">/onboarding</div>
+  </div>
+  <div class="cell">
+    <div class="cell-id">adrenaline-spike</div>
+    <div class="phone">
+      <div class="ph-status">9:41</div>
+      <div class="ph-screen">
+        <div class="ph-type">Question</div>
+        <div class="ph-head">When intimacy starts…</div>
+        <div class="mini-pill on"></div><div class="mini-pill"></div><div class="mini-pill"></div>
+        
+      </div>
+    </div>
+    <div class="cell-route">/onboarding</div>
+  </div>
+  <div class="cell">
+    <div class="cell-id">breath-edge</div>
+    <div class="phone">
+      <div class="ph-status">9:41</div>
+      <div class="ph-screen">
+        <div class="ph-type">Question</div>
+        <div class="ph-head">At the edge of arousal…</div>
+        <div class="mini-pill on"></div><div class="mini-pill"></div><div class="mini-pill"></div>
+        
+      </div>
+    </div>
+    <div class="cell-route">/onboarding</div>
+  </div>
+  <div class="cell">
+    <div class="cell-id">pelvic-check</div>
+    <div class="phone">
+      <div class="ph-status">9:41</div>
+      <div class="ph-screen">
+        <div class="ph-type">Interactive</div>
+        <div class="ph-head">A 15-second tension check.</div>
+        <p class="mini-body">Interactive</p>
+        <div class="btn-bone">Begin check</div>
+      </div>
+    </div>
+    <div class="cell-route">/onboarding</div>
+  </div>
+  <div class="cell">
+    <div class="cell-id">testimonial-somatic</div>
+    <div class="phone">
+      <div class="ph-status">9:41</div>
+      <div class="ph-screen">
+        <div class="ph-type">Testimonial</div>
+        <div class="ph-head">Member story slot</div>
+        <p class="mini-body">Testimonial</p>
+        
+      </div>
+    </div>
+    <div class="cell-route">/onboarding</div>
+  </div>
+  <div class="cell">
+    <div class="cell-id">transition-part3</div>
+    <div class="phone">
+      <div class="ph-status">9:41</div>
+      <div class="ph-screen">
+        <div class="ph-type">Transition</div>
+        <div class="ph-head">Part 3 · Your mind</div>
+        <p class="mini-body">Transition</p>
+        
+      </div>
+    </div>
+    <div class="cell-route">/onboarding</div>
+  </div>
+  <div class="cell">
+    <div class="cell-id">content-frequency</div>
+    <div class="phone">
+      <div class="ph-status">9:41</div>
+      <div class="ph-screen">
+        <div class="ph-type">Question</div>
+        <div class="ph-head">Pornography frequency</div>
+        <div class="mini-pill on"></div><div class="mini-pill"></div><div class="mini-pill"></div>
+        
+      </div>
+    </div>
+    <div class="cell-route">/onboarding</div>
+  </div>
+  <div class="cell">
+    <div class="cell-id">escalation</div>
+    <div class="phone">
+      <div class="ph-status">9:41</div>
+      <div class="ph-screen">
+        <div class="ph-type">Question</div>
+        <div class="ph-head">Need for escalation?</div>
+        <div class="mini-pill on"></div><div class="mini-pill"></div><div class="mini-pill"></div>
+        
+      </div>
+    </div>
+    <div class="cell-route">/onboarding</div>
+  </div>
+  <div class="cell">
+    <div class="cell-id">spectatoring</div>
+    <div class="phone">
+      <div class="ph-status">9:41</div>
+      <div class="ph-screen">
+        <div class="ph-type">Question</div>
+        <div class="ph-head">Spectatoring frequency</div>
+        <div class="mini-pill on"></div><div class="mini-pill"></div><div class="mini-pill"></div>
+        
+      </div>
+    </div>
+    <div class="cell-route">/onboarding</div>
+  </div>
+  <div class="cell">
+    <div class="cell-id">partner-impact</div>
+    <div class="phone">
+      <div class="ph-status">9:41</div>
+      <div class="ph-screen">
+        <div class="ph-type">Multi-select</div>
+        <div class="ph-head">Partner impact</div>
+        <div class="mini-pill on"></div><div class="mini-pill"></div><div class="mini-pill"></div>
+        <div class="btn-bone">Continue</div>
+      </div>
+    </div>
+    <div class="cell-route">/onboarding</div>
+  </div>
+  <div class="cell">
+    <div class="cell-id">aftermath</div>
+    <div class="phone">
+      <div class="ph-status">9:41</div>
+      <div class="ph-screen">
+        <div class="ph-type">Question</div>
+        <div class="ph-head">After a hard night…</div>
+        <div class="mini-pill on"></div><div class="mini-pill"></div><div class="mini-pill"></div>
+        
+      </div>
+    </div>
+    <div class="cell-route">/onboarding</div>
+  </div>
+  <div class="cell">
+    <div class="cell-id">avoidance</div>
+    <div class="phone">
+      <div class="ph-status">9:41</div>
+      <div class="ph-screen">
+        <div class="ph-type">Question</div>
+        <div class="ph-head">Avoidance pattern</div>
+        <div class="mini-pill on"></div><div class="mini-pill"></div><div class="mini-pill"></div>
+        
+      </div>
+    </div>
+    <div class="cell-route">/onboarding</div>
+  </div>
+  <div class="cell">
+    <div class="cell-id">scripts</div>
+    <div class="phone">
+      <div class="ph-status">9:41</div>
+      <div class="ph-screen">
+        <div class="ph-type">Multi-select</div>
+        <div class="ph-head">Failure scripts</div>
+        <div class="mini-pill on"></div><div class="mini-pill"></div><div class="mini-pill"></div>
+        <div class="btn-bone">Continue</div>
+      </div>
+    </div>
+    <div class="cell-route">/onboarding</div>
+  </div>
+  <div class="cell">
+    <div class="cell-id">spillover</div>
+    <div class="phone">
+      <div class="ph-status">9:41</div>
+      <div class="ph-screen">
+        <div class="ph-type">Question</div>
+        <div class="ph-head">Life spillover</div>
+        <div class="mini-pill on"></div><div class="mini-pill"></div><div class="mini-pill"></div>
+        
+      </div>
+    </div>
+    <div class="cell-route">/onboarding</div>
+  </div>
+  <div class="cell">
+    <div class="cell-id">generating</div>
+    <div class="phone">
+      <div class="ph-status">9:41</div>
+      <div class="ph-screen">
+        <div class="ph-type">Generating</div>
+        <div class="ph-head">Building your map…</div>
+        <p class="mini-body">Generating</p>
+        
+      </div>
+    </div>
+    <div class="cell-route">/onboarding</div>
+  </div>
+  <div class="cell">
+    <div class="cell-id">map</div>
+    <div class="phone">
+      <div class="ph-status">9:41</div>
+      <div class="ph-screen">
+        <div class="ph-type">Composure Score</div>
+        <div class="ph-head">Andrew, this is your baseline.</div>
+        <div class="mini-ring"><span class="mini-score">47</span></div><p class="mini-hook">Most men never measure this.</p>
+        <div class="btn-bone">Where else…</div>
+      </div>
+    </div>
+    <div class="cell-route">/onboarding</div>
+  </div>
+  <div class="cell">
+    <div class="cell-id">symptoms</div>
+    <div class="phone">
+      <div class="ph-status">9:41</div>
+      <div class="ph-screen">
+        <div class="ph-type">Multi-select</div>
+        <div class="ph-head">Where else is this showing up?</div>
+        <div class="mini-pill on"></div><div class="mini-pill"></div><div class="mini-pill"></div>
+        <div class="btn-bone">Rewire my brain</div>
+      </div>
+    </div>
+    <div class="cell-route">/onboarding</div>
+  </div>
+  <div class="cell">
+    <div class="cell-id">card-adrenaline-trap</div>
+    <div class="phone">
+      <div class="ph-status">9:41</div>
+      <div class="ph-screen">
+        <div class="ph-type">Clinical</div>
+        <div class="ph-head">The Adrenaline Trap</div>
+        <div class="mini-clinical"></div>
+        <div class="btn-bone">I understand</div>
+      </div>
+    </div>
+    <div class="cell-route">/onboarding</div>
+  </div>
+  <div class="cell">
+    <div class="cell-id">card-novelty-loop</div>
+    <div class="phone">
+      <div class="ph-status">9:41</div>
+      <div class="ph-screen">
+        <div class="ph-type">Clinical</div>
+        <div class="ph-head">The Dopamine Loop</div>
+        <div class="mini-clinical"></div>
+        <div class="btn-bone">Makes sense</div>
+      </div>
+    </div>
+    <div class="cell-route">/onboarding</div>
+  </div>
+  <div class="cell">
+    <div class="cell-id">card-dmn</div>
+    <div class="phone">
+      <div class="ph-status">9:41</div>
+      <div class="ph-screen">
+        <div class="ph-type">Clinical</div>
+        <div class="ph-head">The Default Mode Network</div>
+        <div class="mini-clinical"></div>
+        <div class="btn-bone">Continue</div>
+      </div>
+    </div>
+    <div class="cell-route">/onboarding</div>
+  </div>
+  <div class="cell">
+    <div class="cell-id">card-bandaids</div>
+    <div class="phone">
+      <div class="ph-status">9:41</div>
+      <div class="ph-screen">
+        <div class="ph-type">Clinical</div>
+        <div class="ph-head">The Crutch</div>
+        <div class="mini-clinical"></div>
+        <div class="btn-bone">I understand</div>
+      </div>
+    </div>
+    <div class="cell-route">/onboarding</div>
+  </div>
+  <div class="cell">
+    <div class="cell-id">card-spectatoring</div>
+    <div class="phone">
+      <div class="ph-status">9:41</div>
+      <div class="ph-screen">
+        <div class="ph-type">Clinical</div>
+        <div class="ph-head">The Spectator</div>
+        <div class="mini-clinical"></div>
+        <div class="btn-bone">Continue</div>
+      </div>
+    </div>
+    <div class="cell-route">/onboarding</div>
+  </div>
+  <div class="cell">
+    <div class="cell-id">turn-welcome</div>
+    <div class="phone">
+      <div class="ph-status">9:41</div>
+      <div class="ph-screen">
+        <div class="ph-type">Chapter</div>
+        <div class="ph-head">Recovery is possible.</div>
+        <p class="mini-body">Chapter</p>
+        <div class="btn-bone">Show me how</div>
+      </div>
+    </div>
+    <div class="cell-route">/onboarding</div>
+  </div>
+  <div class="cell">
+    <div class="cell-id">compose-welcome</div>
+    <div class="phone">
+      <div class="ph-status">9:41</div>
+      <div class="ph-screen">
+        <div class="ph-type">Chapter</div>
+        <div class="ph-head">Welcome to Compose.</div>
+        <p class="mini-body">Chapter</p>
+        <div class="btn-bone">Show me</div>
+      </div>
+    </div>
+    <div class="cell-route">/onboarding</div>
+  </div>
+  <div class="cell">
+    <div class="cell-id">hopeful-arc-1</div>
+    <div class="phone">
+      <div class="ph-status">9:41</div>
+      <div class="ph-screen">
+        <div class="ph-type">Hopeful arc</div>
+        <div class="ph-head">Retrain the response.</div>
+        <p class="mini-body">Hopeful arc</p>
+        <div class="btn-bone">Continue</div>
+      </div>
+    </div>
+    <div class="cell-route">/onboarding</div>
+  </div>
+  <div class="cell">
+    <div class="cell-id">hopeful-arc-2</div>
+    <div class="phone">
+      <div class="ph-status">9:41</div>
+      <div class="ph-screen">
+        <div class="ph-type">Hopeful arc</div>
+        <div class="ph-head">Watch yourself change.</div>
+        <p class="mini-body">Hopeful arc</p>
+        <div class="btn-bone">Continue</div>
+      </div>
+    </div>
+    <div class="cell-route">/onboarding</div>
+  </div>
+  <div class="cell">
+    <div class="cell-id">hopeful-arc-3</div>
+    <div class="phone">
+      <div class="ph-status">9:41</div>
+      <div class="ph-screen">
+        <div class="ph-type">Hopeful arc</div>
+        <div class="ph-head">Fifteen minutes a day.</div>
+        <p class="mini-body">Hopeful arc</p>
+        <div class="btn-bone">Continue</div>
+      </div>
+    </div>
+    <div class="cell-route">/onboarding</div>
+  </div>
+  <div class="cell">
+    <div class="cell-id">hopeful-arc-4</div>
+    <div class="phone">
+      <div class="ph-status">9:41</div>
+      <div class="ph-screen">
+        <div class="ph-type">Hopeful arc</div>
+        <div class="ph-head">Steady when it matters.</div>
+        <p class="mini-body">Hopeful arc</p>
+        <div class="btn-bone">Continue</div>
+      </div>
+    </div>
+    <div class="cell-route">/onboarding</div>
+  </div>
+  <div class="cell">
+    <div class="cell-id">hopeful-arc-5</div>
+    <div class="phone">
+      <div class="ph-status">9:41</div>
+      <div class="ph-screen">
+        <div class="ph-type">Hopeful arc</div>
+        <div class="ph-head">Invisible by design.</div>
+        <p class="mini-body">Hopeful arc</p>
+        <div class="btn-aqua">Continue</div>
+      </div>
+    </div>
+    <div class="cell-route">/onboarding</div>
+  </div>
+  <div class="cell">
+    <div class="cell-id">expert-consensus</div>
+    <div class="phone">
+      <div class="ph-status">9:41</div>
+      <div class="ph-screen">
+        <div class="ph-type">Expert quotes</div>
+        <div class="ph-head">The professionals agree…</div>
+        <p class="mini-body">Expert quotes</p>
+        <div class="btn-bone">Who has it worked for?</div>
+      </div>
+    </div>
+    <div class="cell-route">/onboarding</div>
+  </div>
+  <div class="cell">
+    <div class="cell-id">field-reports</div>
+    <div class="phone">
+      <div class="ph-status">9:41</div>
+      <div class="ph-screen">
+        <div class="ph-type">Testimonials</div>
+        <div class="ph-head">These men lived it.</div>
+        <p class="mini-body">Testimonials</p>
+        <div class="btn-bone">Continue</div>
+      </div>
+    </div>
+    <div class="cell-route">/onboarding</div>
+  </div>
+  <div class="cell">
+    <div class="cell-id">diverging-graph</div>
+    <div class="phone">
+      <div class="ph-status">9:41</div>
+      <div class="ph-screen">
+        <div class="ph-type">Graph</div>
+        <div class="ph-head">Two directions from tonight</div>
+        <p class="mini-body">Graph</p>
+        <div class="btn-bone">I want the upper path</div>
+      </div>
+    </div>
+    <div class="cell-route">/onboarding</div>
+  </div>
+  <div class="cell">
+    <div class="cell-id">goals</div>
+    <div class="phone">
+      <div class="ph-status">9:41</div>
+      <div class="ph-screen">
+        <div class="ph-type">Multi-select</div>
+        <div class="ph-head">What do you want from this?</div>
+        <div class="mini-pill on"></div><div class="mini-pill"></div><div class="mini-pill"></div>
+        <div class="btn-bone">These are my reasons</div>
+      </div>
+    </div>
+    <div class="cell-route">/onboarding</div>
+  </div>
+  <div class="cell">
+    <div class="cell-id">commit</div>
+    <div class="phone">
+      <div class="ph-status">9:41</div>
+      <div class="ph-screen">
+        <div class="ph-type">Commit</div>
+        <div class="ph-head">75 days. All in, or not at all.</div>
+        <p class="mini-body">Commit</p>
+        <div class="btn-bone">Yes — I'm in</div>
+      </div>
+    </div>
+    <div class="cell-route">/onboarding</div>
+  </div>
+  <div class="cell">
+    <div class="cell-id">building-plan</div>
+    <div class="phone">
+      <div class="ph-status">9:41</div>
+      <div class="ph-screen">
+        <div class="ph-type">Beat</div>
+        <div class="ph-head">Building your plan…</div>
+        <p class="mini-body">Beat</p>
+        
+      </div>
+    </div>
+    <div class="cell-route">/onboarding</div>
+  </div>
+  <div class="cell">
+    <div class="cell-id">plan-promise</div>
+    <div class="phone">
+      <div class="ph-status">9:41</div>
+      <div class="ph-screen">
+        <div class="ph-type">Chapter</div>
+        <div class="ph-head">Built to end this for good</div>
+        <p class="mini-body">Chapter</p>
+        <div class="btn-bone">Continue</div>
+      </div>
+    </div>
+    <div class="cell-route">/onboarding</div>
+  </div>
+  <div class="cell">
+    <div class="cell-id">your-plan</div>
+    <div class="phone">
+      <div class="ph-status">9:41</div>
+      <div class="ph-screen">
+        <div class="ph-type">Value stack</div>
+        <div class="ph-head">What your 75 days look like.</div>
+        <p class="mini-body">Value stack</p>
+        <div class="btn-bone">What else is included?</div>
+      </div>
+    </div>
+    <div class="cell-route">/onboarding</div>
+  </div>
+  <div class="cell">
+    <div class="cell-id">all-included</div>
+    <div class="phone">
+      <div class="ph-status">9:41</div>
+      <div class="ph-screen">
+        <div class="ph-type">Value stack</div>
+        <div class="ph-head">Everything that comes with it.</div>
+        <p class="mini-body">Value stack</p>
+        <div class="btn-bone">Continue</div>
+      </div>
+    </div>
+    <div class="cell-route">/onboarding</div>
+  </div>
+  <div class="cell">
+    <div class="cell-id">invest-yourself</div>
+    <div class="phone">
+      <div class="ph-status">9:41</div>
+      <div class="ph-screen">
+        <div class="ph-type">Chapter</div>
+        <div class="ph-head">Time to invest in yourself.</div>
+        <p class="mini-body">Chapter</p>
+        <div class="btn-bone">I'm ready</div>
+      </div>
+    </div>
+    <div class="cell-route">/onboarding</div>
+  </div>
+  <div class="cell">
+    <div class="cell-id">paywall</div>
+    <div class="phone">
+      <div class="ph-status">9:41</div>
+      <div class="ph-screen">
+        <div class="ph-type">Paywall</div>
+        <div class="ph-head">The 75-Day Reset + your year</div>
+        <div class="mini-plan">Annual · $99.99/yr</div>
+        <div class="btn-aqua">Continue to Day Zero</div>
+      </div>
+    </div>
+    <div class="cell-route">/onboarding</div>
+  </div>
+  <div class="cell">
+    <div class="cell-id">paywall-dismiss</div>
+    <div class="phone">
+      <div class="ph-status">9:41</div>
+      <div class="ph-screen">
+        <div class="ph-type">Paywall dismiss</div>
+        <div class="ph-head">Your map is saved.</div>
+        <p class="mini-body">Paywall dismiss</p>
+        <div class="btn-aqua">Keep going</div>
+      </div>
+    </div>
+    <div class="cell-route">/onboarding</div>
+  </div>
+  <div class="cell">
+    <div class="cell-id">day-zero</div>
+    <div class="phone">
+      <div class="ph-status">9:41</div>
+      <div class="ph-screen">
+        <div class="ph-type">Signature</div>
+        <div class="ph-head">Start with your word.</div>
+        <p class="mini-body">Signature</p>
+        <div class="btn-aqua">Sign & begin</div>
+      </div>
+    </div>
+    <div class="cell-route">/onboarding</div>
+  </div>
+  <div class="cell">
+    <div class="cell-id">discretion-setup</div>
+    <div class="phone">
+      <div class="ph-status">9:41</div>
+      <div class="ph-screen">
+        <div class="ph-type">Discretion</div>
+        <div class="ph-head">Unreadable at a glance</div>
+        <p class="mini-body">Discretion</p>
+        <div class="btn-bone">Begin Day 1</div>
+      </div>
+    </div>
+    <div class="cell-route">/onboarding</div>
+  </div>
+  <div class="cell">
+    <div class="cell-id">telemetry-consent</div>
+    <div class="phone">
+      <div class="ph-status">9:41</div>
+      <div class="ph-screen">
+        <div class="ph-type">Consent</div>
+        <div class="ph-head">Help us improve anonymously?</div>
+        <p class="mini-body">Consent</p>
+        
+      </div>
+    </div>
+    <div class="cell-route">/onboarding</div>
+  </div></div></section>
+
+<section class="sect"><h2>Post-purchase setup</h2><p class="sect-desc">First-run chain after Day Zero signature</p><div class="grid">
+  <div class="cell">
+    <div class="cell-id">rate</div>
+    <div class="phone">
+      <div class="ph-status">9:41</div>
+      <div class="ph-screen">
+        <div class="ph-type">Rating ask</div>
+        <div class="ph-head">Before you begin</div>
+        <p class="mini-body">App Store rating prompt</p>
+        <div class="btn-bone">Continue</div>
+      </div>
+    </div>
+    <div class="cell-route">/rate</div>
+  </div>
+  <div class="cell">
+    <div class="cell-id">consent</div>
+    <div class="phone">
+      <div class="ph-status">9:41</div>
+      <div class="ph-screen">
+        <div class="ph-type">Telemetry</div>
+        <div class="ph-head">Anonymous analytics consent</div>
+        <p class="mini-body">Accept / decline</p>
+        <div class="btn-bone">Continue</div>
+      </div>
+    </div>
+    <div class="cell-route">/consent</div>
+  </div>
+  <div class="cell">
+    <div class="cell-id">oath</div>
+    <div class="phone">
+      <div class="ph-status">9:41</div>
+      <div class="ph-screen">
+        <div class="ph-type">Oath</div>
+        <div class="ph-head">Name confirmation</div>
+        <p class="mini-body">Continue</p>
+        <div class="btn-bone">Continue</div>
+      </div>
+    </div>
+    <div class="cell-route">/oath</div>
+  </div>
+  <div class="cell">
+    <div class="cell-id">discretion</div>
+    <div class="phone">
+      <div class="ph-status">9:41</div>
+      <div class="ph-screen">
+        <div class="ph-type">Discretion</div>
+        <div class="ph-head">Lock screen preview + toggles</div>
+        <p class="mini-body">Continue</p>
+        <div class="btn-bone">Continue</div>
+      </div>
+    </div>
+    <div class="cell-route">/discretion</div>
+  </div>
+  <div class="cell">
+    <div class="cell-id">attribution</div>
+    <div class="phone">
+      <div class="ph-status">9:41</div>
+      <div class="ph-screen">
+        <div class="ph-type">Attribution</div>
+        <div class="ph-head">How did you hear about us?</div>
+        <p class="mini-body">Continue</p>
+        <div class="btn-bone">Continue</div>
+      </div>
+    </div>
+    <div class="cell-route">/attribution</div>
+  </div></div></section>
+
+<section class="sect"><h2>Main tabs</h2><p class="sect-desc">Five-tab Deepwater shell</p><div class="grid">
+  <div class="cell">
+    <div class="cell-id">today-pending</div>
+    <div class="phone">
+      <div class="ph-status">9:41</div>
+      <div class="ph-screen">
+        <div class="ph-type">Today · Session open</div>
+        <div class="ph-head">Day ring + training timeline + Begin/resume CTA</div>
+        <div class="mini-ring-lg"><span>12</span></div>
+        <div class="btn-aqua">Begin session</div>
+      </div>
+    </div>
+    <div class="cell-route">/(tabs)</div>
+  </div>
+  <div class="cell">
+    <div class="cell-id">today-complete</div>
+    <div class="phone">
+      <div class="ph-status">9:41</div>
+      <div class="ph-screen">
+        <div class="ph-type">Today · Sealed</div>
+        <div class="ph-head">Ember check + closure copy</div>
+        <div class="mini-sealed">✓</div>
+        
+      </div>
+    </div>
+    <div class="cell-route">/(tabs)</div>
+  </div>
+  <div class="cell">
+    <div class="cell-id">protocol</div>
+    <div class="phone">
+      <div class="ph-status">9:41</div>
+      <div class="ph-screen">
+        <div class="ph-type">Protocol</div>
+        <div class="ph-head">75-day map · 3 phases · 25-dot grid</div>
+        <p class="mini-body">Phase sheet on tap</p>
+        
+      </div>
+    </div>
+    <div class="cell-route">/(tabs)/protocol</div>
+  </div>
+  <div class="cell">
+    <div class="cell-id">steady</div>
+    <div class="phone">
+      <div class="ph-status">9:41</div>
+      <div class="ph-screen">
+        <div class="ph-type">Steady</div>
+        <div class="ph-head">Spike router + practice library + evidence locker</div>
+        <p class="mini-body">Thought Restructurer</p>
+        
+      </div>
+    </div>
+    <div class="cell-route">/(tabs)/cbst</div>
+  </div>
+  <div class="cell">
+    <div class="cell-id">baseline</div>
+    <div class="phone">
+      <div class="ph-status">9:41</div>
+      <div class="ph-screen">
+        <div class="ph-type">Baseline</div>
+        <div class="ph-head">Composure headline + control trend + ledger votes</div>
+        <p class="mini-body">Renewal evidence</p>
+        
+      </div>
+    </div>
+    <div class="cell-route">/(tabs)/progress</div>
+  </div>
+  <div class="cell">
+    <div class="cell-id">profile</div>
+    <div class="phone">
+      <div class="ph-status">9:41</div>
+      <div class="ph-screen">
+        <div class="ph-type">You</div>
+        <div class="ph-head">Vault + tools + discretion link + membership</div>
+        <p class="mini-body">Nav rows</p>
+        
+      </div>
+    </div>
+    <div class="cell-route">/(tabs)/profile</div>
+  </div></div></section>
+
+<section class="sect"><h2>Daily session</h2><p class="sect-desc">app/session.tsx — six stages</p><div class="grid">
+  <div class="cell">
+    <div class="cell-id">session-anchor</div>
+    <div class="phone">
+      <div class="ph-status">9:41</div>
+      <div class="ph-screen">
+        <div class="ph-type">Auditory Anchor</div>
+        <div class="ph-head">Audio player · phase script</div>
+        <div class="mini-scrub"></div>
+        <div class="btn-bone">Next</div>
+      </div>
+    </div>
+    <div class="cell-route">/session</div>
+  </div>
+  <div class="cell">
+    <div class="cell-id">session-conditioning</div>
+    <div class="phone">
+      <div class="ph-status">9:41</div>
+      <div class="ph-screen">
+        <div class="ph-type">Conditioning</div>
+        <div class="ph-head">Breath + pelvic floor sequence</div>
+        <p class="mini-body">Step 2</p>
+        <div class="btn-bone">Next</div>
+      </div>
+    </div>
+    <div class="cell-route">/session</div>
+  </div>
+  <div class="cell">
+    <div class="cell-id">session-score</div>
+    <div class="phone">
+      <div class="ph-status">9:41</div>
+      <div class="ph-screen">
+        <div class="ph-type">Control Score</div>
+        <div class="ph-head">1–10 self-rating of release</div>
+        <p class="mini-body">Step 3</p>
+        <div class="btn-bone">Next</div>
+      </div>
+    </div>
+    <div class="cell-route">/session</div>
+  </div>
+  <div class="cell">
+    <div class="cell-id">session-release</div>
+    <div class="phone">
+      <div class="ph-status">9:41</div>
+      <div class="ph-screen">
+        <div class="ph-type">Somatic Release</div>
+        <div class="ph-head">90s pelvic-hip stretch</div>
+        <p class="mini-body">Step 4</p>
+        <div class="btn-bone">Next</div>
+      </div>
+    </div>
+    <div class="cell-route">/session</div>
+  </div>
+  <div class="cell">
+    <div class="cell-id">session-rewire</div>
+    <div class="phone">
+      <div class="ph-status">9:41</div>
+      <div class="ph-screen">
+        <div class="ph-type">Daily Rewire</div>
+        <div class="ph-head">Cross out old script · read truth</div>
+        <p class="mini-body">Step 5</p>
+        <div class="btn-bone">Next</div>
+      </div>
+    </div>
+    <div class="cell-route">/session</div>
+  </div>
+  <div class="cell">
+    <div class="cell-id">session-checkin</div>
+    <div class="phone">
+      <div class="ph-status">9:41</div>
+      <div class="ph-screen">
+        <div class="ph-type">Check-In</div>
+        <div class="ph-head">Training items + vitality entry</div>
+        <p class="mini-body">Step 6</p>
+        <div class="btn-bone">Next</div>
+      </div>
+    </div>
+    <div class="cell-route">/session</div>
+  </div></div></section>
+
+<section class="sect"><h2>Tools & Act II</h2><p class="sect-desc">Standalone routes from profile and post-graduation</p><div class="grid">
+  <div class="cell">
+    <div class="cell-id">vitality</div>
+    <div class="phone">
+      <div class="ph-status">9:41</div>
+      <div class="ph-screen">
+        <div class="ph-type">Vitality</div>
+        <div class="ph-head">Three binary check-ins</div>
+        <p class="mini-body">From check-in or profile</p>
+        <div class="btn-bone">Open</div>
+      </div>
+    </div>
+    <div class="cell-route">/vitality</div>
+  </div>
+  <div class="cell">
+    <div class="cell-id">remeasure-intro</div>
+    <div class="phone">
+      <div class="ph-status">9:41</div>
+      <div class="ph-screen">
+        <div class="ph-type">Re-measure intro</div>
+        <div class="ph-head">Day 14 / 40 / 75 checkpoint copy</div>
+        <p class="mini-body">—</p>
+        <div class="btn-bone">Open</div>
+      </div>
+    </div>
+    <div class="cell-route">/remeasure</div>
+  </div>
+  <div class="cell">
+    <div class="cell-id">remeasure-result</div>
+    <div class="phone">
+      <div class="ph-status">9:41</div>
+      <div class="ph-screen">
+        <div class="ph-type">Re-measure result</div>
+        <div class="ph-head">Score delta vs baseline</div>
+        <p class="mini-body">—</p>
+        <div class="btn-bone">Open</div>
+      </div>
+    </div>
+    <div class="cell-route">/remeasure</div>
+  </div>
+  <div class="cell">
+    <div class="cell-id">pelvic-check</div>
+    <div class="phone">
+      <div class="ph-status">9:41</div>
+      <div class="ph-screen">
+        <div class="ph-type">Pelvic check</div>
+        <div class="ph-head">Standalone 15s release check</div>
+        <p class="mini-body">Profile tool</p>
+        <div class="btn-bone">Open</div>
+      </div>
+    </div>
+    <div class="cell-route">/pelvic-check</div>
+  </div>
+  <div class="cell">
+    <div class="cell-id">technique</div>
+    <div class="phone">
+      <div class="ph-status">9:41</div>
+      <div class="ph-screen">
+        <div class="ph-type">Technique</div>
+        <div class="ph-head">Conditioning ratio explainer</div>
+        <div class="mini-orb">Inhale</div>
+        <div class="btn-bone">Open</div>
+      </div>
+    </div>
+    <div class="cell-route">/technique</div>
+  </div>
+  <div class="cell">
+    <div class="cell-id">practice</div>
+    <div class="phone">
+      <div class="ph-status">9:41</div>
+      <div class="ph-screen">
+        <div class="ph-type">Practice player</div>
+        <div class="ph-head">Steady library item session</div>
+        <p class="mini-body">From Steady tab</p>
+        <div class="btn-aqua">Open</div>
+      </div>
+    </div>
+    <div class="cell-route">/practice</div>
+  </div>
+  <div class="cell">
+    <div class="cell-id">ledger</div>
+    <div class="phone">
+      <div class="ph-status">9:41</div>
+      <div class="ph-screen">
+        <div class="ph-type">Ledger</div>
+        <div class="ph-head">Vitality vote history</div>
+        <p class="mini-body">From Today card</p>
+        <div class="btn-bone">Open</div>
+      </div>
+    </div>
+    <div class="cell-route">/ledger</div>
+  </div>
+  <div class="cell">
+    <div class="cell-id">partner-scripts</div>
+    <div class="phone">
+      <div class="ph-status">9:41</div>
+      <div class="ph-screen">
+        <div class="ph-type">Partner scripts</div>
+        <div class="ph-head">Anxious partner de-escalator</div>
+        <p class="mini-body">Profile · Act II</p>
+        <div class="btn-bone">Open</div>
+      </div>
+    </div>
+    <div class="cell-route">/partner-scripts</div>
+  </div>
+  <div class="cell">
+    <div class="cell-id">success-vault</div>
+    <div class="phone">
+      <div class="ph-status">9:41</div>
+      <div class="ph-screen">
+        <div class="ph-type">Success vault</div>
+        <div class="ph-head">Wins archive</div>
+        <p class="mini-body">Profile</p>
+        <div class="btn-bone">Open</div>
+      </div>
+    </div>
+    <div class="cell-route">/success-vault</div>
+  </div>
+  <div class="cell">
+    <div class="cell-id">copilot</div>
+    <div class="phone">
+      <div class="ph-status">9:41</div>
+      <div class="ph-screen">
+        <div class="ph-type">Somatic Copilot</div>
+        <div class="ph-head">Scenario-matched interventions</div>
+        <p class="mini-body">Act II · Day 76+</p>
+        <div class="btn-bone">Open</div>
+      </div>
+    </div>
+    <div class="cell-route">/copilot</div>
+  </div>
+  <div class="cell">
+    <div class="cell-id">mastery</div>
+    <div class="phone">
+      <div class="ph-status">9:41</div>
+      <div class="ph-screen">
+        <div class="ph-type">Mastery suite</div>
+        <div class="ph-head">Module grid post-graduation</div>
+        <p class="mini-body">Act II</p>
+        <div class="btn-bone">Open</div>
+      </div>
+    </div>
+    <div class="cell-route">/mastery</div>
+  </div>
+  <div class="cell">
+    <div class="cell-id">lesson</div>
+    <div class="phone">
+      <div class="ph-status">9:41</div>
+      <div class="ph-screen">
+        <div class="ph-type">Lesson</div>
+        <div class="ph-head">Guided lesson reader</div>
+        <p class="mini-body">Mastery modules</p>
+        <div class="btn-bone">Open</div>
+      </div>
+    </div>
+    <div class="cell-route">/lesson/[id]</div>
+  </div></div></section>
+
+<section class="sect"><h2>Milestones & global</h2><p class="sect-desc">Overlays, ceremonies, SOS</p><div class="grid">
+  <div class="cell">
+    <div class="cell-id">graduation</div>
+    <div class="phone">
+      <div class="ph-status">9:41</div>
+      <div class="ph-screen">
+        <div class="ph-type">Graduation</div>
+        <div class="ph-head">Day 75 · both are wins ceremony</div>
+        <p class="mini-body">Act II unlock</p>
+        
+      </div>
+    </div>
+    <div class="cell-route">/(tabs) overlay</div>
+  </div>
+  <div class="cell">
+    <div class="cell-id">phase-2</div>
+    <div class="phone">
+      <div class="ph-status">9:41</div>
+      <div class="ph-screen">
+        <div class="ph-type">Phase transition 2</div>
+        <div class="ph-head">Day 26 interstitial + signature</div>
+        <p class="mini-body">Once</p>
+        
+      </div>
+    </div>
+    <div class="cell-route">overlay</div>
+  </div>
+  <div class="cell">
+    <div class="cell-id">phase-3</div>
+    <div class="phone">
+      <div class="ph-status">9:41</div>
+      <div class="ph-screen">
+        <div class="ph-type">Phase transition 3</div>
+        <div class="ph-head">Day 51 interstitial + signature</div>
+        <p class="mini-body">Once</p>
+        
+      </div>
+    </div>
+    <div class="cell-route">overlay</div>
+  </div>
+  <div class="cell">
+    <div class="cell-id">mastery-home</div>
+    <div class="phone">
+      <div class="ph-status">9:41</div>
+      <div class="ph-screen">
+        <div class="ph-type">Mastery home</div>
+        <div class="ph-head">Post-graduation dashboard</div>
+        <p class="mini-body">Act II/III</p>
+        
+      </div>
+    </div>
+    <div class="cell-route">/(tabs) overlay</div>
+  </div>
+  <div class="cell">
+    <div class="cell-id">sos</div>
+    <div class="phone">
+      <div class="ph-status">9:41</div>
+      <div class="ph-screen">
+        <div class="ph-type">SOS / Steady-me</div>
+        <div class="ph-head">Grounding + spike triage</div>
+        <p class="mini-body">Global FAB</p>
+        
+      </div>
+    </div>
+    <div class="cell-route">modal</div>
+  </div>
+  <div class="cell">
+    <div class="cell-id">day-one-orientation</div>
+    <div class="phone">
+      <div class="ph-status">9:41</div>
+      <div class="ph-screen">
+        <div class="ph-type">Day 1 orientation</div>
+        <div class="ph-head">First session coach marks</div>
+        <p class="mini-body">Once</p>
+        
+      </div>
+    </div>
+    <div class="cell-route">overlay</div>
+  </div>
+  <div class="cell">
+    <div class="cell-id">rating-in-session</div>
+    <div class="phone">
+      <div class="ph-status">9:41</div>
+      <div class="ph-screen">
+        <div class="ph-type">Rating ask</div>
+        <div class="ph-head">Post-session App Store ask</div>
+        <p class="mini-body">Conditional</p>
+        
+      </div>
+    </div>
+    <div class="cell-route">/session</div>
+  </div></div></section>
+
+<div class="import">
+  <strong>Figma import:</strong> Plugins → html.to.design → File tab → drop this HTML file.
+  Group frames by section after import. Each cell is labeled with screen <code>id</code> and route.
+  Visuals use v2.1 approved tokens; represents product structure + copy headlines from code, not pixel-perfect screenshots of the live app.
+</div>
+</body>
+</html>

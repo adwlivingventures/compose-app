@@ -9,6 +9,7 @@
     "userInterfaceStyle": "dark",
     "ios": {
       "supportsTablet": true,
+      "usesAppleSignIn": true,
       "bundleIdentifier": "com.composeprotocol.app",
       "infoPlist": {
         "UIBackgroundModes": [
@@ -76,12 +77,17 @@
       ],
       "expo-secure-store",
       "expo-status-bar",
+      "expo-apple-authentication",
       "./plugins/withSceneDelegate.js"
     ],
     "extra": {
       "router": {},
       "eas": {
         "projectId": "39a2db1f-addb-4935-9178-385cb9371262"
+      },
+      "supabase": {
+        "url": "",
+        "anonKey": ""
       }
     }
   }

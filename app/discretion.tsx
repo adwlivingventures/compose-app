@@ -325,7 +325,10 @@ export default function DiscretionScreen() {
         // external surface renders from it (never silently defaulted, §6).
         <>
           <TouchableOpacity
-            onPress={() => level && router.replace('/(tabs)')}
+            // Intro chain continues: Discretion → Account (create/sign-in,
+            // skippable) → Today. Post-purchase is the endowment moment —
+            // he just paid; the account secures what he now owns.
+            onPress={() => level && router.replace('/account?intro=1')}
             disabled={!level}
             activeOpacity={0.85}
             accessibilityRole="button"

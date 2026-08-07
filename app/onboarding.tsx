@@ -237,8 +237,11 @@ export default function Onboarding() {
     const granted = await restorePurchases();
     if (!granted) return;
     await unlockProtocol();
-    const signature = await LocalStore.getItem<{ name: string }>('@signature_data');
-    router.replace(signature?.name ? '/(tabs)' : '/oath');
+    // A restoring owner is exactly who account sign-in exists for: purchases
+    // come back from Apple, but his RECORD comes back from his account.
+    // /account routes onward to oath/(tabs) itself (and silently passes
+    // through when the backend isn't configured).
+    router.replace('/account?intro=1');
   }, [restorePurchases, unlockProtocol, router, emit]);
 
   const signAndBegin = useCallback(

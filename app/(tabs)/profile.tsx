@@ -17,6 +17,7 @@ import {
   X,
 } from 'lucide-react-native';
 import { useProtocol } from '../../context/ProtocolContext';
+import { useAuth } from '../../context/AuthContext';
 import { useRevenueCat } from '../../hooks/useRevenueCat';
 import { useDefusionLog, FALLACY_META } from '../../hooks/useDefusionLog';
 import { LocalStore } from '../../services/storage';
@@ -73,6 +74,7 @@ export default function ProfileScreen() {
   const { activeDay, completedDays, resetProtocol, devJumpToDay } = useProtocol();
   const sandboxUnlocked = activeDay >= 26 || completedDays[75]?.completed === true;
   const { hasMembership, restorePurchases, isProcessing } = useRevenueCat();
+  const { available, user, signOut, deleteAccount, lastSync } = useAuth();
   const { entries, reload } = useDefusionLog();
   const [firstName, setFirstName] = useState<string | null>(null);
 
@@ -87,6 +89,37 @@ export default function ProfileScreen() {
       reload();
     }, [reload]),
   );
+
+  const confirmSignOut = () => {
+    Alert.alert(
+      'Sign out',
+      'Your progress stays on this device and on your account. Sign back in any time to keep them in step.',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        { text: 'Sign Out', style: 'destructive', onPress: () => signOut() },
+      ],
+    );
+  };
+
+  const confirmDeleteAccount = () => {
+    Alert.alert(
+      'Delete Account',
+      'This permanently deletes your account and everything stored with it on our servers. Progress already on this device stays on this device. This cannot be undone.',
+      [
+        { text: 'Cancel', style: 'cancel' },
+        {
+          text: 'Delete Permanently',
+          style: 'destructive',
+          onPress: async () => {
+            const result = await deleteAccount();
+            if (!result.ok && result.message) {
+              Alert.alert('Could not delete account', result.message);
+            }
+          },
+        },
+      ],
+    );
+  };
 
   const confirmReset = () => {
     Alert.alert(
@@ -276,6 +309,55 @@ export default function ProfileScreen() {
 
       {/* Settings — Discretion lives here now: it's configuration, not
           content, and always was. */}
+      {/* Account — durability is the benefit (§3 corrected weighting +
+          founder directive 2026-08-06): the record follows him, not the
+          device. Hidden entirely when the backend isn't provisioned. */}
+      {available && (
+        <>
+          <Text className="text-muted text-xs font-bold uppercase tracking-widest mt-8 mb-3">
+            Account
+          </Text>
+          <View className="bg-surface border border-line rounded-2xl overflow-hidden">
+            {user ? (
+              <>
+                <View className="p-4 border-b border-line">
+                  <Text className="text-ink text-sm font-bold">{user.email ?? 'Signed in'}</Text>
+                  <Text className="text-muted text-xs mt-0.5">
+                    {lastSync === 'restored' || lastSync === 'pushed'
+                      ? 'Your record is backed up and follows your account.'
+                      : 'Signed in — your record syncs when you’re online.'}
+                  </Text>
+                </View>
+                <TouchableOpacity
+                  onPress={confirmSignOut}
+                  activeOpacity={0.7}
+                  className="p-4 flex-row items-center justify-between border-b border-line"
+                >
+                  <Text className="text-body text-sm">Sign Out</Text>
+                  <ChevronRight color="#53626E" size={16} />
+                </TouchableOpacity>
+                <TouchableOpacity
+                  onPress={confirmDeleteAccount}
+                  activeOpacity={0.7}
+                  className="p-4 flex-row items-center justify-between"
+                >
+                  <Text className="text-severity-red text-sm">Delete Account</Text>
+                  <ChevronRight color="#53626E" size={16} />
+                </TouchableOpacity>
+              </>
+            ) : (
+              <NavRow
+                icon={<ShieldCheck color={ICON_MUTED} size={18} />}
+                title="Create account or sign in"
+                subtitle="Keep your record if this phone is ever lost, broken, or replaced."
+                onPress={() => router.push('/account')}
+                last
+              />
+            )}
+          </View>
+        </>
+      )}
+
       <Text className="text-muted text-xs font-bold uppercase tracking-widest mt-8 mb-3">
         Settings
       </Text>
@@ -364,8 +446,10 @@ export default function ProfileScreen() {
         )}
       </View>
 
+      {/* Access claim, not location claim (§3 Consequence A): true whether
+          the record lives on this device alone or follows his account. */}
       <Text className="text-faint text-xs text-center mt-6 leading-4">
-        Everything on this screen is stored only on this device.
+        Your record is seen by no one but you.
       </Text>
 
     </ScrollView>

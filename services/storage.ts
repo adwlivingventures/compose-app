@@ -1,11 +1,16 @@
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import * as SecureStore from 'expo-secure-store';
+import { scheduleSync } from './sync';
 
 /**
- * LocalStore handles absolute privacy by routing storage requirements locally.
- * Critical security pieces (like purchase receipt hashes) use Keychain-level
- * encryption via expo-secure-store. Performance and calendar states utilize
- * rapid-access local AsyncStorage.
+ * LocalStore — the device cache layer. Critical security pieces (like
+ * purchase receipt hashes) use Keychain-level encryption via
+ * expo-secure-store; program state uses rapid-access AsyncStorage.
+ *
+ * Since the account era (founder directive 2026-08-06), AsyncStorage is a
+ * CACHE, not the system of record: every setItem to a synced key schedules
+ * a debounced push to the signed-in user's account row (services/sync.ts).
+ * Signed-out or offline, writes behave exactly as they always did.
  */
 export const LocalStore = {
   /**
@@ -52,6 +57,9 @@ export const LocalStore = {
     try {
       const jsonValue = JSON.stringify(data);
       await AsyncStorage.setItem(key, jsonValue);
+      // Account sync: whitelisted keys arm a debounced background push.
+      // No-op for local-only keys, signed-out users, or unconfigured backend.
+      scheduleSync(key);
     } catch (e) {
       console.error('AsyncStorage write operation failed', e);
     }
