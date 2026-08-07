@@ -86,8 +86,8 @@
         "projectId": "39a2db1f-addb-4935-9178-385cb9371262"
       },
       "supabase": {
-        "url": "",
-        "anonKey": ""
+        "url": "https://sleqrqltssuwxdmlqrgs.supabase.co",
+        "anonKey": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InNsZXFycWx0c3N1d3hkbWxxcmdzIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODYwNjMxNTIsImV4cCI6MjEwMTYzOTE1Mn0.tBEZ3rfPAT6NxYjrNLxZPOuAxXhu_yDqoI0SmwA3ZKo"
       }
     }
   }
